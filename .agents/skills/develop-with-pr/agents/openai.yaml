@@ -1,0 +1,4 @@
+interface:
+  display_name: "Develop with PR"
+  short_description: "Run documented feature branches through verified pull requests"
+  default_prompt: "Use $develop-with-pr to implement this development request on a documented feature branch and open a verified PR."
