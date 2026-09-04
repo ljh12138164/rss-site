@@ -1,17 +1,17 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { TooltipProvider } from '../../../components/ui/tooltip'
 import type { FeedResult } from '../../../lib/hot-feed'
-import { JuejinView } from './page'
+import { getTechnologySource } from '../../../lib/technology-sources'
+import { TechnologySourceView } from './page'
 
-describe('JuejinView', () => {
-  it('renders the full ranked feed and breadcrumb context', () => {
+describe('TechnologySourceView', () => {
+  it('renders the full source ranking and breadcrumb context', () => {
     const feed: FeedResult = {
       state: 'ready',
       items: Array.from({ length: 7 }, (_, index) => ({
         sourceKey: `item-${index + 1}`,
         title: `热点 ${index + 1}`,
-        url: `https://juejin.cn/post/${index + 1}`,
+        url: `https://example.com/article/${index + 1}`,
         summary: null,
         author: null,
         publishedAt: null,
@@ -24,15 +24,14 @@ describe('JuejinView', () => {
     }
 
     const html = renderToStaticMarkup(
-      <TooltipProvider>
-        <JuejinView feed={feed} />
-      </TooltipProvider>
+      <TechnologySourceView feed={feed} source={getTechnologySource('github')} />
     )
 
     expect(html).toContain('首页')
     expect(html).toContain('科技')
-    expect(html).toContain('掘金热榜')
+    expect(html).toContain('GitHub Trending 热榜')
+    expect(html).toContain('aria-current="page"')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
-    expect(html).not.toContain('href="https://juejin.cn/post/')
+    expect(html).not.toContain('href="https://example.com/article/')
   })
 })

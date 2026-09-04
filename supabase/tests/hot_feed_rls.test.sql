@@ -1,5 +1,5 @@
 begin;
-select plan(14);
+select plan(18);
 
 select has_table('public', 'hot_items', 'hot_items exists');
 select has_table('public', 'source_status', 'source_status exists');
@@ -54,6 +54,41 @@ select throws_ok(
   '42501',
   null,
   'authenticated cannot read ingestion runs'
+);
+
+reset role;
+select lives_ok(
+  $$insert into public.ingestion_runs
+    (id, source, status, item_count, started_at, finished_at)
+    values
+    ('00000000-0000-0000-0000-000000000001', 'github', 'succeeded', 1, now(), now())$$,
+  'a confirmed technology source can create an ingestion run'
+);
+select lives_ok(
+  $$insert into public.hot_items
+    (section, source, source_key, title, url, position, batch_id)
+    values
+    ('technology', 'github', 'external-story', 'external story', 'https://example.com/story', 1,
+     '00000000-0000-0000-0000-000000000001')$$,
+  'technology items can link to an external web host'
+);
+select throws_ok(
+  $$insert into public.ingestion_runs
+    (source, status, item_count, started_at, finished_at)
+    values ('product-hunt', 'succeeded', 0, now(), now())$$,
+  '23514',
+  null,
+  'unknown sources are rejected'
+);
+select throws_ok(
+  $$insert into public.hot_items
+    (section, source, source_key, title, url, position, batch_id)
+    values
+    ('technology', 'github', 'unsafe-story', 'unsafe story', 'ftp://example.com/story', 2,
+     '00000000-0000-0000-0000-000000000001')$$,
+  '23514',
+  null,
+  'non-web URLs are rejected'
 );
 
 select * from finish();

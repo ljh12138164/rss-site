@@ -1,5 +1,3 @@
-import { Badge } from './ui/badge'
-
 const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
   timeZone: 'Asia/Shanghai',
   year: 'numeric',
@@ -19,9 +17,9 @@ export function FeedStatus({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-      <Badge className="rounded-sm bg-accent text-accent-foreground" variant="secondary">
+      <span className="inline-flex min-h-6 items-center bg-accent px-2 font-medium text-accent-foreground">
         {itemCount} 条
-      </Badge>
+      </span>
       <span>
         更新于{' '}
         <time dateTime={lastSuccessAt.toISOString()}>{dateFormatter.format(lastSuccessAt)}</time>

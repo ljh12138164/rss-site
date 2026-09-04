@@ -1,6 +1,6 @@
 import Link from 'next/link'
+import { actionStyles } from '../components/action-styles'
 import { SiteShell } from '../components/site-shell'
-import { Button } from '../components/ui/button'
 
 export default function NotFound() {
   return (
@@ -10,9 +10,9 @@ export default function NotFound() {
       <p className="mt-4 text-sm leading-6 text-muted-foreground">
         回到首页，继续沿着已有的信号阅读。
       </p>
-      <Button asChild className="mt-7" variant="outline">
-        <Link href="/">返回首页</Link>
-      </Button>
+      <Link className={actionStyles('outline', 'default', 'mt-7')} href="/">
+        返回首页
+      </Link>
     </SiteShell>
   )
 }

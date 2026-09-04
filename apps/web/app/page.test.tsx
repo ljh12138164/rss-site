@@ -1,41 +1,45 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { TooltipProvider } from '../components/ui/tooltip'
-import type { FeedResult } from '../lib/hot-feed'
+import type { FeedResult, TechnologyFeeds } from '../lib/hot-feed'
+import { technologySources } from '../lib/technology-sources'
 import { HomeView } from './page'
 
-const readyFeed: FeedResult = {
-  state: 'ready',
-  items: Array.from({ length: 5 }, (_, index) => ({
-    sourceKey: `item-${index + 1}`,
-    title: `热点 ${index + 1}`,
-    url: `https://juejin.cn/post/${index + 1}`,
-    summary: null,
-    author: null,
-    publishedAt: null,
-    position: index + 1
-  })),
-  status: {
-    itemCount: 28,
-    lastSuccessAt: new Date('2026-09-04T01:00:00.000Z')
+function readyFeed(source: string): FeedResult {
+  return {
+    state: 'ready',
+    items: [
+      {
+        sourceKey: `${source}-1`,
+        title: `${source} 热点`,
+        url: `https://example.com/${source}/1`,
+        summary: null,
+        author: null,
+        publishedAt: null,
+        position: 1
+      }
+    ],
+    status: {
+      itemCount: 20,
+      lastSuccessAt: new Date('2026-09-04T01:00:00.000Z')
+    }
   }
 }
 
-describe('HomeView', () => {
-  it('introduces the site and links the technology preview to the Juejin route', () => {
-    const html = renderToStaticMarkup(
-      <TooltipProvider>
-        <HomeView feed={readyFeed} />
-      </TooltipProvider>
-    )
+const feeds = Object.fromEntries(
+  technologySources.map((source) => [source.id, readyFeed(source.id)])
+) as TechnologyFeeds
 
-    expect(html).toMatch(/<h1[^>]*>热点跟踪<\/h1>/)
-    expect(html).not.toContain('少一点噪音')
-    expect(html).toContain('科技')
-    expect(html).toContain('掘金')
-    expect(html).toContain('28 条')
-    expect(html).toContain('href="/technology/juejin"')
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(5)
-    expect(html).not.toContain('href="https://juejin.cn/post/')
+describe('HomeView', () => {
+  it('shows one independent signal from every technology source', () => {
+    const html = renderToStaticMarkup(<HomeView feeds={feeds} />)
+
+    expect(html).toContain('从六路信号里')
+    expect(html).toContain('每个来源保持自己的顺序')
+    for (const source of technologySources) {
+      expect(html).toContain(source.name)
+      expect(html).toContain(`href="/technology/${source.id}"`)
+    }
+    expect(html.match(/href="\/out\?url=/g)).toHaveLength(6)
+    expect(html).toContain('href="/technology"')
   })
 })

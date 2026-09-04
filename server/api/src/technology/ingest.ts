@@ -1,11 +1,11 @@
-import type { JuejinFeedItem } from './feed.js'
-import { parseJuejinFeed } from './feed.js'
+import { parseTechnologyFeed, type TechnologyFeedItem } from './feed.js'
+import type { TechnologySource } from './sources.js'
 
 export interface SuccessfulIngestion {
   batchId: string
   startedAt: Date
   finishedAt: Date
-  items: JuejinFeedItem[]
+  items: TechnologyFeedItem[]
 }
 
 export interface FailedIngestion {
@@ -15,27 +15,29 @@ export interface FailedIngestion {
   errorMessage: string
 }
 
-export interface JuejinStore {
+export interface TechnologyStore {
   replaceRanking(input: SuccessfulIngestion): Promise<void>
   recordFailure(input: FailedIngestion): Promise<void>
 }
 
 interface IngestionDependencies {
   fetchFeed(): Promise<string>
-  store: JuejinStore
+  store: TechnologyStore
 }
 
 function errorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message.slice(0, 500)
-  return 'Unknown ingestion error'
+  return error instanceof Error ? error.message.slice(0, 500) : 'Unknown ingestion error'
 }
 
-export async function ingestJuejin(deps: IngestionDependencies, now = new Date()) {
+export async function ingestTechnology(
+  source: TechnologySource,
+  deps: IngestionDependencies,
+  now = new Date()
+) {
   const batchId = crypto.randomUUID()
 
   try {
-    const xml = await deps.fetchFeed()
-    const items = parseJuejinFeed(xml)
+    const items = parseTechnologyFeed(await deps.fetchFeed(), source.name)
     await deps.store.replaceRanking({ batchId, startedAt: now, finishedAt: now, items })
     return { batchId, itemCount: items.length }
   } catch (error) {

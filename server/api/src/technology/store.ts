@@ -1,19 +1,22 @@
 import { and, eq, ne } from 'drizzle-orm'
 import type { Database } from '../db/client.js'
 import { hotItems, ingestionRuns, sourceStatus } from '../db/schema.js'
-import type { FailedIngestion, JuejinStore, SuccessfulIngestion } from './ingest.js'
+import type { FailedIngestion, SuccessfulIngestion, TechnologyStore } from './ingest.js'
+import type { TechnologySourceId } from './sources.js'
 
-const SOURCE = 'juejin'
 const SECTION = 'technology'
 
-export class DrizzleJuejinStore implements JuejinStore {
-  constructor(private readonly db: Database) {}
+export class DrizzleTechnologyStore implements TechnologyStore {
+  constructor(
+    private readonly db: Database,
+    private readonly source: TechnologySourceId
+  ) {}
 
   async replaceRanking(input: SuccessfulIngestion) {
     await this.db.transaction(async (tx) => {
       await tx.insert(ingestionRuns).values({
         id: input.batchId,
-        source: SOURCE,
+        source: this.source,
         status: 'succeeded',
         itemCount: input.items.length,
         startedAt: input.startedAt,
@@ -25,7 +28,7 @@ export class DrizzleJuejinStore implements JuejinStore {
         .values(
           input.items.map((item) => ({
             section: SECTION,
-            source: SOURCE,
+            source: this.source,
             sourceKey: item.sourceKey,
             title: item.title,
             url: item.url,
@@ -53,17 +56,17 @@ export class DrizzleJuejinStore implements JuejinStore {
             lastSeenAt: input.finishedAt,
             batchId: input.batchId
           })
-          .where(and(eq(hotItems.source, SOURCE), eq(hotItems.sourceKey, item.sourceKey)))
+          .where(and(eq(hotItems.source, this.source), eq(hotItems.sourceKey, item.sourceKey)))
       }
 
       await tx
         .delete(hotItems)
-        .where(and(eq(hotItems.source, SOURCE), ne(hotItems.batchId, input.batchId)))
+        .where(and(eq(hotItems.source, this.source), ne(hotItems.batchId, input.batchId)))
 
       await tx
         .insert(sourceStatus)
         .values({
-          source: SOURCE,
+          source: this.source,
           section: SECTION,
           itemCount: input.items.length,
           lastSuccessAt: input.finishedAt,
@@ -83,7 +86,7 @@ export class DrizzleJuejinStore implements JuejinStore {
   async recordFailure(input: FailedIngestion) {
     await this.db.insert(ingestionRuns).values({
       id: input.batchId,
-      source: SOURCE,
+      source: this.source,
       status: 'failed',
       itemCount: 0,
       errorMessage: input.errorMessage,

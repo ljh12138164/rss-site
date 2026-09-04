@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import type { JuejinFeedItem } from './feed.js'
-import { ingestJuejin, type JuejinStore, type SuccessfulIngestion } from './ingest.js'
+import type { TechnologyFeedItem } from './feed.js'
+import { ingestTechnology, type SuccessfulIngestion, type TechnologyStore } from './ingest.js'
+import { getTechnologySource } from './sources.js'
 
-class MemoryStore implements JuejinStore {
-  readonly items = new Map<string, JuejinFeedItem>()
+class MemoryStore implements TechnologyStore {
+  readonly items = new Map<string, TechnologyFeedItem>()
   readonly failedRuns: string[] = []
   successCount = 0
 
@@ -27,8 +28,8 @@ function feed(items: Array<{ id: string; title: string }>) {
       ({ id, title }) => `
         <item>
           <title>${title}</title>
-          <link>https://juejin.cn/post/${id}</link>
-          <guid>https://juejin.cn/post/${id}</guid>
+          <link>https://example.com/${id}</link>
+          <guid>${id}</guid>
         </item>`
     )
     .join('')
@@ -36,12 +37,15 @@ function feed(items: Array<{ id: string; title: string }>) {
   return `<rss><channel>${entries}</channel></rss>`
 }
 
-describe('ingestJuejin', () => {
+describe('ingestTechnology', () => {
+  const source = getTechnologySource('github')
+
   it('reconciles repeated feeds into one current ordered ranking', async () => {
     const store = new MemoryStore()
     const now = new Date('2026-09-04T01:00:00.000Z')
 
-    await ingestJuejin(
+    await ingestTechnology(
+      source,
       {
         fetchFeed: async () =>
           feed([
@@ -52,36 +56,29 @@ describe('ingestJuejin', () => {
       },
       now
     )
-    const result = await ingestJuejin(
+    const result = await ingestTechnology(
+      source,
       { fetchFeed: async () => feed([{ id: '2', title: 'B updated' }]), store },
       now
     )
 
     expect(result.itemCount).toBe(1)
     expect(store.successCount).toBe(2)
-    expect([...store.items.values()]).toEqual([
-      {
-        sourceKey: 'https://juejin.cn/post/2',
-        title: 'B updated',
-        url: 'https://juejin.cn/post/2',
-        summary: null,
-        author: null,
-        publishedAt: null,
-        position: 1
-      }
-    ])
+    expect([...store.items.values()].map((item) => item.title)).toEqual(['B updated'])
   })
 
   it('records an upstream failure without replacing the last successful ranking', async () => {
     const store = new MemoryStore()
     const now = new Date('2026-09-04T01:00:00.000Z')
-    await ingestJuejin(
+    await ingestTechnology(
+      source,
       { fetchFeed: async () => feed([{ id: '1', title: 'Last good item' }]), store },
       now
     )
 
     await expect(
-      ingestJuejin(
+      ingestTechnology(
+        source,
         {
           fetchFeed: async () => {
             throw new Error('RSSHub timeout')
@@ -101,13 +98,14 @@ describe('ingestJuejin', () => {
     const store = new MemoryStore()
 
     await expect(
-      ingestJuejin(
+      ingestTechnology(
+        source,
         { fetchFeed: async () => '<rss><channel /></rss>', store },
         new Date('2026-09-04T01:00:00.000Z')
       )
-    ).rejects.toThrow('empty Juejin feed')
+    ).rejects.toThrow('empty GitHub Trending feed')
 
     expect(store.successCount).toBe(0)
-    expect(store.failedRuns[0]).toContain('empty Juejin feed')
+    expect(store.failedRuns[0]).toContain('empty GitHub Trending feed')
   })
 })

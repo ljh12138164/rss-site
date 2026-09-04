@@ -24,17 +24,41 @@ describe('Hono ingestion API', () => {
       })
       const headers = authorization ? { Authorization: authorization } : undefined
 
-      const response = await app.request('/cron/juejin', { method: 'POST', headers })
+      const response = await app.request('/cron/technology/github', { method: 'POST', headers })
 
       expect(response.status).toBe(401)
       expect(await response.json()).toEqual({ error: 'Unauthorized' })
     }
   )
 
-  it('runs an authenticated ingestion', async () => {
+  it('runs an authenticated ingestion for the requested source', async () => {
+    const sources: string[] = []
     const app = configureApp(new Hono(), {
       cronSecret: 'secret',
-      runIngestion: async () => ({ batchId: 'batch-1', itemCount: 30 })
+      runIngestion: async (source) => {
+        sources.push(source)
+        return { batchId: 'batch-1', itemCount: 30 }
+      }
+    })
+
+    const response = await app.request('/cron/technology/github', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer secret' }
+    })
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ batchId: 'batch-1', itemCount: 30 })
+    expect(sources).toEqual(['github'])
+  })
+
+  it('keeps the legacy Juejin endpoint during the Cron transition', async () => {
+    const sources: string[] = []
+    const app = configureApp(new Hono(), {
+      cronSecret: 'secret',
+      runIngestion: async (source) => {
+        sources.push(source)
+        return { batchId: 'batch-1', itemCount: 12 }
+      }
     })
 
     const response = await app.request('/cron/juejin', {
@@ -43,7 +67,22 @@ describe('Hono ingestion API', () => {
     })
 
     expect(response.status).toBe(200)
-    expect(await response.json()).toEqual({ batchId: 'batch-1', itemCount: 30 })
+    expect(sources).toEqual(['juejin'])
+  })
+
+  it('rejects unknown sources after authentication', async () => {
+    const app = configureApp(new Hono(), {
+      cronSecret: 'secret',
+      runIngestion: async () => ({ batchId: 'batch-1', itemCount: 0 })
+    })
+
+    const response = await app.request('/cron/technology/product-hunt', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer secret' }
+    })
+
+    expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({ error: 'Unknown technology source' })
   })
 
   it('returns a stable upstream error without leaking internals', async () => {
@@ -60,6 +99,6 @@ describe('Hono ingestion API', () => {
     })
 
     expect(response.status).toBe(502)
-    expect(await response.json()).toEqual({ error: 'Juejin ingestion failed' })
+    expect(await response.json()).toEqual({ error: 'Technology ingestion failed' })
   })
 })

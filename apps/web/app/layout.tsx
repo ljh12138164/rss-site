@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { ReactAriaProvider } from '../components/react-aria-provider'
 import { ThemeProvider } from '../components/theme-provider'
-import { TooltipProvider } from '../components/ui/tooltip'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           disableTransitionOnChange
           enableSystem
         >
-          <TooltipProvider>{children}</TooltipProvider>
+          <ReactAriaProvider>{children}</ReactAriaProvider>
         </ThemeProvider>
       </body>
     </html>

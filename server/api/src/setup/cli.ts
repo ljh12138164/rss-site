@@ -1,7 +1,7 @@
 import { stdin, stdout } from 'node:process'
 import { createInterface } from 'node:readline/promises'
 import postgres from 'postgres'
-import { normalizeIngestUrl, setupJuejinCron } from './cron.js'
+import { normalizeIngestUrl, setupTechnologyCron } from './cron.js'
 import { PostgresCronRepository } from './postgres-repository.js'
 
 function requiredEnvironment(name: string): string {
@@ -25,13 +25,13 @@ async function main() {
   const sql = postgres(databaseUrl, { prepare: false, max: 1, connect_timeout: 10 })
   try {
     stdout.write('正在配置 Supabase Vault、五小时采集和 30 天历史清理…\n')
-    const result = await setupJuejinCron({
+    const result = await setupTechnologyCron({
       apiUrl,
       cronSecret,
       repository: new PostgresCronRepository(sql)
     })
 
-    stdout.write(`配置成功，测试采集写入 ${result.itemCount} 条热点。\n`)
+    stdout.write(`配置成功，六个来源已错峰调度；测试采集写入 ${result.itemCount} 条热点。\n`)
   } finally {
     await sql.end()
   }
