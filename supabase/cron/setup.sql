@@ -1,4 +1,4 @@
--- Run after storing these secrets in Vault:
+-- Manual fallback for `pnpm setup:cron`. Run after storing these secrets in Vault:
 -- select vault.create_secret('https://your-api.vercel.app/cron/juejin', 'juejin_ingest_url');
 -- select vault.create_secret('replace-with-a-random-secret', 'juejin_cron_secret');
 

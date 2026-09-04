@@ -120,18 +120,17 @@ simple-git-hooks 的 pre-commit 钩子；提交前会格式化并校验暂存文
 1. 应用 `supabase/migrations` 中的迁移。
 2. 可用本地 Docker 时运行 `pnpm dlx supabase test db` 验证 RLS。
 3. 部署 API，并为其配置 `DATABASE_URL` 与 `CRON_SECRET`。
-4. 在 Supabase Vault 中保存 API URL 和相同的 Cron 密钥：
+4. 确认 `server/api/.env` 使用相同的 `DATABASE_URL` 和 `CRON_SECRET`，然后运行：
 
-   ```sql
-   select vault.create_secret(
-     'https://your-api.vercel.app/cron/juejin',
-     'juejin_ingest_url'
-   );
-   select vault.create_secret('replace-with-a-random-secret', 'juejin_cron_secret');
+   ```bash
+   pnpm setup:cron
    ```
 
-5. 执行 `supabase/cron/setup.sql`。计划表达式为 `0 */5 * * *`，即 UTC 每五小时触发一次。
-6. 手动发起一次受保护请求，确认 `hot_items` 与 `source_status` 已有数据后再发布前端。
+5. 按提示输入部署后的 Hono API 域名或完整的 `/cron/juejin` 地址。
+
+该命令会幂等创建或更新 Supabase Vault 中的 API 地址和 Cron 密钥，启用 `pg_cron` 与
+`pg_net`，安装 UTC 每五小时运行一次的任务，并立即发起一次测试采集。重复运行会更新
+已有配置，不会创建同名任务。`supabase/cron/setup.sql` 保留为手动配置和审计用的备用方案。
 
 RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客户端不能写数据，也不能读取
 `ingestion_runs` 中的内部错误。
