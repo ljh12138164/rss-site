@@ -12,8 +12,8 @@ export function resolveOutboundDestination(url: string) {
   }
 }
 
-export type OutboundReturnPath = '/technology' | '/news'
+export type OutboundReturnPath = '/technology' | '/news' | '/ai'
 
 export function resolveOutboundReturnPath(value: string): OutboundReturnPath {
-  return value === '/news' ? '/news' : '/technology'
+  return value === '/news' || value === '/ai' ? value : '/technology'
 }

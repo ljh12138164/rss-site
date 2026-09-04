@@ -24,4 +24,12 @@ describe('technology source proxy', () => {
     expect(known.headers.get('x-middleware-next')).toBe('1')
     expect(wrongSection.status).toBe(404)
   })
+
+  it('accepts only confirmed AI sources on AI routes', () => {
+    const known = proxy(new NextRequest('https://example.com/ai/openai'))
+    const wrongSection = proxy(new NextRequest('https://example.com/ai/github'))
+
+    expect(known.headers.get('x-middleware-next')).toBe('1')
+    expect(wrongSection.status).toBe(404)
+  })
 })

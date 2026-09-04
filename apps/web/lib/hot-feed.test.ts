@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
   type FeedCollectionQuery,
+  getAiFeed,
+  getAiFeeds,
   getNewsFeed,
   getNewsFeeds,
   getTechnologyFeed,
@@ -149,6 +151,34 @@ describe('news feeds', () => {
 
     expect(feeds.xinhua.state).toBe('ready')
     expect(feeds.cctv).toEqual({ state: 'empty' })
+    expect(feed.state).toBe('ready')
+  })
+})
+
+describe('AI feeds', () => {
+  const aiQuery: FeedCollectionQuery = async () => ({
+    items: [
+      {
+        source: 'openai',
+        source_key: 'openai-1',
+        title: 'OpenAI 更新',
+        url: 'https://openai.com/index/update',
+        summary: null,
+        author: null,
+        published_at: null,
+        position: 1
+      }
+    ],
+    statuses: [{ source: 'openai', item_count: 1, last_success_at: '2026-09-05T02:00:00.000Z' }],
+    error: null
+  })
+
+  it('builds independent AI collection and detail results', async () => {
+    const feeds = await getAiFeeds(1, aiQuery)
+    const feed = await getAiFeed('openai', undefined, aiQuery)
+
+    expect(feeds.openai.state).toBe('ready')
+    expect(feeds.anthropic).toEqual({ state: 'empty' })
     expect(feed.state).toBe('ready')
   })
 })

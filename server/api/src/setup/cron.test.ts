@@ -12,6 +12,7 @@ describe('normalizeIngestUrl', () => {
     ['https://api.example.com/cron/juejin/', 'https://api.example.com/cron/signals'],
     ['https://api.example.com/cron/technology/', 'https://api.example.com/cron/signals'],
     ['https://api.example.com/cron/news/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/ai/', 'https://api.example.com/cron/signals'],
     ['https://api.example.com/cron/signals/', 'https://api.example.com/cron/signals']
   ])('normalizes %s', (value, expected) => {
     expect(normalizeIngestUrl(value)).toBe(expected)
@@ -26,7 +27,7 @@ describe('normalizeIngestUrl', () => {
 })
 
 describe('setupSignalCron', () => {
-  it('upserts shared secrets, staggers twelve sources, retains history, and verifies Juejin', async () => {
+  it('upserts shared secrets, staggers eighteen sources, retains history, and verifies Juejin', async () => {
     const calls: string[] = []
     const scheduledJobs: Array<{ name: string; schedule: string; command: string }> = []
     const repository: CronRepository = {
@@ -53,19 +54,21 @@ describe('setupSignalCron', () => {
       'secret:signal_cron_secret:test-secret',
       'request:https://api.example.com/cron/signals/juejin:Bearer test-secret'
     ])
-    expect(scheduledJobs).toHaveLength(13)
-    expect(scheduledJobs.slice(0, 12).map(({ name, schedule }) => ({ name, schedule }))).toEqual(
+    expect(scheduledJobs).toHaveLength(19)
+    expect(scheduledJobs.slice(0, 18).map(({ name, schedule }) => ({ name, schedule }))).toEqual(
       SIGNAL_CRON_JOBS.map(({ name, schedule }) => ({ name, schedule }))
     )
     expect(scheduledJobs[0]?.command).toContain("'/github'")
     expect(scheduledJobs[5]?.command).toContain("'/36kr'")
     expect(scheduledJobs[6]?.command).toContain("'/xinhua'")
     expect(scheduledJobs[11]?.command).toContain("'/baidu'")
-    expect(scheduledJobs[12]).toMatchObject({
+    expect(scheduledJobs[12]?.command).toContain("'/openai'")
+    expect(scheduledJobs[17]?.command).toContain("'/qwen'")
+    expect(scheduledJobs[18]).toMatchObject({
       name: 'ingestion-runs-retention-daily',
       schedule: '30 3 * * *'
     })
-    expect(scheduledJobs[12]?.command).toContain("interval '30 days'")
+    expect(scheduledJobs[18]?.command).toContain("interval '30 days'")
     expect(result).toEqual({ batchId: 'batch-1', itemCount: 12 })
   })
 

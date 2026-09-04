@@ -3,7 +3,8 @@ alter table public.ingestion_runs
   add constraint ingestion_runs_source_check check (
     source in (
       'github', 'hacker-news', 'juejin', 'v2ex', 'ithome', '36kr',
-      'xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu'
+      'xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu',
+      'openai', 'anthropic', 'deepseek', 'glm', 'google-ai', 'qwen'
     )
   );
 
@@ -14,6 +15,8 @@ alter table public.source_status
     (section = 'technology' and source in ('github', 'hacker-news', 'juejin', 'v2ex', 'ithome', '36kr'))
     or
     (section = 'news' and source in ('xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu'))
+    or
+    (section = 'ai' and source in ('openai', 'anthropic', 'deepseek', 'glm', 'google-ai', 'qwen'))
   );
 
 alter table public.hot_items
@@ -24,5 +27,7 @@ alter table public.hot_items
     (section = 'technology' and source in ('github', 'hacker-news', 'juejin', 'v2ex', 'ithome', '36kr'))
     or
     (section = 'news' and source in ('xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu'))
+    or
+    (section = 'ai' and source in ('openai', 'anthropic', 'deepseek', 'glm', 'google-ai', 'qwen'))
   ),
   add constraint hot_items_url_check check (url ~ '^https?://');

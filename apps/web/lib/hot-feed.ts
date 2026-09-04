@@ -1,5 +1,7 @@
 import { getPublicSupabaseClient } from './supabase'
 import {
+  type AiSourceId,
+  aiSources,
   type NewsSourceId,
   newsSources,
   type SignalSourceId,
@@ -56,9 +58,10 @@ export type FeedResult =
 
 export type TechnologyFeeds = Record<TechnologySourceId, FeedResult>
 export type NewsFeeds = Record<NewsSourceId, FeedResult>
+export type AiFeeds = Record<AiSourceId, FeedResult>
 
 async function querySectionFeeds(
-  section: 'technology' | 'news',
+  section: 'technology' | 'news' | 'ai',
   sourceIds: SignalSourceId[]
 ): Promise<FeedCollectionQueryResult> {
   try {
@@ -96,6 +99,12 @@ const queryNewsFeeds = () =>
   querySectionFeeds(
     'news',
     newsSources.map((source) => source.id)
+  )
+
+const queryAiFeeds = () =>
+  querySectionFeeds(
+    'ai',
+    aiSources.map((source) => source.id)
   )
 
 function buildFeed(
@@ -167,6 +176,25 @@ export async function getNewsFeed(
   source: NewsSourceId,
   limit?: number,
   query: FeedCollectionQuery = queryNewsFeeds
+): Promise<FeedResult> {
+  return buildFeed(source, await query(), limit)
+}
+
+export async function getAiFeeds(
+  limitPerSource?: number,
+  query: FeedCollectionQuery = queryAiFeeds
+): Promise<AiFeeds> {
+  const result = await query()
+
+  return Object.fromEntries(
+    aiSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
+  ) as AiFeeds
+}
+
+export async function getAiFeed(
+  source: AiSourceId,
+  limit?: number,
+  query: FeedCollectionQuery = queryAiFeeds
 ): Promise<FeedResult> {
   return buildFeed(source, await query(), limit)
 }

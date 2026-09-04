@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { createDatabase } from './db/client.js'
 import { configureApp } from './http-app.js'
 import { ingestSignal } from './technology/ingest.js'
-import { getSignalSource } from './technology/sources.js'
+import { getSignalSource, resolveSignalFeedUrl } from './technology/sources.js'
 import { DrizzleSignalStore } from './technology/store.js'
 
 function requiredEnvironment(name: string): string {
@@ -14,12 +14,12 @@ function requiredEnvironment(name: string): string {
 const database = createDatabase(requiredEnvironment('DATABASE_URL'))
 const rsshubBaseUrl = (process.env.RSSHUB_BASE_URL ?? 'https://rsshub.app').replace(/\/$/, '')
 
-async function fetchSignalFeed(path: string) {
-  const response = await fetch(`${rsshubBaseUrl}${path}`, {
+async function fetchSignalFeed(url: string) {
+  const response = await fetch(url, {
     signal: AbortSignal.timeout(30_000),
     headers: { 'User-Agent': 'rss-site/1.0 (+https://github.com/ljh12138164/rss-site)' }
   })
-  if (!response.ok) throw new Error(`RSSHub responded with ${response.status}`)
+  if (!response.ok) throw new Error(`Signal feed responded with ${response.status}`)
   return response.text()
 }
 
@@ -28,7 +28,7 @@ export default configureApp(new Hono(), {
   runIngestion: (sourceId) => {
     const source = getSignalSource(sourceId)
     return ingestSignal(source, {
-      fetchFeed: () => fetchSignalFeed(source.rsshubPath),
+      fetchFeed: () => fetchSignalFeed(resolveSignalFeedUrl(source, rsshubBaseUrl)),
       store: new DrizzleSignalStore(database, source.id, source.section)
     })
   }

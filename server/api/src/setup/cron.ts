@@ -32,7 +32,25 @@ export const SIGNAL_CRON_JOBS: ReadonlyArray<{
     name: 'jiemian-news-feed-every-five-hours',
     schedule: '40 1,6,11,16,21 * * *'
   },
-  { source: 'baidu', name: 'baidu-hot-feed-every-five-hours', schedule: '50 1,6,11,16,21 * * *' }
+  { source: 'baidu', name: 'baidu-hot-feed-every-five-hours', schedule: '50 1,6,11,16,21 * * *' },
+  { source: 'openai', name: 'openai-news-feed-every-five-hours', schedule: '0 2,7,12,17,22 * * *' },
+  {
+    source: 'anthropic',
+    name: 'anthropic-news-feed-every-five-hours',
+    schedule: '10 2,7,12,17,22 * * *'
+  },
+  {
+    source: 'deepseek',
+    name: 'deepseek-news-feed-every-five-hours',
+    schedule: '20 2,7,12,17,22 * * *'
+  },
+  { source: 'glm', name: 'glm-release-feed-every-five-hours', schedule: '30 2,7,12,17,22 * * *' },
+  {
+    source: 'google-ai',
+    name: 'google-ai-feed-every-five-hours',
+    schedule: '40 2,7,12,17,22 * * *'
+  },
+  { source: 'qwen', name: 'qwen-blog-feed-every-five-hours', schedule: '50 2,7,12,17,22 * * *' }
 ]
 
 export const RETENTION_JOB_NAME = 'ingestion-runs-retention-daily'
@@ -104,7 +122,9 @@ export function normalizeIngestUrl(value: string): string {
       url.password ||
       url.search ||
       url.hash ||
-      !['', '/cron/juejin', '/cron/technology', '/cron/news', '/cron/signals'].includes(path)
+      !['', '/cron/juejin', '/cron/technology', '/cron/news', '/cron/ai', '/cron/signals'].includes(
+        path
+      )
     ) {
       throw new Error()
     }

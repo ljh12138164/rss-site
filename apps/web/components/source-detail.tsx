@@ -19,7 +19,7 @@ export function SourceDetailView({
   source: SignalSource
   feed: FeedResult
   sources: readonly SignalSource[]
-  basePath: '/technology' | '/news'
+  basePath: '/technology' | '/news' | '/ai'
   sectionName: string
   eyebrow: string
   titleSuffix: string

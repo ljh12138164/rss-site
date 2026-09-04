@@ -1,14 +1,15 @@
 # 热点更新
 
-一个通过 RSSHub 汇总热点的轻量阅读站。科技区包含 GitHub Trending、Hacker News、掘金、V2EX、
-IT之家和 36氪；国内新闻区包含新华社、央视国内、中新网、澎湃热榜、界面中国和百度热搜。首页展示
-十二路摘要，`/technology` 与 `/news` 展示分区总览，各自的 `[source]` 路由展示独立完整列表。数据约
-每五小时由 Hono 服务采集一次，并以 Supabase 作为前后端之间唯一的数据中转。
+一个通过 RSSHub 与官方 RSS 汇总热点的轻量阅读站。科技区包含 GitHub Trending、Hacker News、掘金、
+V2EX、IT之家和 36氪；国内新闻区包含新华社、央视国内、中新网、澎湃热榜、界面中国和百度热搜；AI
+平台区包含 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 和 Qwen。首页展示十八路摘要，
+`/technology`、`/news` 与 `/ai` 展示分区总览，各自的 `[source]` 路由展示独立完整列表。数据约每五小时
+由 Hono 服务采集一次，并以 Supabase 作为前后端之间唯一的数据中转。
 
 ## Architecture
 
 ```text
-Supabase Cron → Hono on Vercel → RSSHub
+Supabase Cron → Hono on Vercel → RSSHub / official RSS
                     ↓ Drizzle
                  Supabase
                     ↑ public RLS read
@@ -45,7 +46,8 @@ pnpm --filter @rss-site/web dev
 ```
 
 访问 <http://localhost:3000>，科技总览位于 <http://localhost:3000/technology>，国内新闻总览位于
-<http://localhost:3000/news>，来源详情位于对应分区的 `[source]` URL。
+<http://localhost:3000/news>，AI 平台总览位于 <http://localhost:3000/ai>，来源详情位于对应分区的
+`[source]` URL。
 
 ### 启动完整开发环境
 
@@ -76,8 +78,7 @@ curl.exe -X POST http://localhost:3001/cron/signals/xinhua -H "Authorization: Be
 ```
 
 成功响应会包含 `batchId` 和 `itemCount`。刷新网页后即可看到 Supabase 中的新数据。
-若返回 `401`，检查请求密钥是否与 API 环境变量一致；若返回 `502`，检查 RSSHub 地址和
-Supabase 数据库连接。
+若返回 `401`，检查请求密钥是否与 API 环境变量一致；若返回 `502`，检查 Feed 上游和 Supabase 数据库连接。
 
 ### 代码检查
 
@@ -130,7 +131,7 @@ simple-git-hooks 的 pre-commit 钩子；提交前会格式化并校验暂存文
 5. 按提示输入部署后的 Hono API 域名或完整的 `/cron/signals` 地址。
 
 该命令会幂等创建或更新 Supabase Vault 中的 API 地址和 Cron 密钥，启用 `pg_cron` 与
-`pg_net`，安装十二个 UTC 每五小时错峰运行的任务和 30 天运行历史清理，并立即发起一次掘金测试
+`pg_net`，安装十八个 UTC 每五小时错峰运行的任务和 30 天运行历史清理，并立即发起一次掘金测试
 采集。重复运行会更新已有同名任务。`supabase/cron/setup.sql` 保留为手动配置和审计用的备用方案。
 
 RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客户端不能写数据，也不能读取
@@ -145,10 +146,12 @@ RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客�
 
 分别配置上述环境变量。API 健康检查为 `GET /health`，通用采集端点为
 `POST /cron/signals/:source`；`POST /cron/technology/:source` 与 `POST /cron/juejin` 在切换期间继续
-兼容，新闻来源也可使用 `POST /cron/news/:source`。生产配置完成前，不要执行 Cron 脚本，以免保存
-无效部署地址。
+兼容，新闻与 AI 来源也可分别使用 `POST /cron/news/:source` 和 `POST /cron/ai/:source`。生产配置完成前，
+不要执行 Cron 脚本，以免保存无效部署地址。
 
 更详细的设计与实施记录见
 [科技多来源与 React Aria 开发文档](docs/development/technology-hot-sources.md)。
 国内新闻来源与页面扩展见
 [中国国内新闻来源开发文档](docs/development/domestic-news-sources.md)。
+AI 官方文章来源与页面扩展见
+[AI 平台官方文章开发文档](docs/development/ai-platform-articles.md)。

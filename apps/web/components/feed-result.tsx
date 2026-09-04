@@ -1,4 +1,5 @@
 import type { FeedResult } from '../lib/hot-feed'
+import type { OutboundReturnPath } from '../lib/outbound-link'
 import { EmptyFeed, FeedError } from './feed-state'
 import { HotList } from './hot-list'
 
@@ -7,7 +8,7 @@ export function FeedResultView({
   returnTo = '/technology'
 }: {
   feed: FeedResult
-  returnTo?: '/technology' | '/news'
+  returnTo?: OutboundReturnPath
 }) {
   if (feed.state === 'empty') {
     return <EmptyFeed />

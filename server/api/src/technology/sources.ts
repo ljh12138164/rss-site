@@ -88,12 +88,60 @@ export const newsSources = [
   }
 ] as const
 
-export const signalSources = [...technologySources, ...newsSources] as const
+export const aiSources = [
+  {
+    id: 'openai',
+    name: 'OpenAI',
+    rsshubPath: '/openai/news?limit=20',
+    section: 'ai',
+    itemLimit: 20
+  },
+  {
+    id: 'anthropic',
+    name: 'Anthropic',
+    rsshubPath: '/anthropic/news?limit=20',
+    section: 'ai',
+    itemLimit: 20
+  },
+  {
+    id: 'deepseek',
+    name: 'DeepSeek',
+    rsshubPath: '/deepseek/news',
+    section: 'ai',
+    itemLimit: 20
+  },
+  {
+    id: 'glm',
+    name: '智谱 GLM',
+    feedUrl: 'https://docs.bigmodel.cn/cn/update/new-releases/rss.xml',
+    section: 'ai',
+    itemLimit: 20,
+    titleFromFirstStrong: true
+  },
+  {
+    id: 'google-ai',
+    name: 'Google AI / Gemini',
+    feedUrl: 'https://blog.google/innovation-and-ai/technology/ai/rss/',
+    section: 'ai',
+    itemLimit: 20
+  },
+  {
+    id: 'qwen',
+    name: 'Qwen',
+    rsshubPath: '/qwen/blog/zh-CN',
+    section: 'ai',
+    itemLimit: 20
+  }
+] as const
+
+export const signalSources = [...technologySources, ...newsSources, ...aiSources] as const
 
 export type TechnologySource = (typeof technologySources)[number]
 export type TechnologySourceId = TechnologySource['id']
 export type NewsSource = (typeof newsSources)[number]
 export type NewsSourceId = NewsSource['id']
+export type AiSource = (typeof aiSources)[number]
+export type AiSourceId = AiSource['id']
 export type SignalSource = (typeof signalSources)[number]
 export type SignalSourceId = SignalSource['id']
 export type SignalSection = SignalSource['section']
@@ -104,6 +152,10 @@ export function isTechnologySourceId(value: string): value is TechnologySourceId
 
 export function isNewsSourceId(value: string): value is NewsSourceId {
   return newsSources.some((source) => source.id === value)
+}
+
+export function isAiSourceId(value: string): value is AiSourceId {
+  return aiSources.some((source) => source.id === value)
 }
 
 export function isSignalSourceId(value: string): value is SignalSourceId {
@@ -122,8 +174,18 @@ export function getNewsSource(id: NewsSourceId): NewsSource {
   return source
 }
 
+export function getAiSource(id: AiSourceId): AiSource {
+  const source = aiSources.find((candidate) => candidate.id === id)
+  if (!source) throw new Error(`Unknown AI source: ${id}`)
+  return source
+}
+
 export function getSignalSource(id: SignalSourceId): SignalSource {
   const source = signalSources.find((candidate) => candidate.id === id)
   if (!source) throw new Error(`Unknown signal source: ${id}`)
   return source
+}
+
+export function resolveSignalFeedUrl(source: SignalSource, rsshubBaseUrl: string): string {
+  return 'feedUrl' in source ? source.feedUrl : `${rsshubBaseUrl}${source.rsshubPath}`
 }

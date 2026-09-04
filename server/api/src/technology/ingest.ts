@@ -37,10 +37,10 @@ export async function ingestSignal(
   const batchId = crypto.randomUUID()
 
   try {
-    const items = parseTechnologyFeed(await deps.fetchFeed(), source.name).slice(
-      0,
-      source.itemLimit
-    )
+    const items = parseTechnologyFeed(await deps.fetchFeed(), source.name, {
+      titleFromFirstStrong:
+        'titleFromFirstStrong' in source ? source.titleFromFirstStrong : undefined
+    }).slice(0, source.itemLimit)
     await deps.store.replaceRanking({ batchId, startedAt: now, finishedAt: now, items })
     return { batchId, itemCount: items.length }
   } catch (error) {

@@ -1,5 +1,5 @@
 begin;
-select plan(21);
+select plan(24);
 
 select has_table('public', 'hot_items', 'hot_items exists');
 select has_table('public', 'source_status', 'source_status exists');
@@ -86,6 +86,31 @@ select lives_ok(
     ('news', 'xinhua', 'xinhua-story', 'xinhua story', 'https://www.news.cn/story', 1,
      '00000000-0000-0000-0000-000000000002')$$,
   'news items accept the matching source and section'
+);
+select lives_ok(
+  $$insert into public.ingestion_runs
+    (id, source, status, item_count, started_at, finished_at)
+    values
+    ('00000000-0000-0000-0000-000000000003', 'openai', 'succeeded', 1, now(), now())$$,
+  'a confirmed AI source can create an ingestion run'
+);
+select lives_ok(
+  $$insert into public.hot_items
+    (section, source, source_key, title, url, position, batch_id)
+    values
+    ('ai', 'openai', 'openai-story', 'openai story', 'https://openai.com/index/story', 1,
+     '00000000-0000-0000-0000-000000000003')$$,
+  'AI items accept the matching source and section'
+);
+select throws_ok(
+  $$insert into public.hot_items
+    (section, source, source_key, title, url, position, batch_id)
+    values
+    ('news', 'openai', 'wrong-ai-section', 'wrong AI section', 'https://openai.com/index/wrong', 2,
+     '00000000-0000-0000-0000-000000000003')$$,
+  '23514',
+  null,
+  'AI sources cannot be stored in the news section'
 );
 select throws_ok(
   $$insert into public.hot_items

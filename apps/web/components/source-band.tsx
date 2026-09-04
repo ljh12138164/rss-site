@@ -27,7 +27,7 @@ export function SourceBand({
 }: {
   source: SignalSource
   feed: FeedResult
-  basePath?: '/technology' | '/news'
+  basePath?: '/technology' | '/news' | '/ai'
 }) {
   return (
     <section

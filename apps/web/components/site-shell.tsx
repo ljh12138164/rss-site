@@ -32,6 +32,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
             >
               新闻
             </Link>
+            <Link
+              className="flex min-h-11 items-center px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              href="/ai"
+            >
+              AI
+            </Link>
           </nav>
           <ThemeToggle />
         </div>
@@ -49,7 +55,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           >
             RSSHub
           </a>{' '}
-          整理
+          与官方 RSS 整理
         </p>
         <p className="font-mono">RSS · 5H</p>
       </footer>

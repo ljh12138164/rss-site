@@ -55,4 +55,32 @@ describe('parseTechnologyFeed', () => {
   ])('rejects %s so existing rankings cannot be cleared', (_case, xml) => {
     expect(() => parseTechnologyFeed(xml, 'Test source')).toThrow()
   })
+
+  it('uses the first strong content label for explicitly configured GLM feeds', () => {
+    const xml = `
+      <rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><item>
+        <title>2026-09-04</title>
+        <link>https://docs.bigmodel.cn/cn/update/new-releases/glm-5</link>
+        <guid>glm-5</guid>
+        <content:encoded><![CDATA[<p><strong>GLM-5.3-Flash</strong> 正式发布</p>]]></content:encoded>
+      </item></channel></rss>`
+
+    expect(parseTechnologyFeed(xml, '智谱 GLM', { titleFromFirstStrong: true })[0]).toMatchObject({
+      title: 'GLM-5.3-Flash',
+      summary: 'GLM-5.3-Flash 正式发布'
+    })
+  })
+
+  it('falls back to the original title when a configured feed has no strong label', () => {
+    const xml = `
+      <rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><item>
+        <title>GLM 更新</title>
+        <link>https://docs.bigmodel.cn/cn/update/new-releases/glm</link>
+        <content:encoded><![CDATA[<p>更新说明</p>]]></content:encoded>
+      </item></channel></rss>`
+
+    expect(parseTechnologyFeed(xml, '智谱 GLM', { titleFromFirstStrong: true })[0]?.title).toBe(
+      'GLM 更新'
+    )
+  })
 })

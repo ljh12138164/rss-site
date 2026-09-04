@@ -87,6 +87,35 @@ describe('Hono ingestion API', () => {
     expect(await response.json()).toEqual({ error: 'Unknown signal source' })
   })
 
+  it('runs a confirmed AI source only through AI and generic endpoints', async () => {
+    const sources: string[] = []
+    const app = configureApp(new Hono(), {
+      cronSecret: 'secret',
+      runIngestion: async (source) => {
+        sources.push(source)
+        return { batchId: 'batch-ai', itemCount: 20 }
+      }
+    })
+
+    for (const path of ['/cron/ai/openai', '/cron/signals/openai']) {
+      expect(
+        (
+          await app.request(path, {
+            method: 'POST',
+            headers: { Authorization: 'Bearer secret' }
+          })
+        ).status
+      ).toBe(200)
+    }
+
+    const wrongSection = await app.request('/cron/news/openai', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer secret' }
+    })
+    expect(wrongSection.status).toBe(404)
+    expect(sources).toEqual(['openai', 'openai'])
+  })
+
   it('keeps the legacy Juejin endpoint during the Cron transition', async () => {
     const sources: string[] = []
     const app = configureApp(new Hono(), {

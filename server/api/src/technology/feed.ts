@@ -15,8 +15,13 @@ interface ParsedItem {
   link?: unknown
   guid?: unknown
   description?: unknown
+  'content:encoded'?: unknown
   author?: unknown
   pubDate?: unknown
+}
+
+interface ParseFeedOptions {
+  titleFromFirstStrong?: boolean
 }
 
 interface ParsedRss {
@@ -89,6 +94,14 @@ function plainText(value: unknown): string | null {
   return text || null
 }
 
+function firstStrongText(value: unknown): string | null {
+  const html = textValue(value)
+  if (!html) return null
+
+  const match = html.match(/<strong\b[^>]*>([\s\S]*?)<\/strong>/i)
+  return match ? plainText(match[1]) : null
+}
+
 function publishedDate(value: unknown): Date | null {
   const text = textValue(value)
   if (!text) return null
@@ -97,7 +110,11 @@ function publishedDate(value: unknown): Date | null {
   return Number.isNaN(date.getTime()) ? null : date
 }
 
-export function parseTechnologyFeed(xml: string, sourceName: string): TechnologyFeedItem[] {
+export function parseTechnologyFeed(
+  xml: string,
+  sourceName: string,
+  options: ParseFeedOptions = {}
+): TechnologyFeedItem[] {
   const validation = XMLValidator.validate(xml)
   if (validation !== true) throw new Error('RSSHub returned invalid XML')
 
@@ -110,7 +127,9 @@ export function parseTechnologyFeed(xml: string, sourceName: string): Technology
   if (items.length === 0) throw new Error(`RSSHub returned an empty ${sourceName} feed`)
 
   return items.map((item, index) => {
-    const title = textValue(item.title)
+    const content = item['content:encoded']
+    const title =
+      (options.titleFromFirstStrong ? firstStrongText(content) : null) ?? textValue(item.title)
     const url = canonicalWebUrl(item.link)
     if (!title || !url) {
       throw new Error(`${sourceName} feed item ${index + 1} is missing required fields`)
@@ -121,7 +140,7 @@ export function parseTechnologyFeed(xml: string, sourceName: string): Technology
       sourceKey: canonicalWebUrl(rawGuid) ?? rawGuid ?? url,
       title,
       url,
-      summary: plainText(item.description),
+      summary: plainText(item.description) ?? plainText(content),
       author: textValue(item.author),
       publishedAt: publishedDate(item.pubDate),
       position: index + 1

@@ -2,9 +2,21 @@
 
 ## Active objective
 
-在 `feat/technology-hot-sources` 上把六个科技来源与六个中国国内新闻来源作为同一批十二路信号交付。
+在 `feat/ai-platform-articles` 上新增六路 AI 平台官方文章，并在 `D:\code\rss` 的
+`feat/fix-deepseek-news` 分支修复 DeepSeek 新闻路由。
 
 ## Current state
+
+- AI 首批来源已确定为 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 与 Qwen；来源证据和
+  在线抓取结果在 `docs/research/ai-platform-official-article-sources.md`。
+- 当前 AI 分支叠加在尚未合并的 `feat/technology-hot-sources` 上，复用其通用信号源基础设施；实现方案与验收
+  记录在 `docs/development/ai-platform-articles.md`。
+- `/ai`、`/ai/[source]`、首页 AI 摘要、18 路来源注册与 Cron、官方直连 Feed、GLM 标题归一化和数据库白名单
+  已实现；API 38 项、Web 26 项测试、格式、lint、类型检查和生产构建通过。
+- 五个可直接访问的 AI Feed 已在线通过当前解析器；修复后的 DeepSeek handler 在线返回 17 条官方新闻，
+  `D:\code\rss` 的目标测试、类型检查和 lint 通过。
+- 浏览器 1440px/390px、明暗主题、键盘焦点、404、无横向溢出与无控制台告警已经复核。
+- pgTAP 已扩展为 24 项，但本机 Docker 数据库未运行，仍由 CI 或可用的本地 Docker 环境执行。
 
 - PR #4 已合并；当前分支从 `origin/master` 的合并提交 `499dbdf` 创建，科技与国内新闻实现已在提交
   `c4e2886` 推送到 `origin/feat/technology-hot-sources`。
@@ -26,8 +38,8 @@
 
 ## Next action
 
-当前实现已完成并推送。此前用户要求跳过创建 PR，因此本轮未新建 PR；下一步可由用户决定是否创建 PR，
-并在有 Docker 的环境执行 pgTAP、应用迁移和配置 Cron 后再部署。
+提交并推送两个功能分支。上线时先部署 RSSHub DeepSeek 修复，再部署依赖分支与 AI 分区，随后应用迁移、
+配置 18 路 Cron，并按 `docs/roadmaps/ai-platform-articles.md` 复核首轮真实数据。
 
 ## Delivery constraint
 

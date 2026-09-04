@@ -1,12 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import {
+  aiSources,
+  getAiSource,
   getNewsSource,
   getSignalSource,
   getTechnologySource,
+  isAiSourceId,
   isNewsSourceId,
   isSignalSourceId,
   isTechnologySourceId,
   newsSources,
+  resolveSignalFeedUrl,
   signalSources,
   technologySources
 } from './sources.js'
@@ -37,6 +41,32 @@ describe('technologySources', () => {
     expect(newsSources.every((source) => source.itemLimit === 30)).toBe(true)
   })
 
+  it('registers six official AI platform feeds without accepting arbitrary URLs', () => {
+    expect(aiSources.map(({ id }) => id)).toEqual([
+      'openai',
+      'anthropic',
+      'deepseek',
+      'glm',
+      'google-ai',
+      'qwen'
+    ])
+    expect(aiSources.every((source) => source.section === 'ai')).toBe(true)
+    expect(getAiSource('glm')).toMatchObject({
+      feedUrl: 'https://docs.bigmodel.cn/cn/update/new-releases/rss.xml',
+      titleFromFirstStrong: true
+    })
+    expect(getAiSource('google-ai')).toMatchObject({
+      feedUrl: 'https://blog.google/innovation-and-ai/technology/ai/rss/'
+    })
+    expect(getAiSource('openai')).toMatchObject({ rsshubPath: '/openai/news?limit=20' })
+    expect(resolveSignalFeedUrl(getAiSource('openai'), 'https://rss.example')).toBe(
+      'https://rss.example/openai/news?limit=20'
+    )
+    expect(resolveSignalFeedUrl(getAiSource('glm'), 'https://rss.example')).toBe(
+      'https://docs.bigmodel.cn/cn/update/new-releases/rss.xml'
+    )
+  })
+
   it('narrows and resolves only known sources', () => {
     expect(isTechnologySourceId('36kr')).toBe(true)
     expect(isTechnologySourceId('product-hunt')).toBe(false)
@@ -44,8 +74,10 @@ describe('technologySources', () => {
     expect(isNewsSourceId('xinhua')).toBe(true)
     expect(isNewsSourceId('github')).toBe(false)
     expect(getNewsSource('thepaper').name).toBe('澎湃热榜')
+    expect(isAiSourceId('deepseek')).toBe(true)
+    expect(isAiSourceId('github')).toBe(false)
     expect(isSignalSourceId('baidu')).toBe(true)
-    expect(signalSources).toHaveLength(12)
+    expect(signalSources).toHaveLength(18)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

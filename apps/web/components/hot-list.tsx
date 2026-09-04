@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react'
 import type { HotItem } from '../lib/hot-feed'
+import type { OutboundReturnPath } from '../lib/outbound-link'
 
 const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
   month: '2-digit',
@@ -14,7 +15,7 @@ export function HotList({
   returnTo = '/technology'
 }: {
   items: HotItem[]
-  returnTo?: '/technology' | '/news'
+  returnTo?: OutboundReturnPath
 }) {
   return (
     <ol className="divide-y divide-border border-y border-border">

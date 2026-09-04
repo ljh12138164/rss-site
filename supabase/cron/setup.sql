@@ -24,7 +24,13 @@ begin
       ('chinanews', 'chinanews-feed-every-five-hours', '20 1,6,11,16,21 * * *'),
       ('thepaper', 'thepaper-hot-feed-every-five-hours', '30 1,6,11,16,21 * * *'),
       ('jiemian', 'jiemian-news-feed-every-five-hours', '40 1,6,11,16,21 * * *'),
-      ('baidu', 'baidu-hot-feed-every-five-hours', '50 1,6,11,16,21 * * *')
+      ('baidu', 'baidu-hot-feed-every-five-hours', '50 1,6,11,16,21 * * *'),
+      ('openai', 'openai-news-feed-every-five-hours', '0 2,7,12,17,22 * * *'),
+      ('anthropic', 'anthropic-news-feed-every-five-hours', '10 2,7,12,17,22 * * *'),
+      ('deepseek', 'deepseek-news-feed-every-five-hours', '20 2,7,12,17,22 * * *'),
+      ('glm', 'glm-release-feed-every-five-hours', '30 2,7,12,17,22 * * *'),
+      ('google-ai', 'google-ai-feed-every-five-hours', '40 2,7,12,17,22 * * *'),
+      ('qwen', 'qwen-blog-feed-every-five-hours', '50 2,7,12,17,22 * * *')
     ) as jobs(source_id, job_name, job_schedule)
   loop
     perform cron.schedule(
