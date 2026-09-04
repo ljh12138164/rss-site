@@ -36,7 +36,9 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 
 结论：可行。
 
-- 用户确认本地 `main` 是当前基线；仓库尚无远程，因此没有可 fetch 的默认分支。
+- 用户确认本地 `main` 是当前基线；设计阶段没有远程，开发开始时 `origin` 已建立并跟踪功能分支。
+- 2026-09-04 执行 `git fetch origin` 时 GitHub 443 连接超时；已有远程引用显示默认分支为
+  `origin/master`，继续使用用户此前确认的本地基线。
 - Supabase 项目 `rss-site`（`pnjsrihfpyvkhyidzgfq`）为健康状态，PostgreSQL 17.6。
 - `public` schema 当前无表，迁移历史为空。
 - RSSHub 提供 `/juejin/trending/:category/:type`，本期使用 `all/weekly`。
@@ -63,10 +65,16 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 
 ## Verification
 
-尚未开始实现。设计确认后创建详细实施计划，并按 TDD 执行。
+实施计划：
+[Juejin Hot Feed Implementation Plan](../superpowers/plans/2026-09-04-juejin-hot-feed.md)
+
+计划已完成，按 TDD 在当前会话执行。
+
+实现前仓库没有应用文件或 `test` 脚本，无法运行有意义的基线测试；首次可执行基线是工作区
+脚手架完成后的 lint、类型检查与空测试套件。
 
 ## Risks
 
-- 尚无 Git 远程，无法 push、创建 PR 或检查 CI。
+- 远程已建立；PR 仅在完整本地验证和审查结束后创建。
 - 生产部署需要用户配置 Vercel 与 Supabase Vault secrets。
 - RSSHub 公共实例的可用性不受本项目控制；页面必须保留最后成功数据。
