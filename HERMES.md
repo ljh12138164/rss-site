@@ -21,7 +21,8 @@
 
 ## Next action
 
-完成全量校验并创建 GitHub PR；合并后再由部署流程应用迁移、部署 API/Web 并配置六来源 Cron。
+用户已明确跳过创建 GitHub PR；远端功能分支可供后续人工审阅或合并。合并后再由部署流程应用迁移、
+部署 API/Web 并配置六来源 Cron。
 
 ## Delivery constraint
 
