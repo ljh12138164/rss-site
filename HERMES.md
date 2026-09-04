@@ -6,7 +6,8 @@
 
 ## Current state
 
-- PR #4 已合并；当前分支从 `origin/master` 的合并提交 `499dbdf` 创建，已有科技多来源提交并推送。
+- PR #4 已合并；当前分支从 `origin/master` 的合并提交 `499dbdf` 创建，科技与国内新闻实现已在提交
+  `c4e2886` 推送到 `origin/feat/technology-hot-sources`。
 - 首页现在按“科技 / 国内新闻”展示十二路摘要；`/technology`、`/news` 与各自六个来源详情页已经实现。
 - 新闻首批来源为新华社、央视国内、中国新闻网、澎湃热榜、界面中国和百度热搜；公开 RSSHub 路由无需
   Cookie 或 Token，每次采集最多保留前 30 条。
@@ -25,7 +26,8 @@
 
 ## Next action
 
-完成最终全量验证、差异审查、提交并推送当前功能分支；创建或更新 GitHub PR 仍遵循用户对 PR 的最终指示。
+当前实现已完成并推送。此前用户要求跳过创建 PR，因此本轮未新建 PR；下一步可由用户决定是否创建 PR，
+并在有 Docker 的环境执行 pgTAP、应用迁移和配置 Cron 后再部署。
 
 ## Delivery constraint
 
