@@ -14,11 +14,13 @@
 - Hono 内部工厂已改名为 `src/http-app.ts`，入口直接创建 Hono 实例，后端 ESM 导入已对齐 NodeNext，
   并新增 Vercel 入口选择回归测试。
 - 本地 Vercel production 构建及其生成函数的 `/health` 调用已通过。
+- 入口修复提交 `fd004dd` 已推送到 `feat/juejin-hot-feed`；Vercel Production 跟踪 `master`，
+  因此自定义域名仍指向旧部署。
 - 远程 pgTAP runner 仍需要本机 Docker。
 
 ## Next action
 
-等待 Vercel 自动部署入口修复，然后验证线上 `/health` 并重新执行真实采集。
+将功能分支合入 `master` 或明确发布该提交到 Production，然后验证线上 `/health` 并重新执行真实采集。
 
 ## Delivery constraint
 

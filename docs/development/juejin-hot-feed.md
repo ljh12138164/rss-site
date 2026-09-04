@@ -120,3 +120,4 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
   后缀，确保 Vercel 生成的原生 ESM 能被 Node.js 24 加载。
 - 新增入口选择回归测试，防止后续再次添加优先级更高的保留文件名。
 - `vercel build --prod` 成功，直接加载生成的函数入口并调用 `/health` 返回 `200 {"status":"ok"}`。
+- 修复提交已推送到功能分支；Vercel Production 跟踪 `master`，生产域名需要在合并或明确发布后复验。
