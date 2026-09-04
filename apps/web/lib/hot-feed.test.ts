@@ -43,6 +43,25 @@ describe('getJuejinFeed', () => {
     })
   })
 
+  it('keeps the complete ordered result when no limit is provided', async () => {
+    const query: FeedQuery = async () => ({
+      items: rows,
+      status: {
+        source: 'juejin',
+        item_count: 7,
+        last_success_at: '2026-09-04T01:00:00.000Z'
+      },
+      error: null
+    })
+
+    const result = await getJuejinFeed(undefined, query)
+
+    expect(result.state).toBe('ready')
+    if (result.state === 'ready') {
+      expect(result.items.map((item) => item.position)).toEqual([1, 2, 3, 4, 5, 6, 7])
+    }
+  })
+
   it('returns an explicit empty state when no ranking has been collected', async () => {
     const query: FeedQuery = async () => ({ items: [], status: null, error: null })
 

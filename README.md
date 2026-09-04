@@ -1,159 +1,100 @@
-# Turborepo starter
+# 热点更新
 
-This Turborepo starter is maintained by the Turborepo core team.
+一个通过 RSSHub 汇总社区热点的轻量阅读站。当前包含科技区的掘金周榜：首页展示前五条，
+`/technology/juejin` 展示完整榜单。数据约每五小时由 Hono 服务采集一次，并以 Supabase
+作为前后端之间唯一的数据中转。
 
-## Using this example
+## Architecture
 
-Run the following command:
-
-```sh
-npx create-turbo@latest
+```text
+Supabase Cron → Hono on Vercel → RSSHub
+                    ↓ Drizzle
+                 Supabase
+                    ↑ public RLS read
+                Next.js web
 ```
 
-## What's inside?
+- `apps/web`：Next.js 16、React 19、Tailwind CSS 4、shadcn/ui。
+- `server/api`：Hono 的 Vercel Function，通过 Drizzle ORM 写入 PostgreSQL。
+- `supabase`：数据库迁移、RLS 测试和 `pg_cron`/`pg_net` 调度脚本。
 
-This Turborepo includes the following packages/apps:
+浏览器和 Next.js 前端不会请求 Hono；Hono 只接收 Supabase Cron 的受保护采集请求。
 
-### Apps and Packages
+## Local development
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+要求 Node.js 24+ 与 pnpm 11：
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+pnpm install
+pnpm dev
 ```
 
-Without global `turbo`, use your package manager:
+也可以分别运行。API 本地开发需要预先全局安装 Vercel CLI：
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm exec turbo build
-pnpm exec turbo build
+```bash
+pnpm --filter @rss-site/web dev
+pnpm --filter @rss-site/api dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+完整验证：
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```bash
+pnpm lint
+pnpm check-types
+pnpm test
+pnpm build
 ```
 
-Without global `turbo`:
+## Environment variables
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+`apps/web`：
 
-### Develop
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase 项目 URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 只受 RLS 授权的公开客户端密钥 |
 
-To develop all apps and packages, run the following command:
+`server/api`：
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+| Variable | Purpose |
+| --- | --- |
+| `DATABASE_URL` | Supabase transaction pooler 连接串；服务端专用 |
+| `CRON_SECRET` | 校验 `Authorization: Bearer …` 的随机密钥 |
+| `RSSHUB_BASE_URL` | 可选，默认 `https://rsshub.app` |
 
-```sh
-cd my-turborepo
-turbo dev
-```
+不要把 `DATABASE_URL`、数据库密码或 `CRON_SECRET` 放进 `NEXT_PUBLIC_*` 变量或提交到仓库。
 
-Without global `turbo`, use your package manager:
+## Supabase setup
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
+目标项目为 `rss-site`（ref：`pnjsrihfpyvkhyidzgfq`）。
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+1. 应用 `supabase/migrations` 中的迁移。
+2. 可用本地 Docker 时运行 `pnpm dlx supabase test db` 验证 RLS。
+3. 部署 API，并为其配置 `DATABASE_URL` 与 `CRON_SECRET`。
+4. 在 Supabase Vault 中保存 API URL 和相同的 Cron 密钥：
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+   ```sql
+   select vault.create_secret(
+     'https://your-api.vercel.app/cron/juejin',
+     'juejin_ingest_url'
+   );
+   select vault.create_secret('replace-with-a-random-secret', 'juejin_cron_secret');
+   ```
 
-```sh
-turbo dev --filter=web
-```
+5. 执行 `supabase/cron/setup.sql`。计划表达式为 `0 */5 * * *`，即 UTC 每五小时触发一次。
+6. 手动发起一次受保护请求，确认 `hot_items` 与 `source_status` 已有数据后再发布前端。
 
-Without global `turbo`:
+RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客户端不能写数据，也不能读取
+`ingestion_runs` 中的内部错误。
 
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+## Vercel deployment
 
-### Remote Caching
+创建两个 Vercel 项目并连接同一个仓库：
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+- Web 项目的 Root Directory 为 `apps/web`。
+- API 项目的 Root Directory 为 `server/api`。
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+分别配置上述环境变量。API 健康检查为 `GET /health`，采集端点为
+`POST /cron/juejin`。生产配置完成前，不要执行 Cron 脚本，以免保存无效部署地址。
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+更详细的设计与实施记录见 [开发文档](docs/development/juejin-hot-feed.md)。

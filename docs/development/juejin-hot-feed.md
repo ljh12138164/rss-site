@@ -82,7 +82,27 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 - 已实现 Supabase 匿名读取层，按排名排序并区分 ready、empty、error 三种稳定状态。
 - 已实现首页科技区预览与 `/technology/juejin` 完整榜单；两个路由均为动态服务端渲染，浏览端不调用 Hono。
 - 已实现窄栏纸张式布局、信号橙红主题、明暗模式、加载态与错误态，并复用 shadcn 的基础组件。
-- 前端验证：Biome 通过，TypeScript 通过，Vitest 6 项测试通过，Next.js 生产构建通过。
+- 前端验证：Biome 通过，TypeScript 通过，Vitest 7 项测试通过，Next.js 生产构建通过。
+
+## Online verification
+
+- Supabase CLI 已链接到项目 `pnjsrihfpyvkhyidzgfq`，dry-run 仅发现预期迁移，随后成功应用
+  `20260904013727_create_hot_feed_tables.sql`。
+- 远程表统计确认 `hot_items`、`source_status`、`ingestion_runs` 均已建立且当前为空。
+- 使用项目 publishable key 经 REST 验证：两个公开表返回 `200 []`，内部运行记录表返回 `401`。
+- `supabase test db --linked` 因本机 Docker daemon 未运行而无法启动 pgTAP runner；SQL 测试仍以事务和
+  `rollback` 保留在仓库中。
+- 浏览器验收覆盖桌面、390px 移动视口、明暗主题和掘金子路由；接入线上 Supabase 后显示预期空态。
+- Cron 未在线启用：需要先部署 Hono API，并把真实 URL 与匹配的 `CRON_SECRET` 写入 Vault。
+
+## Review
+
+- Standards：检查了鉴权、密钥边界、RSS 清洗、事务替换、RLS、外链安全、可访问性与构建配置；无阻断项。
+- Spec：对照已批准设计检查了首页前五条、完整掘金榜、Supabase 中转、Drizzle 写入、约五小时调度、
+  信号橙红主题和响应式状态；无阻断项。
+- 审查时补充了无 limit 的完整榜单回归测试、44px 导航触控区、首页五段采集节奏线，并把 Hono
+  零配置入口对齐官方 Vercel 模板的 `src/index.ts`。
+- 没有接受的非阻断后续事项，因此不创建 roadmap。
 
 ## Risks
 

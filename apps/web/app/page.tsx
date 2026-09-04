@@ -23,6 +23,18 @@ export function HomeView({ feed }: { feed: FeedResult }) {
         <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground">
           定时整理开发者社区正在讨论的内容。沿着信号阅读，不被信息流推着走。
         </p>
+        <div className="mt-10" role="img" aria-label="约每五小时采集一次">
+          <div className="grid grid-cols-5 gap-2" aria-hidden="true">
+            {['00', '05', '10', '15', '20'].map((hour) => (
+              <span
+                className="border-t border-primary/70 pt-2 font-mono text-[0.625rem] text-muted-foreground"
+                key={hour}
+              >
+                {hour}
+              </span>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section id="technology">

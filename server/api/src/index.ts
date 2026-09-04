@@ -1,7 +1,7 @@
-import { createApp } from './src/app'
-import { createDatabase } from './src/db/client'
-import { ingestJuejin } from './src/juejin/ingest'
-import { DrizzleJuejinStore } from './src/juejin/store'
+import { createApp } from './app'
+import { createDatabase } from './db/client'
+import { ingestJuejin } from './juejin/ingest'
+import { DrizzleJuejinStore } from './juejin/store'
 
 function requiredEnvironment(name: string): string {
   const value = process.env[name]

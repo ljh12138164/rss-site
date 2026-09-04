@@ -19,10 +19,10 @@ export function ThemeToggle() {
       <TooltipTrigger asChild>
         <Button
           aria-label={dark ? '切换为浅色主题' : '切换为深色主题'}
-          className="text-muted-foreground hover:text-foreground"
+          className="size-11 text-muted-foreground hover:text-foreground"
           disabled={!mounted}
           onClick={() => setTheme(dark ? 'light' : 'dark')}
-          size="icon-sm"
+          size="icon"
           variant="ghost"
         >
           {dark ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}

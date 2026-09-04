@@ -111,7 +111,7 @@
 **Files:**
 - Create: `server/api/src/app.test.ts`
 - Create: `server/api/src/app.ts`
-- Create: `server/api/index.ts`
+- Create: `server/api/src/index.ts`
 
 **Interfaces:**
 - Produces `createApp(deps)` for tests and a default production Hono export for Vercel.
@@ -183,4 +183,3 @@
 - [ ] Review the diff against repository standards and the design spec; resolve every blocking finding and rerun affected checks.
 - [ ] Record accepted follow-ups in a roadmap only if reviews produce any; otherwise state that no roadmap is required.
 - [ ] Commit final documentation, push `feat/juejin-hot-feed`, open a GitHub PR, inspect CI, and update HERMES with the PR state.
-
