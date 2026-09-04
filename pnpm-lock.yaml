@@ -8,9 +8,12 @@ importers:
 
   .:
     devDependencies:
-      prettier:
-        specifier: 3.9.6
-        version: 3.9.6
+      '@biomejs/biome':
+        specifier: 2.5.12
+        version: 2.5.12
+      simple-git-hooks:
+        specifier: 2.14.0
+        version: 2.14.0
       turbo:
         specifier: 2.10.12
         version: 2.10.12
@@ -54,9 +57,6 @@ importers:
         specifier: 1.4.0
         version: 1.4.0
     devDependencies:
-      '@biomejs/biome':
-        specifier: 2.5.12
-        version: 2.5.12
       '@tailwindcss/postcss':
         specifier: 4.3.3
         version: 4.3.3
@@ -94,9 +94,6 @@ importers:
         specifier: 3.4.9
         version: 3.4.9
     devDependencies:
-      '@biomejs/biome':
-        specifier: 2.5.12
-        version: 2.5.12
       '@types/node':
         specifier: 26.4.1
         version: 26.4.1
@@ -2301,10 +2298,6 @@ packages:
     resolution: {integrity: sha512-GD3qdB0x1z9xgFI6cdRD6xu2Sp2WCOEoe3mtnyB5Ee0XrrL5Pe+e4CCnJrRMnL1zYtRDZmQQVbvOttLnKDLnaw==}
     engines: {node: '>=12'}
 
-  prettier@3.9.6:
-    resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
-    engines: {node: '>=14'}
-
   radix-ui@1.6.7:
     resolution: {integrity: sha512-QBdhh1arIEUvPC0dQ5+nwWAxt7+N+oP/9jPwjJkGFoSk/sqxg32gJtSXGtFh8frAIcS6oC9cx2Q+7KYCQLOAeA==}
     peerDependencies:
@@ -2384,6 +2377,10 @@ packages:
 
   siginfo@2.0.0:
     resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
+
+  simple-git-hooks@2.14.0:
+    resolution: {integrity: sha512-kkTORPAuxQz2g1QUuN0J8yGWT28tjGBfPOdJ4xT7Vbeu30veKUZQIoID2qGgCDAakaQn59UeZJJ4cFGB8PVP2A==}
+    hasBin: true
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -4314,8 +4311,6 @@ snapshots:
 
   postgres@3.4.9: {}
 
-  prettier@3.9.6: {}
-
   radix-ui@1.6.7(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:
       '@radix-ui/primitive': 1.1.7
@@ -4476,6 +4471,8 @@ snapshots:
     optional: true
 
   siginfo@2.0.0: {}
+
+  simple-git-hooks@2.14.0: {}
 
   source-map-js@1.2.1: {}
 

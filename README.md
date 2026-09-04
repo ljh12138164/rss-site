@@ -39,11 +39,16 @@ pnpm --filter @rss-site/api dev
 完整验证：
 
 ```bash
+pnpm format:check
 pnpm lint
 pnpm check-types
 pnpm test
 pnpm build
 ```
+
+运行 `pnpm format` 可使用 Biome 统一格式化代码。`pnpm install` 会安装
+simple-git-hooks 的 pre-commit 钩子；提交前会格式化并校验暂存文件、重新暂存修复结果，
+随后执行类型检查。
 
 ## Environment variables
 

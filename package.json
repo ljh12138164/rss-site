@@ -4,13 +4,19 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
+    "lint": "biome check .",
     "test": "turbo run test",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "check-types": "turbo run check-types",
+    "prepare": "simple-git-hooks"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec biome check --write --staged && git update-index --again && pnpm check-types"
   },
   "devDependencies": {
-    "prettier": "3.9.6",
+    "@biomejs/biome": "2.5.12",
+    "simple-git-hooks": "2.14.0",
     "turbo": "2.10.12",
     "typescript": "5.9.3"
   },
