@@ -1,0 +1,128 @@
+import { XMLParser, XMLValidator } from 'fast-xml-parser'
+
+export interface JuejinFeedItem {
+  sourceKey: string
+  title: string
+  url: string
+  summary: string | null
+  author: string | null
+  publishedAt: Date | null
+  position: number
+}
+
+interface ParsedItem {
+  title?: unknown
+  link?: unknown
+  guid?: unknown
+  description?: unknown
+  author?: unknown
+  pubDate?: unknown
+}
+
+interface ParsedRss {
+  rss?: {
+    channel?: {
+      item?: ParsedItem[]
+    }
+  }
+}
+
+function textValue(value: unknown): string | null {
+  if (typeof value === 'string' || typeof value === 'number') {
+    const text = String(value).trim()
+    return text || null
+  }
+
+  if (value && typeof value === 'object' && '#text' in value) {
+    return textValue((value as { '#text': unknown })['#text'])
+  }
+
+  return null
+}
+
+function canonicalJuejinUrl(value: unknown): string | null {
+  const rawUrl = textValue(value)
+  if (!rawUrl) return null
+
+  try {
+    const url = new URL(rawUrl)
+    if (!['juejin.cn', 'www.juejin.cn'].includes(url.hostname)) return null
+    if (!url.pathname.startsWith('/post/')) return null
+
+    url.protocol = 'https:'
+    url.hostname = 'juejin.cn'
+    url.search = ''
+    url.hash = ''
+    return url.toString().replace(/\/$/, '')
+  } catch {
+    return null
+  }
+}
+
+function decodeEntities(value: string): string {
+  const named: Record<string, string> = {
+    amp: '&',
+    apos: "'",
+    gt: '>',
+    lt: '<',
+    nbsp: ' ',
+    quot: '"'
+  }
+
+  return value.replace(/&(#x[\da-f]+|#\d+|\w+);/gi, (entity, code: string) => {
+    if (code.startsWith('#x')) return String.fromCodePoint(Number.parseInt(code.slice(2), 16))
+    if (code.startsWith('#')) return String.fromCodePoint(Number.parseInt(code.slice(1), 10))
+    return named[code.toLowerCase()] ?? entity
+  })
+}
+
+function plainText(value: unknown): string | null {
+  const html = textValue(value)
+  if (!html) return null
+
+  const text = decodeEntities(
+    html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ')
+  )
+    .replace(/\s+/g, ' ')
+    .trim()
+
+  return text || null
+}
+
+function publishedDate(value: unknown): Date | null {
+  const text = textValue(value)
+  if (!text) return null
+
+  const date = new Date(text)
+  if (Number.isNaN(date.getTime())) return null
+  return date
+}
+
+export function parseJuejinFeed(xml: string): JuejinFeedItem[] {
+  const validation = XMLValidator.validate(xml)
+  if (validation !== true) throw new Error('RSSHub returned invalid XML')
+
+  const parser = new XMLParser({
+    ignoreAttributes: false,
+    isArray: (_name, path) => path === 'rss.channel.item'
+  })
+  const parsed = parser.parse(xml) as ParsedRss
+  const items = parsed.rss?.channel?.item ?? []
+  if (items.length === 0) throw new Error('RSSHub returned an empty Juejin feed')
+
+  return items.map((item, index) => {
+    const title = textValue(item.title)
+    const url = canonicalJuejinUrl(item.link)
+    if (!title || !url) throw new Error(`Juejin feed item ${index + 1} is missing required fields`)
+
+    return {
+      sourceKey: canonicalJuejinUrl(item.guid) ?? url,
+      title,
+      url,
+      summary: plainText(item.description),
+      author: textValue(item.author),
+      publishedAt: publishedDate(item.pubDate),
+      position: index + 1
+    }
+  })
+}
