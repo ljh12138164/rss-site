@@ -17,6 +17,8 @@
   `D:\code\rss` 的目标测试、类型检查和 lint 通过。
 - 浏览器 1440px/390px、明暗主题、键盘焦点、404、无横向溢出与无控制台告警已经复核。
 - pgTAP 已扩展为 24 项，但本机 Docker 数据库未运行，仍由 CI 或可用的本地 Docker 环境执行。
+- rss-site 实现提交 `f4ab4f2` 已推送到 `origin/feat/ai-platform-articles`；RSSHub 修复提交
+  `9b70ce5` 已推送到 `origin/feat/fix-deepseek-news`。
 
 - PR #4 已合并；当前分支从 `origin/master` 的合并提交 `499dbdf` 创建，科技与国内新闻实现已在提交
   `c4e2886` 推送到 `origin/feat/technology-hot-sources`。
@@ -38,8 +40,9 @@
 
 ## Next action
 
-提交并推送两个功能分支。上线时先部署 RSSHub DeepSeek 修复，再部署依赖分支与 AI 分区，随后应用迁移、
-配置 18 路 Cron，并按 `docs/roadmaps/ai-platform-articles.md` 复核首轮真实数据。
+两个功能分支已经提交并推送；按此前要求不创建 PR。上线时先部署 RSSHub DeepSeek 修复，再合并并部署
+`feat/technology-hot-sources` 与本 AI 分支，随后应用迁移、配置 18 路 Cron，并按
+`docs/roadmaps/ai-platform-articles.md` 复核首轮真实数据。
 
 ## Delivery constraint
 
