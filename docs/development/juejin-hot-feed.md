@@ -77,6 +77,13 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 且本机 Docker daemon 未运行。迁移和 pgTAP 测试已保留在仓库，线上应用与数据库测试须在
 工具恢复或凭据可用后完成。
 
+## Progress update: frontend
+
+- 已实现 Supabase 匿名读取层，按排名排序并区分 ready、empty、error 三种稳定状态。
+- 已实现首页科技区预览与 `/technology/juejin` 完整榜单；两个路由均为动态服务端渲染，浏览端不调用 Hono。
+- 已实现窄栏纸张式布局、信号橙红主题、明暗模式、加载态与错误态，并复用 shadcn 的基础组件。
+- 前端验证：Biome 通过，TypeScript 通过，Vitest 6 项测试通过，Next.js 生产构建通过。
+
 ## Risks
 
 - 远程已建立；PR 仅在完整本地验证和审查结束后创建。
