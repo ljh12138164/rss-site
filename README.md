@@ -20,21 +20,65 @@ Supabase Cron → Hono on Vercel → RSSHub
 
 浏览器和 Next.js 前端不会请求 Hono；Hono 只接收 Supabase Cron 的受保护采集请求。
 
-## Local development
+## 本地开发
 
-要求 Node.js 24+ 与 pnpm 11：
+需要 Node.js 24+ 与 pnpm 11。克隆仓库后先安装依赖：
 
 ```bash
 pnpm install
-pnpm dev
 ```
 
-也可以分别运行。API 本地开发需要预先全局安装 Vercel CLI：
+### 只启动前端
+
+前端直接从 Supabase 读取已经采集的热点，不依赖本地 API。首次配置且
+`apps/web/.env.local` 尚不存在时，复制示例文件：
+
+```powershell
+Copy-Item apps/web/.env.example apps/web/.env.local
+```
+
+填写 Supabase 项目 URL 和 Publishable Key 后启动：
 
 ```bash
 pnpm --filter @rss-site/web dev
-pnpm --filter @rss-site/api dev
 ```
+
+访问 <http://localhost:3000>，掘金完整榜单位于
+<http://localhost:3000/technology/juejin>。
+
+### 启动完整开发环境
+
+只有在本地调试 RSSHub 采集或写入 Supabase 时才需要启动 API。首次配置且
+`server/api/.env` 尚不存在时，复制示例文件：
+
+```powershell
+Copy-Item server/api/.env.example server/api/.env
+```
+
+在该文件中填写 `DATABASE_URL` 和 `CRON_SECRET`。然后从仓库根目录运行：
+
+```bash
+pnpm dev
+```
+
+这会同时启动：
+
+- Web：<http://localhost:3000>
+- API：<http://localhost:3001>
+- API 健康检查：<http://localhost:3001/health>
+
+前端不会调用本地 API；两端仍然只通过 Supabase 交换数据。需要手动刷新掘金热点时，
+另开一个终端并把示例中的密钥替换为 `server/api/.env` 内的 `CRON_SECRET`：
+
+```powershell
+curl.exe -X POST http://localhost:3001/cron/juejin -H "Authorization: Bearer <CRON_SECRET>"
+```
+
+成功响应会包含 `batchId` 和 `itemCount`。刷新网页后即可看到 Supabase 中的新数据。
+若返回 `401`，检查请求密钥是否与 API 环境变量一致；若返回 `502`，检查 RSSHub 地址和
+Supabase 数据库连接。
+
+### 代码检查
 
 完整验证：
 

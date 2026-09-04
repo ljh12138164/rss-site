@@ -94,6 +94,9 @@ importers:
         specifier: 3.4.9
         version: 3.4.9
     devDependencies:
+      '@hono/node-server':
+        specifier: 2.1.1
+        version: 2.1.1(hono@4.13.5)
       '@types/node':
         specifier: 26.4.1
         version: 26.4.1
@@ -643,6 +646,12 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==, tarball: http://192.168.1.30:4873/@floating-ui%2futils/-/utils-0.2.12.tgz}
+
+  '@hono/node-server@2.1.1':
+    resolution: {integrity: sha512-ELuehkj5VCBdgEw9zs+ivkKwyzzUCSQuE96YmiPvn1ECBoZCczbFXJLeEGMTYjphP6gydh4pHMqEYPVMYUVgQg==, tarball: http://192.168.1.30:4873/@hono%2fnode-server/-/node-server-2.1.1.tgz}
+    engines: {node: '>=20'}
+    peerDependencies:
+      hono: ^4
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==, tarball: http://192.168.1.30:4873/@img%2fcolour/-/colour-1.1.0.tgz}
@@ -2867,6 +2876,10 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
 
   '@floating-ui/utils@0.2.12': {}
+
+  '@hono/node-server@2.1.1(hono@4.13.5)':
+    dependencies:
+      hono: 4.13.5
 
   '@img/colour@1.1.0':
     optional: true
