@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { JuejinFeedItem } from './feed'
-import { ingestJuejin, type JuejinStore, type SuccessfulIngestion } from './ingest'
+import type { JuejinFeedItem } from './feed.js'
+import { ingestJuejin, type JuejinStore, type SuccessfulIngestion } from './ingest.js'
 
 class MemoryStore implements JuejinStore {
   readonly items = new Map<string, JuejinFeedItem>()

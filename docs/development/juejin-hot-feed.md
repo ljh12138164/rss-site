@@ -93,7 +93,8 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 - `supabase test db --linked` 因本机 Docker daemon 未运行而无法启动 pgTAP runner；SQL 测试仍以事务和
   `rollback` 保留在仓库中。
 - 浏览器验收覆盖桌面、390px 移动视口、明暗主题和掘金子路由；接入线上 Supabase 后显示预期空态。
-- Cron 未在线启用：需要先部署 Hono API，并把真实 URL 与匹配的 `CRON_SECRET` 写入 Vault。
+- Supabase Vault 与五小时 Cron 已配置；首次测试调用因 Vercel 误识别 Hono 入口而返回 HTTP 500，
+  等待入口修复重新部署后复验采集。
 
 ## Review
 
@@ -107,5 +108,16 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 ## Risks
 
 - 远程已建立；PR 仅在完整本地验证和审查结束后创建。
-- 生产部署需要用户配置 Vercel 与 Supabase Vault secrets。
+- 生产环境变量和 Supabase Vault secrets 已由用户配置；入口修复部署后仍需用健康检查与真实采集验收。
 - RSSHub 公共实例的可用性不受本项目控制；页面必须保留最后成功数据。
+
+## Production deployment fix
+
+- Vercel 的 Hono 预设优先把 `src/app.ts` 识别为服务入口，但该文件原本只导出应用工厂，导致线上报错
+  `Invalid export found in module`。
+- 内部应用工厂已重命名为 `src/http-app.ts`，确保 Vercel 选择默认导出 Hono 实例的 `src/index.ts`。
+- `src/index.ts` 直接创建 Hono 实例；后端 TypeScript 使用 `NodeNext`，本地相对导入显式携带 `.js`
+  后缀，确保 Vercel 生成的原生 ESM 能被 Node.js 24 加载。
+- 新增入口选择回归测试，防止后续再次添加优先级更高的保留文件名。
+- `vercel build --prod` 成功，直接加载生成的函数入口并调用 `/health` 返回 `200 {"status":"ok"}`。
+- 修复提交已推送到功能分支；Vercel Production 跟踪 `master`，生产域名需要在合并或明确发布后复验。

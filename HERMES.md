@@ -10,11 +10,17 @@
 - Supabase 项目 `rss-site` 已链接，迁移 `20260904013727` 已在线应用。
 - 线上 REST 验证公开热点表可匿名读取，内部采集记录不可匿名读取。
 - 前端已完成桌面、390px、明暗主题与真实 Supabase 空态的浏览器验收。
-- 远程 pgTAP runner 仍需要本机 Docker；Cron 需要在 API 部署后配置 Vault 才能启用。
+- Supabase Vault 与五小时 Cron 已配置；首次采集暴露 Vercel 错误选择 `src/app.ts` 为入口的问题。
+- Hono 内部工厂已改名为 `src/http-app.ts`，入口直接创建 Hono 实例，后端 ESM 导入已对齐 NodeNext，
+  并新增 Vercel 入口选择回归测试。
+- 本地 Vercel production 构建及其生成函数的 `/health` 调用已通过。
+- 入口修复提交 `fd004dd` 已推送到 `feat/juejin-hot-feed`；Vercel Production 跟踪 `master`，
+  因此自定义域名仍指向旧部署。
+- 远程 pgTAP runner 仍需要本机 Docker。
 
 ## Next action
 
-运行最终全量门禁和双轴自审，提交文档，推送功能分支并创建 GitHub PR。
+将功能分支合入 `master` 或明确发布该提交到 Production，然后验证线上 `/health` 并重新执行真实采集。
 
 ## Delivery constraint
 
