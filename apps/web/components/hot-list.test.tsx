@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { HotList } from './hot-list'
 
 describe('HotList', () => {
-  it('renders ranked items with safe external links and readable metadata', () => {
+  it('routes ranked items through the local outbound notice', () => {
     const html = renderToStaticMarkup(
       <HotList
         items={[
@@ -24,8 +24,8 @@ describe('HotList', () => {
     expect(html).toContain('构建可靠的前端应用')
     expect(html).toContain('从边界状态和数据流开始设计。')
     expect(html).toContain('示例作者')
-    expect(html).toContain('href="https://juejin.cn/post/1"')
-    expect(html).toContain('target="_blank"')
-    expect(html).toContain('rel="noreferrer noopener"')
+    expect(html).toContain('href="/out?url=https%3A%2F%2Fjuejin.cn%2Fpost%2F1"')
+    expect(html).not.toContain('href="https://juejin.cn/post/1"')
+    expect(html).not.toContain('target="_blank"')
   })
 })

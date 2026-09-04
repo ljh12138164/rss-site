@@ -29,11 +29,13 @@ describe('HomeView', () => {
       </TooltipProvider>
     )
 
-    expect(html).toContain('热点更新')
+    expect(html).toMatch(/<h1[^>]*>热点跟踪<\/h1>/)
+    expect(html).not.toContain('少一点噪音')
     expect(html).toContain('科技')
     expect(html).toContain('掘金')
     expect(html).toContain('28 条')
     expect(html).toContain('href="/technology/juejin"')
-    expect(html.match(/juejin\.cn\/post/g)).toHaveLength(5)
+    expect(html.match(/href="\/out\?url=/g)).toHaveLength(5)
+    expect(html).not.toContain('href="https://juejin.cn/post/')
   })
 })

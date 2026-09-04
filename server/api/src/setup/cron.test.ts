@@ -23,12 +23,15 @@ describe('normalizeIngestUrl', () => {
 })
 
 describe('setupJuejinCron', () => {
-  it('upserts Vault secrets, schedules the job, and verifies ingestion', async () => {
+  it('upserts Vault secrets, schedules ingestion and retention, and verifies ingestion', async () => {
     const calls: string[] = []
+    const scheduledJobs: Array<{ name: string; schedule: string; command: string }> = []
     const repository: CronRepository = {
       installExtensions: async () => calls.push('extensions'),
       upsertSecret: async (name, value) => calls.push(`secret:${name}:${value}`),
-      schedule: async (name, schedule) => calls.push(`schedule:${name}:${schedule}`)
+      schedule: async (name, schedule, command) => {
+        scheduledJobs.push({ name, schedule, command })
+      }
     }
 
     const result = await setupJuejinCron({
@@ -45,9 +48,20 @@ describe('setupJuejinCron', () => {
       'extensions',
       'secret:juejin_ingest_url:https://api.example.com/cron/juejin',
       'secret:juejin_cron_secret:test-secret',
-      'schedule:juejin-hot-feed-every-five-hours:0 */5 * * *',
       'request:https://api.example.com/cron/juejin:Bearer test-secret'
     ])
+    expect(scheduledJobs).toHaveLength(2)
+    expect(scheduledJobs[0]).toMatchObject({
+      name: 'juejin-hot-feed-every-five-hours',
+      schedule: '0 */5 * * *'
+    })
+    expect(scheduledJobs[1]).toMatchObject({
+      name: 'ingestion-runs-retention-daily',
+      schedule: '30 3 * * *'
+    })
+    expect(scheduledJobs[1]?.command).toContain("interval '30 days'")
+    expect(scheduledJobs[1]?.command).toContain('from public.hot_items')
+    expect(scheduledJobs[1]?.command).toContain('from public.source_status')
     expect(result).toEqual({ batchId: 'batch-1', itemCount: 12 })
   })
 

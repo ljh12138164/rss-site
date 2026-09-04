@@ -16,9 +16,7 @@ export function HomeView({ feed }: { feed: FeedResult }) {
           Signal archive
         </p>
         <h1 className="mt-6 max-w-xl text-4xl font-semibold leading-[1.16] tracking-[-0.045em] sm:text-5xl">
-          热点更新，
-          <br />
-          少一点噪音。
+          热点跟踪
         </h1>
         <p className="mt-6 max-w-lg text-base leading-7 text-muted-foreground">
           定时整理开发者社区正在讨论的内容。沿着信号阅读，不被信息流推着走。

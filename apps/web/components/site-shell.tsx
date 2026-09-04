@@ -5,7 +5,7 @@ import { Separator } from './ui/separator'
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-[45rem] flex-col px-5 sm:px-7">
+    <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col px-5 sm:px-7">
       <header className="sticky top-0 z-20 flex h-[4.25rem] items-center justify-between border-b border-border bg-background/95 backdrop-blur-sm">
         <Link
           className="font-mono text-sm font-semibold tracking-[-0.02em] transition-colors hover:text-primary"

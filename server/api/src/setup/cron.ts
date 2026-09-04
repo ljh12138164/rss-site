@@ -1,5 +1,7 @@
 export const CRON_JOB_NAME = 'juejin-hot-feed-every-five-hours'
 export const CRON_SCHEDULE = '0 */5 * * *'
+export const RETENTION_JOB_NAME = 'ingestion-runs-retention-daily'
+export const RETENTION_SCHEDULE = '30 3 * * *'
 
 export const CRON_COMMAND = `
 select net.http_post(
@@ -19,6 +21,21 @@ select net.http_post(
   body := jsonb_build_object('scheduled_at', now()),
   timeout_milliseconds := 30000
 ) as request_id;
+`.trim()
+
+export const RETENTION_COMMAND = `
+delete from public.ingestion_runs as run
+where run.started_at < now() - interval '30 days'
+  and not exists (
+    select 1
+    from public.hot_items as item
+    where item.batch_id = run.id
+  )
+  and not exists (
+    select 1
+    from public.source_status as source_state
+    where source_state.last_batch_id = run.id
+  );
 `.trim()
 
 export interface CronRepository {
@@ -90,6 +107,7 @@ export async function setupJuejinCron({
   await repository.upsertSecret('juejin_ingest_url', ingestUrl)
   await repository.upsertSecret('juejin_cron_secret', cronSecret)
   await repository.schedule(CRON_JOB_NAME, CRON_SCHEDULE, CRON_COMMAND)
+  await repository.schedule(RETENTION_JOB_NAME, RETENTION_SCHEDULE, RETENTION_COMMAND)
 
   const response = await request(ingestUrl, {
     method: 'POST',

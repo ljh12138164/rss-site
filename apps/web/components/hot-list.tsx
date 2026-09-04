@@ -23,9 +23,7 @@ export function HotList({ items }: { items: HotItem[] }) {
           <article className="min-w-0">
             <a
               className="group inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] text-foreground transition-colors hover:text-primary sm:text-lg"
-              href={item.url}
-              rel="noreferrer noopener"
-              target="_blank"
+              href={`/out?url=${encodeURIComponent(item.url)}`}
             >
               <span>{item.title}</span>
               <ArrowUpRight
