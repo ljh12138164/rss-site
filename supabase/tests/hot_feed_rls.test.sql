@@ -1,5 +1,5 @@
 begin;
-select plan(18);
+select plan(21);
 
 select has_table('public', 'hot_items', 'hot_items exists');
 select has_table('public', 'source_status', 'source_status exists');
@@ -71,6 +71,31 @@ select lives_ok(
     ('technology', 'github', 'external-story', 'external story', 'https://example.com/story', 1,
      '00000000-0000-0000-0000-000000000001')$$,
   'technology items can link to an external web host'
+);
+select lives_ok(
+  $$insert into public.ingestion_runs
+    (id, source, status, item_count, started_at, finished_at)
+    values
+    ('00000000-0000-0000-0000-000000000002', 'xinhua', 'succeeded', 1, now(), now())$$,
+  'a confirmed news source can create an ingestion run'
+);
+select lives_ok(
+  $$insert into public.hot_items
+    (section, source, source_key, title, url, position, batch_id)
+    values
+    ('news', 'xinhua', 'xinhua-story', 'xinhua story', 'https://www.news.cn/story', 1,
+     '00000000-0000-0000-0000-000000000002')$$,
+  'news items accept the matching source and section'
+);
+select throws_ok(
+  $$insert into public.hot_items
+    (section, source, source_key, title, url, position, batch_id)
+    values
+    ('technology', 'xinhua', 'wrong-section', 'wrong section', 'https://www.news.cn/wrong', 2,
+     '00000000-0000-0000-0000-000000000002')$$,
+  '23514',
+  null,
+  'news sources cannot be stored in the technology section'
 );
 select throws_ok(
   $$insert into public.ingestion_runs

@@ -2,15 +2,17 @@ import { describe, expect, it } from 'vitest'
 import {
   type CronRepository,
   normalizeIngestUrl,
-  setupTechnologyCron,
-  TECHNOLOGY_CRON_JOBS
+  SIGNAL_CRON_JOBS,
+  setupSignalCron
 } from './cron.js'
 
 describe('normalizeIngestUrl', () => {
   it.each([
-    ['https://api.example.com/', 'https://api.example.com/cron/technology'],
-    ['https://api.example.com/cron/juejin/', 'https://api.example.com/cron/technology'],
-    ['https://api.example.com/cron/technology/', 'https://api.example.com/cron/technology']
+    ['https://api.example.com/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/juejin/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/technology/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/news/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/signals/', 'https://api.example.com/cron/signals']
   ])('normalizes %s', (value, expected) => {
     expect(normalizeIngestUrl(value)).toBe(expected)
   })
@@ -23,8 +25,8 @@ describe('normalizeIngestUrl', () => {
   )
 })
 
-describe('setupTechnologyCron', () => {
-  it('upserts shared secrets, staggers six sources, retains history, and verifies Juejin', async () => {
+describe('setupSignalCron', () => {
+  it('upserts shared secrets, staggers twelve sources, retains history, and verifies Juejin', async () => {
     const calls: string[] = []
     const scheduledJobs: Array<{ name: string; schedule: string; command: string }> = []
     const repository: CronRepository = {
@@ -35,7 +37,7 @@ describe('setupTechnologyCron', () => {
       }
     }
 
-    const result = await setupTechnologyCron({
+    const result = await setupSignalCron({
       apiUrl: 'https://api.example.com',
       cronSecret: 'test-secret',
       repository,
@@ -47,21 +49,23 @@ describe('setupTechnologyCron', () => {
 
     expect(calls).toEqual([
       'extensions',
-      'secret:technology_ingest_base_url:https://api.example.com/cron/technology',
-      'secret:technology_cron_secret:test-secret',
-      'request:https://api.example.com/cron/technology/juejin:Bearer test-secret'
+      'secret:signal_ingest_base_url:https://api.example.com/cron/signals',
+      'secret:signal_cron_secret:test-secret',
+      'request:https://api.example.com/cron/signals/juejin:Bearer test-secret'
     ])
-    expect(scheduledJobs).toHaveLength(7)
-    expect(scheduledJobs.slice(0, 6).map(({ name, schedule }) => ({ name, schedule }))).toEqual(
-      TECHNOLOGY_CRON_JOBS.map(({ name, schedule }) => ({ name, schedule }))
+    expect(scheduledJobs).toHaveLength(13)
+    expect(scheduledJobs.slice(0, 12).map(({ name, schedule }) => ({ name, schedule }))).toEqual(
+      SIGNAL_CRON_JOBS.map(({ name, schedule }) => ({ name, schedule }))
     )
     expect(scheduledJobs[0]?.command).toContain("'/github'")
     expect(scheduledJobs[5]?.command).toContain("'/36kr'")
-    expect(scheduledJobs[6]).toMatchObject({
+    expect(scheduledJobs[6]?.command).toContain("'/xinhua'")
+    expect(scheduledJobs[11]?.command).toContain("'/baidu'")
+    expect(scheduledJobs[12]).toMatchObject({
       name: 'ingestion-runs-retention-daily',
       schedule: '30 3 * * *'
     })
-    expect(scheduledJobs[6]?.command).toContain("interval '30 days'")
+    expect(scheduledJobs[12]?.command).toContain("interval '30 days'")
     expect(result).toEqual({ batchId: 'batch-1', itemCount: 12 })
   })
 
@@ -73,7 +77,7 @@ describe('setupTechnologyCron', () => {
     }
 
     await expect(
-      setupTechnologyCron({
+      setupSignalCron({
         apiUrl: 'https://api.example.com',
         cronSecret: 'test-secret',
         repository,

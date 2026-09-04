@@ -1,9 +1,9 @@
 # 热点更新
 
-一个通过 RSSHub 汇总社区热点的轻量阅读站。科技区当前包含 GitHub Trending、Hacker News、
-掘金、V2EX、IT之家和 36氪：首页展示每个来源的一条信号，`/technology` 展示六路总览，
-`/technology/[source]` 展示独立完整榜单。数据约每五小时由 Hono 服务采集一次，并以
-Supabase 作为前后端之间唯一的数据中转。
+一个通过 RSSHub 汇总热点的轻量阅读站。科技区包含 GitHub Trending、Hacker News、掘金、V2EX、
+IT之家和 36氪；国内新闻区包含新华社、央视国内、中新网、澎湃热榜、界面中国和百度热搜。首页展示
+十二路摘要，`/technology` 与 `/news` 展示分区总览，各自的 `[source]` 路由展示独立完整列表。数据约
+每五小时由 Hono 服务采集一次，并以 Supabase 作为前后端之间唯一的数据中转。
 
 ## Architecture
 
@@ -44,8 +44,8 @@ Copy-Item apps/web/.env.example apps/web/.env.local
 pnpm --filter @rss-site/web dev
 ```
 
-访问 <http://localhost:3000>，科技总览位于 <http://localhost:3000/technology>，六个来源详情
-位于对应的 `/technology/[source]` URL。
+访问 <http://localhost:3000>，科技总览位于 <http://localhost:3000/technology>，国内新闻总览位于
+<http://localhost:3000/news>，来源详情位于对应分区的 `[source]` URL。
 
 ### 启动完整开发环境
 
@@ -72,7 +72,7 @@ pnpm dev
 终端并把示例中的来源 ID 与密钥替换为目标值和 `server/api/.env` 内的 `CRON_SECRET`：
 
 ```powershell
-curl.exe -X POST http://localhost:3001/cron/technology/github -H "Authorization: Bearer <CRON_SECRET>"
+curl.exe -X POST http://localhost:3001/cron/signals/xinhua -H "Authorization: Bearer <CRON_SECRET>"
 ```
 
 成功响应会包含 `batchId` 和 `itemCount`。刷新网页后即可看到 Supabase 中的新数据。
@@ -127,10 +127,10 @@ simple-git-hooks 的 pre-commit 钩子；提交前会格式化并校验暂存文
    pnpm setup:cron
    ```
 
-5. 按提示输入部署后的 Hono API 域名或完整的 `/cron/technology` 地址。
+5. 按提示输入部署后的 Hono API 域名或完整的 `/cron/signals` 地址。
 
 该命令会幂等创建或更新 Supabase Vault 中的 API 地址和 Cron 密钥，启用 `pg_cron` 与
-`pg_net`，安装六个 UTC 每五小时错峰运行的任务和 30 天运行历史清理，并立即发起一次掘金测试
+`pg_net`，安装十二个 UTC 每五小时错峰运行的任务和 30 天运行历史清理，并立即发起一次掘金测试
 采集。重复运行会更新已有同名任务。`supabase/cron/setup.sql` 保留为手动配置和审计用的备用方案。
 
 RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客户端不能写数据，也不能读取
@@ -143,9 +143,12 @@ RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客�
 - Web 项目的 Root Directory 为 `apps/web`。
 - API 项目的 Root Directory 为 `server/api`。
 
-分别配置上述环境变量。API 健康检查为 `GET /health`，采集端点为
-`POST /cron/technology/:source`；`POST /cron/juejin` 在切换期间继续兼容。生产配置完成前，
-不要执行 Cron 脚本，以免保存无效部署地址。
+分别配置上述环境变量。API 健康检查为 `GET /health`，通用采集端点为
+`POST /cron/signals/:source`；`POST /cron/technology/:source` 与 `POST /cron/juejin` 在切换期间继续
+兼容，新闻来源也可使用 `POST /cron/news/:source`。生产配置完成前，不要执行 Cron 脚本，以免保存
+无效部署地址。
 
 更详细的设计与实施记录见
 [科技多来源与 React Aria 开发文档](docs/development/technology-hot-sources.md)。
+国内新闻来源与页面扩展见
+[中国国内新闻来源开发文档](docs/development/domestic-news-sources.md)。

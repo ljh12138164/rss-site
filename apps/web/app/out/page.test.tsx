@@ -25,4 +25,12 @@ describe('OutboundView', () => {
     expect(html).toContain('链接已停止放行')
     expect(html).not.toContain('继续访问原文')
   })
+
+  it('returns news readers to the news section', () => {
+    const html = renderToStaticMarkup(
+      <OutboundView destination="https://www.news.cn/story" returnTo="/news" />
+    )
+
+    expect(html).toContain('href="/news"')
+  })
 })

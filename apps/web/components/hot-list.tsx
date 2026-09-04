@@ -9,7 +9,13 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
   hour12: false
 })
 
-export function HotList({ items }: { items: HotItem[] }) {
+export function HotList({
+  items,
+  returnTo = '/technology'
+}: {
+  items: HotItem[]
+  returnTo?: '/technology' | '/news'
+}) {
   return (
     <ol className="divide-y divide-border border-y border-border">
       {items.map((item) => (
@@ -23,7 +29,7 @@ export function HotList({ items }: { items: HotItem[] }) {
           <article className="min-w-0">
             <a
               className="group inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] text-foreground transition-colors hover:text-primary sm:text-lg"
-              href={`/out?url=${encodeURIComponent(item.url)}`}
+              href={`/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(returnTo)}`}
             >
               <span>{item.title}</span>
               <ArrowUpRight

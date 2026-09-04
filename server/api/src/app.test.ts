@@ -51,6 +51,42 @@ describe('Hono ingestion API', () => {
     expect(sources).toEqual(['github'])
   })
 
+  it('runs a confirmed news source through both news and generic endpoints', async () => {
+    const sources: string[] = []
+    const app = configureApp(new Hono(), {
+      cronSecret: 'secret',
+      runIngestion: async (source) => {
+        sources.push(source)
+        return { batchId: 'batch-news', itemCount: 20 }
+      }
+    })
+
+    for (const path of ['/cron/news/xinhua', '/cron/signals/xinhua']) {
+      const response = await app.request(path, {
+        method: 'POST',
+        headers: { Authorization: 'Bearer secret' }
+      })
+      expect(response.status).toBe(200)
+    }
+
+    expect(sources).toEqual(['xinhua', 'xinhua'])
+  })
+
+  it('does not accept a news source through the legacy technology endpoint', async () => {
+    const app = configureApp(new Hono(), {
+      cronSecret: 'secret',
+      runIngestion: async () => ({ batchId: 'batch-news', itemCount: 20 })
+    })
+
+    const response = await app.request('/cron/technology/xinhua', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer secret' }
+    })
+
+    expect(response.status).toBe(404)
+    expect(await response.json()).toEqual({ error: 'Unknown signal source' })
+  })
+
   it('keeps the legacy Juejin endpoint during the Cron transition', async () => {
     const sources: string[] = []
     const app = configureApp(new Hono(), {
@@ -82,7 +118,7 @@ describe('Hono ingestion API', () => {
     })
 
     expect(response.status).toBe(404)
-    expect(await response.json()).toEqual({ error: 'Unknown technology source' })
+    expect(await response.json()).toEqual({ error: 'Unknown signal source' })
   })
 
   it('returns a stable upstream error without leaking internals', async () => {
@@ -99,6 +135,6 @@ describe('Hono ingestion API', () => {
     })
 
     expect(response.status).toBe(502)
-    expect(await response.json()).toEqual({ error: 'Technology ingestion failed' })
+    expect(await response.json()).toEqual({ error: 'Signal ingestion failed' })
   })
 })

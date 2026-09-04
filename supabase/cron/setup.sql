@@ -1,6 +1,6 @@
 -- Manual fallback for `pnpm setup:cron`. Run after storing these secrets in Vault:
--- select vault.create_secret('https://your-api.vercel.app/cron/technology', 'technology_ingest_base_url');
--- select vault.create_secret('replace-with-a-random-secret', 'technology_cron_secret');
+-- select vault.create_secret('https://your-api.vercel.app/cron/signals', 'signal_ingest_base_url');
+-- select vault.create_secret('replace-with-a-random-secret', 'signal_cron_secret');
 
 create extension if not exists pg_cron with schema pg_catalog;
 create extension if not exists pg_net with schema extensions;
@@ -18,7 +18,13 @@ begin
       ('juejin', 'juejin-hot-feed-every-five-hours', '20 0,5,10,15,20 * * *'),
       ('v2ex', 'v2ex-hot-feed-every-five-hours', '30 0,5,10,15,20 * * *'),
       ('ithome', 'ithome-hot-feed-every-five-hours', '40 0,5,10,15,20 * * *'),
-      ('36kr', '36kr-hot-feed-every-five-hours', '50 0,5,10,15,20 * * *')
+      ('36kr', '36kr-hot-feed-every-five-hours', '50 0,5,10,15,20 * * *'),
+      ('xinhua', 'xinhua-news-feed-every-five-hours', '0 1,6,11,16,21 * * *'),
+      ('cctv', 'cctv-news-feed-every-five-hours', '10 1,6,11,16,21 * * *'),
+      ('chinanews', 'chinanews-feed-every-five-hours', '20 1,6,11,16,21 * * *'),
+      ('thepaper', 'thepaper-hot-feed-every-five-hours', '30 1,6,11,16,21 * * *'),
+      ('jiemian', 'jiemian-news-feed-every-five-hours', '40 1,6,11,16,21 * * *'),
+      ('baidu', 'baidu-hot-feed-every-five-hours', '50 1,6,11,16,21 * * *')
     ) as jobs(source_id, job_name, job_schedule)
   loop
     perform cron.schedule(
@@ -29,13 +35,13 @@ begin
           url := (
             select rtrim(decrypted_secret, '/')
             from vault.decrypted_secrets
-            where name = 'technology_ingest_base_url'
+            where name = 'signal_ingest_base_url'
           ) || '/%s',
           headers := jsonb_build_object(
             'Authorization', 'Bearer ' || (
               select decrypted_secret
               from vault.decrypted_secrets
-              where name = 'technology_cron_secret'
+              where name = 'signal_cron_secret'
             ),
             'Content-Type', 'application/json'
           ),

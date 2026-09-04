@@ -26,6 +26,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
             >
               科技
             </Link>
+            <Link
+              className="flex min-h-11 items-center px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              href="/news"
+            >
+              新闻
+            </Link>
           </nav>
           <ThemeToggle />
         </div>

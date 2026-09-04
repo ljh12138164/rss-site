@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveOutboundDestination } from './outbound-link'
+import { resolveOutboundDestination, resolveOutboundReturnPath } from './outbound-link'
 
 describe('resolveOutboundDestination', () => {
   it('allows normal web links without restricting the destination host', () => {
@@ -17,4 +17,12 @@ describe('resolveOutboundDestination', () => {
       expect(resolveOutboundDestination(url)).toBeNull()
     }
   )
+})
+
+describe('resolveOutboundReturnPath', () => {
+  it('allows only known section paths', () => {
+    expect(resolveOutboundReturnPath('/news')).toBe('/news')
+    expect(resolveOutboundReturnPath('/technology')).toBe('/technology')
+    expect(resolveOutboundReturnPath('https://evil.example')).toBe('/technology')
+  })
 })

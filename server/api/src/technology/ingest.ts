@@ -1,5 +1,5 @@
 import { parseTechnologyFeed, type TechnologyFeedItem } from './feed.js'
-import type { TechnologySource } from './sources.js'
+import type { SignalSource } from './sources.js'
 
 export interface SuccessfulIngestion {
   batchId: string
@@ -15,29 +15,32 @@ export interface FailedIngestion {
   errorMessage: string
 }
 
-export interface TechnologyStore {
+export interface SignalStore {
   replaceRanking(input: SuccessfulIngestion): Promise<void>
   recordFailure(input: FailedIngestion): Promise<void>
 }
 
 interface IngestionDependencies {
   fetchFeed(): Promise<string>
-  store: TechnologyStore
+  store: SignalStore
 }
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message.slice(0, 500) : 'Unknown ingestion error'
 }
 
-export async function ingestTechnology(
-  source: TechnologySource,
+export async function ingestSignal(
+  source: SignalSource,
   deps: IngestionDependencies,
   now = new Date()
 ) {
   const batchId = crypto.randomUUID()
 
   try {
-    const items = parseTechnologyFeed(await deps.fetchFeed(), source.name)
+    const items = parseTechnologyFeed(await deps.fetchFeed(), source.name).slice(
+      0,
+      source.itemLimit
+    )
     await deps.store.replaceRanking({ batchId, startedAt: now, finishedAt: now, items })
     return { batchId, itemCount: items.length }
   } catch (error) {

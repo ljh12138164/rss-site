@@ -1,7 +1,7 @@
-import type { TechnologySourceId } from '../technology/sources.js'
+import type { SignalSourceId } from '../technology/sources.js'
 
-export const TECHNOLOGY_CRON_JOBS: ReadonlyArray<{
-  source: TechnologySourceId
+export const SIGNAL_CRON_JOBS: ReadonlyArray<{
+  source: SignalSourceId
   name: string
   schedule: string
 }> = [
@@ -14,25 +14,43 @@ export const TECHNOLOGY_CRON_JOBS: ReadonlyArray<{
   { source: 'juejin', name: 'juejin-hot-feed-every-five-hours', schedule: '20 0,5,10,15,20 * * *' },
   { source: 'v2ex', name: 'v2ex-hot-feed-every-five-hours', schedule: '30 0,5,10,15,20 * * *' },
   { source: 'ithome', name: 'ithome-hot-feed-every-five-hours', schedule: '40 0,5,10,15,20 * * *' },
-  { source: '36kr', name: '36kr-hot-feed-every-five-hours', schedule: '50 0,5,10,15,20 * * *' }
+  { source: '36kr', name: '36kr-hot-feed-every-five-hours', schedule: '50 0,5,10,15,20 * * *' },
+  { source: 'xinhua', name: 'xinhua-news-feed-every-five-hours', schedule: '0 1,6,11,16,21 * * *' },
+  { source: 'cctv', name: 'cctv-news-feed-every-five-hours', schedule: '10 1,6,11,16,21 * * *' },
+  {
+    source: 'chinanews',
+    name: 'chinanews-feed-every-five-hours',
+    schedule: '20 1,6,11,16,21 * * *'
+  },
+  {
+    source: 'thepaper',
+    name: 'thepaper-hot-feed-every-five-hours',
+    schedule: '30 1,6,11,16,21 * * *'
+  },
+  {
+    source: 'jiemian',
+    name: 'jiemian-news-feed-every-five-hours',
+    schedule: '40 1,6,11,16,21 * * *'
+  },
+  { source: 'baidu', name: 'baidu-hot-feed-every-five-hours', schedule: '50 1,6,11,16,21 * * *' }
 ]
 
 export const RETENTION_JOB_NAME = 'ingestion-runs-retention-daily'
 export const RETENTION_SCHEDULE = '30 3 * * *'
 
-export function createCronCommand(source: TechnologySourceId): string {
+export function createCronCommand(source: SignalSourceId): string {
   return `
 select net.http_post(
   url := (
     select rtrim(decrypted_secret, '/')
     from vault.decrypted_secrets
-    where name = 'technology_ingest_base_url'
+    where name = 'signal_ingest_base_url'
   ) || '/${source}',
   headers := jsonb_build_object(
     'Authorization', 'Bearer ' || (
       select decrypted_secret
       from vault.decrypted_secrets
-      where name = 'technology_cron_secret'
+      where name = 'signal_cron_secret'
     ),
     'Content-Type', 'application/json'
   ),
@@ -63,7 +81,7 @@ export interface CronRepository {
   schedule(name: string, schedule: string, command: string): Promise<unknown>
 }
 
-interface SetupTechnologyCronOptions {
+interface SetupSignalCronOptions {
   apiUrl: string
   cronSecret: string
   repository: CronRepository
@@ -86,12 +104,12 @@ export function normalizeIngestUrl(value: string): string {
       url.password ||
       url.search ||
       url.hash ||
-      (path && path !== '/cron/juejin' && path !== '/cron/technology')
+      !['', '/cron/juejin', '/cron/technology', '/cron/news', '/cron/signals'].includes(path)
     ) {
       throw new Error()
     }
 
-    url.pathname = '/cron/technology'
+    url.pathname = '/cron/signals'
     return url.toString().replace(/\/$/, '')
   } catch {
     throw new Error('API 地址必须是有效的 HTTPS 地址，例如 https://api.example.com')
@@ -113,20 +131,20 @@ function parseIngestionResult(value: unknown): IngestionResult {
   throw new Error('配置已保存，但测试采集返回了无法识别的响应')
 }
 
-export async function setupTechnologyCron({
+export async function setupSignalCron({
   apiUrl,
   cronSecret,
   repository,
   request = fetch
-}: SetupTechnologyCronOptions): Promise<IngestionResult> {
+}: SetupSignalCronOptions): Promise<IngestionResult> {
   const ingestBaseUrl = normalizeIngestUrl(apiUrl)
   if (!cronSecret) throw new Error('CRON_SECRET 不能为空')
 
   await repository.installExtensions()
-  await repository.upsertSecret('technology_ingest_base_url', ingestBaseUrl)
-  await repository.upsertSecret('technology_cron_secret', cronSecret)
+  await repository.upsertSecret('signal_ingest_base_url', ingestBaseUrl)
+  await repository.upsertSecret('signal_cron_secret', cronSecret)
 
-  for (const job of TECHNOLOGY_CRON_JOBS) {
+  for (const job of SIGNAL_CRON_JOBS) {
     await repository.schedule(job.name, job.schedule, createCronCommand(job.source))
   }
   await repository.schedule(RETENTION_JOB_NAME, RETENTION_SCHEDULE, RETENTION_COMMAND)

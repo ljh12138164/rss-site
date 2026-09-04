@@ -1,7 +1,7 @@
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import type { FeedResult } from '../lib/hot-feed'
-import type { TechnologySource } from '../lib/technology-sources'
+import type { SignalSource } from '../lib/technology-sources'
 import { FeedStatus } from './feed-status'
 
 function BandState({ feed }: { feed: Exclude<FeedResult, { state: 'ready' }> }) {
@@ -20,7 +20,15 @@ function BandState({ feed }: { feed: Exclude<FeedResult, { state: 'ready' }> }) 
   )
 }
 
-export function SourceBand({ source, feed }: { source: TechnologySource; feed: FeedResult }) {
+export function SourceBand({
+  source,
+  feed,
+  basePath = '/technology'
+}: {
+  source: SignalSource
+  feed: FeedResult
+  basePath?: '/technology' | '/news'
+}) {
   return (
     <section
       aria-labelledby={`${source.id}-title`}
@@ -42,7 +50,7 @@ export function SourceBand({ source, feed }: { source: TechnologySource; feed: F
         <Link
           aria-label={`查看${source.name}完整榜单`}
           className="flex size-11 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-primary"
-          href={`/technology/${source.id}`}
+          href={`${basePath}/${source.id}`}
         >
           <ArrowRight aria-hidden="true" className="size-4" />
         </Link>
@@ -61,7 +69,7 @@ export function SourceBand({ source, feed }: { source: TechnologySource; feed: F
                 </span>
                 <a
                   className="group flex min-w-0 items-start gap-1.5 text-sm font-medium leading-6 transition-colors hover:text-primary"
-                  href={`/out?url=${encodeURIComponent(item.url)}`}
+                  href={`/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(basePath)}`}
                 >
                   <span className="line-clamp-2">{item.title}</span>
                   <ArrowUpRight

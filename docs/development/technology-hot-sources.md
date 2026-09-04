@@ -66,8 +66,9 @@ React Aria 已获明确批准，GitHub Trending RSS 已恢复为 200。
 - 页面保持平面层级，不使用卡片墙、渐变、发光或装饰性动画；唯一签名元素是可导航的来源频段条。
 - React Aria 只形成小型 client islands；数据查询、榜单、SEO 和面包屑继续是 Server Components。
 - 旧 `/cron/juejin` 映射到通用 `juejin` 采集，避免部署与 Cron 重配之间出现空窗。
-- API 使用 `technologySources` 白名单选择 RSSHub 路径，并以 30 秒上游超时独立执行；Cron 每隔
-  10 分钟触发一个来源，数据库 HTTP 请求上限为 45 秒。
+- API 使用受分区约束的 `signalSources` 白名单选择 RSSHub 路径，并以 30 秒上游超时独立执行；科技 Cron
+  每隔 10 分钟触发一个来源，数据库 HTTP 请求上限为 45 秒。后续新闻分区复用同一采集边界，详见
+  [中国国内新闻来源](./domestic-news-sources.md)。
 - `supabase migration new expand_technology_sources` 生成迁移
   `20260904170915_expand_technology_sources.sql`；迁移只扩展来源与 Web URL 检查，不改变既有 RLS。
 - 前端以两次 Supabase 批量读取取得所有条目和状态，再按来源分组、排序和裁剪，避免首页或总览产生
@@ -82,9 +83,9 @@ React Aria 已获明确批准，GitHub Trending RSS 已恢复为 200。
 
 已完成：
 
-- API Vitest：6 个文件、27 个测试通过；Web Vitest：8 个文件、16 个测试通过。
-- `pnpm check-types` 与 `pnpm build` 通过；Next.js 16.3.4 成功构建 `/`、`/out`、`/technology`
-  和 `/technology/[source]` 动态路由。
+- 合并新闻分区后的最终验证为 API Vitest 33 项、Web Vitest 22 项通过。
+- `pnpm check-types` 与 `pnpm build` 通过；Next.js 16.3.4 成功构建 `/`、`/out`、`/technology`、
+  `/technology/[source]`、`/news` 和 `/news/[source]`。
 - 直接以当前通用解析器读取自建 RSSHub 六条线上公开 RSS：GitHub 20、Hacker News 30、掘金 20、
   V2EX 9、IT之家 12、36氪 8 条，全部解析成功。
 - 浏览器验收覆盖首页、总览、掘金详情和未知来源 404；1440px 为两列、390px 为一列且频段条为
@@ -93,7 +94,7 @@ React Aria 已获明确批准，GitHub Trending RSS 已恢复为 200。
   404 内容。
 - Supabase 当前官方 Cron、Vault、RLS 与 breaking-change 摘要已复核；现有 `cron.schedule`、
   `vault.decrypted_secrets` 和客户端只读 RLS 模式仍适用。
-- 本机 Docker Desktop 未运行，因此 `supabase test db` 无法连接本地容器；pgTAP 已扩展为 18 项，
+- 本机 Docker Desktop 未运行，因此 `supabase test db` 无法连接本地容器；pgTAP 已扩展为 21 项，
   需由 CI 或有 Docker 的环境执行。这不以线上数据库代测，避免违反本 PR 的生产变更边界。
 
 ## Review

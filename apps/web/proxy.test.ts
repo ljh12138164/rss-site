@@ -16,4 +16,12 @@ describe('technology source proxy', () => {
     expect(response.status).toBe(404)
     expect(response.headers.get('x-middleware-rewrite')).toBe('https://example.com/404')
   })
+
+  it('accepts only confirmed news sources on news routes', () => {
+    const known = proxy(new NextRequest('https://example.com/news/xinhua'))
+    const wrongSection = proxy(new NextRequest('https://example.com/news/github'))
+
+    expect(known.headers.get('x-middleware-next')).toBe('1')
+    expect(wrongSection.status).toBe(404)
+  })
 })

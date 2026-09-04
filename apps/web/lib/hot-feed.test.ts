@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { type FeedCollectionQuery, getTechnologyFeed, getTechnologyFeeds } from './hot-feed'
+import {
+  type FeedCollectionQuery,
+  getNewsFeed,
+  getNewsFeeds,
+  getTechnologyFeed,
+  getTechnologyFeeds
+} from './hot-feed'
 
 const query: FeedCollectionQuery = async () => ({
   items: [
@@ -116,5 +122,33 @@ describe('technology feeds', () => {
     }))
 
     expect(Object.values(feeds).every((feed) => feed.state === 'error')).toBe(true)
+  })
+})
+
+describe('news feeds', () => {
+  const newsQuery: FeedCollectionQuery = async () => ({
+    items: [
+      {
+        source: 'xinhua',
+        source_key: 'xinhua-1',
+        title: '新华社新闻',
+        url: 'https://www.news.cn/story',
+        summary: null,
+        author: null,
+        published_at: null,
+        position: 1
+      }
+    ],
+    statuses: [{ source: 'xinhua', item_count: 1, last_success_at: '2026-09-05T01:00:00.000Z' }],
+    error: null
+  })
+
+  it('builds independent collection and detail results', async () => {
+    const feeds = await getNewsFeeds(1, newsQuery)
+    const feed = await getNewsFeed('xinhua', undefined, newsQuery)
+
+    expect(feeds.xinhua.state).toBe('ready')
+    expect(feeds.cctv).toEqual({ state: 'empty' })
+    expect(feed.state).toBe('ready')
   })
 })

@@ -1,5 +1,11 @@
 import { getPublicSupabaseClient } from './supabase'
-import { type TechnologySourceId, technologySources } from './technology-sources'
+import {
+  type NewsSourceId,
+  newsSources,
+  type SignalSourceId,
+  type TechnologySourceId,
+  technologySources
+} from './technology-sources'
 
 export interface HotItemRow {
   source: string
@@ -49,16 +55,19 @@ export type FeedResult =
   | { state: 'error' }
 
 export type TechnologyFeeds = Record<TechnologySourceId, FeedResult>
+export type NewsFeeds = Record<NewsSourceId, FeedResult>
 
-async function queryTechnologyFeeds(): Promise<FeedCollectionQueryResult> {
+async function querySectionFeeds(
+  section: 'technology' | 'news',
+  sourceIds: SignalSourceId[]
+): Promise<FeedCollectionQueryResult> {
   try {
     const supabase = getPublicSupabaseClient()
-    const sourceIds = technologySources.map((source) => source.id)
     const [itemsResult, statusesResult] = await Promise.all([
       supabase
         .from('hot_items')
         .select('source,source_key,title,url,summary,author,published_at,position')
-        .eq('section', 'technology')
+        .eq('section', section)
         .in('source', sourceIds)
         .order('position', { ascending: true }),
       supabase
@@ -77,8 +86,20 @@ async function queryTechnologyFeeds(): Promise<FeedCollectionQueryResult> {
   }
 }
 
+const queryTechnologyFeeds = () =>
+  querySectionFeeds(
+    'technology',
+    technologySources.map((source) => source.id)
+  )
+
+const queryNewsFeeds = () =>
+  querySectionFeeds(
+    'news',
+    newsSources.map((source) => source.id)
+  )
+
 function buildFeed(
-  source: TechnologySourceId,
+  source: SignalSourceId,
   result: FeedCollectionQueryResult,
   limit?: number
 ): FeedResult {
@@ -127,6 +148,25 @@ export async function getTechnologyFeed(
   source: TechnologySourceId,
   limit?: number,
   query: FeedCollectionQuery = queryTechnologyFeeds
+): Promise<FeedResult> {
+  return buildFeed(source, await query(), limit)
+}
+
+export async function getNewsFeeds(
+  limitPerSource?: number,
+  query: FeedCollectionQuery = queryNewsFeeds
+): Promise<NewsFeeds> {
+  const result = await query()
+
+  return Object.fromEntries(
+    newsSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
+  ) as NewsFeeds
+}
+
+export async function getNewsFeed(
+  source: NewsSourceId,
+  limit?: number,
+  query: FeedCollectionQuery = queryNewsFeeds
 ): Promise<FeedResult> {
   return buildFeed(source, await query(), limit)
 }

@@ -1,9 +1,9 @@
 import { Hono } from 'hono'
 import { createDatabase } from './db/client.js'
 import { configureApp } from './http-app.js'
-import { ingestTechnology } from './technology/ingest.js'
-import { getTechnologySource } from './technology/sources.js'
-import { DrizzleTechnologyStore } from './technology/store.js'
+import { ingestSignal } from './technology/ingest.js'
+import { getSignalSource } from './technology/sources.js'
+import { DrizzleSignalStore } from './technology/store.js'
 
 function requiredEnvironment(name: string): string {
   const value = process.env[name]
@@ -14,7 +14,7 @@ function requiredEnvironment(name: string): string {
 const database = createDatabase(requiredEnvironment('DATABASE_URL'))
 const rsshubBaseUrl = (process.env.RSSHUB_BASE_URL ?? 'https://rsshub.app').replace(/\/$/, '')
 
-async function fetchTechnologyFeed(path: string) {
+async function fetchSignalFeed(path: string) {
   const response = await fetch(`${rsshubBaseUrl}${path}`, {
     signal: AbortSignal.timeout(30_000),
     headers: { 'User-Agent': 'rss-site/1.0 (+https://github.com/ljh12138164/rss-site)' }
@@ -26,10 +26,10 @@ async function fetchTechnologyFeed(path: string) {
 export default configureApp(new Hono(), {
   cronSecret: requiredEnvironment('CRON_SECRET'),
   runIngestion: (sourceId) => {
-    const source = getTechnologySource(sourceId)
-    return ingestTechnology(source, {
-      fetchFeed: () => fetchTechnologyFeed(source.rsshubPath),
-      store: new DrizzleTechnologyStore(database, source.id)
+    const source = getSignalSource(sourceId)
+    return ingestSignal(source, {
+      fetchFeed: () => fetchSignalFeed(source.rsshubPath),
+      store: new DrizzleSignalStore(database, source.id, source.section)
     })
   }
 })

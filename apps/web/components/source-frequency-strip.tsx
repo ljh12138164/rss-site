@@ -1,18 +1,32 @@
 import Link from 'next/link'
-import { type TechnologySourceId, technologySources } from '../lib/technology-sources'
+import {
+  type SignalSource,
+  type SignalSourceId,
+  technologySources
+} from '../lib/technology-sources'
 import { cn } from '../lib/utils'
 
-export function SourceFrequencyStrip({ active }: { active?: TechnologySourceId }) {
+export function SourceFrequencyStrip({
+  active,
+  ariaLabel = '科技来源频段',
+  basePath = '/technology',
+  sources = technologySources
+}: {
+  active?: SignalSourceId
+  ariaLabel?: string
+  basePath?: '/technology' | '/news'
+  sources?: readonly SignalSource[]
+}) {
   return (
-    <nav aria-label="科技来源频段" className="border-y border-border">
+    <nav aria-label={ariaLabel} className="border-y border-border">
       <ol className="grid grid-cols-3 sm:grid-cols-6">
-        {technologySources.map((source, index) => (
+        {sources.map((source, index) => (
           <li
             className={cn(
               'border-border',
               index % 3 !== 2 && 'border-r',
               index < 3 && 'border-b sm:border-b-0',
-              index !== technologySources.length - 1 && 'sm:border-r'
+              index !== sources.length - 1 && 'sm:border-r'
             )}
             key={source.id}
           >
@@ -22,7 +36,7 @@ export function SourceFrequencyStrip({ active }: { active?: TechnologySourceId }
                 'group flex min-h-16 flex-col justify-center px-3 transition-colors hover:bg-accent/60 focus-visible:outline-offset-[-3px] sm:min-h-20',
                 active === source.id && 'bg-accent text-accent-foreground'
               )}
-              href={`/technology/${source.id}`}
+              href={`${basePath}/${source.id}`}
             >
               <span className="font-mono text-sm font-semibold tracking-[0.08em] text-primary">
                 {source.code}

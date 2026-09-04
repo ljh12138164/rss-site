@@ -1,11 +1,15 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { isTechnologySourceId } from './lib/technology-sources'
+import { isNewsSourceId, isTechnologySourceId } from './lib/technology-sources'
 
 export function proxy(request: NextRequest) {
-  const sourceId = request.nextUrl.pathname.split('/').filter(Boolean).at(-1)
+  const [section, sourceId] = request.nextUrl.pathname.split('/').filter(Boolean)
 
-  if (sourceId && isTechnologySourceId(sourceId)) {
+  if (
+    sourceId &&
+    ((section === 'technology' && isTechnologySourceId(sourceId)) ||
+      (section === 'news' && isNewsSourceId(sourceId)))
+  ) {
     return NextResponse.next()
   }
 
@@ -13,5 +17,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: '/technology/:source'
+  matcher: ['/technology/:source', '/news/:source']
 }

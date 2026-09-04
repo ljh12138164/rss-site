@@ -13,8 +13,8 @@ Related development document: [科技多来源热点与 React Aria 迁移](../de
 ### 建立来源契约防漂移检查
 
 - Value: 防止 Web 路由、API RSSHub 注册表和数据库来源白名单在后续新增平台时不一致。
-- Evidence: 本期同一组六个来源需要在两个 TypeScript 边界与一条 SQL 迁移中表达，审查确认存在维护漂移风险。
-- Dependencies: 先完成本 PR 的六来源上线；方案不得让浏览器依赖服务端模块或让迁移读取运行时代码。
+- Evidence: 本期十二个来源与两个分区需要在两个 TypeScript 边界与一条 SQL 迁移中表达，审查确认存在维护漂移风险。
+- Dependencies: 先完成本 PR 的十二来源上线；方案不得让浏览器依赖服务端模块或让迁移读取运行时代码。
 - Completion signal: CI 能在任一来源 ID、slug 或白名单不一致时失败，并有一条文档化的新增来源流程。
 
 ## Later

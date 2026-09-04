@@ -1,15 +1,14 @@
 import { and, eq, ne } from 'drizzle-orm'
 import type { Database } from '../db/client.js'
 import { hotItems, ingestionRuns, sourceStatus } from '../db/schema.js'
-import type { FailedIngestion, SuccessfulIngestion, TechnologyStore } from './ingest.js'
-import type { TechnologySourceId } from './sources.js'
+import type { FailedIngestion, SignalStore, SuccessfulIngestion } from './ingest.js'
+import type { SignalSection, SignalSourceId } from './sources.js'
 
-const SECTION = 'technology'
-
-export class DrizzleTechnologyStore implements TechnologyStore {
+export class DrizzleSignalStore implements SignalStore {
   constructor(
     private readonly db: Database,
-    private readonly source: TechnologySourceId
+    private readonly source: SignalSourceId,
+    private readonly section: SignalSection
   ) {}
 
   async replaceRanking(input: SuccessfulIngestion) {
@@ -27,7 +26,7 @@ export class DrizzleTechnologyStore implements TechnologyStore {
         .insert(hotItems)
         .values(
           input.items.map((item) => ({
-            section: SECTION,
+            section: this.section,
             source: this.source,
             sourceKey: item.sourceKey,
             title: item.title,
@@ -67,7 +66,7 @@ export class DrizzleTechnologyStore implements TechnologyStore {
         .insert(sourceStatus)
         .values({
           source: this.source,
-          section: SECTION,
+          section: this.section,
           itemCount: input.items.length,
           lastSuccessAt: input.finishedAt,
           lastBatchId: input.batchId
