@@ -13,7 +13,7 @@
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "pnpm exec biome check --write --staged && git update-index --again && pnpm check-types"
+    "pre-commit": "pnpm exec biome check --write --staged --no-errors-on-unmatched && git update-index --again && pnpm check-types"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
