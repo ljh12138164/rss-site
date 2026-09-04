@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { parseJuejinFeed } from './feed'
+import { parseJuejinFeed } from './feed.js'
 
 const fixtureUrl = new URL('./fixtures/trending.xml', import.meta.url)
 

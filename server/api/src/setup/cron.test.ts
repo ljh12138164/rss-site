@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { type CronRepository, normalizeIngestUrl, setupJuejinCron } from './cron'
+import { type CronRepository, normalizeIngestUrl, setupJuejinCron } from './cron.js'
 
 describe('normalizeIngestUrl', () => {
   it('accepts an HTTPS origin and appends the ingestion path', () => {

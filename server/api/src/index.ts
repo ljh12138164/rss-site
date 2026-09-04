@@ -1,7 +1,8 @@
-import { createApp } from './app'
-import { createDatabase } from './db/client'
-import { ingestJuejin } from './juejin/ingest'
-import { DrizzleJuejinStore } from './juejin/store'
+import { Hono } from 'hono'
+import { createDatabase } from './db/client.js'
+import { configureApp } from './http-app.js'
+import { ingestJuejin } from './juejin/ingest.js'
+import { DrizzleJuejinStore } from './juejin/store.js'
 
 function requiredEnvironment(name: string): string {
   const value = process.env[name]
@@ -22,7 +23,7 @@ async function fetchJuejinFeed() {
   return response.text()
 }
 
-export default createApp({
+export default configureApp(new Hono(), {
   cronSecret: requiredEnvironment('CRON_SECRET'),
   runIngestion: () => ingestJuejin({ fetchFeed: fetchJuejinFeed, store })
 })

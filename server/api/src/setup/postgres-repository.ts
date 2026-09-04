@@ -1,5 +1,5 @@
 import type postgres from 'postgres'
-import type { CronRepository } from './cron'
+import type { CronRepository } from './cron.js'
 
 type Sql = ReturnType<typeof postgres>
 

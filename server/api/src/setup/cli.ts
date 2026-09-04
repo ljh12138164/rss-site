@@ -1,8 +1,8 @@
 import { stdin, stdout } from 'node:process'
 import { createInterface } from 'node:readline/promises'
 import postgres from 'postgres'
-import { normalizeIngestUrl, setupJuejinCron } from './cron'
-import { PostgresCronRepository } from './postgres-repository'
+import { normalizeIngestUrl, setupJuejinCron } from './cron.js'
+import { PostgresCronRepository } from './postgres-repository.js'
 
 function requiredEnvironment(name: string): string {
   const value = process.env[name]

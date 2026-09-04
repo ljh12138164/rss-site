@@ -1,7 +1,7 @@
 import { and, eq, ne } from 'drizzle-orm'
-import type { Database } from '../db/client'
-import { hotItems, ingestionRuns, sourceStatus } from '../db/schema'
-import type { FailedIngestion, JuejinStore, SuccessfulIngestion } from './ingest'
+import type { Database } from '../db/client.js'
+import { hotItems, ingestionRuns, sourceStatus } from '../db/schema.js'
+import type { FailedIngestion, JuejinStore, SuccessfulIngestion } from './ingest.js'
 
 const SOURCE = 'juejin'
 const SECTION = 'technology'

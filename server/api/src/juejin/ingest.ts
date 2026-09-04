@@ -1,5 +1,5 @@
-import type { JuejinFeedItem } from './feed'
-import { parseJuejinFeed } from './feed'
+import type { JuejinFeedItem } from './feed.js'
+import { parseJuejinFeed } from './feed.js'
 
 export interface SuccessfulIngestion {
   batchId: string

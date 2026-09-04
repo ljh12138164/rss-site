@@ -1,5 +1,5 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
-import { Hono } from 'hono'
+import type { Hono } from 'hono'
 
 interface AppDependencies {
   cronSecret: string
@@ -14,9 +14,7 @@ function matchesSecret(actual: string | undefined, expected: string): boolean {
   return timingSafeEqual(actualDigest, expectedDigest)
 }
 
-export function createApp(deps: AppDependencies) {
-  const app = new Hono()
-
+export function configureApp(app: Hono, deps: AppDependencies) {
   app.get('/health', (context) => context.json({ status: 'ok' as const }))
 
   app.post('/cron/juejin', async (context) => {
