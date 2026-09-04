@@ -32,6 +32,7 @@ describe('JuejinView', () => {
     expect(html).toContain('首页')
     expect(html).toContain('科技')
     expect(html).toContain('掘金热榜')
-    expect(html.match(/juejin\.cn\/post/g)).toHaveLength(7)
+    expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
+    expect(html).not.toContain('href="https://juejin.cn/post/')
   })
 })

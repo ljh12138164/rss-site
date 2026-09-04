@@ -24,6 +24,8 @@ coverage
 # Build Outputs
 .next/
 out/
+!apps/web/app/out/
+!apps/web/app/out/**
 build
 dist
 *.tsbuildinfo

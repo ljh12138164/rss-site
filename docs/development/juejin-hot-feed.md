@@ -10,7 +10,7 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 
 ## Scope
 
-- Next.js 首页和 `/technology/juejin`。
+- Next.js 首页、`/technology/juejin` 和外链中间页 `/out`。
 - Hono/Vercel 掘金采集服务。
 - Drizzle ORM 数据访问。
 - Supabase 热点表、公开来源状态、内部运行记录、RLS、约五小时一次的采集 Cron，
@@ -19,13 +19,14 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 
 ## Out of scope
 
-- 其他热点来源、登录、收藏、搜索、管理后台和历史趋势。
+- 其他热点来源的正式接入、登录、收藏、搜索、管理后台和历史趋势。
 - 创建远程仓库、生产域名和付费基础设施。
 
 ## Acceptance criteria
 
 - 首页显示科技区、掘金前五条和最近成功采集信息。
 - `/technology/juejin` 按 RSS 顺序显示完整当前榜单。
+- 热点链接先进入本站外链提示页；只允许 `http`、`https` 原文 URL 继续访问。
 - 受保护的 Hono 端点读取 RSSHub，并通过 Drizzle 幂等同步当前榜单。
 - 失败或空 feed 不清除最后一次成功数据。
 - Supabase Cron 约每五小时触发采集。
@@ -68,6 +69,8 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 - 前端保留 `apps/web`，后端放在 `server/api`，匹配现有 pnpm workspace。
 - 数据库运行时写入使用 Drizzle；版本化 SQL 迁移保存在 Supabase migrations 中。
 - shadcn 只引入 Button、Badge、Breadcrumb、Separator、Skeleton 和 Tooltip。
+- 榜单把 RSS 原文 URL 编码到 `/out?url=...`；中间页不查询 Supabase 或原网站，不限制目标域名，
+  仅拦截 `javascript:`、`data:` 等非 Web 协议。
 - 页面宽度、排版与明暗模式参考 `C:\Users\PC\Desktop\front\TEST\blog`，不使用 Nextra；
   公共页面外框使用 Tailwind `max-w-5xl`，正文仍由现有 `max-w-lg` 约束阅读长度。
 
@@ -114,7 +117,10 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
   零配置入口对齐官方 Vercel 模板的 `src/index.ts`。
 - 本轮 Standards 复核了 Cron 重复配置、外键约束、密钥边界和清理 SQL 范围；Spec 复核了 30 天保留、
   首页标题、桌面留白及明暗/移动端表现，均无阻断项。
-- 没有接受的非阻断后续事项，因此不创建 roadmap。
+- 外链中转复核覆盖了非 Web 协议注入、`noopener`/`noreferrer`、搜索引擎收录、无额外网络请求和
+  响应式页面状态；与最终确认的纯中转范围一致，无阻断项。
+- GitHub、Hacker News、V2EX 等仍是调研候选，尚未选择下一项正式接入，因此不作为已接受开发项，
+  暂不创建 roadmap。
 
 ## Risks
 
@@ -141,3 +147,25 @@ Hono 定时采集 RSSHub，并通过 Supabase 与前端解耦。
 - 首页 H1 更新为“热点跟踪”，公共页面容器从 45rem 加宽为 Tailwind `max-w-5xl`，正文阅读宽度不变。
 - 浏览器验收覆盖 1440px 桌面、390px 移动端及浅色/深色主题；无横向溢出或主题回归。
 - 本轮 Biome format/check、TypeScript、29 项 Vitest 与生产构建均通过。
+
+## Outbound notice and source research
+
+- 榜单链接不再直接访问第三方，而是进入 `/out?url=...`。页面只展示离站说明、目标域名与跳转操作，
+  不查询 Supabase、不请求或展示原文内容。
+- 中转页暂不设置来源域名白名单，但仍限定 `http`、`https` 协议，避免可执行 URL 注入。
+- 中转页设置 `noindex, nofollow`，避免搜索引擎把可构造的外链参数收录为本站内容。
+- 页面明确说明第三方内容由原网站提供，本站仅作信息聚合与索引、不代表本站立场；用户需要主动点击
+  “继续访问原文”，不使用倒计时或自动跳转。
+- 科技来源调研优先级：
+  1. [GitHub Repository Search API](https://docs.github.com/en/rest/search/search#search-repositories)：按最近创建时间窗口与
+     stars 构建“新晋项目”，不冒充 GitHub 官方 Trending 算法；五小时频率适合服务端令牌配额。
+  2. [Hacker News 官方 API](https://github.com/HackerNews/API) 或
+     [原生 RSS](https://news.ycombinator.com/rss)：技术信号强，数据接口稳定，也已验证当前 RSSHub `/hackernews` 可用。
+  3. [V2EX RSSHub 路由](https://docs.rsshub.app/routes/social-media#v2ex)：中文社区覆盖好，当前自部署
+     `/v2ex/topics/hot` 可用，但内容比前两项更宽泛。
+  4. [DEV API](https://developers.forem.com/api/v1#tag/articles) 与 [Lobsters RSS](https://lobste.rs/rss)：
+     可作为后续英文技术源，前者覆盖广、后者更精选。
+- 当前自部署 RSSHub 的 `/github/trending/weekly` 返回 404，因此 GitHub 来源不依赖该旧路由；知乎热榜虽可抓取，
+  但不是纯科技信号且抓取稳定性较弱，本阶段不列为首选。
+- 中转页浏览器验收覆盖真实 RSS 链接、桌面端、390px 移动端和明暗主题；全量 Biome、TypeScript、
+  35 项 Vitest 与 Next.js 生产构建通过。

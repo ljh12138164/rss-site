@@ -2,7 +2,7 @@
 
 ## Active objective
 
-在 `feat/juejin-hot-feed` 上为“热点更新”门户补充 30 天采集历史清理，并收紧首页信息层级与布局。
+在 `feat/juejin-hot-feed` 上补充受控外链中间页，并调研下一批科技热点来源。
 
 ## Current state
 
@@ -18,6 +18,10 @@
   `max-w-5xl` 公共页面容器均已实现。
 - 生产配置脚本执行成功，测试采集写入 20 条热点；数据库确认五小时采集与每日清理两个 Cron 均为 active。
 - 1440px 桌面、390px 移动端及浅色/深色主题验收通过；Biome、类型检查、29 项测试与生产构建通过。
+- 热点列表已改为 `/out?url=...` 中转；页面不查询 Supabase 或原网站，不展示文章内容，只允许
+  `http`、`https` 地址继续访问，暂不设置来源域名白名单。
+- 下一批来源建议优先 GitHub 官方 Search API、Hacker News 和 V2EX；当前 RSSHub 的 GitHub Trending
+  旧路由返回 404，不作为实现依赖。
 - 远程 pgTAP runner 仍需要本机 Docker。
 
 ## Next action
