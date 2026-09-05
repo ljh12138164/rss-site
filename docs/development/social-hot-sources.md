@@ -77,8 +77,26 @@
 - [Supabase 2026 年 Data API 自动暴露变更](https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically)
   不影响本迁移：这里只给既有 `hot_items` 增加列，不创建新表，且既有只读授权与 RLS 保持不变。
 
-尚待合并部署后完成：应用云端迁移、逐来源调用生产采集端点、查询云端批次/状态/条目字段，并在全部来源
-通过后启用 Vault 支持的 Cron。届时记录非秘密的 HTTP 状态、条目数、批次 ID、时间戳和数据质量检查。
+生产验证已完成：
+
+- PR #6 合并提交 `5c3467e` 已由生产 API 加载；健康检查返回 200，未授权访问新社交入口返回 401。
+- 云端迁移 `20260905070524_add_social_sources_and_previews` 已应用，迁移历史一致，`public` schema lint
+  无错误。
+- 六路生产采集均返回 HTTP 200；最终批次及条目数为：B 站
+  `5b2e6c26-4c1f-44cc-b8ee-da7a2ca6e19b` / 20、知乎
+  `46f1b4d8-bcde-49d8-9893-5ed2befc023d` / 30、酷安
+  `2749df3c-0739-4a2d-b67b-060bb2ba4351` / 19、虎扑
+  `bf0efea1-a3f3-434b-90fa-272b51aa7ead` / 30、少数派
+  `7ebf8252-81d4-4ca2-b712-413ac5a52329` / 20、头条
+  `8f721405-3a36-4064-ade7-813e183d39e0` / 15。
+- 六路 `ingestion_runs`、`source_status` 和 `hot_items` 批次一致，共 134 条；标题非空、链接为 HTTP(S)、
+  排名均从 1 连续到条目数且每路至少有一个发布时间。图片数为 B 站 20、酷安 17、少数派 20、头条 15，
+  知乎和虎扑为纯文字。
+- `pnpm setup:cron` 对全部 24 路重新完成 API 与云端行验证，共写入 495 条后才调度。云端查询确认 24 个
+  五小时来源任务全部 active 且 24/24 从 Vault 读取 `signal_ingest_base_url` 与 `signal_cron_secret`；
+  30 天保留清理任务也 active。
+- 使用 Web 的 publishable key 匿名读取 B 站首条成功：位置 1、视频域名 `www.bilibili.com`、封面域名
+  `i2.hdslb.com`、发布时间非空，封面 HEAD 返回 200。
 
 ## Review
 

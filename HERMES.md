@@ -2,12 +2,11 @@
 
 ## Active objective
 
-在 `feat/social-hot-sources` 上增加六路可匿名抓取的社交热点、真实媒体封面数据链路，以及带懒加载和
-失效占位的通用预览组件。
+记录已上线的六路社交热点、媒体预览、云端 Supabase 写入与 Cron 验收结果。
 
 ## Current state
 
-- 当前分支 `feat/social-hot-sources` 基于 `origin/master` 的 `d502dfd`，实现与验收记录在
+- 社交热点实现已由 PR #6 合并到 `master`；实现与验收记录在
   `docs/development/social-hot-sources.md`。
 - 已新增 B 站、知乎、酷安、虎扑、少数派和今日头条六路匿名社交热点，以及 `/social`、来源详情、首页摘要、
   主导航和离站返回路径。
@@ -17,7 +16,13 @@
   `source_status`、实际条数、字段质量和社交来源发布时间。
 - API 45 项与 Web 33 项测试、格式、lint、类型检查和生产构建通过；无界面生产服务器回归覆盖 200、真实
   404 与社交离站返回。UI Skills MCP 未暴露，因此没有声称完成 UI Skills 审查。
-- 本地 pgTAP 因 Docker 未运行而无法连接；尚未部署、应用云端迁移、写入生产 Supabase 或启用新 Cron。
+- PR #6 已合并到 `master`，生产 API 已加载新社交入口；云端迁移
+  `20260905070524_add_social_sources_and_previews` 已应用且 schema lint 无错误。
+- 六路社交来源均通过生产采集和 Supabase 批次/状态/条目核验，共保存 134 条；B 站 20 条均有视频直链、
+  发布时间和可访问封面。
+- 全部 24 路通过 `pnpm setup:cron` 二次验证，共写入 495 条后完成调度；24 个来源任务和 1 个清理任务
+  均 active，来源任务全部使用 Vault 秘密。
+- Web publishable key 可匿名读取 B 站 `image_url`，首张封面返回 200。
 - 实现提交 `fc6e21a` 已推送到 `origin/feat/social-hot-sources`；按仓库约定没有通过页面创建 PR。
 
 - AI 首批来源已确定为 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 与 Qwen；来源证据和
@@ -53,8 +58,7 @@
 
 ## Next action
 
-请用户以 `master` 为 base 创建并合并 `feat/social-hot-sources`。部署 API 后应用云端迁移，再严格按云端
-Supabase 数据门禁逐来源验证；全部通过后才启用 Cron。
+合并仅包含非敏感生产验收证据的文档分支 `codex/social-production-validation`；功能与生产配置已完成。
 
 ## Delivery constraint
 

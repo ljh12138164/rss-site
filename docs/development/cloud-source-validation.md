@@ -35,3 +35,19 @@
   设计。
 - 性能：提示 `hot_items.batch_id` 与 `source_status.last_batch_id` 两个既有外键缺少覆盖索引；与本次来源
   扩展无直接关系，后续在数据规模增长前补迁移评估。
+
+## 2026-09-05：六路社交热点与媒体预览
+
+- PR #6 已合并，生产 API 健康检查返回 200，新 `/cron/social/:source` 路由保持鉴权并对无密钥请求返回 401。
+- 云端迁移 `20260905070524_add_social_sources_and_previews` 已应用；远端迁移历史一致，`public` schema lint
+  无错误。
+- B 站、知乎、酷安、虎扑、少数派、今日头条均通过生产 `POST /cron/signals/:source` 和随后云端数据库复核。
+  最终批次分别为 `5b2e6c26-4c1f-44cc-b8ee-da7a2ca6e19b`、
+  `46f1b4d8-bcde-49d8-9893-5ed2befc023d`、`2749df3c-0739-4a2d-b67b-060bb2ba4351`、
+  `bf0efea1-a3f3-434b-90fa-272b51aa7ead`、`7ebf8252-81d4-4ca2-b712-413ac5a52329`、
+  `8f721405-3a36-4064-ade7-813e183d39e0`。
+- 六路共保存 134 条，来源状态、批次、数量和分区一致；标题、URL、连续排名与发布时间通过质量检查。
+  图片数为 B 站 20、酷安 17、少数派 20、头条 15；知乎与虎扑不制造占位数据。
+- 全部 24 路再次通过 `pnpm setup:cron` 的 API 与数据库门禁，共写入 495 条后才进入调度。云端确认 24 个
+  来源任务全部 active 且使用 Vault 中的通用 API 地址和 Cron 密钥；每日历史清理任务也 active。
+- Web publishable key 可匿名读取 B 站 `image_url`；首条视频和封面域名合理，封面请求返回 200。
