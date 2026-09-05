@@ -35,7 +35,7 @@ export function AiSourceView({ source, feed }: { source: AiSource; feed: FeedRes
       basePath="/ai"
       description={source.description}
       feed={feed}
-      sectionName="AI 平台"
+      sectionName="AI"
       source={source}
       sources={aiSources}
     />

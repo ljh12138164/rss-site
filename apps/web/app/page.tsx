@@ -46,10 +46,10 @@ export function HomeView({
     <SiteShell>
       <header className="pb-16 sm:pb-20">
         <h1 className="max-w-2xl text-4xl font-semibold leading-[1.12] tracking-[-0.05em] sm:text-6xl">
-          今天的 AI 与互联网热点
+          看看今天 AI 圈发生了什么
         </h1>
         <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground">
-          优先收录 AI 平台官方文章，也汇集科技、国内新闻、社交、财经和游戏榜单。
+          这里以 AI 官方动态为主，也收录科技、新闻、社交、财经和游戏的热门内容。
         </p>
       </header>
 
@@ -148,7 +148,7 @@ function SectionHeading({
         className="group flex min-h-11 shrink-0 items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
         href={href}
       >
-        查看总览
+        查看全部
         <ArrowRight
           aria-hidden="true"
           className="size-3.5 transition-transform group-hover:translate-x-0.5"

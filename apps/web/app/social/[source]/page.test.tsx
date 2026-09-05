@@ -29,11 +29,11 @@ describe('SocialSourceView', () => {
     )
 
     expect(html).toContain('首页')
-    expect(html).toContain('社交热点')
+    expect(html).toContain('社交')
     expect(html).toContain('哔哩哔哩综合热门')
     expect(html).toContain('示例 UP 主')
     expect(html).toContain('aria-current="page"')
-    expect(html).toContain('全部平台')
+    expect(html).toContain('内容来源')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
     expect(html).toContain('from=%2Fsocial')
     expect(html).not.toContain('<img')

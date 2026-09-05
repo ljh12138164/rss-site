@@ -31,8 +31,8 @@ describe('SocialView', () => {
 
     const html = renderToStaticMarkup(<SocialView feeds={feeds} />)
 
-    expect(html).toContain('aria-label="社交热点平台"')
-    expect(html).toContain('全部平台')
+    expect(html).toContain('aria-label="内容来源"')
+    expect(html).toContain('>B 站<')
     expect(html).toContain('暂时无法加载，请稍后再试。')
     expect(html).toContain('暂无内容。')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)

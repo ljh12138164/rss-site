@@ -30,8 +30,8 @@ describe('TechnologyView', () => {
 
     const html = renderToStaticMarkup(<TechnologyView feeds={feeds} />)
 
-    expect(html).toContain('aria-label="科技平台"')
-    expect(html).toContain('全部平台')
+    expect(html).toContain('aria-label="内容来源"')
+    expect(html).toContain('>Hacker News<')
     expect(html).toContain('暂时无法加载，请稍后再试。')
     expect(html).toContain('暂无内容。')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)

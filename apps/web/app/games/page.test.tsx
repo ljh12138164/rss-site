@@ -31,9 +31,9 @@ it('renders six game sources while describing Steam as a snapshot', () => {
 
   const html = renderToStaticMarkup(<GamesView feeds={feeds} />)
 
-  expect(html).toContain('aria-label="游戏平台"')
-  expect(html).toContain('全部平台')
-  expect(html).toContain('游戏资讯、编辑文章和 Steam 热销榜。')
+  expect(html).toContain('aria-label="内容来源"')
+  expect(html).toContain('>Steam<')
+  expect(html).toContain('Steam 热销榜都放在这里')
   expect(html).toContain('暂时无法加载，请稍后再试。')
   expect(html).toContain('暂无内容。')
   expect(html).toContain('from=%2Fgames')

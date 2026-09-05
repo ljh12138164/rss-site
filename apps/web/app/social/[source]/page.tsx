@@ -35,7 +35,7 @@ export function SocialSourceView({ source, feed }: { source: SocialSource; feed:
       basePath="/social"
       description={source.description}
       feed={feed}
-      sectionName="社交热点"
+      sectionName="社交"
       source={source}
       sources={socialSources}
     />

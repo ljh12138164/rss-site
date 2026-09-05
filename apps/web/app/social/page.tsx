@@ -14,10 +14,10 @@ export function SocialView({ feeds }: { feeds: SocialFeeds }) {
   return (
     <SectionOverview
       basePath="/social"
-      description="视频、问答和社区正在关注的内容。"
+      description="B 站、知乎、酷安、虎扑、少数派和今日头条最近都在聊什么。"
       feeds={feeds}
       sources={socialSources}
-      title="社交热点"
+      title="大家在聊什么"
     />
   )
 }

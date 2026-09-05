@@ -72,9 +72,9 @@ describe('HomeView', () => {
       />
     )
 
-    expect(html).toContain('今天的 AI 与互联网热点')
+    expect(html).toContain('看看今天 AI 圈发生了什么')
     expect(html.indexOf('id="ai"')).toBeLessThan(html.indexOf('id="technology"'))
-    expect(html).toContain('优先收录 AI 平台官方文章')
+    expect(html).toContain('这里以 AI 官方动态为主')
     for (const source of technologySources) {
       expect(html).toContain(source.name)
       expect(html).toContain(`href="/technology/${source.id}"`)

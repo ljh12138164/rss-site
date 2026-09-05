@@ -27,7 +27,7 @@ it('renders Steam as a collection snapshot without a fabricated publication time
   expect(html).toContain('游戏')
   expect(html).toContain('Steam 热销榜')
   expect(html).toContain('Steam 商店热销榜')
-  expect(html).toContain('全部平台')
+  expect(html).toContain('内容来源')
   expect(html).toContain('from=%2Fgames')
   expect(html).not.toContain('采集时间')
   expect(html).not.toContain('更新于')

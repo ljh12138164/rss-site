@@ -31,9 +31,9 @@ it('renders six independent finance source bands and honest empty states', () =>
 
   const html = renderToStaticMarkup(<FinanceView feeds={feeds} />)
 
-  expect(html).toContain('aria-label="财经平台"')
-  expect(html).toContain('全部平台')
-  expect(html).toContain('仅作信息浏览')
+  expect(html).toContain('aria-label="内容来源"')
+  expect(html).toContain('>财联社<')
+  expect(html).toContain('今天在关注什么')
   expect(html).toContain('暂时无法加载，请稍后再试。')
   expect(html).toContain('暂无内容。')
   expect(html).toContain('from=%2Ffinance')

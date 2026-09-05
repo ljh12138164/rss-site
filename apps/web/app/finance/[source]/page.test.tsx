@@ -29,7 +29,7 @@ it('renders the full finance source list and breadcrumb context', () => {
   expect(html).toContain('财经')
   expect(html).toContain('华尔街见闻')
   expect(html).toContain('aria-current="page"')
-  expect(html).toContain('全部平台')
+  expect(html).toContain('内容来源')
   expect(html).toContain('from=%2Ffinance')
   expect(html).not.toContain('每六小时')
   expect(html).not.toContain('更新于')

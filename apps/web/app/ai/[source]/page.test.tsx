@@ -26,10 +26,10 @@ describe('AiSourceView', () => {
     const html = renderToStaticMarkup(<AiSourceView feed={feed} source={getAiSource('openai')} />)
 
     expect(html).toContain('首页')
-    expect(html).toContain('AI 平台')
+    expect(html).toContain('href="/ai"')
     expect(html).toContain('OpenAI')
     expect(html).toContain('aria-current="page"')
-    expect(html).toContain('全部平台')
+    expect(html).toContain('内容来源')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
     expect(html).toContain('from=%2Fai')
     expect(html).not.toContain('每两小时')

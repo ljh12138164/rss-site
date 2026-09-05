@@ -31,7 +31,7 @@ describe('NewsSourceView', () => {
     expect(html).toContain('新闻')
     expect(html).toContain('新华社')
     expect(html).toContain('aria-current="page"')
-    expect(html).toContain('全部平台')
+    expect(html).toContain('内容来源')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
     expect(html).toContain('from=%2Fnews')
     expect(html).not.toContain('每六小时')

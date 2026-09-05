@@ -14,7 +14,7 @@ export function FinanceView({ feeds }: { feeds: FinanceFeeds }) {
   return (
     <SectionOverview
       basePath="/finance"
-      description="财经新闻、市场快讯和媒体头条，仅作信息浏览。"
+      description="看看市场快讯和财经媒体今天在关注什么。"
       feeds={feeds}
       sources={financeSources}
       title="财经"
