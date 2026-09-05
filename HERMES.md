@@ -2,10 +2,17 @@
 
 ## Active objective
 
-在 `feat/social-hot-sources` 上增加六路可匿名抓取的社交热点、真实媒体封面数据链路，以及带懒加载和
-失效占位的通用预览组件。
+研究科技、国内新闻、AI 与社交之外还可稳定抓取的热点分类，并确定下一轮实现优先级。
 
 ## Current state
+
+- 已从 RSSHub 官方源码筛选财经、游戏、体育、影视文化、科学研究、生活消费和汽车七类，共匿名探测
+  41 条候选路由；29 条在当前自建实例返回 HTTP 200 与非空 RSS。
+- 财经 7/7 成功，推荐从华尔街见闻、财联社、金十数据、第一财经、证券时报、同花顺六个平台开始；
+  六路合计 88 条且全部带发布时间。游戏 7/9 成功，列为第二优先。
+- 体育只有两个稳定综合平台；影视榜单缺少发布时间；科学类混合趋势与最新；生活消费定位过宽；汽车
+  只有一路稳定来源，均暂不直接实现。完整证据在 `docs/research/additional-hot-categories.md`。
+- 本轮仅提交研究与开发交接文档，没有修改业务代码、写入云端 Supabase 或配置 Cron。
 
 - 当前分支 `feat/social-hot-sources` 基于 `origin/master` 的 `d502dfd`，实现与验收记录在
   `docs/development/social-hot-sources.md`。
@@ -53,8 +60,7 @@
 
 ## Next action
 
-请用户以 `master` 为 base 创建并合并 `feat/social-hot-sources`。部署 API 后应用云端迁移，再严格按云端
-Supabase 数据门禁逐来源验证；全部通过后才启用 Cron。
+用户确认是否优先实现财经分区；确认后再设计页面入口，并按生产门禁完成部署、云端 Supabase 验证和 Cron。
 
 ## Delivery constraint
 
