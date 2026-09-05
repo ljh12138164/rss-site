@@ -2,9 +2,9 @@
 
 一个通过 RSSHub 与官方 RSS 汇总热点的轻量阅读站。科技区包含 GitHub Trending、Hacker News、掘金、
 V2EX、IT之家和 36氪；国内新闻区包含新华社、央视国内、中新网、澎湃热榜、界面中国和百度热搜；AI
-平台区包含 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 和 Qwen。首页展示十八路摘要，
-`/technology`、`/news` 与 `/ai` 展示分区总览，各自的 `[source]` 路由展示独立完整列表。数据约每五小时
-由 Hono 服务采集一次，并以 Supabase 作为前后端之间唯一的数据中转。
+平台区包含 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 和 Qwen；另有六路社交热点与
+六路财经、六路游戏信号。首页以 AI 为主展示三十六路摘要，各分区总览与 `[source]` 路由展示独立列表。
+AI 每 2 小时、其他分区每 6 小时由 Hono 服务错峰采集，并以 Supabase 作为前后端之间唯一的数据中转。
 
 ## Architecture
 
@@ -46,8 +46,9 @@ pnpm --filter @rss-site/web dev
 ```
 
 访问 <http://localhost:3000>，科技总览位于 <http://localhost:3000/technology>，国内新闻总览位于
-<http://localhost:3000/news>，AI 平台总览位于 <http://localhost:3000/ai>，来源详情位于对应分区的
-`[source]` URL。
+<http://localhost:3000/news>，AI 平台总览位于 <http://localhost:3000/ai>，社交与财经总览分别位于
+<http://localhost:3000/social> 和 <http://localhost:3000/finance>，游戏总览位于
+<http://localhost:3000/games>，来源详情位于对应分区的 `[source]` URL。
 
 ### 启动完整开发环境
 
@@ -134,8 +135,9 @@ simple-git-hooks 的 pre-commit 钩子；提交前会格式化并校验暂存文
 
 新增平台时，必须先部署依赖代码和版本化迁移，再手动调用生产
 `POST /cron/signals/:source` 写入已关联的云端 Supabase。确认运行成功、写入数量大于零，且
-`source_status` 与 `hot_items` 中的来源、分区、标题、链接、排名和时间合理后，才允许创建或启用对应
-Cron。`pnpm setup:cron` 会按这个顺序验证全部来源，任一来源失败或写入零条时不会更新 Cron。
+`source_status`、`hot_items` 与 `signal_articles` 中的来源、分区、标题、链接、排名和时间合理后，才允许创建
+或启用对应 Cron。`pnpm setup:cron` 会按这个顺序验证全部来源，任一来源失败、写入零条或文章未持久化时
+不会更新 Cron。
 
 本地 Docker/pgTAP 可以作为补充检查，但不能代替这项云端验收，也不能因为本地 Docker 未启动而跳过
 云端验证。验证记录不得包含数据库连接串、Token、Vault 值或 `CRON_SECRET`。
@@ -144,11 +146,13 @@ Cron。`pnpm setup:cron` 会按这个顺序验证全部来源，任一来源失�
 [`docs/development/cloud-source-validation.md`](docs/development/cloud-source-validation.md)。
 
 该命令会幂等创建或更新 Supabase Vault 中的 API 地址和 Cron 密钥，启用 `pg_cron` 与
-`pg_net`，安装十八个 UTC 每五小时错峰运行的任务和 30 天运行历史清理，并立即发起一次掘金测试
-采集。重复运行会更新已有同名任务。`supabase/cron/setup.sql` 保留为手动配置和审计用的备用方案。
+`pg_net`，先逐一验证三十六路生产采集，再安装 AI 每 2 小时、其他来源每 6 小时且至少相隔 5 分钟的 UTC
+任务，以及文章与运行记录清理。普通文章保留 90 天、AI 文章保留 180 天，当前热点、置顶文章和 AI 事件
+引用不会被清理；抓取运行记录保留 30 天。重复运行会更新稳定同名任务，并移除本项目已知的旧五小时任务。
+`supabase/cron/setup.sql` 保留为完成同等生产验证后的手动配置和审计备用方案。
 
 RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客户端不能写数据，也不能读取
-`ingestion_runs` 中的内部错误。
+`ingestion_runs` 中的内部错误。持久化文章、AI 事件及关联只在事件发布后公开，草稿对公开客户端不可见。
 
 ## Vercel deployment
 
@@ -159,7 +163,8 @@ RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客�
 
 分别配置上述环境变量。API 健康检查为 `GET /health`，通用采集端点为
 `POST /cron/signals/:source`；`POST /cron/technology/:source` 与 `POST /cron/juejin` 在切换期间继续
-兼容，新闻与 AI 来源也可分别使用 `POST /cron/news/:source` 和 `POST /cron/ai/:source`。生产配置完成前，
+兼容；各分区也可分别使用 `POST /cron/news/:source`、`POST /cron/ai/:source`、
+`POST /cron/social/:source`、`POST /cron/finance/:source` 和 `POST /cron/games/:source`。生产配置完成前，
 不要执行 Cron 脚本，以免保存无效部署地址。
 
 更详细的设计与实施记录见
@@ -168,3 +173,8 @@ RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客�
 [中国国内新闻来源开发文档](docs/development/domestic-news-sources.md)。
 AI 官方文章来源与页面扩展见
 [AI 平台官方文章开发文档](docs/development/ai-platform-articles.md)。
+财经来源与分区扩展见
+[财经热点来源开发文档](docs/development/finance-hot-sources.md)，游戏来源见
+[游戏热点来源开发文档](docs/development/game-hot-sources.md)，持久化模型见
+[信号文章与 AI 事件开发文档](docs/development/signal-article-persistence.md)，后续分类顺序见
+[辅助热点分区 roadmap](docs/roadmaps/additional-hot-categories.md)。

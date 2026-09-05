@@ -3,6 +3,10 @@ import {
   type FeedCollectionQuery,
   getAiFeed,
   getAiFeeds,
+  getFinanceFeed,
+  getFinanceFeeds,
+  getGameFeed,
+  getGameFeeds,
   getNewsFeed,
   getNewsFeeds,
   getSocialFeed,
@@ -217,5 +221,65 @@ describe('social feeds', () => {
         imageUrl: 'https://i2.hdslb.com/bfs/archive/cover.jpg'
       })
     }
+  })
+})
+
+describe('finance feeds', () => {
+  const financeQuery: FeedCollectionQuery = async () => ({
+    items: [
+      {
+        source: 'wallstreetcn',
+        source_key: 'wallstreetcn-1',
+        title: '市场热点',
+        url: 'https://wallstreetcn.com/articles/1',
+        image_url: null,
+        summary: null,
+        author: null,
+        published_at: '2026-09-05T08:00:00.000Z',
+        position: 1
+      }
+    ],
+    statuses: [
+      { source: 'wallstreetcn', item_count: 1, last_success_at: '2026-09-05T08:05:00.000Z' }
+    ],
+    error: null
+  })
+
+  it('builds independent finance collection and detail results', async () => {
+    const feeds = await getFinanceFeeds(1, financeQuery)
+    const feed = await getFinanceFeed('wallstreetcn', undefined, financeQuery)
+
+    expect(feeds.wallstreetcn.state).toBe('ready')
+    expect(feeds.jin10).toEqual({ state: 'empty' })
+    expect(feed.state).toBe('ready')
+  })
+})
+
+describe('game feeds', () => {
+  const gameQuery: FeedCollectionQuery = async () => ({
+    items: [
+      {
+        source: 'steam',
+        source_key: 'steam-1',
+        title: '当前热销游戏',
+        url: 'https://store.steampowered.com/app/1',
+        image_url: null,
+        summary: null,
+        author: null,
+        published_at: null,
+        position: 1
+      }
+    ],
+    statuses: [{ source: 'steam', item_count: 1, last_success_at: '2026-09-05T09:05:00.000Z' }],
+    error: null
+  })
+
+  it('builds game results without fabricating Steam publication times', async () => {
+    const feeds = await getGameFeeds(1, gameQuery)
+    const feed = await getGameFeed('steam', undefined, gameQuery)
+
+    expect(feeds.gcores).toEqual({ state: 'empty' })
+    expect(feed.state).toBe('ready')
+    if (feed.state === 'ready') expect(feed.items[0]?.publishedAt).toBeNull()
   })
 })

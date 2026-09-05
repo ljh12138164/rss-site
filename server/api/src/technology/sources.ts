@@ -179,11 +179,103 @@ export const socialSources = [
   }
 ] as const
 
+export const financeSources = [
+  {
+    id: 'wallstreetcn',
+    name: '华尔街见闻',
+    rsshubPath: '/wallstreetcn/hot/day',
+    section: 'finance',
+    itemLimit: 30
+  },
+  {
+    id: 'cls',
+    name: '财联社',
+    rsshubPath: '/cls/hot?limit=20',
+    section: 'finance',
+    itemLimit: 30
+  },
+  {
+    id: 'jin10',
+    name: '金十数据',
+    rsshubPath: '/jin10/important',
+    section: 'finance',
+    itemLimit: 30
+  },
+  {
+    id: 'yicai',
+    name: '第一财经',
+    rsshubPath: '/yicai/headline',
+    section: 'finance',
+    itemLimit: 30
+  },
+  {
+    id: 'stcn',
+    name: '证券时报',
+    rsshubPath: '/stcn/article/rank/yw',
+    section: 'finance',
+    itemLimit: 30
+  },
+  {
+    id: '10jqka',
+    name: '同花顺财经',
+    rsshubPath: '/10jqka/realtimenews',
+    section: 'finance',
+    itemLimit: 30
+  }
+] as const
+
+export const gameSources = [
+  {
+    id: '3dmgame',
+    name: '3DM 游戏网',
+    rsshubPath: '/3dmgame/news/game',
+    section: 'games',
+    itemLimit: 30
+  },
+  {
+    id: 'gcores',
+    name: '机核',
+    rsshubPath: '/gcores/news?limit=20',
+    section: 'games',
+    itemLimit: 30
+  },
+  {
+    id: 'gamersky',
+    name: '游民星空',
+    rsshubPath: '/gamersky/news',
+    section: 'games',
+    itemLimit: 30
+  },
+  {
+    id: 'ali213',
+    name: '游侠网',
+    rsshubPath: '/ali213/news/new',
+    section: 'games',
+    itemLimit: 30
+  },
+  {
+    id: 'indienova',
+    name: 'indienova',
+    rsshubPath: '/indienova/article',
+    section: 'games',
+    itemLimit: 30
+  },
+  {
+    id: 'steam',
+    name: 'Steam 热销榜',
+    rsshubPath: '/steam/search/filter=topsellers',
+    section: 'games',
+    itemLimit: 30
+  }
+] as const
+
 export const signalSources = [
   ...technologySources,
   ...newsSources,
   ...aiSources,
-  ...socialSources
+  ...socialSources,
+  ...financeSources,
+  ...gameSources
 ] as const
 
 export type TechnologySource = (typeof technologySources)[number]
@@ -194,6 +286,10 @@ export type AiSource = (typeof aiSources)[number]
 export type AiSourceId = AiSource['id']
 export type SocialSource = (typeof socialSources)[number]
 export type SocialSourceId = SocialSource['id']
+export type FinanceSource = (typeof financeSources)[number]
+export type FinanceSourceId = FinanceSource['id']
+export type GameSource = (typeof gameSources)[number]
+export type GameSourceId = GameSource['id']
 export type SignalSource = (typeof signalSources)[number]
 export type SignalSourceId = SignalSource['id']
 export type SignalSection = SignalSource['section']
@@ -212,6 +308,14 @@ export function isAiSourceId(value: string): value is AiSourceId {
 
 export function isSocialSourceId(value: string): value is SocialSourceId {
   return socialSources.some((source) => source.id === value)
+}
+
+export function isFinanceSourceId(value: string): value is FinanceSourceId {
+  return financeSources.some((source) => source.id === value)
+}
+
+export function isGameSourceId(value: string): value is GameSourceId {
+  return gameSources.some((source) => source.id === value)
 }
 
 export function isSignalSourceId(value: string): value is SignalSourceId {
@@ -239,6 +343,18 @@ export function getAiSource(id: AiSourceId): AiSource {
 export function getSocialSource(id: SocialSourceId): SocialSource {
   const source = socialSources.find((candidate) => candidate.id === id)
   if (!source) throw new Error(`Unknown social source: ${id}`)
+  return source
+}
+
+export function getFinanceSource(id: FinanceSourceId): FinanceSource {
+  const source = financeSources.find((candidate) => candidate.id === id)
+  if (!source) throw new Error(`Unknown finance source: ${id}`)
+  return source
+}
+
+export function getGameSource(id: GameSourceId): GameSource {
+  const source = gameSources.find((candidate) => candidate.id === id)
+  if (!source) throw new Error(`Unknown game source: ${id}`)
   return source
 }
 

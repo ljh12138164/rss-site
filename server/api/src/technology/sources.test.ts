@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import {
   aiSources,
+  financeSources,
+  gameSources,
   getAiSource,
+  getFinanceSource,
+  getGameSource,
   getNewsSource,
   getSignalSource,
   getSocialSource,
   getTechnologySource,
   isAiSourceId,
+  isFinanceSourceId,
+  isGameSourceId,
   isNewsSourceId,
   isSignalSourceId,
   isSocialSourceId,
@@ -83,6 +89,32 @@ describe('technologySources', () => {
     expect(getSocialSource('bilibili').name).toBe('哔哩哔哩综合热门')
   })
 
+  it('registers six anonymous finance feeds with publication times', () => {
+    expect(financeSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
+      ['wallstreetcn', '/wallstreetcn/hot/day'],
+      ['cls', '/cls/hot?limit=20'],
+      ['jin10', '/jin10/important'],
+      ['yicai', '/yicai/headline'],
+      ['stcn', '/stcn/article/rank/yw'],
+      ['10jqka', '/10jqka/realtimenews']
+    ])
+    expect(financeSources.every((source) => source.section === 'finance')).toBe(true)
+    expect(getFinanceSource('wallstreetcn').name).toBe('华尔街见闻')
+  })
+
+  it('registers six anonymous game feeds while keeping Steam as a snapshot', () => {
+    expect(gameSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
+      ['3dmgame', '/3dmgame/news/game'],
+      ['gcores', '/gcores/news?limit=20'],
+      ['gamersky', '/gamersky/news'],
+      ['ali213', '/ali213/news/new'],
+      ['indienova', '/indienova/article'],
+      ['steam', '/steam/search/filter=topsellers']
+    ])
+    expect(gameSources.every((source) => source.section === 'games')).toBe(true)
+    expect(getGameSource('steam').name).toBe('Steam 热销榜')
+  })
+
   it('narrows and resolves only known sources', () => {
     expect(isTechnologySourceId('36kr')).toBe(true)
     expect(isTechnologySourceId('product-hunt')).toBe(false)
@@ -95,7 +127,11 @@ describe('technologySources', () => {
     expect(isSignalSourceId('baidu')).toBe(true)
     expect(isSocialSourceId('bilibili')).toBe(true)
     expect(isSocialSourceId('weibo')).toBe(false)
-    expect(signalSources).toHaveLength(24)
+    expect(isFinanceSourceId('jin10')).toBe(true)
+    expect(isFinanceSourceId('github')).toBe(false)
+    expect(isGameSourceId('steam')).toBe(true)
+    expect(isGameSourceId('github')).toBe(false)
+    expect(signalSources).toHaveLength(36)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

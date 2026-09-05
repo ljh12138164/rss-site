@@ -24,7 +24,7 @@ async function main() {
 
   const sql = postgres(databaseUrl, { prepare: false, max: 1, connect_timeout: 10 })
   try {
-    stdout.write('正在配置 Supabase Vault、二十四路五小时采集和 30 天历史清理…\n')
+    stdout.write('正在配置 Supabase Vault、三十六路错峰采集和历史清理…\n')
     const results = await setupSignalCron({
       apiUrl,
       cronSecret,

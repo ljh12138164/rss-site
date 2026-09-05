@@ -2,9 +2,24 @@
 
 ## Active objective
 
-研究科技、国内新闻、AI 与社交之外还可稳定抓取的热点分类，并确定下一轮实现优先级。
+完成财经、游戏两个当前新分类，再实现信号文章与 AI 事件持久化 P1；部署后按门禁验证云端 Supabase 并启用错峰 Cron。
 
 ## Current state
+
+- 当前 `feat/additional-hot-categories` 已在本地完成财经、游戏和 SEO roadmap P1：新增 `/finance`、
+  `/games` 与十二个来源详情，36 路来源白名单与错峰 Cron，以及 `signal_articles`、`ai_events`、
+  `ai_event_articles` 持久化模型。Steam 明确为无发布时间的榜单快照，没有假数据。
+- 2026-09-05 上线前匿名复探的十二路新 Feed 均为 HTTP 200 与非空 XML；API 52 项、Web 42 项、lint、
+  类型检查和生产构建通过。pgTAP 已扩展到 51 项，但不以本地 Docker 代替云端 Supabase 验证。
+- 云端项目 `pnjsrihfpyvkhyidzgfq` 当前只有前三个已发布迁移；财经、游戏与持久化三个迁移尚未应用，Cron
+  也未更改。下一步是完成审查、提交并推送，用户合并部署后再执行生产数据门禁。
+
+- 用户确认按 `docs/roadmaps/additional-hot-categories.md` 逐阶段实现：财经为 Now，游戏为 Next；体育、影视
+  文化、科学研究和生活消费为 Later，汽车暂缓。
+- 当前阶段 UI surface 已确认复用现有 React Aria 信号台视觉：首页保持 AI 主位，财经作为辅助信息；不使用
+  假数据或生成封面。实施记录在 `docs/development/finance-hot-sources.md`。
+- 调度目标为 AI 每 2 小时，科技、国内新闻、社交和财经每 6 小时；所有来源至少错开 5 分钟。生产 Cron
+  只有在部署、云端迁移与逐来源 Supabase 写入核验完成后才能启用。
 
 - 已从 RSSHub 官方源码筛选财经、游戏、体育、影视文化、科学研究、生活消费和汽车七类，共匿名探测
   41 条候选路由；29 条在当前自建实例返回 HTTP 200 与非空 RSS。
@@ -60,7 +75,9 @@
 
 ## Next action
 
-用户确认是否优先实现财经分区；确认后再设计页面入口，并按生产门禁完成部署、云端 Supabase 验证和 Cron。
+完成本地 Standards/Spec/UI 审查，提交并推送 `feat/additional-hot-categories` 供用户创建 PR；合并部署后应用
+三个云端迁移，逐来源调用生产 API、核验 `ingestion_runs`/`source_status`/`hot_items`/`signal_articles`，最后
+幂等更新 36 路错峰 Cron 与保留任务。
 
 ## Delivery constraint
 
