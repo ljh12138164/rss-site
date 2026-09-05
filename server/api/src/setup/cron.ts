@@ -111,6 +111,10 @@ interface IngestionResult {
   itemCount: number
 }
 
+export interface SourceIngestionResult extends IngestionResult {
+  source: SignalSourceId
+}
+
 export function normalizeIngestUrl(value: string): string {
   try {
     const url = new URL(value.trim())
@@ -156,7 +160,7 @@ export async function setupSignalCron({
   cronSecret,
   repository,
   request = fetch
-}: SetupSignalCronOptions): Promise<IngestionResult> {
+}: SetupSignalCronOptions): Promise<SourceIngestionResult[]> {
   const ingestBaseUrl = normalizeIngestUrl(apiUrl)
   if (!cronSecret) throw new Error('CRON_SECRET 不能为空')
 
@@ -164,23 +168,32 @@ export async function setupSignalCron({
   await repository.upsertSecret('signal_ingest_base_url', ingestBaseUrl)
   await repository.upsertSecret('signal_cron_secret', cronSecret)
 
+  const verifiedSources: SourceIngestionResult[] = []
+  for (const { source } of SIGNAL_CRON_JOBS) {
+    const response = await request(`${ingestBaseUrl}/${source}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${cronSecret}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ source: 'setup:cron' })
+    })
+
+    if (!response.ok) {
+      throw new Error(`来源 ${source} 云端采集验证失败（HTTP ${response.status}），未更新 Cron`)
+    }
+
+    const result = parseIngestionResult(await response.json())
+    if (result.itemCount < 1) {
+      throw new Error(`来源 ${source} 未写入任何热点，未更新 Cron`)
+    }
+    verifiedSources.push({ source, ...result })
+  }
+
   for (const job of SIGNAL_CRON_JOBS) {
     await repository.schedule(job.name, job.schedule, createCronCommand(job.source))
   }
   await repository.schedule(RETENTION_JOB_NAME, RETENTION_SCHEDULE, RETENTION_COMMAND)
 
-  const response = await request(`${ingestBaseUrl}/juejin`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${cronSecret}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ source: 'setup:cron' })
-  })
-
-  if (!response.ok) {
-    throw new Error(`配置已保存，但测试采集失败（HTTP ${response.status}）`)
-  }
-
-  return parseIngestionResult(await response.json())
+  return verifiedSources
 }

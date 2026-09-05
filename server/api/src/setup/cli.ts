@@ -25,13 +25,16 @@ async function main() {
   const sql = postgres(databaseUrl, { prepare: false, max: 1, connect_timeout: 10 })
   try {
     stdout.write('正在配置 Supabase Vault、十八路五小时采集和 30 天历史清理…\n')
-    const result = await setupSignalCron({
+    const results = await setupSignalCron({
       apiUrl,
       cronSecret,
       repository: new PostgresCronRepository(sql)
     })
 
-    stdout.write(`配置成功，十八个来源已错峰调度；测试采集写入 ${result.itemCount} 条热点。\n`)
+    const itemCount = results.reduce((total, result) => total + result.itemCount, 0)
+    stdout.write(
+      `配置成功，${results.length} 个来源均已通过云端写入验证并错峰调度；共写入 ${itemCount} 条热点。\n`
+    )
   } finally {
     await sql.end()
   }

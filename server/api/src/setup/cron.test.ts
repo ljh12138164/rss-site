@@ -27,7 +27,7 @@ describe('normalizeIngestUrl', () => {
 })
 
 describe('setupSignalCron', () => {
-  it('upserts shared secrets, staggers eighteen sources, retains history, and verifies Juejin', async () => {
+  it('verifies every source before scheduling the eighteen staggered jobs', async () => {
     const calls: string[] = []
     const scheduledJobs: Array<{ name: string; schedule: string; command: string }> = []
     const repository: CronRepository = {
@@ -44,16 +44,21 @@ describe('setupSignalCron', () => {
       repository,
       request: async (url, init) => {
         calls.push(`request:${url}:${new Headers(init?.headers).get('Authorization')}`)
-        return Response.json({ batchId: 'batch-1', itemCount: 12 })
+        const source = new URL(String(url)).pathname.split('/').at(-1)
+        return Response.json({ batchId: `batch-${source}`, itemCount: 12 })
       }
     })
 
-    expect(calls).toEqual([
+    expect(calls.slice(0, 3)).toEqual([
       'extensions',
       'secret:signal_ingest_base_url:https://api.example.com/cron/signals',
-      'secret:signal_cron_secret:test-secret',
-      'request:https://api.example.com/cron/signals/juejin:Bearer test-secret'
+      'secret:signal_cron_secret:test-secret'
     ])
+    expect(calls.slice(3)).toEqual(
+      SIGNAL_CRON_JOBS.map(
+        ({ source }) => `request:https://api.example.com/cron/signals/${source}:Bearer test-secret`
+      )
+    )
     expect(scheduledJobs).toHaveLength(19)
     expect(scheduledJobs.slice(0, 18).map(({ name, schedule }) => ({ name, schedule }))).toEqual(
       SIGNAL_CRON_JOBS.map(({ name, schedule }) => ({ name, schedule }))
@@ -69,14 +74,21 @@ describe('setupSignalCron', () => {
       schedule: '30 3 * * *'
     })
     expect(scheduledJobs[18]?.command).toContain("interval '30 days'")
-    expect(result).toEqual({ batchId: 'batch-1', itemCount: 12 })
+    expect(result).toEqual(
+      SIGNAL_CRON_JOBS.map(({ source }) => ({
+        source,
+        batchId: `batch-${source}`,
+        itemCount: 12
+      }))
+    )
   })
 
-  it('reports when configuration succeeded but test ingestion failed', async () => {
+  it('does not schedule any jobs when a source fails cloud ingestion', async () => {
+    const scheduledJobs: string[] = []
     const repository: CronRepository = {
       installExtensions: async () => undefined,
       upsertSecret: async () => undefined,
-      schedule: async () => undefined
+      schedule: async (name) => scheduledJobs.push(name)
     }
 
     await expect(
@@ -84,8 +96,33 @@ describe('setupSignalCron', () => {
         apiUrl: 'https://api.example.com',
         cronSecret: 'test-secret',
         repository,
-        request: async () => new Response(null, { status: 502 })
+        request: async (url) =>
+          String(url).endsWith('/github')
+            ? Response.json({ batchId: 'batch-github', itemCount: 12 })
+            : new Response(null, { status: 502 })
       })
-    ).rejects.toThrow('配置已保存，但测试采集失败（HTTP 502）')
+    ).rejects.toThrow('来源 hacker-news 云端采集验证失败（HTTP 502），未更新 Cron')
+
+    expect(scheduledJobs).toEqual([])
+  })
+
+  it('does not schedule any jobs when a source writes zero items', async () => {
+    const scheduledJobs: string[] = []
+    const repository: CronRepository = {
+      installExtensions: async () => undefined,
+      upsertSecret: async () => undefined,
+      schedule: async (name) => scheduledJobs.push(name)
+    }
+
+    await expect(
+      setupSignalCron({
+        apiUrl: 'https://api.example.com',
+        cronSecret: 'test-secret',
+        repository,
+        request: async () => Response.json({ batchId: 'batch-empty', itemCount: 0 })
+      })
+    ).rejects.toThrow('来源 github 未写入任何热点，未更新 Cron')
+
+    expect(scheduledJobs).toEqual([])
   })
 })

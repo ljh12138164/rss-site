@@ -130,6 +130,16 @@ simple-git-hooks 的 pre-commit 钩子；提交前会格式化并校验暂存文
 
 5. 按提示输入部署后的 Hono API 域名或完整的 `/cron/signals` 地址。
 
+### 新增来源的云端验收门槛
+
+新增平台时，必须先部署依赖代码和版本化迁移，再手动调用生产
+`POST /cron/signals/:source` 写入已关联的云端 Supabase。确认运行成功、写入数量大于零，且
+`source_status` 与 `hot_items` 中的来源、分区、标题、链接、排名和时间合理后，才允许创建或启用对应
+Cron。`pnpm setup:cron` 会按这个顺序验证全部来源，任一来源失败或写入零条时不会更新 Cron。
+
+本地 Docker/pgTAP 可以作为补充检查，但不能代替这项云端验收，也不能因为本地 Docker 未启动而跳过
+云端验证。验证记录不得包含数据库连接串、Token、Vault 值或 `CRON_SECRET`。
+
 该命令会幂等创建或更新 Supabase Vault 中的 API 地址和 Cron 密钥，启用 `pg_cron` 与
 `pg_net`，安装十八个 UTC 每五小时错峰运行的任务和 30 天运行历史清理，并立即发起一次掘金测试
 采集。重复运行会更新已有同名任务。`supabase/cron/setup.sql` 保留为手动配置和审计用的备用方案。
