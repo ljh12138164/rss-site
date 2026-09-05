@@ -4,6 +4,7 @@ export interface TechnologyFeedItem {
   sourceKey: string
   title: string
   url: string
+  imageUrl: string | null
   summary: string | null
   author: string | null
   publishedAt: Date | null
@@ -102,6 +103,22 @@ function firstStrongText(value: unknown): string | null {
   return match ? plainText(match[1]) : null
 }
 
+function firstImageUrl(...values: unknown[]): string | null {
+  for (const value of values) {
+    const html = textValue(value)
+    if (!html) continue
+
+    const match = html.match(/<img\b[^>]*\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/i)
+    const rawImageUrl = match?.[1] ?? match?.[2] ?? match?.[3]
+    if (!rawImageUrl) continue
+
+    const imageUrl = canonicalWebUrl(decodeEntities(rawImageUrl))
+    if (imageUrl) return imageUrl
+  }
+
+  return null
+}
+
 function publishedDate(value: unknown): Date | null {
   const text = textValue(value)
   if (!text) return null
@@ -140,6 +157,7 @@ export function parseTechnologyFeed(
       sourceKey: canonicalWebUrl(rawGuid) ?? rawGuid ?? url,
       title,
       url,
+      imageUrl: firstImageUrl(item.description, content),
       summary: plainText(item.description) ?? plainText(content),
       author: textValue(item.author),
       publishedAt: publishedDate(item.pubDate),

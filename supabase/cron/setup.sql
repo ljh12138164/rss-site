@@ -30,7 +30,13 @@ begin
       ('deepseek', 'deepseek-news-feed-every-five-hours', '20 2,7,12,17,22 * * *'),
       ('glm', 'glm-release-feed-every-five-hours', '30 2,7,12,17,22 * * *'),
       ('google-ai', 'google-ai-feed-every-five-hours', '40 2,7,12,17,22 * * *'),
-      ('qwen', 'qwen-blog-feed-every-five-hours', '50 2,7,12,17,22 * * *')
+      ('qwen', 'qwen-blog-feed-every-five-hours', '50 2,7,12,17,22 * * *'),
+      ('bilibili', 'bilibili-popular-feed-every-five-hours', '0 3,8,13,18,23 * * *'),
+      ('zhihu', 'zhihu-hot-feed-every-five-hours', '10 3,8,13,18,23 * * *'),
+      ('coolapk', 'coolapk-hot-feed-every-five-hours', '20 3,8,13,18,23 * * *'),
+      ('hupu', 'hupu-topic-feed-every-five-hours', '30 3,8,13,18,23 * * *'),
+      ('sspai', 'sspai-matrix-feed-every-five-hours', '40 3,8,13,18,23 * * *'),
+      ('toutiao', 'toutiao-hot-feed-every-five-hours', '50 3,8,13,18,23 * * *')
     ) as jobs(source_id, job_name, job_schedule)
   loop
     perform cron.schedule(

@@ -4,14 +4,17 @@ import {
   getAiSource,
   getNewsSource,
   getSignalSource,
+  getSocialSource,
   getTechnologySource,
   isAiSourceId,
   isNewsSourceId,
   isSignalSourceId,
+  isSocialSourceId,
   isTechnologySourceId,
   newsSources,
   resolveSignalFeedUrl,
   signalSources,
+  socialSources,
   technologySources
 } from './sources.js'
 
@@ -67,6 +70,19 @@ describe('technologySources', () => {
     )
   })
 
+  it('registers six anonymous social feeds in display order', () => {
+    expect(socialSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
+      ['bilibili', '/bilibili/popular/all'],
+      ['zhihu', '/zhihu/hot'],
+      ['coolapk', '/coolapk/hot'],
+      ['hupu', '/hupu/all/topic-daily'],
+      ['sspai', '/sspai/matrix'],
+      ['toutiao', '/toutiao/channel/news_hot']
+    ])
+    expect(socialSources.every((source) => source.section === 'social')).toBe(true)
+    expect(getSocialSource('bilibili').name).toBe('哔哩哔哩综合热门')
+  })
+
   it('narrows and resolves only known sources', () => {
     expect(isTechnologySourceId('36kr')).toBe(true)
     expect(isTechnologySourceId('product-hunt')).toBe(false)
@@ -77,7 +93,9 @@ describe('technologySources', () => {
     expect(isAiSourceId('deepseek')).toBe(true)
     expect(isAiSourceId('github')).toBe(false)
     expect(isSignalSourceId('baidu')).toBe(true)
-    expect(signalSources).toHaveLength(18)
+    expect(isSocialSourceId('bilibili')).toBe(true)
+    expect(isSocialSourceId('weibo')).toBe(false)
+    expect(signalSources).toHaveLength(24)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

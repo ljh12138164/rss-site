@@ -5,6 +5,8 @@ import {
   getAiFeeds,
   getNewsFeed,
   getNewsFeeds,
+  getSocialFeed,
+  getSocialFeeds,
   getTechnologyFeed,
   getTechnologyFeeds
 } from './hot-feed'
@@ -60,6 +62,7 @@ describe('technology feeds', () => {
           sourceKey: 'github-1',
           title: 'GitHub 1',
           url: 'https://github.com/example/one',
+          imageUrl: null,
           summary: null,
           author: 'example',
           publishedAt: new Date('2026-09-04T01:00:00.000Z'),
@@ -180,5 +183,39 @@ describe('AI feeds', () => {
     expect(feeds.openai.state).toBe('ready')
     expect(feeds.anthropic).toEqual({ state: 'empty' })
     expect(feed.state).toBe('ready')
+  })
+})
+
+describe('social feeds', () => {
+  const socialQuery: FeedCollectionQuery = async () => ({
+    items: [
+      {
+        source: 'bilibili',
+        source_key: 'bilibili-1',
+        title: 'B 站热门视频',
+        url: 'https://www.bilibili.com/video/BV123',
+        image_url: 'https://i2.hdslb.com/bfs/archive/cover.jpg',
+        summary: '视频简介',
+        author: '示例 UP 主',
+        published_at: '2026-09-05T03:00:00.000Z',
+        position: 1
+      }
+    ],
+    statuses: [{ source: 'bilibili', item_count: 1, last_success_at: '2026-09-05T03:00:00.000Z' }],
+    error: null
+  })
+
+  it('builds social results and preserves preview image URLs', async () => {
+    const feeds = await getSocialFeeds(1, socialQuery)
+    const feed = await getSocialFeed('bilibili', undefined, socialQuery)
+
+    expect(feeds.zhihu).toEqual({ state: 'empty' })
+    expect(feed.state).toBe('ready')
+    if (feed.state === 'ready') {
+      expect(feed.items[0]).toMatchObject({
+        url: 'https://www.bilibili.com/video/BV123',
+        imageUrl: 'https://i2.hdslb.com/bfs/archive/cover.jpg'
+      })
+    }
   })
 })

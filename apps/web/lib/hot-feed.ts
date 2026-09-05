@@ -5,6 +5,8 @@ import {
   type NewsSourceId,
   newsSources,
   type SignalSourceId,
+  type SocialSourceId,
+  socialSources,
   type TechnologySourceId,
   technologySources
 } from './technology-sources'
@@ -14,6 +16,7 @@ export interface HotItemRow {
   source_key: string
   title: string
   url: string
+  image_url?: string | null
   summary: string | null
   author: string | null
   published_at: string | null
@@ -38,6 +41,7 @@ export interface HotItem {
   sourceKey: string
   title: string
   url: string
+  imageUrl?: string | null
   summary: string | null
   author: string | null
   publishedAt: Date | null
@@ -59,9 +63,10 @@ export type FeedResult =
 export type TechnologyFeeds = Record<TechnologySourceId, FeedResult>
 export type NewsFeeds = Record<NewsSourceId, FeedResult>
 export type AiFeeds = Record<AiSourceId, FeedResult>
+export type SocialFeeds = Record<SocialSourceId, FeedResult>
 
 async function querySectionFeeds(
-  section: 'technology' | 'news' | 'ai',
+  section: 'technology' | 'news' | 'ai' | 'social',
   sourceIds: SignalSourceId[]
 ): Promise<FeedCollectionQueryResult> {
   try {
@@ -69,7 +74,7 @@ async function querySectionFeeds(
     const [itemsResult, statusesResult] = await Promise.all([
       supabase
         .from('hot_items')
-        .select('source,source_key,title,url,summary,author,published_at,position')
+        .select('source,source_key,title,url,image_url,summary,author,published_at,position')
         .eq('section', section)
         .in('source', sourceIds)
         .order('position', { ascending: true }),
@@ -107,6 +112,12 @@ const queryAiFeeds = () =>
     aiSources.map((source) => source.id)
   )
 
+const querySocialFeeds = () =>
+  querySectionFeeds(
+    'social',
+    socialSources.map((source) => source.id)
+  )
+
 function buildFeed(
   source: SignalSourceId,
   result: FeedCollectionQueryResult,
@@ -130,6 +141,7 @@ function buildFeed(
       sourceKey: row.source_key,
       title: row.title,
       url: row.url,
+      imageUrl: row.image_url ?? null,
       summary: row.summary,
       author: row.author,
       publishedAt: row.published_at ? new Date(row.published_at) : null,
@@ -195,6 +207,25 @@ export async function getAiFeed(
   source: AiSourceId,
   limit?: number,
   query: FeedCollectionQuery = queryAiFeeds
+): Promise<FeedResult> {
+  return buildFeed(source, await query(), limit)
+}
+
+export async function getSocialFeeds(
+  limitPerSource?: number,
+  query: FeedCollectionQuery = querySocialFeeds
+): Promise<SocialFeeds> {
+  const result = await query()
+
+  return Object.fromEntries(
+    socialSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
+  ) as SocialFeeds
+}
+
+export async function getSocialFeed(
+  source: SocialSourceId,
+  limit?: number,
+  query: FeedCollectionQuery = querySocialFeeds
 ): Promise<FeedResult> {
   return buildFeed(source, await query(), limit)
 }

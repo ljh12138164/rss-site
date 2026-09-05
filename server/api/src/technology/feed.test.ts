@@ -24,6 +24,7 @@ describe('parseTechnologyFeed', () => {
         sourceKey: 'story-1',
         title: 'First & useful',
         url: 'https://example.com/story',
+        imageUrl: null,
         summary: 'A plain summary.',
         author: 'Ada',
         publishedAt: new Date('2026-09-03T08:00:00.000Z'),
@@ -33,6 +34,7 @@ describe('parseTechnologyFeed', () => {
         sourceKey: 'http://news.example.org/article',
         title: 'Second',
         url: 'http://news.example.org/article',
+        imageUrl: null,
         summary: null,
         author: null,
         publishedAt: null,
@@ -82,5 +84,35 @@ describe('parseTechnologyFeed', () => {
     expect(parseTechnologyFeed(xml, '智谱 GLM', { titleFromFirstStrong: true })[0]?.title).toBe(
       'GLM 更新'
     )
+  })
+
+  it('extracts the first valid image without confusing an iframe for a preview', () => {
+    const xml = `
+      <rss><channel><item>
+        <title>B 站热门视频</title>
+        <link>https://www.bilibili.com/video/BV123</link>
+        <description><![CDATA[
+          <p>
+            <iframe src="https://www.bilibili.com/blackboard/html5mobileplayer.html?bvid=BV123"></iframe>
+            <img src="https://i2.hdslb.com/bfs/archive/cover.jpg?utm_source=rsshub" alt="封面">
+          </p>
+        ]]></description>
+      </item></channel></rss>`
+
+    expect(parseTechnologyFeed(xml, '哔哩哔哩')[0]).toMatchObject({
+      url: 'https://www.bilibili.com/video/BV123',
+      imageUrl: 'https://i2.hdslb.com/bfs/archive/cover.jpg'
+    })
+  })
+
+  it('rejects unsafe image protocols without rejecting the feed item', () => {
+    const xml = `
+      <rss><channel><item>
+        <title>安全条目</title>
+        <link>https://example.com/story</link>
+        <description><![CDATA[<img src="javascript:alert(1)">正文]]></description>
+      </item></channel></rss>`
+
+    expect(parseTechnologyFeed(xml, '测试来源')[0]?.imageUrl).toBeNull()
   })
 })

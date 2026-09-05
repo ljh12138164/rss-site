@@ -32,4 +32,12 @@ describe('technology source proxy', () => {
     expect(known.headers.get('x-middleware-next')).toBe('1')
     expect(wrongSection.status).toBe(404)
   })
+
+  it('accepts only confirmed social sources on social routes', () => {
+    const known = proxy(new NextRequest('https://example.com/social/bilibili'))
+    const wrongSection = proxy(new NextRequest('https://example.com/social/github'))
+
+    expect(known.headers.get('x-middleware-next')).toBe('1')
+    expect(wrongSection.status).toBe(404)
+  })
 })

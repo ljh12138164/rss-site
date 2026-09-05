@@ -1,6 +1,11 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { isAiSourceId, isNewsSourceId, isTechnologySourceId } from './lib/technology-sources'
+import {
+  isAiSourceId,
+  isNewsSourceId,
+  isSocialSourceId,
+  isTechnologySourceId
+} from './lib/technology-sources'
 
 export function proxy(request: NextRequest) {
   const [section, sourceId] = request.nextUrl.pathname.split('/').filter(Boolean)
@@ -9,7 +14,8 @@ export function proxy(request: NextRequest) {
     sourceId &&
     ((section === 'technology' && isTechnologySourceId(sourceId)) ||
       (section === 'news' && isNewsSourceId(sourceId)) ||
-      (section === 'ai' && isAiSourceId(sourceId)))
+      (section === 'ai' && isAiSourceId(sourceId)) ||
+      (section === 'social' && isSocialSourceId(sourceId)))
   ) {
     return NextResponse.next()
   }
@@ -18,5 +24,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/technology/:source', '/news/:source', '/ai/:source']
+  matcher: ['/technology/:source', '/news/:source', '/ai/:source', '/social/:source']
 }

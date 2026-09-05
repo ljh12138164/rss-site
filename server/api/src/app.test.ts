@@ -116,6 +116,35 @@ describe('Hono ingestion API', () => {
     expect(sources).toEqual(['openai', 'openai'])
   })
 
+  it('runs a confirmed social source only through social and generic endpoints', async () => {
+    const sources: string[] = []
+    const app = configureApp(new Hono(), {
+      cronSecret: 'secret',
+      runIngestion: async (source) => {
+        sources.push(source)
+        return { batchId: 'batch-social', itemCount: 20 }
+      }
+    })
+
+    for (const path of ['/cron/social/bilibili', '/cron/signals/bilibili']) {
+      expect(
+        (
+          await app.request(path, {
+            method: 'POST',
+            headers: { Authorization: 'Bearer secret' }
+          })
+        ).status
+      ).toBe(200)
+    }
+
+    const wrongSection = await app.request('/cron/news/bilibili', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer secret' }
+    })
+    expect(wrongSection.status).toBe(404)
+    expect(sources).toEqual(['bilibili', 'bilibili'])
+  })
+
   it('keeps the legacy Juejin endpoint during the Cron transition', async () => {
     const sources: string[] = []
     const app = configureApp(new Hono(), {

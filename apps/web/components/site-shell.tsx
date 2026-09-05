@@ -38,6 +38,12 @@ export function SiteShell({ children }: { children: ReactNode }) {
             >
               AI
             </Link>
+            <Link
+              className="flex min-h-11 items-center px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              href="/social"
+            >
+              社交
+            </Link>
           </nav>
           <ThemeToggle />
         </div>

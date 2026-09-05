@@ -2,10 +2,22 @@
 
 ## Active objective
 
-在 `feat/ai-platform-articles` 上新增六路 AI 平台官方文章，并在 `D:\code\rss` 的
-`feat/fix-deepseek-news` 分支修复 DeepSeek 新闻路由。
+在 `feat/social-hot-sources` 上增加六路可匿名抓取的社交热点、真实媒体封面数据链路，以及带懒加载和
+失效占位的通用预览组件。
 
 ## Current state
+
+- 当前分支 `feat/social-hot-sources` 基于 `origin/master` 的 `d502dfd`，实现与验收记录在
+  `docs/development/social-hot-sources.md`。
+- 已新增 B 站、知乎、酷安、虎扑、少数派和今日头条六路匿名社交热点，以及 `/social`、来源详情、首页摘要、
+  主导航和离站返回路径。
+- 通用媒体预览已实现固定 16:9、原生懒加载、异步解码、加载/失败统一占位和成功淡入；RSS 解析只提取
+  合法 `<img>` HTTP(S) 地址，B 站真实数据 20/20 条封面解析成功。
+- Supabase 迁移新增可空 `image_url` 并扩展来源/分区约束；`setup:cron` 现在会在调度前复核云端批次、
+  `source_status`、实际条数、字段质量和社交来源发布时间。
+- API 45 项与 Web 33 项测试、格式、lint、类型检查和生产构建通过；无界面生产服务器回归覆盖 200、真实
+  404 与社交离站返回。UI Skills MCP 未暴露，因此没有声称完成 UI Skills 审查。
+- 本地 pgTAP 因 Docker 未运行而无法连接；尚未部署、应用云端迁移、写入生产 Supabase 或启用新 Cron。
 
 - AI 首批来源已确定为 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 与 Qwen；来源证据和
   在线抓取结果在 `docs/research/ai-platform-official-article-sources.md`。
@@ -40,10 +52,10 @@
 
 ## Next action
 
-两个功能分支已经提交并推送；按此前要求不创建 PR。上线时先部署 RSSHub DeepSeek 修复，再合并并部署
-`feat/technology-hot-sources` 与本 AI 分支，随后应用迁移、配置 18 路 Cron，并按
-`docs/roadmaps/ai-platform-articles.md` 复核首轮真实数据。
+完成最终暂存 diff 审查、提交并推送 `feat/social-hot-sources`，请用户以 `master` 为 base 创建并合并 PR。
+部署后严格按云端 Supabase 数据门禁逐来源验证，再启用 Cron。
 
 ## Delivery constraint
 
-不把 GitHub、Supabase、数据库或 Cron 密钥提交到仓库。本次工作不自动部署，也不自动修改生产数据库和 Cron。
+不把 GitHub、Supabase、数据库或 Cron 密钥提交到仓库。只有代码部署与迁移完成后，才允许用生产端点写入
+云端 Supabase 并启用已验证来源的 Cron；不通过页面创建 PR。
