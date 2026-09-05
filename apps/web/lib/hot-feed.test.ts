@@ -3,6 +3,7 @@ import {
   type FeedCollectionQuery,
   getAiFeed,
   getAiFeeds,
+  getAiTimeline,
   getNewsFeed,
   getNewsFeeds,
   getTechnologyFeed,
@@ -180,5 +181,61 @@ describe('AI feeds', () => {
     expect(feeds.openai.state).toBe('ready')
     expect(feeds.anthropic).toEqual({ state: 'empty' })
     expect(feed.state).toBe('ready')
+  })
+
+  it('merges real AI rows into a newest-first timeline and ignores non-AI rows', async () => {
+    const timeline = await getAiTimeline(2, async () => ({
+      items: [
+        {
+          source: 'anthropic',
+          source_key: 'anthropic-older',
+          title: 'Anthropic 更新',
+          url: 'https://www.anthropic.com/news/update',
+          summary: null,
+          author: null,
+          published_at: '2026-09-03T12:00:00.000Z',
+          position: 1
+        },
+        {
+          source: 'openai',
+          source_key: 'openai-newer',
+          title: 'OpenAI 更新',
+          url: 'https://openai.com/index/update',
+          summary: null,
+          author: null,
+          published_at: '2026-09-05T12:00:00.000Z',
+          position: 2
+        },
+        {
+          source: 'github',
+          source_key: 'not-ai',
+          title: '非 AI 分区记录',
+          url: 'https://github.com/example/repo',
+          summary: null,
+          author: null,
+          published_at: '2026-09-06T12:00:00.000Z',
+          position: 1
+        }
+      ],
+      statuses: [],
+      error: null
+    }))
+
+    expect(timeline.state).toBe('ready')
+    if (timeline.state === 'ready') {
+      expect(timeline.items.map((item) => item.sourceKey)).toEqual([
+        'openai-newer',
+        'anthropic-older'
+      ])
+    }
+  })
+
+  it('returns empty and error states without manufacturing timeline events', async () => {
+    await expect(
+      getAiTimeline(30, async () => ({ items: [], statuses: [], error: null }))
+    ).resolves.toEqual({ state: 'empty' })
+    await expect(
+      getAiTimeline(30, async () => ({ items: null, statuses: null, error: 'unavailable' }))
+    ).resolves.toEqual({ state: 'error' })
   })
 })

@@ -1,20 +1,23 @@
-import { SignalSkeleton } from '../../components/signal-skeleton'
+import { Bot, Radio } from 'lucide-react'
 import { SiteShell } from '../../components/site-shell'
 
 export default function AiLoading() {
   return (
     <SiteShell>
-      <SignalSkeleton className="h-3 w-40" />
-      <SignalSkeleton className="mt-7 h-12 w-2/3" />
-      <SignalSkeleton className="mt-5 h-5 w-4/5" />
-      <div className="mt-12 grid gap-x-10 gap-y-14 md:grid-cols-2">
-        {['oa', 'an', 'ds', 'gl', 'gm', 'qw'].map((source) => (
-          <div className="border-t-2 border-border pt-5" key={source}>
-            <SignalSkeleton className="h-3 w-16" />
-            <SignalSkeleton className="mt-4 h-7 w-2/3" />
-            <SignalSkeleton className="mt-10 h-16 w-full" />
-          </div>
-        ))}
+      <header className="pb-12 sm:pb-16">
+        <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-primary">
+          <Bot aria-hidden="true" className="size-3.5" />
+          AI event log / Six channels
+        </p>
+        <h1 className="mt-6 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">
+          AI 最近发生了什么
+        </h1>
+      </header>
+
+      <div className="border-y border-border py-12 text-center" role="status">
+        <Radio aria-hidden="true" className="mx-auto size-5 text-primary" />
+        <p className="mt-4 text-sm font-medium">正在读取真实事件</p>
+        <p className="mt-2 text-sm text-muted-foreground">时间线会在 Supabase 返回数据后出现。</p>
       </div>
     </SiteShell>
   )

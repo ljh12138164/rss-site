@@ -2,6 +2,7 @@ import { getPublicSupabaseClient } from './supabase'
 import {
   type AiSourceId,
   aiSources,
+  isAiSourceId,
   type NewsSourceId,
   newsSources,
   type SignalSourceId,
@@ -60,6 +61,15 @@ export type TechnologyFeeds = Record<TechnologySourceId, FeedResult>
 export type NewsFeeds = Record<NewsSourceId, FeedResult>
 export type AiFeeds = Record<AiSourceId, FeedResult>
 
+export interface AiTimelineItem extends HotItem {
+  source: AiSourceId
+}
+
+export type AiTimelineResult =
+  | { state: 'ready'; items: AiTimelineItem[] }
+  | { state: 'empty' }
+  | { state: 'error' }
+
 async function querySectionFeeds(
   section: 'technology' | 'news' | 'ai',
   sourceIds: SignalSourceId[]
@@ -106,6 +116,33 @@ const queryAiFeeds = () =>
     'ai',
     aiSources.map((source) => source.id)
   )
+
+const queryAiTimeline =
+  (limit: number): FeedCollectionQuery =>
+  async () => {
+    try {
+      const supabase = getPublicSupabaseClient()
+      const result = await supabase
+        .from('hot_items')
+        .select('source,source_key,title,url,summary,author,published_at,position')
+        .eq('section', 'ai')
+        .in(
+          'source',
+          aiSources.map((source) => source.id)
+        )
+        .order('published_at', { ascending: false, nullsFirst: false })
+        .order('position', { ascending: true })
+        .limit(limit)
+
+      return {
+        items: result.data as HotItemRow[] | null,
+        statuses: null,
+        error: result.error?.message ?? null
+      }
+    } catch {
+      return { items: null, statuses: null, error: 'Supabase is unavailable' }
+    }
+  }
 
 function buildFeed(
   source: SignalSourceId,
@@ -197,4 +234,39 @@ export async function getAiFeed(
   query: FeedCollectionQuery = queryAiFeeds
 ): Promise<FeedResult> {
   return buildFeed(source, await query(), limit)
+}
+
+export async function getAiTimeline(
+  limit = 30,
+  query?: FeedCollectionQuery
+): Promise<AiTimelineResult> {
+  const result = await (query ?? queryAiTimeline(limit))()
+  if (result.error) return { state: 'error' }
+
+  const items = (result.items ?? [])
+    .filter((row): row is HotItemRow & { source: AiSourceId } => isAiSourceId(row.source))
+    .map((row) => ({
+      source: row.source,
+      sourceKey: row.source_key,
+      title: row.title,
+      url: row.url,
+      summary: row.summary,
+      author: row.author,
+      publishedAt: row.published_at ? new Date(row.published_at) : null,
+      position: row.position
+    }))
+    .sort((left, right) => {
+      const leftTime = left.publishedAt?.getTime()
+      const rightTime = right.publishedAt?.getTime()
+
+      if (Number.isFinite(leftTime) && Number.isFinite(rightTime)) {
+        return (rightTime as number) - (leftTime as number) || left.position - right.position
+      }
+      if (Number.isFinite(leftTime)) return -1
+      if (Number.isFinite(rightTime)) return 1
+      return left.position - right.position
+    })
+    .slice(0, limit)
+
+  return items.length > 0 ? { state: 'ready', items } : { state: 'empty' }
 }
