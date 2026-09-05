@@ -1,5 +1,5 @@
 begin;
-select plan(51);
+select plan(53);
 
 select has_table('public', 'hot_items', 'hot_items exists');
 select has_table('public', 'source_status', 'source_status exists');
@@ -37,6 +37,26 @@ select results_eq(
   $$select relrowsecurity from pg_class where oid = 'public.ai_event_articles'::regclass$$,
   array[true],
   'ai_event_articles has RLS enabled'
+);
+select results_eq(
+  $$select count(*)
+    from information_schema.role_table_grants
+    where table_schema = 'public'
+      and table_name in ('signal_articles', 'ai_events', 'ai_event_articles')
+      and grantee in ('anon', 'authenticated')
+      and privilege_type <> 'SELECT'$$,
+  array[0::bigint],
+  'public roles have no write or truncate privileges on persistent tables'
+);
+select results_eq(
+  $$select count(*)
+    from information_schema.role_table_grants
+    where table_schema = 'public'
+      and table_name in ('signal_articles', 'ai_events', 'ai_event_articles')
+      and grantee in ('anon', 'authenticated')
+      and privilege_type = 'SELECT'$$,
+  array[6::bigint],
+  'public roles have select-only grants on persistent tables'
 );
 
 set local role anon;

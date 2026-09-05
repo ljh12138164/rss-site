@@ -1,10 +1,11 @@
 # SEO、缓存与索引发布 roadmap
 
-Status: P1 implemented locally; production validation pending
+Status: P1 schema and historical backfill verified in cloud; full 36-source Cron gate pending
 
-Batch gate: 财经、游戏与 P1 数据模型在同一功能分支交付；必须先合并部署，再应用三个待发布迁移、执行全部
-来源的云端 Supabase 数据验证并启用错峰 Cron。P2 及后续阶段只有在该生产门禁完成后开始。体育、影视文化、
-科学研究和生活消费等 Later 分类不阻塞本 roadmap；它们后续直接接入这里形成的通用发布链路。
+Batch gate: 财经、游戏与 P1 数据模型已合并，四条云端迁移、496 条历史文章回填和权限审计已完成。完整来源
+门禁先后被掘金瞬时 503 与金十无链接条目中断，且安全顺序保证 Cron 未被更改。当前解析与有限重试修复部署后，
+必须从第一路重新验证 36 路并启用错峰 Cron，P2 才开始。最终前端部署顺序见
+[生产上线 roadmap](production-launch.md)；体育、影视文化、科学研究和生活消费等 Later 分类不阻塞本 roadmap。
 
 ## 目标
 
@@ -27,7 +28,7 @@ Google 普通文章不调用 Indexing API。Google Indexing API 只用于符合�
 
 ## P1：持久化文章与 AI 事件模型
 
-Status: implementation complete; cloud migration and real-ingestion verification pending
+Status: cloud schema, backfill and access boundary verified; complete real-ingestion/Cron verification pending
 
 ### 数据职责
 

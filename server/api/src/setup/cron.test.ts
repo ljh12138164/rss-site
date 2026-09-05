@@ -151,11 +151,41 @@ describe('setupSignalCron', () => {
         request: async (url) =>
           String(url).endsWith('/openai')
             ? Response.json({ batchId: 'batch-openai', itemCount: 12 })
-            : new Response(null, { status: 502 })
+            : new Response(null, { status: 502 }),
+        retryDelaysMs: []
       })
     ).rejects.toThrow('来源 anthropic 云端采集验证失败（HTTP 502），未更新 Cron')
 
     expect(mutations).toEqual([])
+  })
+
+  it('retries a transient ingestion response before continuing the production gate', async () => {
+    const attempts = new Map<string, number>()
+    const repository: CronRepository = {
+      installExtensions: async () => undefined,
+      upsertSecret: async () => undefined,
+      verifyIngestion: async () => undefined,
+      unschedule: async () => undefined,
+      schedule: async () => undefined
+    }
+
+    const result = await setupSignalCron({
+      apiUrl: 'https://api.example.com',
+      cronSecret: 'test-secret',
+      repository,
+      retryDelaysMs: [0],
+      request: async (url) => {
+        const source = new URL(String(url)).pathname.split('/').at(-1) ?? ''
+        const attempt = (attempts.get(source) ?? 0) + 1
+        attempts.set(source, attempt)
+        if (source === 'anthropic' && attempt === 1) return new Response(null, { status: 503 })
+        return Response.json({ batchId: `batch-${source}`, itemCount: 12 })
+      }
+    })
+
+    expect(attempts.get('openai')).toBe(1)
+    expect(attempts.get('anthropic')).toBe(2)
+    expect(result).toHaveLength(36)
   })
 
   it('does not schedule any jobs when a source writes zero items', async () => {

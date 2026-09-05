@@ -68,7 +68,7 @@ Roadmap：[辅助热点分区 roadmap](../roadmaps/additional-hot-categories.md)
 ## Production gate
 
 1. 当前匿名探测证据已记录；部署后再次确认六路 Feed 可读。
-2. 部署 API 与 Web，并应用版本化迁移到关联的云端 Supabase。
+2. 部署 API，并应用版本化迁移到关联的云端 Supabase；前端服务器上线不阻塞采集门禁。
 3. 使用服务端 `CRON_SECRET` 逐一调用生产 `POST /cron/signals/:source`。
 4. 查询云端 `ingestion_runs`、`source_status`、`hot_items` 与 `signal_articles`，核验批次、条数、标题、URL、
    分区、排名、时间和持久化关联。
@@ -80,8 +80,15 @@ Roadmap：[辅助热点分区 roadmap](../roadmaps/additional-hot-categories.md)
 - 2026-09-05 19:25 CST 对 `https://rss.ljhboard.cn` 匿名复探：六路均为 HTTP 200 与 RSS XML；条目数依次
   为华尔街见闻 10、财联社 13、金十数据 1、第一财经 30、证券时报 10、同花顺 20。
 - 本地 API 52 项与 Web 42 项 Vitest 全部通过；`pnpm lint`、`pnpm typecheck` 和 `pnpm build` 通过。
-- pgTAP 已扩展到 51 项，覆盖财经/游戏白名单、持久化表和 RLS；本轮不以本地 Docker 代替云端验证。
-- 云端迁移、生产 API 写入和 Cron active 状态：等待分支合并部署后执行并回填。
+- 财经迁移已于 2026-09-05 应用到云端；P1 历史回填得到 496 条 `signal_articles`，现有 496 条
+  `hot_items` 均存在文章关联且来源、来源键和分区一致。
+- 第一次全源门禁在掘金瞬时 503 处停止；第二次前 26 路成功，随后金十数据因首条 `<link/>` 为空返回
+  502。公开 Feed 同时包含仍可用的真实文章，因此本分支让通用解析器跳过无标题或无 Web URL 的坏条目，
+  仅在整份 Feed 无可用项时失败。
+- 生产 Cron 未更新：云端仍保留 24 路既有五小时采集任务和 1 个清理任务。当前解析修复合并并部署 API 后，
+  必须从第一路重新运行完整门禁，不能把本次部分成功视为财经验收完成。
+- pgTAP 已扩展到 53 项，覆盖财经/游戏白名单、持久化表、RLS 与公开角色只读权限；本轮不以本地 Docker
+  代替云端验证。
 
 ## Review
 

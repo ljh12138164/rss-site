@@ -58,6 +58,35 @@ describe('parseTechnologyFeed', () => {
     expect(() => parseTechnologyFeed(xml, 'Test source')).toThrow()
   })
 
+  it('skips malformed entries when the feed still contains a usable article', () => {
+    const xml = `
+      <rss><channel>
+        <item>
+          <title>没有可访问原文的快讯</title>
+          <link />
+          <guid>broken-item</guid>
+        </item>
+        <item>
+          <title>可访问的财经文章</title>
+          <link>https://example.com/finance/story</link>
+          <guid>usable-item</guid>
+        </item>
+      </channel></rss>`
+
+    expect(parseTechnologyFeed(xml, '金十数据')).toEqual([
+      {
+        sourceKey: 'usable-item',
+        title: '可访问的财经文章',
+        url: 'https://example.com/finance/story',
+        imageUrl: null,
+        summary: null,
+        author: null,
+        publishedAt: null,
+        position: 1
+      }
+    ])
+  })
+
   it('uses the first strong content label for explicitly configured GLM feeds', () => {
     const xml = `
       <rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><item>

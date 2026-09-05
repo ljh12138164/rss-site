@@ -143,25 +143,30 @@ export function parseTechnologyFeed(
   const items = parsed.rss?.channel?.item ?? []
   if (items.length === 0) throw new Error(`RSSHub returned an empty ${sourceName} feed`)
 
-  return items.map((item, index) => {
+  const usableItems = items.flatMap((item) => {
     const content = item['content:encoded']
     const title =
       (options.titleFromFirstStrong ? firstStrongText(content) : null) ?? textValue(item.title)
     const url = canonicalWebUrl(item.link)
-    if (!title || !url) {
-      throw new Error(`${sourceName} feed item ${index + 1} is missing required fields`)
-    }
+    if (!title || !url) return []
 
     const rawGuid = textValue(item.guid)
-    return {
-      sourceKey: canonicalWebUrl(rawGuid) ?? rawGuid ?? url,
-      title,
-      url,
-      imageUrl: firstImageUrl(item.description, content),
-      summary: plainText(item.description) ?? plainText(content),
-      author: textValue(item.author),
-      publishedAt: publishedDate(item.pubDate),
-      position: index + 1
-    }
+    return [
+      {
+        sourceKey: canonicalWebUrl(rawGuid) ?? rawGuid ?? url,
+        title,
+        url,
+        imageUrl: firstImageUrl(item.description, content),
+        summary: plainText(item.description) ?? plainText(content),
+        author: textValue(item.author),
+        publishedAt: publishedDate(item.pubDate)
+      }
+    ]
   })
+
+  if (usableItems.length === 0) {
+    throw new Error(`${sourceName} feed contains no usable items`)
+  }
+
+  return usableItems.map((item, index) => ({ ...item, position: index + 1 }))
 }
