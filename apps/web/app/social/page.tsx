@@ -29,7 +29,7 @@ export function SocialView({ feeds }: { feeds: SocialFeeds }) {
             六个平台的公开热门内容分别保持原有顺序。这里展示每路前三条，进入来源可查看完整列表。
           </p>
           <p className="shrink-0 font-mono text-xs uppercase tracking-[0.1em]">
-            Refresh window · 5H
+            Refresh window · 6H
           </p>
         </div>
         <div className="mt-9">

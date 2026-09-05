@@ -25,11 +25,13 @@ function BandState({ feed }: { feed: Exclude<FeedResult, { state: 'ready' }> }) 
 export function SourceBand({
   source,
   feed,
-  basePath = '/technology'
+  basePath = '/technology',
+  refreshHours = 6
 }: {
   source: SignalSource
   feed: FeedResult
-  basePath?: '/technology' | '/news' | '/ai' | '/social'
+  basePath?: '/technology' | '/news' | '/ai' | '/social' | '/finance' | '/games'
+  refreshHours?: 2 | 6
 }) {
   return (
     <section
@@ -39,7 +41,7 @@ export function SourceBand({
       <div className="flex min-h-24 items-start justify-between gap-4">
         <div className="min-w-0">
           <p className="font-mono text-xs font-semibold tracking-[0.14em] text-primary">
-            {source.code} / 5H
+            {source.code} / {refreshHours}H
           </p>
           <h2
             className="mt-2 truncate text-xl font-semibold tracking-[-0.025em]"

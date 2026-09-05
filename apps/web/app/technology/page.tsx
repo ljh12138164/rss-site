@@ -27,7 +27,7 @@ export function TechnologyView({ feeds }: { feeds: TechnologyFeeds }) {
             六个平台分别排序、分别更新时间。这里展示每路前三条，进入来源可查看完整榜单。
           </p>
           <p className="shrink-0 font-mono text-xs uppercase tracking-[0.1em]">
-            Refresh window · 5H
+            Refresh window · 6H
           </p>
         </div>
         <div className="mt-9">

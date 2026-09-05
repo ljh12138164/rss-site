@@ -29,7 +29,7 @@ export function AiView({ feeds }: { feeds: AiFeeds }) {
             六个平台的官方发布分别按原始时间线整理。这里展示每路前三条，进入来源可查看完整列表。
           </p>
           <p className="shrink-0 font-mono text-xs uppercase tracking-[0.1em]">
-            Refresh window · 5H
+            Refresh window · 2H
           </p>
         </div>
         <div className="mt-9">
@@ -39,7 +39,13 @@ export function AiView({ feeds }: { feeds: AiFeeds }) {
 
       <div className="grid gap-x-10 gap-y-14 md:grid-cols-2">
         {aiSources.map((source) => (
-          <SourceBand basePath="/ai" feed={feeds[source.id]} key={source.id} source={source} />
+          <SourceBand
+            basePath="/ai"
+            feed={feeds[source.id]}
+            key={source.id}
+            refreshHours={2}
+            source={source}
+          />
         ))}
       </div>
     </SiteShell>

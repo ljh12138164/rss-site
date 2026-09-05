@@ -1,6 +1,6 @@
-import { and, eq, ne } from 'drizzle-orm'
+import { and, eq, ne, sql } from 'drizzle-orm'
 import type { Database } from '../db/client.js'
-import { hotItems, ingestionRuns, sourceStatus } from '../db/schema.js'
+import { hotItems, ingestionRuns, signalArticles, sourceStatus } from '../db/schema.js'
 import type { FailedIngestion, SignalStore, SuccessfulIngestion } from './ingest.js'
 import type { SignalSection, SignalSourceId } from './sources.js'
 
@@ -22,6 +22,40 @@ export class DrizzleSignalStore implements SignalStore {
         finishedAt: input.finishedAt
       })
 
+      const articleRows = await tx
+        .insert(signalArticles)
+        .values(
+          input.items.map((item) => ({
+            section: this.section,
+            source: this.source,
+            sourceKey: item.sourceKey,
+            title: item.title,
+            url: item.url,
+            imageUrl: item.imageUrl,
+            summary: item.summary,
+            author: item.author,
+            publishedAt: item.publishedAt,
+            firstSeenAt: input.finishedAt,
+            lastSeenAt: input.finishedAt
+          }))
+        )
+        .onConflictDoUpdate({
+          target: [signalArticles.source, signalArticles.sourceKey],
+          set: {
+            section: sql.raw(`excluded.${signalArticles.section.name}`),
+            title: sql.raw(`excluded.${signalArticles.title.name}`),
+            url: sql.raw(`excluded.${signalArticles.url.name}`),
+            imageUrl: sql.raw(`excluded.${signalArticles.imageUrl.name}`),
+            summary: sql.raw(`excluded.${signalArticles.summary.name}`),
+            author: sql.raw(`excluded.${signalArticles.author.name}`),
+            publishedAt: sql.raw(`excluded.${signalArticles.publishedAt.name}`),
+            lastSeenAt: sql.raw(`excluded.${signalArticles.lastSeenAt.name}`)
+          }
+        })
+        .returning({ id: signalArticles.id, sourceKey: signalArticles.sourceKey })
+
+      const articleIds = new Map(articleRows.map((article) => [article.sourceKey, article.id]))
+
       await tx
         .insert(hotItems)
         .values(
@@ -29,6 +63,7 @@ export class DrizzleSignalStore implements SignalStore {
             section: this.section,
             source: this.source,
             sourceKey: item.sourceKey,
+            articleId: requireArticleId(articleIds, item.sourceKey),
             title: item.title,
             url: item.url,
             imageUrl: item.imageUrl,
@@ -47,6 +82,7 @@ export class DrizzleSignalStore implements SignalStore {
         await tx
           .update(hotItems)
           .set({
+            articleId: requireArticleId(articleIds, item.sourceKey),
             title: item.title,
             url: item.url,
             imageUrl: item.imageUrl,
@@ -95,4 +131,10 @@ export class DrizzleSignalStore implements SignalStore {
       finishedAt: input.finishedAt
     })
   }
+}
+
+function requireArticleId(articleIds: Map<string, string>, sourceKey: string): string {
+  const articleId = articleIds.get(sourceKey)
+  if (!articleId) throw new Error(`Missing persisted article for source key: ${sourceKey}`)
+  return articleId
 }

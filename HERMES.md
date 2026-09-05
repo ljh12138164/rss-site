@@ -2,10 +2,33 @@
 
 ## Active objective
 
-在 `feat/social-hot-sources` 上增加六路可匿名抓取的社交热点、真实媒体封面数据链路，以及带懒加载和
-失效占位的通用预览组件。
+完成财经、游戏两个当前新分类，再实现信号文章与 AI 事件持久化 P1；部署后按门禁验证云端 Supabase 并启用错峰 Cron。
 
 ## Current state
+
+- 当前 `feat/additional-hot-categories` 已在本地完成财经、游戏和 SEO roadmap P1：新增 `/finance`、
+  `/games` 与十二个来源详情，36 路来源白名单与错峰 Cron，以及 `signal_articles`、`ai_events`、
+  `ai_event_articles` 持久化模型。Steam 明确为无发布时间的榜单快照，没有假数据。
+- 2026-09-05 上线前匿名复探的十二路新 Feed 均为 HTTP 200 与非空 XML；API 52 项、Web 42 项、lint、
+  类型检查和生产构建通过。pgTAP 已扩展到 51 项，但不以本地 Docker 代替云端 Supabase 验证。
+- 云端项目 `pnjsrihfpyvkhyidzgfq` 当前只有前三个已发布迁移；财经、游戏与持久化三个迁移尚未应用，Cron
+  也未更改。实现提交 `7b60cf4` 已推送到 `origin/feat/additional-hot-categories`，等待用户创建 PR、合并并
+  完成 Vercel 部署后执行生产数据门禁。
+
+- 用户确认按 `docs/roadmaps/additional-hot-categories.md` 逐阶段实现：财经为 Now，游戏为 Next；体育、影视
+  文化、科学研究和生活消费为 Later，汽车暂缓。
+- 当前阶段 UI surface 已确认复用现有 React Aria 信号台视觉：首页保持 AI 主位，财经作为辅助信息；不使用
+  假数据或生成封面。实施记录在 `docs/development/finance-hot-sources.md`。
+- 调度目标为 AI 每 2 小时，科技、国内新闻、社交和财经每 6 小时；所有来源至少错开 5 分钟。生产 Cron
+  只有在部署、云端迁移与逐来源 Supabase 写入核验完成后才能启用。
+
+- 已从 RSSHub 官方源码筛选财经、游戏、体育、影视文化、科学研究、生活消费和汽车七类，共匿名探测
+  41 条候选路由；29 条在当前自建实例返回 HTTP 200 与非空 RSS。
+- 财经 7/7 成功，推荐从华尔街见闻、财联社、金十数据、第一财经、证券时报、同花顺六个平台开始；
+  六路合计 88 条且全部带发布时间。游戏 7/9 成功，列为第二优先。
+- 体育只有两个稳定综合平台；影视榜单缺少发布时间；科学类混合趋势与最新；生活消费定位过宽；汽车
+  只有一路稳定来源，均暂不直接实现。完整证据在 `docs/research/additional-hot-categories.md`。
+- 本轮仅提交研究与开发交接文档，没有修改业务代码、写入云端 Supabase 或配置 Cron。
 
 - 当前分支 `feat/social-hot-sources` 基于 `origin/master` 的 `d502dfd`，实现与验收记录在
   `docs/development/social-hot-sources.md`。
@@ -53,8 +76,9 @@
 
 ## Next action
 
-请用户以 `master` 为 base 创建并合并 `feat/social-hot-sources`。部署 API 后应用云端迁移，再严格按云端
-Supabase 数据门禁逐来源验证；全部通过后才启用 Cron。
+用户以 `feat/additional-hot-categories` 为 head、`master` 为 base 创建并合并 PR，等待 Vercel 的 Web 与 API
+生产部署完成。随后应用三个云端迁移，逐来源调用生产 API、核验
+`ingestion_runs`/`source_status`/`hot_items`/`signal_articles`，最后幂等更新 36 路错峰 Cron 与保留任务。
 
 ## Delivery constraint
 

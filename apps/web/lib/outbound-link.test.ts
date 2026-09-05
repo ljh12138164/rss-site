@@ -24,6 +24,8 @@ describe('resolveOutboundReturnPath', () => {
     expect(resolveOutboundReturnPath('/news')).toBe('/news')
     expect(resolveOutboundReturnPath('/ai')).toBe('/ai')
     expect(resolveOutboundReturnPath('/social')).toBe('/social')
+    expect(resolveOutboundReturnPath('/finance')).toBe('/finance')
+    expect(resolveOutboundReturnPath('/games')).toBe('/games')
     expect(resolveOutboundReturnPath('/technology')).toBe('/technology')
     expect(resolveOutboundReturnPath('https://evil.example')).toBe('/technology')
   })

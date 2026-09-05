@@ -1,4 +1,14 @@
-import { index, integer, pgTable, text, timestamp, unique, uuid } from 'drizzle-orm/pg-core'
+import {
+  boolean,
+  index,
+  integer,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  unique,
+  uuid
+} from 'drizzle-orm/pg-core'
 
 export const ingestionRuns = pgTable(
   'ingestion_runs',
@@ -24,6 +34,68 @@ export const sourceStatus = pgTable('source_status', {
     .references(() => ingestionRuns.id, { onDelete: 'restrict' })
 })
 
+export const signalArticles = pgTable(
+  'signal_articles',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    section: text().notNull(),
+    source: text().notNull(),
+    sourceKey: text('source_key').notNull(),
+    title: text().notNull(),
+    url: text().notNull(),
+    imageUrl: text('image_url'),
+    summary: text(),
+    author: text(),
+    publishedAt: timestamp('published_at', { withTimezone: true }),
+    firstSeenAt: timestamp('first_seen_at', { withTimezone: true }).defaultNow().notNull(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull(),
+    isPinned: boolean('is_pinned').default(false).notNull()
+  },
+  (table) => [
+    unique('signal_articles_source_key_unique').on(table.source, table.sourceKey),
+    index('signal_articles_section_source_last_seen_idx').on(
+      table.section,
+      table.source,
+      table.lastSeenAt
+    ),
+    index('signal_articles_retention_idx').on(table.lastSeenAt, table.isPinned)
+  ]
+)
+
+export const aiEvents = pgTable(
+  'ai_events',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    slug: text().notNull().unique(),
+    title: text().notNull(),
+    summary: text().notNull(),
+    occurredAt: timestamp('occurred_at', { withTimezone: true }).notNull(),
+    status: text().default('draft').notNull(),
+    firstPublishedAt: timestamp('first_published_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+  },
+  (table) => [index('ai_events_status_occurred_at_idx').on(table.status, table.occurredAt)]
+)
+
+export const aiEventArticles = pgTable(
+  'ai_event_articles',
+  {
+    eventId: uuid('event_id')
+      .notNull()
+      .references(() => aiEvents.id, { onDelete: 'cascade' }),
+    articleId: uuid('article_id')
+      .notNull()
+      .references(() => signalArticles.id, { onDelete: 'restrict' }),
+    position: integer().default(1).notNull()
+  },
+  (table) => [
+    primaryKey({ columns: [table.eventId, table.articleId] }),
+    unique('ai_event_articles_event_position_unique').on(table.eventId, table.position),
+    index('ai_event_articles_article_id_idx').on(table.articleId)
+  ]
+)
+
 export const hotItems = pgTable(
   'hot_items',
   {
@@ -31,6 +103,9 @@ export const hotItems = pgTable(
     section: text().notNull(),
     source: text().notNull(),
     sourceKey: text('source_key').notNull(),
+    articleId: uuid('article_id')
+      .notNull()
+      .references(() => signalArticles.id, { onDelete: 'restrict' }),
     title: text().notNull(),
     url: text().notNull(),
     imageUrl: text('image_url'),
@@ -51,5 +126,6 @@ export const hotItems = pgTable(
 )
 
 export type HotItemInsert = typeof hotItems.$inferInsert
+export type SignalArticleInsert = typeof signalArticles.$inferInsert
 export type SourceStatusInsert = typeof sourceStatus.$inferInsert
 export type IngestionRunInsert = typeof ingestionRuns.$inferInsert

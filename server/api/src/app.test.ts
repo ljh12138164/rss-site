@@ -145,6 +145,64 @@ describe('Hono ingestion API', () => {
     expect(sources).toEqual(['bilibili', 'bilibili'])
   })
 
+  it('runs a confirmed finance source only through finance and generic endpoints', async () => {
+    const sources: string[] = []
+    const app = configureApp(new Hono(), {
+      cronSecret: 'secret',
+      runIngestion: async (source) => {
+        sources.push(source)
+        return { batchId: 'batch-finance', itemCount: 20 }
+      }
+    })
+
+    for (const path of ['/cron/finance/wallstreetcn', '/cron/signals/wallstreetcn']) {
+      expect(
+        (
+          await app.request(path, {
+            method: 'POST',
+            headers: { Authorization: 'Bearer secret' }
+          })
+        ).status
+      ).toBe(200)
+    }
+
+    const wrongSection = await app.request('/cron/news/wallstreetcn', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer secret' }
+    })
+    expect(wrongSection.status).toBe(404)
+    expect(sources).toEqual(['wallstreetcn', 'wallstreetcn'])
+  })
+
+  it('runs a confirmed game source only through games and generic endpoints', async () => {
+    const sources: string[] = []
+    const app = configureApp(new Hono(), {
+      cronSecret: 'secret',
+      runIngestion: async (source) => {
+        sources.push(source)
+        return { batchId: 'batch-games', itemCount: 20 }
+      }
+    })
+
+    for (const path of ['/cron/games/steam', '/cron/signals/steam']) {
+      expect(
+        (
+          await app.request(path, {
+            method: 'POST',
+            headers: { Authorization: 'Bearer secret' }
+          })
+        ).status
+      ).toBe(200)
+    }
+
+    const wrongSection = await app.request('/cron/news/steam', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer secret' }
+    })
+    expect(wrongSection.status).toBe(404)
+    expect(sources).toEqual(['steam', 'steam'])
+  })
+
   it('keeps the legacy Juejin endpoint during the Cron transition', async () => {
     const sources: string[] = []
     const app = configureApp(new Hono(), {

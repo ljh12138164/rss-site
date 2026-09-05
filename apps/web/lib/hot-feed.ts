@@ -2,6 +2,10 @@ import { getPublicSupabaseClient } from './supabase'
 import {
   type AiSourceId,
   aiSources,
+  type FinanceSourceId,
+  financeSources,
+  type GameSourceId,
+  gameSources,
   type NewsSourceId,
   newsSources,
   type SignalSourceId,
@@ -64,9 +68,11 @@ export type TechnologyFeeds = Record<TechnologySourceId, FeedResult>
 export type NewsFeeds = Record<NewsSourceId, FeedResult>
 export type AiFeeds = Record<AiSourceId, FeedResult>
 export type SocialFeeds = Record<SocialSourceId, FeedResult>
+export type FinanceFeeds = Record<FinanceSourceId, FeedResult>
+export type GameFeeds = Record<GameSourceId, FeedResult>
 
 async function querySectionFeeds(
-  section: 'technology' | 'news' | 'ai' | 'social',
+  section: 'technology' | 'news' | 'ai' | 'social' | 'finance' | 'games',
   sourceIds: SignalSourceId[]
 ): Promise<FeedCollectionQueryResult> {
   try {
@@ -116,6 +122,18 @@ const querySocialFeeds = () =>
   querySectionFeeds(
     'social',
     socialSources.map((source) => source.id)
+  )
+
+const queryFinanceFeeds = () =>
+  querySectionFeeds(
+    'finance',
+    financeSources.map((source) => source.id)
+  )
+
+const queryGameFeeds = () =>
+  querySectionFeeds(
+    'games',
+    gameSources.map((source) => source.id)
   )
 
 function buildFeed(
@@ -226,6 +244,44 @@ export async function getSocialFeed(
   source: SocialSourceId,
   limit?: number,
   query: FeedCollectionQuery = querySocialFeeds
+): Promise<FeedResult> {
+  return buildFeed(source, await query(), limit)
+}
+
+export async function getFinanceFeeds(
+  limitPerSource?: number,
+  query: FeedCollectionQuery = queryFinanceFeeds
+): Promise<FinanceFeeds> {
+  const result = await query()
+
+  return Object.fromEntries(
+    financeSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
+  ) as FinanceFeeds
+}
+
+export async function getFinanceFeed(
+  source: FinanceSourceId,
+  limit?: number,
+  query: FeedCollectionQuery = queryFinanceFeeds
+): Promise<FeedResult> {
+  return buildFeed(source, await query(), limit)
+}
+
+export async function getGameFeeds(
+  limitPerSource?: number,
+  query: FeedCollectionQuery = queryGameFeeds
+): Promise<GameFeeds> {
+  const result = await query()
+
+  return Object.fromEntries(
+    gameSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
+  ) as GameFeeds
+}
+
+export async function getGameFeed(
+  source: GameSourceId,
+  limit?: number,
+  query: FeedCollectionQuery = queryGameFeeds
 ): Promise<FeedResult> {
   return buildFeed(source, await query(), limit)
 }

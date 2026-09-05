@@ -41,4 +41,12 @@ describe('OutboundView', () => {
 
     expect(html).toContain('href="/social"')
   })
+
+  it('returns finance readers to the finance section', () => {
+    const html = renderToStaticMarkup(
+      <OutboundView destination="https://wallstreetcn.com/articles/1" returnTo="/finance" />
+    )
+
+    expect(html).toContain('href="/finance"')
+  })
 })

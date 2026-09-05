@@ -2,6 +2,8 @@ import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import {
   isAiSourceId,
+  isFinanceSourceId,
+  isGameSourceId,
   isNewsSourceId,
   isSocialSourceId,
   isTechnologySourceId
@@ -15,7 +17,9 @@ export function proxy(request: NextRequest) {
     ((section === 'technology' && isTechnologySourceId(sourceId)) ||
       (section === 'news' && isNewsSourceId(sourceId)) ||
       (section === 'ai' && isAiSourceId(sourceId)) ||
-      (section === 'social' && isSocialSourceId(sourceId)))
+      (section === 'social' && isSocialSourceId(sourceId)) ||
+      (section === 'finance' && isFinanceSourceId(sourceId)) ||
+      (section === 'games' && isGameSourceId(sourceId)))
   ) {
     return NextResponse.next()
   }
@@ -24,5 +28,12 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/technology/:source', '/news/:source', '/ai/:source', '/social/:source']
+  matcher: [
+    '/technology/:source',
+    '/news/:source',
+    '/ai/:source',
+    '/social/:source',
+    '/finance/:source',
+    '/games/:source'
+  ]
 }

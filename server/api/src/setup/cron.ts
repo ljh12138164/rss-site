@@ -5,78 +5,73 @@ export const SIGNAL_CRON_JOBS: ReadonlyArray<{
   name: string
   schedule: string
 }> = [
-  { source: 'github', name: 'github-hot-feed-every-five-hours', schedule: '0 0,5,10,15,20 * * *' },
-  {
-    source: 'hacker-news',
-    name: 'hacker-news-hot-feed-every-five-hours',
-    schedule: '10 0,5,10,15,20 * * *'
-  },
-  { source: 'juejin', name: 'juejin-hot-feed-every-five-hours', schedule: '20 0,5,10,15,20 * * *' },
-  { source: 'v2ex', name: 'v2ex-hot-feed-every-five-hours', schedule: '30 0,5,10,15,20 * * *' },
-  { source: 'ithome', name: 'ithome-hot-feed-every-five-hours', schedule: '40 0,5,10,15,20 * * *' },
-  { source: '36kr', name: '36kr-hot-feed-every-five-hours', schedule: '50 0,5,10,15,20 * * *' },
-  { source: 'xinhua', name: 'xinhua-news-feed-every-five-hours', schedule: '0 1,6,11,16,21 * * *' },
-  { source: 'cctv', name: 'cctv-news-feed-every-five-hours', schedule: '10 1,6,11,16,21 * * *' },
-  {
-    source: 'chinanews',
-    name: 'chinanews-feed-every-five-hours',
-    schedule: '20 1,6,11,16,21 * * *'
-  },
-  {
-    source: 'thepaper',
-    name: 'thepaper-hot-feed-every-five-hours',
-    schedule: '30 1,6,11,16,21 * * *'
-  },
-  {
-    source: 'jiemian',
-    name: 'jiemian-news-feed-every-five-hours',
-    schedule: '40 1,6,11,16,21 * * *'
-  },
-  { source: 'baidu', name: 'baidu-hot-feed-every-five-hours', schedule: '50 1,6,11,16,21 * * *' },
-  { source: 'openai', name: 'openai-news-feed-every-five-hours', schedule: '0 2,7,12,17,22 * * *' },
-  {
-    source: 'anthropic',
-    name: 'anthropic-news-feed-every-five-hours',
-    schedule: '10 2,7,12,17,22 * * *'
-  },
-  {
-    source: 'deepseek',
-    name: 'deepseek-news-feed-every-five-hours',
-    schedule: '20 2,7,12,17,22 * * *'
-  },
-  { source: 'glm', name: 'glm-release-feed-every-five-hours', schedule: '30 2,7,12,17,22 * * *' },
-  {
-    source: 'google-ai',
-    name: 'google-ai-feed-every-five-hours',
-    schedule: '40 2,7,12,17,22 * * *'
-  },
-  { source: 'qwen', name: 'qwen-blog-feed-every-five-hours', schedule: '50 2,7,12,17,22 * * *' },
-  {
-    source: 'bilibili',
-    name: 'bilibili-popular-feed-every-five-hours',
-    schedule: '0 3,8,13,18,23 * * *'
-  },
-  { source: 'zhihu', name: 'zhihu-hot-feed-every-five-hours', schedule: '10 3,8,13,18,23 * * *' },
-  {
-    source: 'coolapk',
-    name: 'coolapk-hot-feed-every-five-hours',
-    schedule: '20 3,8,13,18,23 * * *'
-  },
-  { source: 'hupu', name: 'hupu-topic-feed-every-five-hours', schedule: '30 3,8,13,18,23 * * *' },
-  {
-    source: 'sspai',
-    name: 'sspai-matrix-feed-every-five-hours',
-    schedule: '40 3,8,13,18,23 * * *'
-  },
-  {
-    source: 'toutiao',
-    name: 'toutiao-hot-feed-every-five-hours',
-    schedule: '50 3,8,13,18,23 * * *'
-  }
+  { source: 'openai', name: 'signal-ingest-openai', schedule: '0 */2 * * *' },
+  { source: 'anthropic', name: 'signal-ingest-anthropic', schedule: '5 */2 * * *' },
+  { source: 'deepseek', name: 'signal-ingest-deepseek', schedule: '10 */2 * * *' },
+  { source: 'glm', name: 'signal-ingest-glm', schedule: '15 */2 * * *' },
+  { source: 'google-ai', name: 'signal-ingest-google-ai', schedule: '20 */2 * * *' },
+  { source: 'qwen', name: 'signal-ingest-qwen', schedule: '25 */2 * * *' },
+  { source: 'github', name: 'signal-ingest-github', schedule: '30 0,6,12,18 * * *' },
+  { source: 'hacker-news', name: 'signal-ingest-hacker-news', schedule: '35 0,6,12,18 * * *' },
+  { source: 'juejin', name: 'signal-ingest-juejin', schedule: '40 0,6,12,18 * * *' },
+  { source: 'v2ex', name: 'signal-ingest-v2ex', schedule: '45 0,6,12,18 * * *' },
+  { source: 'ithome', name: 'signal-ingest-ithome', schedule: '50 0,6,12,18 * * *' },
+  { source: '36kr', name: 'signal-ingest-36kr', schedule: '55 0,6,12,18 * * *' },
+  { source: 'xinhua', name: 'signal-ingest-xinhua', schedule: '0 1,7,13,19 * * *' },
+  { source: 'cctv', name: 'signal-ingest-cctv', schedule: '5 1,7,13,19 * * *' },
+  { source: 'chinanews', name: 'signal-ingest-chinanews', schedule: '10 1,7,13,19 * * *' },
+  { source: 'thepaper', name: 'signal-ingest-thepaper', schedule: '15 1,7,13,19 * * *' },
+  { source: 'jiemian', name: 'signal-ingest-jiemian', schedule: '20 1,7,13,19 * * *' },
+  { source: 'baidu', name: 'signal-ingest-baidu', schedule: '25 1,7,13,19 * * *' },
+  { source: 'bilibili', name: 'signal-ingest-bilibili', schedule: '30 1,7,13,19 * * *' },
+  { source: 'zhihu', name: 'signal-ingest-zhihu', schedule: '35 1,7,13,19 * * *' },
+  { source: 'coolapk', name: 'signal-ingest-coolapk', schedule: '40 1,7,13,19 * * *' },
+  { source: 'hupu', name: 'signal-ingest-hupu', schedule: '45 1,7,13,19 * * *' },
+  { source: 'sspai', name: 'signal-ingest-sspai', schedule: '50 1,7,13,19 * * *' },
+  { source: 'toutiao', name: 'signal-ingest-toutiao', schedule: '55 1,7,13,19 * * *' },
+  { source: 'wallstreetcn', name: 'signal-ingest-wallstreetcn', schedule: '30 2,8,14,20 * * *' },
+  { source: 'cls', name: 'signal-ingest-cls', schedule: '35 2,8,14,20 * * *' },
+  { source: 'jin10', name: 'signal-ingest-jin10', schedule: '40 2,8,14,20 * * *' },
+  { source: 'yicai', name: 'signal-ingest-yicai', schedule: '45 2,8,14,20 * * *' },
+  { source: 'stcn', name: 'signal-ingest-stcn', schedule: '50 2,8,14,20 * * *' },
+  { source: '10jqka', name: 'signal-ingest-10jqka', schedule: '55 2,8,14,20 * * *' },
+  { source: '3dmgame', name: 'signal-ingest-3dmgame', schedule: '0 3,9,15,21 * * *' },
+  { source: 'gcores', name: 'signal-ingest-gcores', schedule: '5 3,9,15,21 * * *' },
+  { source: 'gamersky', name: 'signal-ingest-gamersky', schedule: '10 3,9,15,21 * * *' },
+  { source: 'ali213', name: 'signal-ingest-ali213', schedule: '15 3,9,15,21 * * *' },
+  { source: 'indienova', name: 'signal-ingest-indienova', schedule: '20 3,9,15,21 * * *' },
+  { source: 'steam', name: 'signal-ingest-steam', schedule: '25 3,9,15,21 * * *' }
 ]
 
+export const LEGACY_SIGNAL_CRON_JOB_NAMES = [
+  'github-hot-feed-every-five-hours',
+  'hacker-news-hot-feed-every-five-hours',
+  'juejin-hot-feed-every-five-hours',
+  'v2ex-hot-feed-every-five-hours',
+  'ithome-hot-feed-every-five-hours',
+  '36kr-hot-feed-every-five-hours',
+  'xinhua-news-feed-every-five-hours',
+  'cctv-news-feed-every-five-hours',
+  'chinanews-feed-every-five-hours',
+  'thepaper-hot-feed-every-five-hours',
+  'jiemian-news-feed-every-five-hours',
+  'baidu-hot-feed-every-five-hours',
+  'openai-news-feed-every-five-hours',
+  'anthropic-news-feed-every-five-hours',
+  'deepseek-news-feed-every-five-hours',
+  'glm-release-feed-every-five-hours',
+  'google-ai-feed-every-five-hours',
+  'qwen-blog-feed-every-five-hours',
+  'bilibili-popular-feed-every-five-hours',
+  'zhihu-hot-feed-every-five-hours',
+  'coolapk-hot-feed-every-five-hours',
+  'hupu-topic-feed-every-five-hours',
+  'sspai-matrix-feed-every-five-hours',
+  'toutiao-hot-feed-every-five-hours'
+] as const
+
 export const RETENTION_JOB_NAME = 'ingestion-runs-retention-daily'
-export const RETENTION_SCHEDULE = '30 3 * * *'
+export const RETENTION_SCHEDULE = '30 5 * * *'
 
 export function createCronCommand(source: SignalSourceId): string {
   return `
@@ -101,6 +96,31 @@ select net.http_post(
 }
 
 export const RETENTION_COMMAND = `
+with expired_articles as (
+  select article.id
+  from public.signal_articles as article
+  where article.is_pinned = false
+    and article.last_seen_at < now() - case
+      when article.section = 'ai' then interval '180 days'
+      else interval '90 days'
+    end
+    and not exists (
+      select 1
+      from public.hot_items as item
+      where item.article_id = article.id
+    )
+    and not exists (
+      select 1
+      from public.ai_event_articles as event_article
+      where event_article.article_id = article.id
+    )
+  order by article.last_seen_at
+  limit 1000
+)
+delete from public.signal_articles as article
+using expired_articles
+where article.id = expired_articles.id;
+
 delete from public.ingestion_runs as run
 where run.started_at < now() - interval '30 days'
   and not exists (
@@ -124,6 +144,7 @@ export interface CronRepository {
     batchId: string
     itemCount: number
   }): Promise<unknown>
+  unschedule(name: string): Promise<unknown>
   schedule(name: string, schedule: string, command: string): Promise<unknown>
 }
 
@@ -161,6 +182,8 @@ export function normalizeIngestUrl(value: string): string {
         '/cron/news',
         '/cron/ai',
         '/cron/social',
+        '/cron/finance',
+        '/cron/games',
         '/cron/signals'
       ].includes(path)
     ) {
@@ -198,10 +221,6 @@ export async function setupSignalCron({
   const ingestBaseUrl = normalizeIngestUrl(apiUrl)
   if (!cronSecret) throw new Error('CRON_SECRET 不能为空')
 
-  await repository.installExtensions()
-  await repository.upsertSecret('signal_ingest_base_url', ingestBaseUrl)
-  await repository.upsertSecret('signal_cron_secret', cronSecret)
-
   const verifiedSources: SourceIngestionResult[] = []
   for (const { source } of SIGNAL_CRON_JOBS) {
     const response = await request(`${ingestBaseUrl}/${source}`, {
@@ -230,6 +249,13 @@ export async function setupSignalCron({
     verifiedSources.push({ source, ...result })
   }
 
+  await repository.installExtensions()
+  await repository.upsertSecret('signal_ingest_base_url', ingestBaseUrl)
+  await repository.upsertSecret('signal_cron_secret', cronSecret)
+
+  for (const name of LEGACY_SIGNAL_CRON_JOB_NAMES) {
+    await repository.unschedule(name)
+  }
   for (const job of SIGNAL_CRON_JOBS) {
     await repository.schedule(job.name, job.schedule, createCronCommand(job.source))
   }

@@ -178,6 +178,96 @@ export const socialSources = [
   }
 ] as const
 
+export const financeSources = [
+  {
+    id: 'wallstreetcn',
+    code: 'WS',
+    name: '华尔街见闻',
+    shortName: '见闻',
+    description: '当日市场与商业热门文章'
+  },
+  {
+    id: 'cls',
+    code: 'CL',
+    name: '财联社',
+    shortName: '财联社',
+    description: '财经新闻热门文章排行榜'
+  },
+  {
+    id: 'jin10',
+    code: 'J10',
+    name: '金十数据',
+    shortName: '金十',
+    description: '重要市场快讯时间线'
+  },
+  {
+    id: 'yicai',
+    code: 'YC',
+    name: '第一财经',
+    shortName: '一财',
+    description: '编辑精选的财经头条'
+  },
+  {
+    id: 'stcn',
+    code: 'ST',
+    name: '证券时报',
+    shortName: '证券时报',
+    description: '证券市场要闻热榜'
+  },
+  {
+    id: '10jqka',
+    code: 'TH',
+    name: '同花顺财经',
+    shortName: '同花顺',
+    description: '7×24 小时财经要闻'
+  }
+] as const
+
+export const gameSources = [
+  {
+    id: '3dmgame',
+    code: '3D',
+    name: '3DM 游戏网',
+    shortName: '3DM',
+    description: '游戏产业与新品资讯'
+  },
+  {
+    id: 'gcores',
+    code: 'GC',
+    name: '机核',
+    shortName: '机核',
+    description: '游戏文化与编辑资讯'
+  },
+  {
+    id: 'gamersky',
+    code: 'GS',
+    name: '游民星空',
+    shortName: '游民',
+    description: '当天推荐的游戏新闻'
+  },
+  {
+    id: 'ali213',
+    code: 'A21',
+    name: '游侠网',
+    shortName: '游侠',
+    description: '最新游戏资讯与行业动态'
+  },
+  {
+    id: 'indienova',
+    code: 'IN',
+    name: 'indienova',
+    shortName: 'indienova',
+    description: '独立游戏文章与开发者内容'
+  },
+  {
+    id: 'steam',
+    code: 'ST',
+    name: 'Steam 热销榜',
+    shortName: 'Steam',
+    description: '商店热销榜快照，以采集时间表示榜单更新时间'
+  }
+] as const
+
 export type TechnologySource = (typeof technologySources)[number]
 export type TechnologySourceId = TechnologySource['id']
 export type NewsSource = (typeof newsSources)[number]
@@ -186,7 +276,17 @@ export type AiSource = (typeof aiSources)[number]
 export type AiSourceId = AiSource['id']
 export type SocialSource = (typeof socialSources)[number]
 export type SocialSourceId = SocialSource['id']
-export type SignalSource = TechnologySource | NewsSource | AiSource | SocialSource
+export type FinanceSource = (typeof financeSources)[number]
+export type FinanceSourceId = FinanceSource['id']
+export type GameSource = (typeof gameSources)[number]
+export type GameSourceId = GameSource['id']
+export type SignalSource =
+  | TechnologySource
+  | NewsSource
+  | AiSource
+  | SocialSource
+  | FinanceSource
+  | GameSource
 export type SignalSourceId = SignalSource['id']
 
 export function isTechnologySourceId(value: string): value is TechnologySourceId {
@@ -203,6 +303,14 @@ export function isAiSourceId(value: string): value is AiSourceId {
 
 export function isSocialSourceId(value: string): value is SocialSourceId {
   return socialSources.some((source) => source.id === value)
+}
+
+export function isFinanceSourceId(value: string): value is FinanceSourceId {
+  return financeSources.some((source) => source.id === value)
+}
+
+export function isGameSourceId(value: string): value is GameSourceId {
+  return gameSources.some((source) => source.id === value)
 }
 
 export function getTechnologySource(id: TechnologySourceId): TechnologySource {
@@ -226,5 +334,17 @@ export function getAiSource(id: AiSourceId): AiSource {
 export function getSocialSource(id: SocialSourceId): SocialSource {
   const source = socialSources.find((candidate) => candidate.id === id)
   if (!source) throw new Error(`Unknown social source: ${id}`)
+  return source
+}
+
+export function getFinanceSource(id: FinanceSourceId): FinanceSource {
+  const source = financeSources.find((candidate) => candidate.id === id)
+  if (!source) throw new Error(`Unknown finance source: ${id}`)
+  return source
+}
+
+export function getGameSource(id: GameSourceId): GameSource {
+  const source = gameSources.find((candidate) => candidate.id === id)
+  if (!source) throw new Error(`Unknown game source: ${id}`)
   return source
 }
