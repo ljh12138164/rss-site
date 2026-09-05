@@ -2,85 +2,37 @@
 
 ## Active objective
 
-完成财经、游戏两个当前新分类，再实现信号文章与 AI 事件持久化 P1；部署后按门禁验证云端 Supabase 并启用错峰 Cron。
+完成财经、游戏和持久化 P1 的生产来源门禁，并在不部署前端的前提下准备最终上线 roadmap。
 
 ## Current state
 
-- 当前 `feat/additional-hot-categories` 已在本地完成财经、游戏和 SEO roadmap P1：新增 `/finance`、
-  `/games` 与十二个来源详情，36 路来源白名单与错峰 Cron，以及 `signal_articles`、`ai_events`、
-  `ai_event_articles` 持久化模型。Steam 明确为无发布时间的榜单快照，没有假数据。
-- 2026-09-05 上线前匿名复探的十二路新 Feed 均为 HTTP 200 与非空 XML；API 52 项、Web 42 项、lint、
-  类型检查和生产构建通过。pgTAP 已扩展到 51 项，但不以本地 Docker 代替云端 Supabase 验证。
-- 云端项目 `pnjsrihfpyvkhyidzgfq` 当前只有前三个已发布迁移；财经、游戏与持久化三个迁移尚未应用，Cron
-  也未更改。实现提交 `7b60cf4` 已推送到 `origin/feat/additional-hot-categories`，等待用户创建 PR、合并并
-  完成 Vercel 部署后执行生产数据门禁。
-
-- 用户确认按 `docs/roadmaps/additional-hot-categories.md` 逐阶段实现：财经为 Now，游戏为 Next；体育、影视
-  文化、科学研究和生活消费为 Later，汽车暂缓。
-- 当前阶段 UI surface 已确认复用现有 React Aria 信号台视觉：首页保持 AI 主位，财经作为辅助信息；不使用
-  假数据或生成封面。实施记录在 `docs/development/finance-hot-sources.md`。
-- 调度目标为 AI 每 2 小时，科技、国内新闻、社交和财经每 6 小时；所有来源至少错开 5 分钟。生产 Cron
-  只有在部署、云端迁移与逐来源 Supabase 写入核验完成后才能启用。
-
-- 已从 RSSHub 官方源码筛选财经、游戏、体育、影视文化、科学研究、生活消费和汽车七类，共匿名探测
-  41 条候选路由；29 条在当前自建实例返回 HTTP 200 与非空 RSS。
-- 财经 7/7 成功，推荐从华尔街见闻、财联社、金十数据、第一财经、证券时报、同花顺六个平台开始；
-  六路合计 88 条且全部带发布时间。游戏 7/9 成功，列为第二优先。
-- 体育只有两个稳定综合平台；影视榜单缺少发布时间；科学类混合趋势与最新；生活消费定位过宽；汽车
-  只有一路稳定来源，均暂不直接实现。完整证据在 `docs/research/additional-hot-categories.md`。
-- 本轮仅提交研究与开发交接文档，没有修改业务代码、写入云端 Supabase 或配置 Cron。
-
-- 当前分支 `feat/social-hot-sources` 基于 `origin/master` 的 `d502dfd`，实现与验收记录在
-  `docs/development/social-hot-sources.md`。
-- 已新增 B 站、知乎、酷安、虎扑、少数派和今日头条六路匿名社交热点，以及 `/social`、来源详情、首页摘要、
-  主导航和离站返回路径。
-- 通用媒体预览已实现固定 16:9、原生懒加载、异步解码、加载/失败统一占位和成功淡入；RSS 解析只提取
-  合法 `<img>` HTTP(S) 地址，B 站真实数据 20/20 条封面解析成功。
-- Supabase 迁移新增可空 `image_url` 并扩展来源/分区约束；`setup:cron` 现在会在调度前复核云端批次、
-  `source_status`、实际条数、字段质量和社交来源发布时间。
-- API 45 项与 Web 33 项测试、格式、lint、类型检查和生产构建通过；无界面生产服务器回归覆盖 200、真实
-  404 与社交离站返回。UI Skills MCP 未暴露，因此没有声称完成 UI Skills 审查。
-- 本地 pgTAP 因 Docker 未运行而无法连接；尚未部署、应用云端迁移、写入生产 Supabase 或启用新 Cron。
-- 实现提交 `fc6e21a` 已推送到 `origin/feat/social-hot-sources`；按仓库约定没有通过页面创建 PR。
-
-- AI 首批来源已确定为 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 与 Qwen；来源证据和
-  在线抓取结果在 `docs/research/ai-platform-official-article-sources.md`。
-- 当前 AI 分支叠加在尚未合并的 `feat/technology-hot-sources` 上，复用其通用信号源基础设施；实现方案与验收
-  记录在 `docs/development/ai-platform-articles.md`。
-- `/ai`、`/ai/[source]`、首页 AI 摘要、18 路来源注册与 Cron、官方直连 Feed、GLM 标题归一化和数据库白名单
-  已实现；API 38 项、Web 26 项测试、格式、lint、类型检查和生产构建通过。
-- 五个可直接访问的 AI Feed 已在线通过当前解析器；修复后的 DeepSeek handler 在线返回 17 条官方新闻，
-  `D:\code\rss` 的目标测试、类型检查和 lint 通过。
-- 浏览器 1440px/390px、明暗主题、键盘焦点、404、无横向溢出与无控制台告警已经复核。
-- pgTAP 已扩展为 24 项，但本机 Docker 数据库未运行，仍由 CI 或可用的本地 Docker 环境执行。
-- rss-site 实现提交 `f4ab4f2` 已推送到 `origin/feat/ai-platform-articles`；RSSHub 修复提交
-  `9b70ce5` 已推送到 `origin/feat/fix-deepseek-news`。
-
-- PR #4 已合并；当前分支从 `origin/master` 的合并提交 `499dbdf` 创建，科技与国内新闻实现已在提交
-  `c4e2886` 推送到 `origin/feat/technology-hot-sources`。
-- 首页现在按“科技 / 国内新闻”展示十二路摘要；`/technology`、`/news` 与各自六个来源详情页已经实现。
-- 新闻首批来源为新华社、央视国内、中国新闻网、澎湃热榜、界面中国和百度热搜；公开 RSSHub 路由无需
-  Cookie 或 Token，每次采集最多保留前 30 条。
-- API 来源模型已泛化为 `SignalSource`，支持通用 `/cron/signals/:source`、分区入口和旧掘金兼容入口；
-  十二个 Supabase Cron 使用通用秘密名并在不同小时、分钟错峰。
-- 数据库迁移使用来源/分区组合约束，pgTAP 计划为 21 项；公开热点与状态仍只读，内部运行记录不公开。
-- React Aria 继续只承载交互组件，新闻页面复用已经确认的平面信号台视觉、语义 HTML 与响应式断点。
-- API 33 项、Web 22 项测试，格式、lint、类型检查与生产构建已通过；生产服务状态码和浏览器桌面/移动、
-  明暗主题、键盘焦点、404、无横向溢出及无控制台告警已经复核。
-- 本机 Docker Desktop 未运行，`supabase test db` 仍需 CI 或有 Docker 的环境执行；没有修改生产数据库、
-  Cron、部署或秘密。
-- 国内新闻方案、证据、验收与审查记录在 `docs/development/domestic-news-sources.md`；来源调研记录在
-  `docs/research/domestic-news-rsshub-sources.md`。
-- UI Skills MCP 注册表未在当前环境暴露，因此不声明 UI Skills 审查；采用 `frontend-design`、现有 token
-  与 UI 质量清单作为替代验收基线。
+- PR #7 已合并到 `origin/master` 的 `1927e8e`。当前分支 `feat/production-launch-roadmap` 从该提交创建，
+  只包含生产门禁可靠性修复、权限收敛迁移和上线文档；没有创建前端部署配置。
+- 云端 Supabase 项目 `pnjsrihfpyvkhyidzgfq` 已应用财经、游戏、P1 持久化及公开权限收敛四条迁移。
+  `hot_items` 与 `signal_articles` 均为 496 条，文章关联空值与来源键错配均为 0；AI 事件两表保持空表，
+  没有假数据。
+- 六张业务表均启用 RLS。公开角色对五张可读表只有 SELECT，对 P1 三张表没有写、删或 truncate 权限；
+  `ingestion_runs` 继续完全不公开。
+- 两次完整 `pnpm setup:cron` 都按安全顺序在调度前停止：第一次前 8 路成功后遇到掘金瞬时 503；第二次
+  前 26 路成功后遇到金十首条空链接。云端仍为 24 路既有五小时任务和 1 个清理任务，未启用财经、游戏或
+  2H/6H 新调度。
+- 当前分支让 Feed 解析器跳过缺标题或 Web URL 的单个坏条目，但整份 Feed 无可用项仍失败；Cron 安装器
+  只对网络异常及 502/503/504 做 1 秒、3 秒两次有限退避。
+- Supabase Security Advisor 只报内部 `ingestion_runs` 无公开策略的预期 INFO；Performance Advisor 的
+  两个既有外键索引与新索引未使用提示已记录，当前不做无关优化。
+- 最终上线方案记录在 `docs/roadmaps/production-launch.md`：用户明确批准后才实现 Next standalone、容器内
+  单实例 `pm2-runtime`、GitHub Actions 不可变镜像、受限 SSH、健康检查和自动回滚。首发不使用 PM2 cluster，
+  也不修改 Cloudflare 优选 IP、DNS 或 Dashboard Cache Rules。
+- 旧远端 `feat/ai-event-timeline` 基于过时数据模型且只读取 `hot_items`，不直接合并；在 SEO roadmap P2
+  基于 `ai_events` 重新整合。
 
 ## Next action
 
-用户以 `feat/additional-hot-categories` 为 head、`master` 为 base 创建并合并 PR，等待 Vercel 的 Web 与 API
-生产部署完成。随后应用三个云端迁移，逐来源调用生产 API、核验
-`ingestion_runs`/`source_status`/`hot_items`/`signal_articles`，最后幂等更新 36 路错峰 Cron 与保留任务。
+完成全仓验证并推送 `feat/production-launch-roadmap`。用户以该分支为 head、`master` 为 base 创建并合并 PR，
+只需部署 API 修复；随后从第一路重新运行 `pnpm setup:cron`，逐来源核验云端批次并一次性切换 36 路 2H/6H
+错峰任务。前端服务器部署配置等待用户明确说“可以部署”后再实现。
 
 ## Delivery constraint
 
-不把 GitHub、Supabase、数据库或 Cron 密钥提交到仓库。只有代码部署与迁移完成后，才允许用生产端点写入
-云端 Supabase 并启用已验证来源的 Cron；不通过页面创建 PR。
+不提交或输出 GitHub、Supabase、数据库、Vault、Cloudflare 或 Cron 密钥。不通过网页创建或合并 PR。任何新来源
+必须先通过生产 API 与云端 Supabase 数据门禁，再启用 Cron；部分成功不得绕过完整验证。

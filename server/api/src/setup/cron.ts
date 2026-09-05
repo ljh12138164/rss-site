@@ -153,6 +153,7 @@ interface SetupSignalCronOptions {
   cronSecret: string
   repository: CronRepository
   request?: typeof fetch
+  retryDelaysMs?: readonly number[]
 }
 
 interface IngestionResult {
@@ -162,6 +163,31 @@ interface IngestionResult {
 
 export interface SourceIngestionResult extends IngestionResult {
   source: SignalSourceId
+}
+
+const DEFAULT_TRANSIENT_RETRY_DELAYS_MS = [1000, 3000] as const
+const TRANSIENT_INGESTION_STATUSES = new Set([502, 503, 504])
+
+async function requestWithTransientRetries(
+  request: typeof fetch,
+  url: string,
+  init: RequestInit,
+  retryDelaysMs: readonly number[]
+): Promise<Response> {
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      const response = await request(url, init)
+      const delay = retryDelaysMs[attempt]
+      if (!TRANSIENT_INGESTION_STATUSES.has(response.status) || delay === undefined) {
+        return response
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    } catch (error) {
+      const delay = retryDelaysMs[attempt]
+      if (delay === undefined) throw error
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    }
+  }
 }
 
 export function normalizeIngestUrl(value: string): string {
@@ -216,21 +242,27 @@ export async function setupSignalCron({
   apiUrl,
   cronSecret,
   repository,
-  request = fetch
+  request = fetch,
+  retryDelaysMs = DEFAULT_TRANSIENT_RETRY_DELAYS_MS
 }: SetupSignalCronOptions): Promise<SourceIngestionResult[]> {
   const ingestBaseUrl = normalizeIngestUrl(apiUrl)
   if (!cronSecret) throw new Error('CRON_SECRET 不能为空')
 
   const verifiedSources: SourceIngestionResult[] = []
   for (const { source } of SIGNAL_CRON_JOBS) {
-    const response = await request(`${ingestBaseUrl}/${source}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${cronSecret}`,
-        'Content-Type': 'application/json'
+    const response = await requestWithTransientRetries(
+      request,
+      `${ingestBaseUrl}/${source}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${cronSecret}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ source: 'setup:cron' })
       },
-      body: JSON.stringify({ source: 'setup:cron' })
-    })
+      retryDelaysMs
+    )
 
     if (!response.ok) {
       throw new Error(`来源 ${source} 云端采集验证失败（HTTP ${response.status}），未更新 Cron`)

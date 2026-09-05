@@ -57,7 +57,11 @@ Roadmap：[辅助热点分区 roadmap](../roadmaps/additional-hot-categories.md)
   游民星空和游侠网各 20 条，indienova 12 条，Steam 50 条。
 - 本地 API 52 项与 Web 42 项 Vitest 全部通过；`pnpm lint`、`pnpm typecheck` 和 `pnpm build` 通过。
 - 生产构建生成 `/games` 与六个 `/games/[source]` 参数页面；没有加入模拟条目、占位发布时间或生成封面。
-- pgTAP 已扩展到 51 项；云端迁移、真实批次数据与 Cron active 状态等待合并部署后执行并回填。
+- 游戏迁移已于 2026-09-05 应用到云端，但第二轮完整门禁在更早的金十数据处停止，尚未到达六路游戏来源；
+  不能用匿名 Feed 探测代替生产写入验收。
+- 生产 Cron 未更新，六路游戏任务尚未启用。当前解析修复合并并部署 API 后，须从第一路重新运行
+  `pnpm setup:cron`，确认每路写入及全部调度一次性成功。
+- pgTAP 已扩展到 53 项，新增公开角色只读权限回归；API、Web 与数据库白名单仍保持一致。
 
 ## Review
 

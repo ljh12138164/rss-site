@@ -51,10 +51,16 @@
 
 - Drizzle schema、事务写入和清理 SQL 通过类型检查与生产构建；Cron 单测验证 90/180 天窗口、1000 条批次
   和先验证后调度顺序。
-- pgTAP 计划为 51 项，新增三张表存在性、RLS、公开发布边界、来源/分区约束和外键写入覆盖。
-- 本地 API 52 项、Web 42 项、Biome lint 与生产构建通过。
-- 关联云端目前仅有前三个已发布迁移；本迁移尚未应用。必须等代码合并部署后应用，再用真实来源批次确认
-  `hot_items.article_id` 与 `signal_articles` 一一对应，并运行 Supabase Advisors。
+- 持久化迁移已于 2026-09-05 应用到云端并完成历史回填：`hot_items` 与 `signal_articles` 均为 496 条，
+  `hot_items.article_id` 空值为 0，来源、来源键或分区错配为 0；`ai_events` 与 `ai_event_articles` 均为 0，
+  符合“不用假数据填充时间线”的要求。
+- 云端检查发现数据库默认权限使 `anon`/`authenticated` 仍继承了写权限，因此追加
+  `restrict_public_table_privileges` 版本化迁移：撤销 P1 三张表的全部公开权限后仅授予 SELECT。六张业务表
+  均启用 RLS，所有公开非 SELECT grant 数量为 0。
+- pgTAP 计划扩展为 53 项，新增三张 P1 表无公开写权限及恰好六个公开 SELECT grant 的回归断言。
+- Supabase Security Advisor 只保留 `ingestion_runs` 开启 RLS 但无公开策略的 INFO，符合内部运行记录设计；
+  Performance Advisor 的两个既有外键缺少索引提示另行评估，新表 unused-index 提示因刚上线尚无查询样本，
+  不据此删除为保留清理和 P2 查询准备的索引。
 
 ## Review
 
@@ -64,7 +70,7 @@
 - Review fix：最初 upsert 会把冲突行标题误写为批次首条标题，现已改为逐列使用对应 `excluded` 值；同时把
   扩展和 Vault 写入移动到 36 路真实数据验证全部成功之后。
 - Rejected：没有自动聚合或自动发布 AI 事件，也没有提前实现详情页、ISR、Cloudflare、sitemap 或 IndexNow。
-- Accepted follow-up：云端执行迁移与 51 项数据库行为的生产核验；P2 之后再构建事件详情和缓存发布链路。
+- Accepted follow-up：解析修复部署后完成 36 路真实抓取与 Cron 验收；P2 之后再构建事件详情和缓存发布链路。
 
 ## Risks
 
