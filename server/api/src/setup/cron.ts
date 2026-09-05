@@ -1,27 +1,82 @@
-export const CRON_JOB_NAME = 'juejin-hot-feed-every-five-hours'
-export const CRON_SCHEDULE = '0 */5 * * *'
+import type { SignalSourceId } from '../technology/sources.js'
+
+export const SIGNAL_CRON_JOBS: ReadonlyArray<{
+  source: SignalSourceId
+  name: string
+  schedule: string
+}> = [
+  { source: 'github', name: 'github-hot-feed-every-five-hours', schedule: '0 0,5,10,15,20 * * *' },
+  {
+    source: 'hacker-news',
+    name: 'hacker-news-hot-feed-every-five-hours',
+    schedule: '10 0,5,10,15,20 * * *'
+  },
+  { source: 'juejin', name: 'juejin-hot-feed-every-five-hours', schedule: '20 0,5,10,15,20 * * *' },
+  { source: 'v2ex', name: 'v2ex-hot-feed-every-five-hours', schedule: '30 0,5,10,15,20 * * *' },
+  { source: 'ithome', name: 'ithome-hot-feed-every-five-hours', schedule: '40 0,5,10,15,20 * * *' },
+  { source: '36kr', name: '36kr-hot-feed-every-five-hours', schedule: '50 0,5,10,15,20 * * *' },
+  { source: 'xinhua', name: 'xinhua-news-feed-every-five-hours', schedule: '0 1,6,11,16,21 * * *' },
+  { source: 'cctv', name: 'cctv-news-feed-every-five-hours', schedule: '10 1,6,11,16,21 * * *' },
+  {
+    source: 'chinanews',
+    name: 'chinanews-feed-every-five-hours',
+    schedule: '20 1,6,11,16,21 * * *'
+  },
+  {
+    source: 'thepaper',
+    name: 'thepaper-hot-feed-every-five-hours',
+    schedule: '30 1,6,11,16,21 * * *'
+  },
+  {
+    source: 'jiemian',
+    name: 'jiemian-news-feed-every-five-hours',
+    schedule: '40 1,6,11,16,21 * * *'
+  },
+  { source: 'baidu', name: 'baidu-hot-feed-every-five-hours', schedule: '50 1,6,11,16,21 * * *' },
+  { source: 'openai', name: 'openai-news-feed-every-five-hours', schedule: '0 2,7,12,17,22 * * *' },
+  {
+    source: 'anthropic',
+    name: 'anthropic-news-feed-every-five-hours',
+    schedule: '10 2,7,12,17,22 * * *'
+  },
+  {
+    source: 'deepseek',
+    name: 'deepseek-news-feed-every-five-hours',
+    schedule: '20 2,7,12,17,22 * * *'
+  },
+  { source: 'glm', name: 'glm-release-feed-every-five-hours', schedule: '30 2,7,12,17,22 * * *' },
+  {
+    source: 'google-ai',
+    name: 'google-ai-feed-every-five-hours',
+    schedule: '40 2,7,12,17,22 * * *'
+  },
+  { source: 'qwen', name: 'qwen-blog-feed-every-five-hours', schedule: '50 2,7,12,17,22 * * *' }
+]
+
 export const RETENTION_JOB_NAME = 'ingestion-runs-retention-daily'
 export const RETENTION_SCHEDULE = '30 3 * * *'
 
-export const CRON_COMMAND = `
+export function createCronCommand(source: SignalSourceId): string {
+  return `
 select net.http_post(
   url := (
-    select decrypted_secret
+    select rtrim(decrypted_secret, '/')
     from vault.decrypted_secrets
-    where name = 'juejin_ingest_url'
-  ),
+    where name = 'signal_ingest_base_url'
+  ) || '/${source}',
   headers := jsonb_build_object(
     'Authorization', 'Bearer ' || (
       select decrypted_secret
       from vault.decrypted_secrets
-      where name = 'juejin_cron_secret'
+      where name = 'signal_cron_secret'
     ),
     'Content-Type', 'application/json'
   ),
-  body := jsonb_build_object('scheduled_at', now()),
-  timeout_milliseconds := 30000
+  body := jsonb_build_object('scheduled_at', now(), 'source', '${source}'),
+  timeout_milliseconds := 45000
 ) as request_id;
 `.trim()
+}
 
 export const RETENTION_COMMAND = `
 delete from public.ingestion_runs as run
@@ -44,7 +99,7 @@ export interface CronRepository {
   schedule(name: string, schedule: string, command: string): Promise<unknown>
 }
 
-interface SetupJuejinCronOptions {
+interface SetupSignalCronOptions {
   apiUrl: string
   cronSecret: string
   repository: CronRepository
@@ -67,13 +122,15 @@ export function normalizeIngestUrl(value: string): string {
       url.password ||
       url.search ||
       url.hash ||
-      (path && path !== '/cron/juejin')
+      !['', '/cron/juejin', '/cron/technology', '/cron/news', '/cron/ai', '/cron/signals'].includes(
+        path
+      )
     ) {
       throw new Error()
     }
 
-    url.pathname = '/cron/juejin'
-    return url.toString()
+    url.pathname = '/cron/signals'
+    return url.toString().replace(/\/$/, '')
   } catch {
     throw new Error('API 地址必须是有效的 HTTPS 地址，例如 https://api.example.com')
   }
@@ -94,22 +151,25 @@ function parseIngestionResult(value: unknown): IngestionResult {
   throw new Error('配置已保存，但测试采集返回了无法识别的响应')
 }
 
-export async function setupJuejinCron({
+export async function setupSignalCron({
   apiUrl,
   cronSecret,
   repository,
   request = fetch
-}: SetupJuejinCronOptions): Promise<IngestionResult> {
-  const ingestUrl = normalizeIngestUrl(apiUrl)
+}: SetupSignalCronOptions): Promise<IngestionResult> {
+  const ingestBaseUrl = normalizeIngestUrl(apiUrl)
   if (!cronSecret) throw new Error('CRON_SECRET 不能为空')
 
   await repository.installExtensions()
-  await repository.upsertSecret('juejin_ingest_url', ingestUrl)
-  await repository.upsertSecret('juejin_cron_secret', cronSecret)
-  await repository.schedule(CRON_JOB_NAME, CRON_SCHEDULE, CRON_COMMAND)
+  await repository.upsertSecret('signal_ingest_base_url', ingestBaseUrl)
+  await repository.upsertSecret('signal_cron_secret', cronSecret)
+
+  for (const job of SIGNAL_CRON_JOBS) {
+    await repository.schedule(job.name, job.schedule, createCronCommand(job.source))
+  }
   await repository.schedule(RETENTION_JOB_NAME, RETENTION_SCHEDULE, RETENTION_COMMAND)
 
-  const response = await request(ingestUrl, {
+  const response = await request(`${ingestBaseUrl}/juejin`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${cronSecret}`,

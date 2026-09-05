@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { ThemeToggle } from './theme-toggle'
-import { Separator } from './ui/separator'
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
@@ -23,28 +22,40 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </Link>
             <Link
               className="flex min-h-11 items-center px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-              href="/#technology"
+              href="/technology"
             >
               科技
+            </Link>
+            <Link
+              className="flex min-h-11 items-center px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              href="/news"
+            >
+              新闻
+            </Link>
+            <Link
+              className="flex min-h-11 items-center px-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              href="/ai"
+            >
+              AI
             </Link>
           </nav>
           <ThemeToggle />
         </div>
       </header>
       <main className="flex-1 py-12 sm:py-16">{children}</main>
-      <Separator />
+      <div aria-hidden="true" className="border-t border-border" />
       <footer className="flex min-h-20 items-center justify-between gap-4 py-5 text-xs text-muted-foreground">
         <p>
           数据经{' '}
           <a
             className="underline decoration-border underline-offset-4 transition-colors hover:text-foreground"
-            href="https://docs.rsshub.app/zh/routes/juejin"
+            href="https://docs.rsshub.app/zh/routes"
             rel="noreferrer noopener"
             target="_blank"
           >
             RSSHub
           </a>{' '}
-          整理
+          与官方 RSS 整理
         </p>
         <p className="font-mono">RSS · 5H</p>
       </footer>

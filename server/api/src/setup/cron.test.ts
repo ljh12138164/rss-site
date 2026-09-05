@@ -1,17 +1,21 @@
 import { describe, expect, it } from 'vitest'
-import { type CronRepository, normalizeIngestUrl, setupJuejinCron } from './cron.js'
+import {
+  type CronRepository,
+  normalizeIngestUrl,
+  SIGNAL_CRON_JOBS,
+  setupSignalCron
+} from './cron.js'
 
 describe('normalizeIngestUrl', () => {
-  it('accepts an HTTPS origin and appends the ingestion path', () => {
-    expect(normalizeIngestUrl('https://api.example.com/')).toBe(
-      'https://api.example.com/cron/juejin'
-    )
-  })
-
-  it('keeps a complete ingestion URL', () => {
-    expect(normalizeIngestUrl('https://api.example.com/cron/juejin/')).toBe(
-      'https://api.example.com/cron/juejin'
-    )
+  it.each([
+    ['https://api.example.com/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/juejin/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/technology/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/news/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/ai/', 'https://api.example.com/cron/signals'],
+    ['https://api.example.com/cron/signals/', 'https://api.example.com/cron/signals']
+  ])('normalizes %s', (value, expected) => {
+    expect(normalizeIngestUrl(value)).toBe(expected)
   })
 
   it.each(['http://api.example.com', 'https://user:pass@example.com', 'not-a-url'])(
@@ -22,8 +26,8 @@ describe('normalizeIngestUrl', () => {
   )
 })
 
-describe('setupJuejinCron', () => {
-  it('upserts Vault secrets, schedules ingestion and retention, and verifies ingestion', async () => {
+describe('setupSignalCron', () => {
+  it('upserts shared secrets, staggers eighteen sources, retains history, and verifies Juejin', async () => {
     const calls: string[] = []
     const scheduledJobs: Array<{ name: string; schedule: string; command: string }> = []
     const repository: CronRepository = {
@@ -34,7 +38,7 @@ describe('setupJuejinCron', () => {
       }
     }
 
-    const result = await setupJuejinCron({
+    const result = await setupSignalCron({
       apiUrl: 'https://api.example.com',
       cronSecret: 'test-secret',
       repository,
@@ -46,22 +50,25 @@ describe('setupJuejinCron', () => {
 
     expect(calls).toEqual([
       'extensions',
-      'secret:juejin_ingest_url:https://api.example.com/cron/juejin',
-      'secret:juejin_cron_secret:test-secret',
-      'request:https://api.example.com/cron/juejin:Bearer test-secret'
+      'secret:signal_ingest_base_url:https://api.example.com/cron/signals',
+      'secret:signal_cron_secret:test-secret',
+      'request:https://api.example.com/cron/signals/juejin:Bearer test-secret'
     ])
-    expect(scheduledJobs).toHaveLength(2)
-    expect(scheduledJobs[0]).toMatchObject({
-      name: 'juejin-hot-feed-every-five-hours',
-      schedule: '0 */5 * * *'
-    })
-    expect(scheduledJobs[1]).toMatchObject({
+    expect(scheduledJobs).toHaveLength(19)
+    expect(scheduledJobs.slice(0, 18).map(({ name, schedule }) => ({ name, schedule }))).toEqual(
+      SIGNAL_CRON_JOBS.map(({ name, schedule }) => ({ name, schedule }))
+    )
+    expect(scheduledJobs[0]?.command).toContain("'/github'")
+    expect(scheduledJobs[5]?.command).toContain("'/36kr'")
+    expect(scheduledJobs[6]?.command).toContain("'/xinhua'")
+    expect(scheduledJobs[11]?.command).toContain("'/baidu'")
+    expect(scheduledJobs[12]?.command).toContain("'/openai'")
+    expect(scheduledJobs[17]?.command).toContain("'/qwen'")
+    expect(scheduledJobs[18]).toMatchObject({
       name: 'ingestion-runs-retention-daily',
       schedule: '30 3 * * *'
     })
-    expect(scheduledJobs[1]?.command).toContain("interval '30 days'")
-    expect(scheduledJobs[1]?.command).toContain('from public.hot_items')
-    expect(scheduledJobs[1]?.command).toContain('from public.source_status')
+    expect(scheduledJobs[18]?.command).toContain("interval '30 days'")
     expect(result).toEqual({ batchId: 'batch-1', itemCount: 12 })
   })
 
@@ -73,7 +80,7 @@ describe('setupJuejinCron', () => {
     }
 
     await expect(
-      setupJuejinCron({
+      setupSignalCron({
         apiUrl: 'https://api.example.com',
         cronSecret: 'test-secret',
         repository,

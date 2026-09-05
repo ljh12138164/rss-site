@@ -1,9 +1,13 @@
 import { ArrowLeft, ArrowUpRight, ShieldAlert } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { actionStyles } from '../../components/action-styles'
 import { SiteShell } from '../../components/site-shell'
-import { Button } from '../../components/ui/button'
-import { resolveOutboundDestination } from '../../lib/outbound-link'
+import {
+  type OutboundReturnPath,
+  resolveOutboundDestination,
+  resolveOutboundReturnPath
+} from '../../lib/outbound-link'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +17,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false }
 }
 
-function UnavailableNotice() {
+function UnavailableNotice({ returnTo }: { returnTo: OutboundReturnPath }) {
   return (
     <SiteShell>
       <section className="border-y border-border py-14 sm:py-20">
@@ -24,20 +28,24 @@ function UnavailableNotice() {
         <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">
           目标地址无效或不是可访问的 Web 链接，本站没有继续提供跳转入口。
         </p>
-        <Button asChild className="mt-8" variant="outline">
-          <Link href="/technology/juejin">
-            <ArrowLeft aria-hidden="true" />
-            返回热点列表
-          </Link>
-        </Button>
+        <Link className={actionStyles('outline', 'default', 'mt-8')} href={returnTo}>
+          <ArrowLeft aria-hidden="true" />
+          返回热点列表
+        </Link>
       </section>
     </SiteShell>
   )
 }
 
-export function OutboundView({ destination }: { destination: string | null }) {
+export function OutboundView({
+  destination,
+  returnTo = '/technology'
+}: {
+  destination: string | null
+  returnTo?: OutboundReturnPath
+}) {
   if (!destination) {
-    return <UnavailableNotice />
+    return <UnavailableNotice returnTo={returnTo} />
   }
 
   const hostname = new URL(destination).hostname
@@ -66,18 +74,19 @@ export function OutboundView({ destination }: { destination: string | null }) {
           <span className="break-all font-mono text-xs text-foreground">{hostname}</span>
         </div>
         <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-          <Button asChild size="lg">
-            <a href={destination} rel="noreferrer noopener external" target="_blank">
-              继续访问原文
-              <ArrowUpRight aria-hidden="true" />
-            </a>
-          </Button>
-          <Button asChild size="lg" variant="outline">
-            <Link href="/technology/juejin">
-              <ArrowLeft aria-hidden="true" />
-              返回热点列表
-            </Link>
-          </Button>
+          <a
+            className={actionStyles('primary', 'large')}
+            href={destination}
+            rel="noreferrer noopener external"
+            target="_blank"
+          >
+            继续访问原文
+            <ArrowUpRight aria-hidden="true" />
+          </a>
+          <Link className={actionStyles('outline', 'large')} href={returnTo}>
+            <ArrowLeft aria-hidden="true" />
+            返回热点列表
+          </Link>
         </div>
       </section>
     </SiteShell>
@@ -87,11 +96,12 @@ export function OutboundView({ destination }: { destination: string | null }) {
 export default async function OutboundPage({
   searchParams
 }: {
-  searchParams: Promise<{ url?: string | string[] }>
+  searchParams: Promise<{ url?: string | string[]; from?: string | string[] }>
 }) {
   const query = await searchParams
   const rawUrl = typeof query.url === 'string' ? query.url : ''
   const destination = resolveOutboundDestination(rawUrl)
+  const returnTo = resolveOutboundReturnPath(typeof query.from === 'string' ? query.from : '')
 
-  return <OutboundView destination={destination} />
+  return <OutboundView destination={destination} returnTo={returnTo} />
 }

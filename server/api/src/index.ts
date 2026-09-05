@@ -1,8 +1,9 @@
 import { Hono } from 'hono'
 import { createDatabase } from './db/client.js'
 import { configureApp } from './http-app.js'
-import { ingestJuejin } from './juejin/ingest.js'
-import { DrizzleJuejinStore } from './juejin/store.js'
+import { ingestSignal } from './technology/ingest.js'
+import { getSignalSource, resolveSignalFeedUrl } from './technology/sources.js'
+import { DrizzleSignalStore } from './technology/store.js'
 
 function requiredEnvironment(name: string): string {
   const value = process.env[name]
@@ -11,19 +12,24 @@ function requiredEnvironment(name: string): string {
 }
 
 const database = createDatabase(requiredEnvironment('DATABASE_URL'))
-const store = new DrizzleJuejinStore(database)
 const rsshubBaseUrl = (process.env.RSSHUB_BASE_URL ?? 'https://rsshub.app').replace(/\/$/, '')
 
-async function fetchJuejinFeed() {
-  const response = await fetch(`${rsshubBaseUrl}/juejin/trending/all/weekly`, {
-    signal: AbortSignal.timeout(15_000),
+async function fetchSignalFeed(url: string) {
+  const response = await fetch(url, {
+    signal: AbortSignal.timeout(30_000),
     headers: { 'User-Agent': 'rss-site/1.0 (+https://github.com/ljh12138164/rss-site)' }
   })
-  if (!response.ok) throw new Error(`RSSHub responded with ${response.status}`)
+  if (!response.ok) throw new Error(`Signal feed responded with ${response.status}`)
   return response.text()
 }
 
 export default configureApp(new Hono(), {
   cronSecret: requiredEnvironment('CRON_SECRET'),
-  runIngestion: () => ingestJuejin({ fetchFeed: fetchJuejinFeed, store })
+  runIngestion: (sourceId) => {
+    const source = getSignalSource(sourceId)
+    return ingestSignal(source, {
+      fetchFeed: () => fetchSignalFeed(resolveSignalFeedUrl(source, rsshubBaseUrl)),
+      store: new DrizzleSignalStore(database, source.id, source.section)
+    })
+  }
 })

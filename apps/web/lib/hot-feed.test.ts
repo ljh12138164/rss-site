@@ -1,80 +1,184 @@
 import { describe, expect, it } from 'vitest'
-import { type FeedQuery, getJuejinFeed } from './hot-feed'
+import {
+  type FeedCollectionQuery,
+  getAiFeed,
+  getAiFeeds,
+  getNewsFeed,
+  getNewsFeeds,
+  getTechnologyFeed,
+  getTechnologyFeeds
+} from './hot-feed'
 
-const rows = Array.from({ length: 7 }, (_, index) => ({
-  source_key: `item-${7 - index}`,
-  title: `热点 ${7 - index}`,
-  url: `https://juejin.cn/post/${7 - index}`,
-  summary: null,
-  author: null,
-  published_at: null,
-  position: 7 - index
-}))
+const query: FeedCollectionQuery = async () => ({
+  items: [
+    {
+      source: 'github',
+      source_key: 'github-2',
+      title: 'GitHub 2',
+      url: 'https://github.com/example/two',
+      summary: null,
+      author: null,
+      published_at: null,
+      position: 2
+    },
+    {
+      source: 'juejin',
+      source_key: 'juejin-1',
+      title: '掘金 1',
+      url: 'https://juejin.cn/post/1',
+      summary: null,
+      author: null,
+      published_at: null,
+      position: 1
+    },
+    {
+      source: 'github',
+      source_key: 'github-1',
+      title: 'GitHub 1',
+      url: 'https://github.com/example/one',
+      summary: null,
+      author: 'example',
+      published_at: '2026-09-04T01:00:00.000Z',
+      position: 1
+    }
+  ],
+  statuses: [
+    { source: 'github', item_count: 2, last_success_at: '2026-09-04T02:00:00.000Z' },
+    { source: 'juejin', item_count: 1, last_success_at: '2026-09-04T01:00:00.000Z' }
+  ],
+  error: null
+})
 
-describe('getJuejinFeed', () => {
-  it('sorts the result and enforces the homepage five-item limit', async () => {
-    const query: FeedQuery = async () => ({
-      items: rows,
-      status: {
-        source: 'juejin',
-        item_count: 7,
-        last_success_at: '2026-09-04T01:00:00.000Z'
-      },
-      error: null
-    })
+describe('technology feeds', () => {
+  it('groups sources independently, sorts each ranking, and enforces per-source limits', async () => {
+    const feeds = await getTechnologyFeeds(1, query)
 
-    const result = await getJuejinFeed(5, query)
-
-    expect(result).toEqual({
+    expect(feeds.github).toEqual({
       state: 'ready',
-      items: [1, 2, 3, 4, 5].map((position) => ({
-        sourceKey: `item-${position}`,
-        title: `热点 ${position}`,
-        url: `https://juejin.cn/post/${position}`,
-        summary: null,
-        author: null,
-        publishedAt: null,
-        position
-      })),
+      items: [
+        {
+          sourceKey: 'github-1',
+          title: 'GitHub 1',
+          url: 'https://github.com/example/one',
+          summary: null,
+          author: 'example',
+          publishedAt: new Date('2026-09-04T01:00:00.000Z'),
+          position: 1
+        }
+      ],
       status: {
-        itemCount: 7,
-        lastSuccessAt: new Date('2026-09-04T01:00:00.000Z')
+        itemCount: 2,
+        lastSuccessAt: new Date('2026-09-04T02:00:00.000Z')
       }
     })
+    expect(feeds.juejin.state).toBe('ready')
+    expect(feeds.v2ex).toEqual({ state: 'empty' })
   })
 
-  it('keeps the complete ordered result when no limit is provided', async () => {
-    const query: FeedQuery = async () => ({
-      items: rows,
-      status: {
-        source: 'juejin',
-        item_count: 7,
-        last_success_at: '2026-09-04T01:00:00.000Z'
-      },
-      error: null
-    })
+  it('returns one complete source ranking for detail pages', async () => {
+    const feed = await getTechnologyFeed('github', undefined, query)
 
-    const result = await getJuejinFeed(undefined, query)
-
-    expect(result.state).toBe('ready')
-    if (result.state === 'ready') {
-      expect(result.items.map((item) => item.position)).toEqual([1, 2, 3, 4, 5, 6, 7])
+    expect(feed.state).toBe('ready')
+    if (feed.state === 'ready') {
+      expect(feed.items.map((item) => item.position)).toEqual([1, 2])
     }
   })
 
-  it('returns an explicit empty state when no ranking has been collected', async () => {
-    const query: FeedQuery = async () => ({ items: [], status: null, error: null })
+  it('isolates missing source status from healthy sources', async () => {
+    const feeds = await getTechnologyFeeds(undefined, async () => ({
+      items: [
+        {
+          source: 'github',
+          source_key: 'github-1',
+          title: 'GitHub 1',
+          url: 'https://github.com/example/one',
+          summary: null,
+          author: null,
+          published_at: null,
+          position: 1
+        },
+        {
+          source: 'juejin',
+          source_key: 'juejin-1',
+          title: '掘金 1',
+          url: 'https://juejin.cn/post/1',
+          summary: null,
+          author: null,
+          published_at: null,
+          position: 1
+        }
+      ],
+      statuses: [{ source: 'juejin', item_count: 1, last_success_at: '2026-09-04T01:00:00.000Z' }],
+      error: null
+    }))
 
-    expect(await getJuejinFeed(undefined, query)).toEqual({ state: 'empty' })
+    expect(feeds.github).toEqual({ state: 'error' })
+    expect(feeds.juejin.state).toBe('ready')
   })
 
-  it('returns a stable error state when either Supabase query fails', async () => {
-    const query: FeedQuery = async () => ({
+  it('returns stable error states when the shared database read fails', async () => {
+    const feeds = await getTechnologyFeeds(undefined, async () => ({
       items: null,
-      status: null,
-      error: 'permission denied for relation hot_items'
-    })
+      statuses: null,
+      error: 'permission denied'
+    }))
 
-    expect(await getJuejinFeed(undefined, query)).toEqual({ state: 'error' })
+    expect(Object.values(feeds).every((feed) => feed.state === 'error')).toBe(true)
+  })
+})
+
+describe('news feeds', () => {
+  const newsQuery: FeedCollectionQuery = async () => ({
+    items: [
+      {
+        source: 'xinhua',
+        source_key: 'xinhua-1',
+        title: '新华社新闻',
+        url: 'https://www.news.cn/story',
+        summary: null,
+        author: null,
+        published_at: null,
+        position: 1
+      }
+    ],
+    statuses: [{ source: 'xinhua', item_count: 1, last_success_at: '2026-09-05T01:00:00.000Z' }],
+    error: null
+  })
+
+  it('builds independent collection and detail results', async () => {
+    const feeds = await getNewsFeeds(1, newsQuery)
+    const feed = await getNewsFeed('xinhua', undefined, newsQuery)
+
+    expect(feeds.xinhua.state).toBe('ready')
+    expect(feeds.cctv).toEqual({ state: 'empty' })
+    expect(feed.state).toBe('ready')
+  })
+})
+
+describe('AI feeds', () => {
+  const aiQuery: FeedCollectionQuery = async () => ({
+    items: [
+      {
+        source: 'openai',
+        source_key: 'openai-1',
+        title: 'OpenAI 更新',
+        url: 'https://openai.com/index/update',
+        summary: null,
+        author: null,
+        published_at: null,
+        position: 1
+      }
+    ],
+    statuses: [{ source: 'openai', item_count: 1, last_success_at: '2026-09-05T02:00:00.000Z' }],
+    error: null
+  })
+
+  it('builds independent AI collection and detail results', async () => {
+    const feeds = await getAiFeeds(1, aiQuery)
+    const feed = await getAiFeed('openai', undefined, aiQuery)
+
+    expect(feeds.openai.state).toBe('ready')
+    expect(feeds.anthropic).toEqual({ state: 'empty' })
+    expect(feed.state).toBe('ready')
   })
 })

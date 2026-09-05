@@ -3,8 +3,8 @@
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
-import { Button } from './ui/button'
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+import { Tooltip, TooltipTrigger } from 'react-aria-components'
+import { ActionButton } from './action-button'
 
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false)
@@ -15,20 +15,23 @@ export function ThemeToggle() {
   const dark = mounted && resolvedTheme === 'dark'
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          aria-label={dark ? '切换为浅色主题' : '切换为深色主题'}
-          className="size-11 text-muted-foreground hover:text-foreground"
-          disabled={!mounted}
-          onClick={() => setTheme(dark ? 'light' : 'dark')}
-          size="icon"
-          variant="ghost"
-        >
-          {dark ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>{dark ? '浅色主题' : '深色主题'}</TooltipContent>
-    </Tooltip>
+    <TooltipTrigger delay={350}>
+      <ActionButton
+        aria-label={dark ? '切换为浅色主题' : '切换为深色主题'}
+        className="size-11 text-muted-foreground hover:text-foreground"
+        isDisabled={!mounted}
+        onPress={() => setTheme(dark ? 'light' : 'dark')}
+        size="icon"
+        variant="ghost"
+      >
+        {dark ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
+      </ActionButton>
+      <Tooltip
+        className="z-50 rounded-sm bg-foreground px-3 py-1.5 text-xs text-background shadow-sm"
+        offset={8}
+      >
+        {dark ? '浅色主题' : '深色主题'}
+      </Tooltip>
+    </TooltipTrigger>
   )
 }

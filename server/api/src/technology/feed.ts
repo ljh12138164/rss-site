@@ -1,6 +1,6 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser'
 
-export interface JuejinFeedItem {
+export interface TechnologyFeedItem {
   sourceKey: string
   title: string
   url: string
@@ -15,8 +15,13 @@ interface ParsedItem {
   link?: unknown
   guid?: unknown
   description?: unknown
+  'content:encoded'?: unknown
   author?: unknown
   pubDate?: unknown
+}
+
+interface ParseFeedOptions {
+  titleFromFirstStrong?: boolean
 }
 
 interface ParsedRss {
@@ -40,19 +45,19 @@ function textValue(value: unknown): string | null {
   return null
 }
 
-function canonicalJuejinUrl(value: unknown): string | null {
+function canonicalWebUrl(value: unknown): string | null {
   const rawUrl = textValue(value)
   if (!rawUrl) return null
 
   try {
     const url = new URL(rawUrl)
-    if (!['juejin.cn', 'www.juejin.cn'].includes(url.hostname)) return null
-    if (!url.pathname.startsWith('/post/')) return null
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
 
-    url.protocol = 'https:'
-    url.hostname = 'juejin.cn'
-    url.search = ''
     url.hash = ''
+    for (const key of [...url.searchParams.keys()]) {
+      if (key.toLowerCase().startsWith('utm_')) url.searchParams.delete(key)
+    }
+
     return url.toString().replace(/\/$/, '')
   } catch {
     return null
@@ -89,16 +94,27 @@ function plainText(value: unknown): string | null {
   return text || null
 }
 
+function firstStrongText(value: unknown): string | null {
+  const html = textValue(value)
+  if (!html) return null
+
+  const match = html.match(/<strong\b[^>]*>([\s\S]*?)<\/strong>/i)
+  return match ? plainText(match[1]) : null
+}
+
 function publishedDate(value: unknown): Date | null {
   const text = textValue(value)
   if (!text) return null
 
   const date = new Date(text)
-  if (Number.isNaN(date.getTime())) return null
-  return date
+  return Number.isNaN(date.getTime()) ? null : date
 }
 
-export function parseJuejinFeed(xml: string): JuejinFeedItem[] {
+export function parseTechnologyFeed(
+  xml: string,
+  sourceName: string,
+  options: ParseFeedOptions = {}
+): TechnologyFeedItem[] {
   const validation = XMLValidator.validate(xml)
   if (validation !== true) throw new Error('RSSHub returned invalid XML')
 
@@ -108,18 +124,23 @@ export function parseJuejinFeed(xml: string): JuejinFeedItem[] {
   })
   const parsed = parser.parse(xml) as ParsedRss
   const items = parsed.rss?.channel?.item ?? []
-  if (items.length === 0) throw new Error('RSSHub returned an empty Juejin feed')
+  if (items.length === 0) throw new Error(`RSSHub returned an empty ${sourceName} feed`)
 
   return items.map((item, index) => {
-    const title = textValue(item.title)
-    const url = canonicalJuejinUrl(item.link)
-    if (!title || !url) throw new Error(`Juejin feed item ${index + 1} is missing required fields`)
+    const content = item['content:encoded']
+    const title =
+      (options.titleFromFirstStrong ? firstStrongText(content) : null) ?? textValue(item.title)
+    const url = canonicalWebUrl(item.link)
+    if (!title || !url) {
+      throw new Error(`${sourceName} feed item ${index + 1} is missing required fields`)
+    }
 
+    const rawGuid = textValue(item.guid)
     return {
-      sourceKey: canonicalJuejinUrl(item.guid) ?? url,
+      sourceKey: canonicalWebUrl(rawGuid) ?? rawGuid ?? url,
       title,
       url,
-      summary: plainText(item.description),
+      summary: plainText(item.description) ?? plainText(content),
       author: textValue(item.author),
       publishedAt: publishedDate(item.pubDate),
       position: index + 1

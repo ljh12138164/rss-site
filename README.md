@@ -1,20 +1,22 @@
 # 热点更新
 
-一个通过 RSSHub 汇总社区热点的轻量阅读站。当前包含科技区的掘金周榜：首页展示前五条，
-`/technology/juejin` 展示完整榜单。数据约每五小时由 Hono 服务采集一次，并以 Supabase
-作为前后端之间唯一的数据中转。
+一个通过 RSSHub 与官方 RSS 汇总热点的轻量阅读站。科技区包含 GitHub Trending、Hacker News、掘金、
+V2EX、IT之家和 36氪；国内新闻区包含新华社、央视国内、中新网、澎湃热榜、界面中国和百度热搜；AI
+平台区包含 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 和 Qwen。首页展示十八路摘要，
+`/technology`、`/news` 与 `/ai` 展示分区总览，各自的 `[source]` 路由展示独立完整列表。数据约每五小时
+由 Hono 服务采集一次，并以 Supabase 作为前后端之间唯一的数据中转。
 
 ## Architecture
 
 ```text
-Supabase Cron → Hono on Vercel → RSSHub
+Supabase Cron → Hono on Vercel → RSSHub / official RSS
                     ↓ Drizzle
                  Supabase
                     ↑ public RLS read
                 Next.js web
 ```
 
-- `apps/web`：Next.js 16、React 19、Tailwind CSS 4、shadcn/ui。
+- `apps/web`：Next.js 16、React 19、Tailwind CSS 4、React Aria Components。
 - `server/api`：Hono 的 Vercel Function，通过 Drizzle ORM 写入 PostgreSQL。
 - `supabase`：数据库迁移、RLS 测试和 `pg_cron`/`pg_net` 调度脚本。
 
@@ -43,8 +45,9 @@ Copy-Item apps/web/.env.example apps/web/.env.local
 pnpm --filter @rss-site/web dev
 ```
 
-访问 <http://localhost:3000>，掘金完整榜单位于
-<http://localhost:3000/technology/juejin>。
+访问 <http://localhost:3000>，科技总览位于 <http://localhost:3000/technology>，国内新闻总览位于
+<http://localhost:3000/news>，AI 平台总览位于 <http://localhost:3000/ai>，来源详情位于对应分区的
+`[source]` URL。
 
 ### 启动完整开发环境
 
@@ -67,16 +70,15 @@ pnpm dev
 - API：<http://localhost:3001>
 - API 健康检查：<http://localhost:3001/health>
 
-前端不会调用本地 API；两端仍然只通过 Supabase 交换数据。需要手动刷新掘金热点时，
-另开一个终端并把示例中的密钥替换为 `server/api/.env` 内的 `CRON_SECRET`：
+前端不会调用本地 API；两端仍然只通过 Supabase 交换数据。需要手动刷新某个来源时，另开一个
+终端并把示例中的来源 ID 与密钥替换为目标值和 `server/api/.env` 内的 `CRON_SECRET`：
 
 ```powershell
-curl.exe -X POST http://localhost:3001/cron/juejin -H "Authorization: Bearer <CRON_SECRET>"
+curl.exe -X POST http://localhost:3001/cron/signals/xinhua -H "Authorization: Bearer <CRON_SECRET>"
 ```
 
 成功响应会包含 `batchId` 和 `itemCount`。刷新网页后即可看到 Supabase 中的新数据。
-若返回 `401`，检查请求密钥是否与 API 环境变量一致；若返回 `502`，检查 RSSHub 地址和
-Supabase 数据库连接。
+若返回 `401`，检查请求密钥是否与 API 环境变量一致；若返回 `502`，检查 Feed 上游和 Supabase 数据库连接。
 
 ### 代码检查
 
@@ -126,11 +128,11 @@ simple-git-hooks 的 pre-commit 钩子；提交前会格式化并校验暂存文
    pnpm setup:cron
    ```
 
-5. 按提示输入部署后的 Hono API 域名或完整的 `/cron/juejin` 地址。
+5. 按提示输入部署后的 Hono API 域名或完整的 `/cron/signals` 地址。
 
 该命令会幂等创建或更新 Supabase Vault 中的 API 地址和 Cron 密钥，启用 `pg_cron` 与
-`pg_net`，安装 UTC 每五小时运行一次的任务，并立即发起一次测试采集。重复运行会更新
-已有配置，不会创建同名任务。`supabase/cron/setup.sql` 保留为手动配置和审计用的备用方案。
+`pg_net`，安装十八个 UTC 每五小时错峰运行的任务和 30 天运行历史清理，并立即发起一次掘金测试
+采集。重复运行会更新已有同名任务。`supabase/cron/setup.sql` 保留为手动配置和审计用的备用方案。
 
 RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客户端不能写数据，也不能读取
 `ingestion_runs` 中的内部错误。
@@ -142,7 +144,14 @@ RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客�
 - Web 项目的 Root Directory 为 `apps/web`。
 - API 项目的 Root Directory 为 `server/api`。
 
-分别配置上述环境变量。API 健康检查为 `GET /health`，采集端点为
-`POST /cron/juejin`。生产配置完成前，不要执行 Cron 脚本，以免保存无效部署地址。
+分别配置上述环境变量。API 健康检查为 `GET /health`，通用采集端点为
+`POST /cron/signals/:source`；`POST /cron/technology/:source` 与 `POST /cron/juejin` 在切换期间继续
+兼容，新闻与 AI 来源也可分别使用 `POST /cron/news/:source` 和 `POST /cron/ai/:source`。生产配置完成前，
+不要执行 Cron 脚本，以免保存无效部署地址。
 
-更详细的设计与实施记录见 [开发文档](docs/development/juejin-hot-feed.md)。
+更详细的设计与实施记录见
+[科技多来源与 React Aria 开发文档](docs/development/technology-hot-sources.md)。
+国内新闻来源与页面扩展见
+[中国国内新闻来源开发文档](docs/development/domestic-news-sources.md)。
+AI 官方文章来源与页面扩展见
+[AI 平台官方文章开发文档](docs/development/ai-platform-articles.md)。

@@ -1,9 +1,15 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
-import type { Hono } from 'hono'
+import type { Context, Hono } from 'hono'
+import {
+  getSignalSource,
+  isSignalSourceId,
+  type SignalSection,
+  type SignalSourceId
+} from './technology/sources.js'
 
 interface AppDependencies {
   cronSecret: string
-  runIngestion(): Promise<{ batchId: string; itemCount: number }>
+  runIngestion(source: SignalSourceId): Promise<{ batchId: string; itemCount: number }>
 }
 
 function matchesSecret(actual: string | undefined, expected: string): boolean {
@@ -17,17 +23,33 @@ function matchesSecret(actual: string | undefined, expected: string): boolean {
 export function configureApp(app: Hono, deps: AppDependencies) {
   app.get('/health', (context) => context.json({ status: 'ok' as const }))
 
-  app.post('/cron/juejin', async (context) => {
+  async function runIngestion(context: Context, source: string, section?: SignalSection) {
     if (!matchesSecret(context.req.header('Authorization'), deps.cronSecret)) {
       return context.json({ error: 'Unauthorized' }, 401)
     }
 
-    try {
-      return context.json(await deps.runIngestion())
-    } catch {
-      return context.json({ error: 'Juejin ingestion failed' }, 502)
+    if (!isSignalSourceId(source) || (section && getSignalSource(source).section !== section)) {
+      return context.json({ error: 'Unknown signal source' }, 404)
     }
-  })
+
+    try {
+      return context.json(await deps.runIngestion(source))
+    } catch {
+      return context.json({ error: 'Signal ingestion failed' }, 502)
+    }
+  }
+
+  app.post('/cron/technology/:source', (context) =>
+    runIngestion(context, context.req.param('source'), 'technology')
+  )
+  app.post('/cron/news/:source', (context) =>
+    runIngestion(context, context.req.param('source'), 'news')
+  )
+  app.post('/cron/ai/:source', (context) =>
+    runIngestion(context, context.req.param('source'), 'ai')
+  )
+  app.post('/cron/signals/:source', (context) => runIngestion(context, context.req.param('source')))
+  app.post('/cron/juejin', (context) => runIngestion(context, 'juejin'))
 
   return app
 }
