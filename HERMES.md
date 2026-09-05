@@ -21,8 +21,10 @@
   文章图片与旧频段组件已删除。站名为“AI 热榜”，加载使用中性灰，交互强调为冷蓝。
 - 最新 UI 调整用 `SourceNavigation` 取代桌面侧栏：标题下方直接显示“内容来源”和平台常用名称，AI 区为
   OpenAI、Anthropic、DeepSeek、GLM、Gemini 与 Qwen；首页和分区说明已改为日常中文。
-- 全仓格式、lint、类型、API 54 项测试、Web 50 项测试与生产构建通过；首页、六个分区和 `/ai/glm` 的
+- 全仓格式、lint、类型、API 54 项测试、Web 52 项测试与生产构建通过；首页、六个分区和 `/ai/glm` 的
   本地 HTTP 回归均为 200，未操作可见浏览器。
+- 骨架屏已从低对比 `bg-muted animate-pulse` 改为亮/暗独立灰蓝底色与轻扫光，并同步水平来源页面结构；
+  新增两项回归测试后 Web 为 52 项，全仓格式、lint、类型、测试和构建继续通过。
 
 - PR #7 已合并到 `origin/master` 的 `1927e8e`。当前分支 `feat/production-launch-roadmap` 从该提交创建，
   只包含生产门禁可靠性修复、权限收敛迁移和上线文档；没有创建前端部署配置。

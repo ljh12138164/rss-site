@@ -22,6 +22,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-skeleton: var(--skeleton);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -52,6 +53,8 @@
   --border: #d9e1ea;
   --input: #d9e1ea;
   --ring: #2563eb;
+  --skeleton: #d7e0eb;
+  --skeleton-highlight: rgb(255 255 255 / 68%);
 }
 
 .dark {
@@ -73,6 +76,41 @@
   --border: #2a3546;
   --input: #2a3546;
   --ring: #7aa2ff;
+  --skeleton: #2d3b50;
+  --skeleton-highlight: rgb(148 163 184 / 20%);
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::after {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--skeleton-highlight) 50%,
+    transparent 100%
+  );
+  content: "";
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    display: none;
+  }
 }
 
 @layer base {
