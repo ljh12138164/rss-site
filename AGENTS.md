@@ -13,3 +13,7 @@ Every new platform or feed source must pass the following production-data gate b
 7. Record non-secret evidence (HTTP status, item count, batch ID, timestamps, and data-quality checks) in the relevant development document. Never print or commit database URLs, tokens, Vault values, or Cron secrets.
 
 `pnpm setup:cron` must preserve this ordering: validate all configured sources against the deployed API and cloud database first, then schedule jobs.
+
+## Pull requests
+
+Do not create or merge pull requests through a website UI. When a pull request is required, prepare and push the branch, then tell the user which branch and base to use and ask them to create and merge it.

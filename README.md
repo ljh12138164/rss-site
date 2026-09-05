@@ -140,6 +140,9 @@ Cron。`pnpm setup:cron` 会按这个顺序验证全部来源，任一来源失�
 本地 Docker/pgTAP 可以作为补充检查，但不能代替这项云端验收，也不能因为本地 Docker 未启动而跳过
 云端验证。验证记录不得包含数据库连接串、Token、Vault 值或 `CRON_SECRET`。
 
+每次上线的非敏感验证证据记录在
+[`docs/development/cloud-source-validation.md`](docs/development/cloud-source-validation.md)。
+
 该命令会幂等创建或更新 Supabase Vault 中的 API 地址和 Cron 密钥，启用 `pg_cron` 与
 `pg_net`，安装十八个 UTC 每五小时错峰运行的任务和 30 天运行历史清理，并立即发起一次掘金测试
 采集。重复运行会更新已有同名任务。`supabase/cron/setup.sql` 保留为手动配置和审计用的备用方案。
