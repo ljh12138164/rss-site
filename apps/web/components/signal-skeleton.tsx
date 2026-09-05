@@ -5,7 +5,7 @@ export function SignalSkeleton({ className, ...props }: ComponentProps<'div'>) {
   return (
     <div
       aria-hidden="true"
-      className={cn('animate-pulse rounded-sm bg-accent', className)}
+      className={cn('animate-pulse rounded-sm bg-muted', className)}
       {...props}
     />
   )

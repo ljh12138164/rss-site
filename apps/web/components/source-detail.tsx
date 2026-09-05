@@ -4,7 +4,7 @@ import type { SignalSource } from '../lib/technology-sources'
 import { FeedResultView } from './feed-result'
 import { FeedStatus } from './feed-status'
 import { SiteShell } from './site-shell'
-import { SourceFrequencyStrip } from './source-frequency-strip'
+import { SourceSidebar } from './source-sidebar'
 
 export function SourceDetailView({
   source,
@@ -12,8 +12,6 @@ export function SourceDetailView({
   sources,
   basePath,
   sectionName,
-  eyebrow,
-  titleSuffix,
   description
 }: {
   source: SignalSource
@@ -21,8 +19,6 @@ export function SourceDetailView({
   sources: readonly SignalSource[]
   basePath: '/technology' | '/news' | '/ai' | '/social' | '/finance' | '/games'
   sectionName: string
-  eyebrow: string
-  titleSuffix: string
   description: string
 }) {
   return (
@@ -47,31 +43,31 @@ export function SourceDetailView({
         </ol>
       </nav>
 
-      <header className="pb-10 pt-10 sm:pb-12">
-        <p className="font-mono text-xs uppercase tracking-[0.14em] text-primary">
-          {eyebrow} / {source.code}
-        </p>
-        <div className="mt-4 flex flex-wrap items-end justify-between gap-5">
-          <div>
-            <h1 className="text-4xl font-semibold tracking-[-0.045em]">
+      <div className="mt-10 lg:grid lg:grid-cols-[12rem_minmax(0,1fr)] lg:gap-12">
+        <SourceSidebar
+          active={source.id}
+          ariaLabel={`${sectionName}平台`}
+          basePath={basePath}
+          sources={sources}
+        />
+        <div className="mt-8 min-w-0 lg:mt-0">
+          <header className="border-b border-border pb-8 sm:pb-10">
+            <h1 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
               {source.name}
-              {titleSuffix ? ` ${titleSuffix}` : ''}
             </h1>
-            <p className="mt-4 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
-          </div>
-          {feed.state === 'ready' ? <FeedStatus {...feed.status} /> : null}
-        </div>
-        <div className="mt-9">
-          <SourceFrequencyStrip
-            active={source.id}
-            ariaLabel={`${sectionName}来源频段`}
-            basePath={basePath}
-            sources={sources}
-          />
-        </div>
-      </header>
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
+            {feed.state === 'ready' ? (
+              <div className="mt-4">
+                <FeedStatus {...feed.status} />
+              </div>
+            ) : null}
+          </header>
 
-      <FeedResultView feed={feed} returnTo={basePath} />
+          <div className="mt-8">
+            <FeedResultView feed={feed} returnTo={basePath} />
+          </div>
+        </div>
+      </div>
     </SiteShell>
   )
 }

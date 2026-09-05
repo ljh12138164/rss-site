@@ -5,7 +5,7 @@ import { getSocialSource } from '../../../lib/technology-sources'
 import { SocialSourceView } from './page'
 
 describe('SocialSourceView', () => {
-  it('renders the full source list, media previews, and social breadcrumb context', () => {
+  it('renders the full source list and social platform navigation without images', () => {
     const feed: FeedResult = {
       state: 'ready',
       items: Array.from({ length: 7 }, (_, index) => ({
@@ -33,8 +33,11 @@ describe('SocialSourceView', () => {
     expect(html).toContain('哔哩哔哩综合热门')
     expect(html).toContain('示例 UP 主')
     expect(html).toContain('aria-current="page"')
-    expect(html.match(/loading="lazy"/g)).toHaveLength(7)
+    expect(html).toContain('全部平台')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
     expect(html).toContain('from=%2Fsocial')
+    expect(html).not.toContain('<img')
+    expect(html).not.toContain('每六小时')
+    expect(html).not.toContain('更新于')
   })
 })

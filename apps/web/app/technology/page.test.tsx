@@ -30,10 +30,14 @@ describe('TechnologyView', () => {
 
     const html = renderToStaticMarkup(<TechnologyView feeds={feeds} />)
 
-    expect(html).toContain('科技信号台')
-    expect(html).toContain('这一路信号暂时不可读')
-    expect(html).toContain('正在等待第一轮采集')
+    expect(html).toContain('aria-label="科技平台"')
+    expect(html).toContain('全部平台')
+    expect(html).toContain('暂时无法加载，请稍后再试。')
+    expect(html).toContain('暂无内容。')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)
     for (const source of technologySources) expect(html).toContain(source.name)
+    expect(html).not.toContain('6H')
+    expect(html).not.toContain('更新于')
+    expect(html).not.toContain('信号台')
   })
 })

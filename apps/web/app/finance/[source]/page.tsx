@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const source = getFinanceSource(sourceId)
   return {
     title: source.name,
-    description: `${source.description}，约每六小时更新一次。`
+    description: source.description
   }
 }
 
@@ -33,13 +33,11 @@ export function FinanceSourceView({ source, feed }: { source: FinanceSource; fee
   return (
     <SourceDetailView
       basePath="/finance"
-      description={`${source.description}。约每六小时重新整理一次，保留来源自己的热榜、头条或快讯顺序。`}
-      eyebrow="Finance"
+      description={source.description}
       feed={feed}
       sectionName="财经"
       source={source}
       sources={financeSources}
-      titleSuffix=""
     />
   )
 }

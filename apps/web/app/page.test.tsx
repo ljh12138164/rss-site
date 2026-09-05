@@ -72,11 +72,9 @@ describe('HomeView', () => {
       />
     )
 
-    expect(html).toContain('从三十六路信号里')
-    expect(html.indexOf('01 / AI 平台')).toBeLessThan(html.indexOf('02 / 科技'))
-    expect(html).toContain('OA / 2H')
-    expect(html).toContain('GH / 6H')
-    expect(html).toContain('每个来源保持自己的顺序')
+    expect(html).toContain('今天的 AI 与互联网热点')
+    expect(html.indexOf('id="ai"')).toBeLessThan(html.indexOf('id="technology"'))
+    expect(html).toContain('优先收录 AI 平台官方文章')
     for (const source of technologySources) {
       expect(html).toContain(source.name)
       expect(html).toContain(`href="/technology/${source.id}"`)
@@ -108,5 +106,9 @@ describe('HomeView', () => {
     expect(html).toContain('href="/social"')
     expect(html).toContain('href="/finance"')
     expect(html).toContain('href="/games"')
+    expect(html).not.toContain('2H')
+    expect(html).not.toContain('6H')
+    expect(html).not.toContain('更新于')
+    expect(html).not.toContain('<img')
   })
 })

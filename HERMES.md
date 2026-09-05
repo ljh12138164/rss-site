@@ -2,14 +2,23 @@
 
 ## Active objective
 
-为 AI、科技、国内新闻、社交热点、财经和游戏六个专区提供 RSS 2.0 订阅输出。
+在 `feat/section-rss-feeds` 继续未上线开发：保留六个专区 RSS 输出，并完成公开页面的来源导航与口语化文案重构。
 
 ## Current state
 
 - 当前开发分支为 `feat/section-rss-feeds`，从已合并的 `origin/master` 创建。本期只增加 Web 端只读 RSS
-  Route Handler、测试与文档，不修改 Supabase schema、权限、Cron 或前端页面。
+  Route Handler、测试与文档，不修改 Supabase schema、权限或 Cron。
 - 订阅源复用 `hot_items` 与 `source_status` 公共只读查询；每个专区按来源注册表顺序输出，每个来源最多十条，
   不生成跨来源虚假排名或缺失的发布时间。
+- 原 `feat/refine-content-navigation` 的 UI 提交已接入当前分支。用户已确认不显示图片、抓取时间、2H/6H
+  或内部实现文案；实施记录见
+  `docs/development/refine-content-navigation.md`。
+- 站名采用与主分区一致的“AI 热榜”；根据最新参考图，来源选择将统一改为标题下方的水平平台导航，
+  桌面可换行、移动端可横向滚动。
+- 本轮只改 Web 呈现，不修改数据、Cron 或部署配置。UI Skills registry 未暴露指定指南，按
+  `frontend-design`、React Aria 现状与仓库 UI quality 清单回退验收。
+- 共享 `SectionOverview`、`SectionLoading` 和来源导航已接入；六个分区与 36 个来源详情使用完整平台名，
+  文章图片与旧频段组件已删除。站名为“AI 热榜”，加载使用中性灰，交互强调为冷蓝。
 
 - PR #7 已合并到 `origin/master` 的 `1927e8e`。当前分支 `feat/production-launch-roadmap` 从该提交创建，
   只包含生产门禁可靠性修复、权限收敛迁移和上线文档；没有创建前端部署配置。
@@ -33,7 +42,8 @@
 
 ## Next action
 
-在 `feat/section-rss-feeds` 保留并继续后续未上线开发；本批 RSS 提供者功能已经实现和验证，暂不发起合并或上线。
+完成水平来源导航和六个分区的口语化文案，回归 RSS 与页面测试，并继续留在
+`feat/section-rss-feeds` 开发；暂不发起合并或上线。
 
 ## Delivery constraint
 

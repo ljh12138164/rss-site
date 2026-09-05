@@ -5,8 +5,8 @@ import { ThemeProvider } from '../components/theme-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: { default: '热点更新', template: '%s · 热点更新' },
-  description: '定时整理科技社区与中国国内新闻热点。'
+  title: { default: 'AI 热榜', template: '%s · AI 热榜' },
+  description: 'AI 平台动态，以及科技、新闻、社交、财经和游戏热点。'
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {

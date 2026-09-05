@@ -29,9 +29,12 @@ describe('TechnologySourceView', () => {
 
     expect(html).toContain('首页')
     expect(html).toContain('科技')
-    expect(html).toContain('GitHub Trending 热榜')
+    expect(html).toContain('GitHub Trending')
+    expect(html).toContain('全部平台')
     expect(html).toContain('aria-current="page"')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
     expect(html).not.toContain('href="https://example.com/article/')
+    expect(html).not.toContain('每六小时')
+    expect(html).not.toContain('更新于')
   })
 })

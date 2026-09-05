@@ -25,26 +25,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const source = getGameSource(sourceId)
   return {
     title: source.name,
-    description: `${source.description}，约每六小时更新一次。`
+    description: source.description
   }
 }
 
 export function GameSourceView({ source, feed }: { source: GameSource; feed: FeedResult }) {
-  const updateDescription =
-    source.id === 'steam'
-      ? '每六小时采集一次当前商店热销榜；采集时间只表示榜单快照更新时间。'
-      : '约每六小时重新整理一次，保留来源自己的发布与编辑顺序。'
-
   return (
     <SourceDetailView
       basePath="/games"
-      description={`${source.description}。${updateDescription}`}
-      eyebrow="Games"
+      description={source.description}
       feed={feed}
       sectionName="游戏"
       source={source}
       sources={gameSources}
-      titleSuffix=""
     />
   )
 }
