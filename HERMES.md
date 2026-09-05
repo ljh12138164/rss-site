@@ -2,9 +2,14 @@
 
 ## Active objective
 
-完成财经、游戏和持久化 P1 的生产来源门禁，并在不部署前端的前提下准备最终上线 roadmap。
+为 AI、科技、国内新闻、社交热点、财经和游戏六个专区提供 RSS 2.0 订阅输出。
 
 ## Current state
+
+- 当前开发分支为 `feat/section-rss-feeds`，从已合并的 `origin/master` 创建。本期只增加 Web 端只读 RSS
+  Route Handler、测试与文档，不修改 Supabase schema、权限、Cron 或前端页面。
+- 订阅源复用 `hot_items` 与 `source_status` 公共只读查询；每个专区按来源注册表顺序输出，每个来源最多十条，
+  不生成跨来源虚假排名或缺失的发布时间。
 
 - PR #7 已合并到 `origin/master` 的 `1927e8e`。当前分支 `feat/production-launch-roadmap` 从该提交创建，
   只包含生产门禁可靠性修复、权限收敛迁移和上线文档；没有创建前端部署配置。
@@ -28,9 +33,7 @@
 
 ## Next action
 
-完成全仓验证并推送 `feat/production-launch-roadmap`。用户以该分支为 head、`master` 为 base 创建并合并 PR，
-只需部署 API 修复；随后从第一路重新运行 `pnpm setup:cron`，逐来源核验云端批次并一次性切换 36 路 2H/6H
-错峰任务。前端服务器部署配置等待用户明确说“可以部署”后再实现。
+在 `feat/section-rss-feeds` 保留并继续后续未上线开发；本批 RSS 提供者功能已经实现和验证，暂不发起合并或上线。
 
 ## Delivery constraint
 

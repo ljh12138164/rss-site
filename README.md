@@ -50,6 +50,23 @@ pnpm --filter @rss-site/web dev
 <http://localhost:3000/social> 和 <http://localhost:3000/finance>，游戏总览位于
 <http://localhost:3000/games>，来源详情位于对应分区的 `[source]` URL。
 
+### RSS 订阅
+
+本站也提供六个专区级 RSS 2.0 订阅：
+
+| 专区 | 地址 |
+| --- | --- |
+| AI | `/feeds/ai.xml` |
+| 科技 | `/feeds/technology.xml` |
+| 国内新闻 | `/feeds/news.xml` |
+| 社交热点 | `/feeds/social.xml` |
+| 财经 | `/feeds/finance.xml` |
+| 游戏 | `/feeds/games.xml` |
+
+部署后把地址前缀替换为站点域名即可添加到 RSS 阅读器。每个订阅按平台依次收录当前最多十条内容，保留
+各平台自己的原始顺序；条目会直接跳转原文。订阅内容来自 Supabase 中最近一次成功采集的当前快照，不是
+历史归档。上游没有提供发布时间时，RSS 条目也不会补造 `pubDate`。
+
 ### 启动完整开发环境
 
 只有在本地调试 RSSHub 采集或写入 Supabase 时才需要启动 API。首次配置且
