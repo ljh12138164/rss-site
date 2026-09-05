@@ -18,6 +18,7 @@
 - API 45 项与 Web 33 项测试、格式、lint、类型检查和生产构建通过；无界面生产服务器回归覆盖 200、真实
   404 与社交离站返回。UI Skills MCP 未暴露，因此没有声称完成 UI Skills 审查。
 - 本地 pgTAP 因 Docker 未运行而无法连接；尚未部署、应用云端迁移、写入生产 Supabase 或启用新 Cron。
+- 实现提交 `fc6e21a` 已推送到 `origin/feat/social-hot-sources`；按仓库约定没有通过页面创建 PR。
 
 - AI 首批来源已确定为 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 与 Qwen；来源证据和
   在线抓取结果在 `docs/research/ai-platform-official-article-sources.md`。
@@ -52,8 +53,8 @@
 
 ## Next action
 
-完成最终暂存 diff 审查、提交并推送 `feat/social-hot-sources`，请用户以 `master` 为 base 创建并合并 PR。
-部署后严格按云端 Supabase 数据门禁逐来源验证，再启用 Cron。
+请用户以 `master` 为 base 创建并合并 `feat/social-hot-sources`。部署 API 后应用云端迁移，再严格按云端
+Supabase 数据门禁逐来源验证；全部通过后才启用 Cron。
 
 ## Delivery constraint
 
