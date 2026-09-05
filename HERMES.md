@@ -12,7 +12,8 @@
 - 2026-09-05 上线前匿名复探的十二路新 Feed 均为 HTTP 200 与非空 XML；API 52 项、Web 42 项、lint、
   类型检查和生产构建通过。pgTAP 已扩展到 51 项，但不以本地 Docker 代替云端 Supabase 验证。
 - 云端项目 `pnjsrihfpyvkhyidzgfq` 当前只有前三个已发布迁移；财经、游戏与持久化三个迁移尚未应用，Cron
-  也未更改。下一步是完成审查、提交并推送，用户合并部署后再执行生产数据门禁。
+  也未更改。实现提交 `7b60cf4` 已推送到 `origin/feat/additional-hot-categories`，等待用户创建 PR、合并并
+  完成 Vercel 部署后执行生产数据门禁。
 
 - 用户确认按 `docs/roadmaps/additional-hot-categories.md` 逐阶段实现：财经为 Now，游戏为 Next；体育、影视
   文化、科学研究和生活消费为 Later，汽车暂缓。
@@ -75,9 +76,9 @@
 
 ## Next action
 
-完成本地 Standards/Spec/UI 审查，提交并推送 `feat/additional-hot-categories` 供用户创建 PR；合并部署后应用
-三个云端迁移，逐来源调用生产 API、核验 `ingestion_runs`/`source_status`/`hot_items`/`signal_articles`，最后
-幂等更新 36 路错峰 Cron 与保留任务。
+用户以 `feat/additional-hot-categories` 为 head、`master` 为 base 创建并合并 PR，等待 Vercel 的 Web 与 API
+生产部署完成。随后应用三个云端迁移，逐来源调用生产 API、核验
+`ingestion_runs`/`source_status`/`hot_items`/`signal_articles`，最后幂等更新 36 路错峰 Cron 与保留任务。
 
 ## Delivery constraint
 
