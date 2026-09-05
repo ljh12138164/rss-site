@@ -33,4 +33,12 @@ describe('OutboundView', () => {
 
     expect(html).toContain('href="/news"')
   })
+
+  it('returns social readers to the social section', () => {
+    const html = renderToStaticMarkup(
+      <OutboundView destination="https://www.bilibili.com/video/BV123" returnTo="/social" />
+    )
+
+    expect(html).toContain('href="/social"')
+  })
 })

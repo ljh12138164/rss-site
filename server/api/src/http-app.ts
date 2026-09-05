@@ -48,6 +48,9 @@ export function configureApp(app: Hono, deps: AppDependencies) {
   app.post('/cron/ai/:source', (context) =>
     runIngestion(context, context.req.param('source'), 'ai')
   )
+  app.post('/cron/social/:source', (context) =>
+    runIngestion(context, context.req.param('source'), 'social')
+  )
   app.post('/cron/signals/:source', (context) => runIngestion(context, context.req.param('source')))
   app.post('/cron/juejin', (context) => runIngestion(context, 'juejin'))
 

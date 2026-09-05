@@ -14,7 +14,7 @@ export function SourceFrequencyStrip({
 }: {
   active?: SignalSourceId
   ariaLabel?: string
-  basePath?: '/technology' | '/news' | '/ai'
+  basePath?: '/technology' | '/news' | '/ai' | '/social'
   sources?: readonly SignalSource[]
 }) {
   return (

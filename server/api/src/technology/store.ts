@@ -31,6 +31,7 @@ export class DrizzleSignalStore implements SignalStore {
             sourceKey: item.sourceKey,
             title: item.title,
             url: item.url,
+            imageUrl: item.imageUrl,
             summary: item.summary,
             author: item.author,
             publishedAt: item.publishedAt,
@@ -48,6 +49,7 @@ export class DrizzleSignalStore implements SignalStore {
           .set({
             title: item.title,
             url: item.url,
+            imageUrl: item.imageUrl,
             summary: item.summary,
             author: item.author,
             publishedAt: item.publishedAt,

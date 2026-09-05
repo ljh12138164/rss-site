@@ -33,6 +33,7 @@ export const hotItems = pgTable(
     sourceKey: text('source_key').notNull(),
     title: text().notNull(),
     url: text().notNull(),
+    imageUrl: text('image_url'),
     summary: text(),
     author: text(),
     publishedAt: timestamp('published_at', { withTimezone: true }),

@@ -134,7 +134,57 @@ export const aiSources = [
   }
 ] as const
 
-export const signalSources = [...technologySources, ...newsSources, ...aiSources] as const
+export const socialSources = [
+  {
+    id: 'bilibili',
+    name: '哔哩哔哩综合热门',
+    rsshubPath: '/bilibili/popular/all',
+    section: 'social',
+    itemLimit: 30
+  },
+  {
+    id: 'zhihu',
+    name: '知乎热榜',
+    rsshubPath: '/zhihu/hot',
+    section: 'social',
+    itemLimit: 30
+  },
+  {
+    id: 'coolapk',
+    name: '酷安热榜',
+    rsshubPath: '/coolapk/hot',
+    section: 'social',
+    itemLimit: 30
+  },
+  {
+    id: 'hupu',
+    name: '虎扑话题',
+    rsshubPath: '/hupu/all/topic-daily',
+    section: 'social',
+    itemLimit: 30
+  },
+  {
+    id: 'sspai',
+    name: '少数派 Matrix',
+    rsshubPath: '/sspai/matrix',
+    section: 'social',
+    itemLimit: 30
+  },
+  {
+    id: 'toutiao',
+    name: '今日头条热榜',
+    rsshubPath: '/toutiao/channel/news_hot',
+    section: 'social',
+    itemLimit: 30
+  }
+] as const
+
+export const signalSources = [
+  ...technologySources,
+  ...newsSources,
+  ...aiSources,
+  ...socialSources
+] as const
 
 export type TechnologySource = (typeof technologySources)[number]
 export type TechnologySourceId = TechnologySource['id']
@@ -142,6 +192,8 @@ export type NewsSource = (typeof newsSources)[number]
 export type NewsSourceId = NewsSource['id']
 export type AiSource = (typeof aiSources)[number]
 export type AiSourceId = AiSource['id']
+export type SocialSource = (typeof socialSources)[number]
+export type SocialSourceId = SocialSource['id']
 export type SignalSource = (typeof signalSources)[number]
 export type SignalSourceId = SignalSource['id']
 export type SignalSection = SignalSource['section']
@@ -156,6 +208,10 @@ export function isNewsSourceId(value: string): value is NewsSourceId {
 
 export function isAiSourceId(value: string): value is AiSourceId {
   return aiSources.some((source) => source.id === value)
+}
+
+export function isSocialSourceId(value: string): value is SocialSourceId {
+  return socialSources.some((source) => source.id === value)
 }
 
 export function isSignalSourceId(value: string): value is SignalSourceId {
@@ -177,6 +233,12 @@ export function getNewsSource(id: NewsSourceId): NewsSource {
 export function getAiSource(id: AiSourceId): AiSource {
   const source = aiSources.find((candidate) => candidate.id === id)
   if (!source) throw new Error(`Unknown AI source: ${id}`)
+  return source
+}
+
+export function getSocialSource(id: SocialSourceId): SocialSource {
+  const source = socialSources.find((candidate) => candidate.id === id)
+  if (!source) throw new Error(`Unknown social source: ${id}`)
   return source
 }
 

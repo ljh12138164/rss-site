@@ -1,4 +1,4 @@
-import type { SignalSourceId } from '../technology/sources.js'
+import { getSignalSource, type SignalSection, type SignalSourceId } from '../technology/sources.js'
 
 export const SIGNAL_CRON_JOBS: ReadonlyArray<{
   source: SignalSourceId
@@ -50,7 +50,29 @@ export const SIGNAL_CRON_JOBS: ReadonlyArray<{
     name: 'google-ai-feed-every-five-hours',
     schedule: '40 2,7,12,17,22 * * *'
   },
-  { source: 'qwen', name: 'qwen-blog-feed-every-five-hours', schedule: '50 2,7,12,17,22 * * *' }
+  { source: 'qwen', name: 'qwen-blog-feed-every-five-hours', schedule: '50 2,7,12,17,22 * * *' },
+  {
+    source: 'bilibili',
+    name: 'bilibili-popular-feed-every-five-hours',
+    schedule: '0 3,8,13,18,23 * * *'
+  },
+  { source: 'zhihu', name: 'zhihu-hot-feed-every-five-hours', schedule: '10 3,8,13,18,23 * * *' },
+  {
+    source: 'coolapk',
+    name: 'coolapk-hot-feed-every-five-hours',
+    schedule: '20 3,8,13,18,23 * * *'
+  },
+  { source: 'hupu', name: 'hupu-topic-feed-every-five-hours', schedule: '30 3,8,13,18,23 * * *' },
+  {
+    source: 'sspai',
+    name: 'sspai-matrix-feed-every-five-hours',
+    schedule: '40 3,8,13,18,23 * * *'
+  },
+  {
+    source: 'toutiao',
+    name: 'toutiao-hot-feed-every-five-hours',
+    schedule: '50 3,8,13,18,23 * * *'
+  }
 ]
 
 export const RETENTION_JOB_NAME = 'ingestion-runs-retention-daily'
@@ -96,6 +118,12 @@ where run.started_at < now() - interval '30 days'
 export interface CronRepository {
   installExtensions(): Promise<unknown>
   upsertSecret(name: string, value: string): Promise<unknown>
+  verifyIngestion(input: {
+    source: SignalSourceId
+    section: SignalSection
+    batchId: string
+    itemCount: number
+  }): Promise<unknown>
   schedule(name: string, schedule: string, command: string): Promise<unknown>
 }
 
@@ -126,9 +154,15 @@ export function normalizeIngestUrl(value: string): string {
       url.password ||
       url.search ||
       url.hash ||
-      !['', '/cron/juejin', '/cron/technology', '/cron/news', '/cron/ai', '/cron/signals'].includes(
-        path
-      )
+      ![
+        '',
+        '/cron/juejin',
+        '/cron/technology',
+        '/cron/news',
+        '/cron/ai',
+        '/cron/social',
+        '/cron/signals'
+      ].includes(path)
     ) {
       throw new Error()
     }
@@ -187,6 +221,12 @@ export async function setupSignalCron({
     if (result.itemCount < 1) {
       throw new Error(`来源 ${source} 未写入任何热点，未更新 Cron`)
     }
+    await repository.verifyIngestion({
+      source,
+      section: getSignalSource(source).section,
+      batchId: result.batchId,
+      itemCount: result.itemCount
+    })
     verifiedSources.push({ source, ...result })
   }
 

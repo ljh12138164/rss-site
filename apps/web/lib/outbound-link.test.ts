@@ -23,6 +23,7 @@ describe('resolveOutboundReturnPath', () => {
   it('allows only known section paths', () => {
     expect(resolveOutboundReturnPath('/news')).toBe('/news')
     expect(resolveOutboundReturnPath('/ai')).toBe('/ai')
+    expect(resolveOutboundReturnPath('/social')).toBe('/social')
     expect(resolveOutboundReturnPath('/technology')).toBe('/technology')
     expect(resolveOutboundReturnPath('https://evil.example')).toBe('/technology')
   })

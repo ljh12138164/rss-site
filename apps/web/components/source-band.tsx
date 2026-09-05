@@ -2,7 +2,9 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import type { FeedResult } from '../lib/hot-feed'
 import type { SignalSource } from '../lib/technology-sources'
+import { cn } from '../lib/utils'
 import { FeedStatus } from './feed-status'
+import { MediaPreview } from './media-preview'
 
 function BandState({ feed }: { feed: Exclude<FeedResult, { state: 'ready' }> }) {
   if (feed.state === 'error') {
@@ -27,7 +29,7 @@ export function SourceBand({
 }: {
   source: SignalSource
   feed: FeedResult
-  basePath?: '/technology' | '/news' | '/ai'
+  basePath?: '/technology' | '/news' | '/ai' | '/social'
 }) {
   return (
     <section
@@ -68,14 +70,22 @@ export function SourceBand({
                   {String(item.position).padStart(2, '0')}
                 </span>
                 <a
-                  className="group flex min-w-0 items-start gap-1.5 text-sm font-medium leading-6 transition-colors hover:text-primary"
+                  className={cn(
+                    'group min-w-0 text-sm font-medium leading-6 transition-colors hover:text-primary',
+                    item.imageUrl
+                      ? 'grid grid-cols-[5.5rem_minmax(0,1fr)] items-start gap-3'
+                      : 'flex items-start gap-1.5'
+                  )}
                   href={`/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(basePath)}`}
                 >
-                  <span className="line-clamp-2">{item.title}</span>
-                  <ArrowUpRight
-                    aria-hidden="true"
-                    className="mt-1 size-3 shrink-0 text-muted-foreground group-hover:text-primary"
-                  />
+                  {item.imageUrl ? <MediaPreview imageUrl={item.imageUrl} /> : null}
+                  <span className="flex min-w-0 items-start gap-1.5">
+                    <span className="line-clamp-2">{item.title}</span>
+                    <ArrowUpRight
+                      aria-hidden="true"
+                      className="mt-1 size-3 shrink-0 text-muted-foreground group-hover:text-primary"
+                    />
+                  </span>
                 </a>
               </li>
             ))}

@@ -1,6 +1,8 @@
 import { ArrowUpRight } from 'lucide-react'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
+import { cn } from '../lib/utils'
+import { MediaPreview } from './media-preview'
 
 const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
   month: '2-digit',
@@ -29,31 +31,41 @@ export function HotList({
           </span>
           <article className="min-w-0">
             <a
-              className="group inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] text-foreground transition-colors hover:text-primary sm:text-lg"
+              className={cn(
+                'group block max-w-full text-foreground',
+                item.imageUrl && 'sm:grid sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-5'
+              )}
               href={`/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(returnTo)}`}
             >
-              <span>{item.title}</span>
-              <ArrowUpRight
-                aria-hidden="true"
-                className="mt-1 size-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
-              />
-            </a>
-            {item.summary ? (
-              <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
-                {item.summary}
-              </p>
-            ) : null}
-            {item.author || item.publishedAt ? (
-              <p className="mt-3 flex flex-wrap items-center gap-x-2 font-mono text-[0.6875rem] uppercase tracking-[0.08em] text-muted-foreground">
-                {item.author ? <span>{item.author}</span> : null}
-                {item.author && item.publishedAt ? <span aria-hidden="true">·</span> : null}
-                {item.publishedAt ? (
-                  <time dateTime={item.publishedAt.toISOString()}>
-                    {dateFormatter.format(item.publishedAt)}
-                  </time>
+              {item.imageUrl ? (
+                <MediaPreview className="mb-4 sm:mb-0" imageUrl={item.imageUrl} />
+              ) : null}
+              <span className="block min-w-0">
+                <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-lg">
+                  <span>{item.title}</span>
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="mt-1 size-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
+                  />
+                </span>
+                {item.summary ? (
+                  <span className="mt-2 line-clamp-3 text-sm font-normal leading-6 text-muted-foreground">
+                    {item.summary}
+                  </span>
                 ) : null}
-              </p>
-            ) : null}
+                {item.author || item.publishedAt ? (
+                  <span className="mt-3 flex flex-wrap items-center gap-x-2 font-mono text-[0.6875rem] font-normal uppercase tracking-[0.08em] text-muted-foreground">
+                    {item.author ? <span>{item.author}</span> : null}
+                    {item.author && item.publishedAt ? <span aria-hidden="true">·</span> : null}
+                    {item.publishedAt ? (
+                      <time dateTime={item.publishedAt.toISOString()}>
+                        {dateFormatter.format(item.publishedAt)}
+                      </time>
+                    ) : null}
+                  </span>
+                ) : null}
+              </span>
+            </a>
           </article>
         </li>
       ))}

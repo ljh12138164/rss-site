@@ -1,5 +1,5 @@
 begin;
-select plan(24);
+select plan(28);
 
 select has_table('public', 'hot_items', 'hot_items exists');
 select has_table('public', 'source_status', 'source_status exists');
@@ -101,6 +101,44 @@ select lives_ok(
     ('ai', 'openai', 'openai-story', 'openai story', 'https://openai.com/index/story', 1,
      '00000000-0000-0000-0000-000000000003')$$,
   'AI items accept the matching source and section'
+);
+select lives_ok(
+  $$insert into public.ingestion_runs
+    (id, source, status, item_count, started_at, finished_at)
+    values
+    ('00000000-0000-0000-0000-000000000004', 'bilibili', 'succeeded', 1, now(), now())$$,
+  'a confirmed social source can create an ingestion run'
+);
+select lives_ok(
+  $$insert into public.hot_items
+    (section, source, source_key, title, url, image_url, position, batch_id)
+    values
+    ('social', 'bilibili', 'bilibili-video', 'bilibili video',
+     'https://www.bilibili.com/video/BV123', 'https://i2.hdslb.com/bfs/archive/cover.jpg', 1,
+     '00000000-0000-0000-0000-000000000004')$$,
+  'social items accept a web preview image'
+);
+select throws_ok(
+  $$insert into public.hot_items
+    (section, source, source_key, title, url, position, batch_id)
+    values
+    ('news', 'bilibili', 'wrong-social-section', 'wrong social section',
+     'https://www.bilibili.com/video/BV456', 2,
+     '00000000-0000-0000-0000-000000000004')$$,
+  '23514',
+  null,
+  'social sources cannot be stored in the news section'
+);
+select throws_ok(
+  $$insert into public.hot_items
+    (section, source, source_key, title, url, image_url, position, batch_id)
+    values
+    ('social', 'bilibili', 'unsafe-image', 'unsafe image',
+     'https://www.bilibili.com/video/BV789', 'javascript:alert(1)', 3,
+     '00000000-0000-0000-0000-000000000004')$$,
+  '23514',
+  null,
+  'non-web preview image URLs are rejected'
 );
 select throws_ok(
   $$insert into public.hot_items
