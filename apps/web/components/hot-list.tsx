@@ -1,8 +1,6 @@
 import { ArrowUpRight } from 'lucide-react'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
-import { cn } from '../lib/utils'
-import { MediaPreview } from './media-preview'
 
 const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
   month: '2-digit',
@@ -31,15 +29,9 @@ export function HotList({
           </span>
           <article className="min-w-0">
             <a
-              className={cn(
-                'group block max-w-full text-foreground',
-                item.imageUrl && 'sm:grid sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-5'
-              )}
+              className="group block max-w-full text-foreground"
               href={`/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(returnTo)}`}
             >
-              {item.imageUrl ? (
-                <MediaPreview className="mb-4 sm:mb-0" imageUrl={item.imageUrl} />
-              ) : null}
               <span className="block min-w-0">
                 <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-lg">
                   <span>{item.title}</span>

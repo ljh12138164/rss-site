@@ -30,11 +30,15 @@ describe('AiView', () => {
 
     const html = renderToStaticMarkup(<AiView feeds={feeds} />)
 
-    expect(html).toContain('AI 平台信号台')
-    expect(html).toContain('这一路信号暂时不可读')
-    expect(html).toContain('正在等待第一轮采集')
+    expect(html).toContain('aria-label="AI平台"')
+    expect(html).toContain('全部平台')
+    expect(html).toContain('暂时无法加载，请稍后再试。')
+    expect(html).toContain('暂无内容。')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)
     expect(html).toContain('from=%2Fai')
     for (const source of aiSources) expect(html).toContain(source.name)
+    expect(html).not.toContain('2H')
+    expect(html).not.toContain('更新于')
+    expect(html).not.toContain('信号台')
   })
 })

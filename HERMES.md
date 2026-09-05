@@ -2,9 +2,20 @@
 
 ## Active objective
 
-完成财经、游戏和持久化 P1 的生产来源门禁，并在不部署前端的前提下准备最终上线 roadmap。
+重构公开页面的内容导航与文案：删除内部抓取信息和图片，使用平台侧栏，并改善暗色加载与站点命名。
 
 ## Current state
+
+- 当前分支 `feat/refine-content-navigation` 基于已合并 PR #8 的 `origin/master`。用户已确认不显示图片、抓取
+  时间、2H/6H 或内部实现文案，分区页改为侧栏选择平台；实施记录见
+  `docs/development/refine-content-navigation.md`。
+- 站名采用与主分区一致的“AI 热榜”；桌面使用左侧平台目录和右侧内容，移动端改为横向来源链接。
+- 本轮只改 Web 呈现，不修改数据、Cron 或部署配置。UI Skills registry 未暴露指定指南，按
+  `frontend-design`、React Aria 现状与仓库 UI quality 清单回退验收。
+- 共享 `SourceSidebar`、`SectionOverview` 和 `SectionLoading` 已实现；六个分区与 36 个来源详情使用完整平台
+  名，文章图片组件与横向频段组件已删除。站名为“AI 热榜”，加载使用中性灰，交互强调改为冷蓝。
+- Web 41 项测试、类型检查、lint 与全仓生产构建通过；九个代表路由在构建后的本地 Next 服务上返回 200。
+  未操作可见浏览器窗口，不声称完成交互式截图审查。
 
 - PR #7 已合并到 `origin/master` 的 `1927e8e`。当前分支 `feat/production-launch-roadmap` 从该提交创建，
   只包含生产门禁可靠性修复、权限收敛迁移和上线文档；没有创建前端部署配置。
@@ -28,9 +39,8 @@
 
 ## Next action
 
-完成全仓验证并推送 `feat/production-launch-roadmap`。用户以该分支为 head、`master` 为 base 创建并合并 PR，
-只需部署 API 修复；随后从第一路重新运行 `pnpm setup:cron`，逐来源核验云端批次并一次性切换 36 路 2H/6H
-错峰任务。前端服务器部署配置等待用户明确说“可以部署”后再实现。
+完成全仓格式、lint、类型和测试复核，提交并推送 `feat/refine-content-navigation`；按仓库约定由用户创建并
+合并 PR，仍不部署前端。
 
 ## Delivery constraint
 

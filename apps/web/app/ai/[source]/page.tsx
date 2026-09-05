@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const source = getAiSource(sourceId)
   return {
     title: source.name,
-    description: `${source.description}，约每两小时更新一次。`
+    description: source.description
   }
 }
 
@@ -33,13 +33,11 @@ export function AiSourceView({ source, feed }: { source: AiSource; feed: FeedRes
   return (
     <SourceDetailView
       basePath="/ai"
-      description={`${source.description}。约每两小时重新整理一次，保留官方 Feed 的发布时间顺序。`}
-      eyebrow="AI platform"
+      description={source.description}
       feed={feed}
       sectionName="AI 平台"
       source={source}
       sources={aiSources}
-      titleSuffix=""
     />
   )
 }

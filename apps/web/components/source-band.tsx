@@ -1,50 +1,40 @@
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import type { FeedResult } from '../lib/hot-feed'
+import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource } from '../lib/technology-sources'
-import { cn } from '../lib/utils'
 import { FeedStatus } from './feed-status'
-import { MediaPreview } from './media-preview'
 
 function BandState({ feed }: { feed: Exclude<FeedResult, { state: 'ready' }> }) {
   if (feed.state === 'error') {
     return (
       <div className="border-y border-border py-8 text-sm text-muted-foreground" role="alert">
-        这一路信号暂时不可读，其他来源不受影响。
+        暂时无法加载，请稍后再试。
       </div>
     )
   }
 
-  return (
-    <div className="border-y border-border py-8 text-sm text-muted-foreground">
-      正在等待第一轮采集。
-    </div>
-  )
+  return <div className="border-y border-border py-8 text-sm text-muted-foreground">暂无内容。</div>
 }
 
 export function SourceBand({
   source,
   feed,
-  basePath = '/technology',
-  refreshHours = 6
+  basePath = '/technology'
 }: {
   source: SignalSource
   feed: FeedResult
-  basePath?: '/technology' | '/news' | '/ai' | '/social' | '/finance' | '/games'
-  refreshHours?: 2 | 6
+  basePath?: OutboundReturnPath
 }) {
   return (
     <section
       aria-labelledby={`${source.id}-title`}
-      className="min-w-0 border-t-2 border-foreground pt-5"
+      className="min-w-0 scroll-mt-24 border-t border-border pt-6"
     >
-      <div className="flex min-h-24 items-start justify-between gap-4">
+      <div className="flex items-start justify-between gap-4 pb-5">
         <div className="min-w-0">
-          <p className="font-mono text-xs font-semibold tracking-[0.14em] text-primary">
-            {source.code} / {refreshHours}H
-          </p>
           <h2
-            className="mt-2 truncate text-xl font-semibold tracking-[-0.025em]"
+            className="truncate text-xl font-semibold tracking-[-0.025em]"
             id={`${source.id}-title`}
           >
             {source.name}
@@ -52,17 +42,17 @@ export function SourceBand({
           <p className="mt-2 text-xs leading-5 text-muted-foreground">{source.description}</p>
         </div>
         <Link
-          aria-label={`查看${source.name}完整榜单`}
-          className="flex size-11 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:text-primary"
+          className="flex min-h-11 shrink-0 items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-primary"
           href={`${basePath}/${source.id}`}
         >
+          查看全部
           <ArrowRight aria-hidden="true" className="size-4" />
         </Link>
       </div>
 
       {feed.state === 'ready' ? (
         <>
-          <div className="mb-4">
+          <div className="mb-3">
             <FeedStatus {...feed.status} />
           </div>
           <ol className="divide-y divide-border border-y border-border">
@@ -72,15 +62,9 @@ export function SourceBand({
                   {String(item.position).padStart(2, '0')}
                 </span>
                 <a
-                  className={cn(
-                    'group min-w-0 text-sm font-medium leading-6 transition-colors hover:text-primary',
-                    item.imageUrl
-                      ? 'grid grid-cols-[5.5rem_minmax(0,1fr)] items-start gap-3'
-                      : 'flex items-start gap-1.5'
-                  )}
+                  className="group flex min-w-0 items-start gap-1.5 text-sm font-medium leading-6 transition-colors hover:text-primary"
                   href={`/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(basePath)}`}
                 >
-                  {item.imageUrl ? <MediaPreview imageUrl={item.imageUrl} /> : null}
                   <span className="flex min-w-0 items-start gap-1.5">
                     <span className="line-clamp-2">{item.title}</span>
                     <ArrowUpRight
