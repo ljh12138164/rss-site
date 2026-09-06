@@ -24,7 +24,7 @@ const query: FeedCollectionQuery = async () => ({
       url: 'https://github.com/example/two',
       summary: null,
       author: null,
-      published_at: null,
+      published_at: '2026-09-05T01:00:00.000Z',
       position: 2
     },
     {
@@ -64,14 +64,14 @@ describe('technology feeds', () => {
       items: [
         {
           articleId: null,
-          sourceKey: 'github-1',
-          title: 'GitHub 1',
-          url: 'https://github.com/example/one',
+          sourceKey: 'github-2',
+          title: 'GitHub 2',
+          url: 'https://github.com/example/two',
           imageUrl: null,
           summary: null,
-          author: 'example',
-          publishedAt: new Date('2026-09-04T01:00:00.000Z'),
-          position: 1
+          author: null,
+          publishedAt: new Date('2026-09-05T01:00:00.000Z'),
+          position: 2
         }
       ],
       status: {
@@ -88,7 +88,7 @@ describe('technology feeds', () => {
 
     expect(feed.state).toBe('ready')
     if (feed.state === 'ready') {
-      expect(feed.items.map((item) => item.position)).toEqual([1, 2])
+      expect(feed.items.map((item) => item.position)).toEqual([2, 1])
     }
   })
 

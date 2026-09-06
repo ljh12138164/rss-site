@@ -139,6 +139,41 @@ describe('HomeView', () => {
     expect(html).toContain('github 热点')
   })
 
+  it('orders each homepage section by publication time', () => {
+    const older = readyFeed('openai')
+    const newer = readyFeed('anthropic')
+    if (older.state !== 'ready' || newer.state !== 'ready') throw new Error('Expected fixtures')
+    older.items[0] = {
+      ...older.items[0],
+      title: '较早文章',
+      publishedAt: new Date('2026-09-05T01:00:00.000Z')
+    }
+    newer.items[0] = {
+      ...newer.items[0],
+      title: '较新文章',
+      publishedAt: new Date('2026-09-06T01:00:00.000Z')
+    }
+    const orderedAi = Object.fromEntries(
+      aiSources.map((source) => [
+        source.id,
+        source.id === 'openai' ? older : source.id === 'anthropic' ? newer : { state: 'empty' }
+      ])
+    ) as AiFeeds
+
+    const html = renderToStaticMarkup(
+      <HomeView
+        aiFeeds={orderedAi}
+        financeFeeds={financeFeeds}
+        gameFeeds={gameFeeds}
+        newsFeeds={newsFeeds}
+        socialFeeds={socialFeeds}
+        technologyFeeds={technologyFeeds}
+      />
+    )
+
+    expect(html.indexOf('较新文章')).toBeLessThan(html.indexOf('较早文章'))
+  })
+
   it('keeps available content during partial failure and links news to its article', () => {
     const feed = readyFeed('xinhua')
     if (feed.state !== 'ready') throw new Error('Expected ready fixture')

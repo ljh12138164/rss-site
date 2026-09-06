@@ -14,6 +14,7 @@ import { SourceIcon } from '../components/source-icon'
 import { createNewsArticlePath } from '../lib/article-route'
 import {
   type AiFeeds,
+  compareHotItemsByPublishedAt,
   type FeedResult,
   type FinanceFeeds,
   type GameFeeds,
@@ -150,6 +151,7 @@ function HomeSection({
     const feed = feeds[source.id]
     return feed?.state === 'ready' ? feed.items.map((item) => ({ item, source })) : []
   })
+  entries.sort((left, right) => compareHotItemsByPublishedAt(left.item, right.item))
   const hasError = sources.some((source) => feeds[source.id]?.state === 'error')
   const basePath = `/${id}` as OutboundReturnPath
 

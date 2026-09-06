@@ -24,6 +24,7 @@ describe('HotList', () => {
     expect(html).toContain('构建可靠的前端应用')
     expect(html).toContain('从边界状态和数据流开始设计。')
     expect(html).toContain('示例作者')
+    expect(html.replace(/<[^>]*>/g, '')).toContain('2026/09/04')
     expect(html).toContain(
       'href="/out?url=https%3A%2F%2Fjuejin.cn%2Fpost%2F1&amp;from=%2Ftechnology"'
     )

@@ -48,19 +48,25 @@ describe('section RSS feeds', () => {
     expect(parseRssFeedName('github.xml')).toBeNull()
   })
 
-  it('uses source registry order and the newest healthy source status', () => {
+  it('orders dated entries newest-first, leaves undated entries last, and uses the newest status', () => {
     const data = buildRssSectionData(config, {
-      'hacker-news': ready([item({ title: 'HN' })], '2026-09-05T01:00:00.000Z'),
+      'hacker-news': ready(
+        [item({ title: 'HN', publishedAt: new Date('2026-09-05T03:00:00.000Z') })],
+        '2026-09-05T01:00:00.000Z'
+      ),
       github: ready(
-        [item({ title: 'GitHub 1' }), item({ sourceKey: 'item-2', title: 'GitHub 2' })],
+        [
+          item({ title: 'GitHub 1', publishedAt: new Date('2026-09-05T01:00:00.000Z') }),
+          item({ sourceKey: 'item-2', title: 'GitHub 2', position: 2 })
+        ],
         '2026-09-05T02:00:00.000Z'
       )
     })
 
     expect(data.entries.map(({ source, item: entry }) => `${source.id}:${entry.title}`)).toEqual([
+      'hacker-news:HN',
       'github:GitHub 1',
-      'github:GitHub 2',
-      'hacker-news:HN'
+      'github:GitHub 2'
     ])
     expect(data.lastBuildDate).toEqual(new Date('2026-09-05T02:00:00.000Z'))
     expect(data.unavailable).toBe(false)

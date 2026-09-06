@@ -54,6 +54,21 @@ export interface HotItem {
   position: number
 }
 
+export function compareHotItemsByPublishedAt(
+  left: Pick<HotItem, 'publishedAt'>,
+  right: Pick<HotItem, 'publishedAt'>
+): number {
+  const leftTime = left.publishedAt?.getTime()
+  const rightTime = right.publishedAt?.getTime()
+  const hasLeftTime = leftTime !== undefined && Number.isFinite(leftTime)
+  const hasRightTime = rightTime !== undefined && Number.isFinite(rightTime)
+
+  if (hasLeftTime && hasRightTime) return rightTime - leftTime
+  if (hasLeftTime) return -1
+  if (hasRightTime) return 1
+  return 0
+}
+
 export type FeedResult =
   | {
       state: 'ready'
@@ -147,19 +162,9 @@ function buildFeed(
 ): FeedResult {
   if (result.error) return { state: 'error' }
 
-  const rows = (result.items ?? [])
+  const items = (result.items ?? [])
     .filter((row) => row.source === source)
-    .sort((left, right) => left.position - right.position)
-    .slice(0, limit)
-
-  if (rows.length === 0) return { state: 'empty' }
-
-  const status = (result.statuses ?? []).find((candidate) => candidate.source === source)
-  if (!status) return { state: 'error' }
-
-  return {
-    state: 'ready',
-    items: rows.map((row) => ({
+    .map((row) => ({
       articleId: row.article_id ?? null,
       sourceKey: row.source_key,
       title: row.title,
@@ -169,7 +174,20 @@ function buildFeed(
       author: row.author,
       publishedAt: row.published_at ? new Date(row.published_at) : null,
       position: row.position
-    })),
+    }))
+    .sort(
+      (left, right) => compareHotItemsByPublishedAt(left, right) || left.position - right.position
+    )
+    .slice(0, limit)
+
+  if (items.length === 0) return { state: 'empty' }
+
+  const status = (result.statuses ?? []).find((candidate) => candidate.source === source)
+  if (!status) return { state: 'error' }
+
+  return {
+    state: 'ready',
+    items,
     status: {
       itemCount: status.item_count,
       lastSuccessAt: new Date(status.last_success_at)

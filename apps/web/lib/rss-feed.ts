@@ -1,4 +1,5 @@
 import {
+  compareHotItemsByPublishedAt,
   type FeedResult,
   getAiFeeds,
   getFinanceFeeds,
@@ -128,6 +129,7 @@ export function buildRssSectionData<
     (latest, date) => Math.max(latest, date.getTime()),
     0
   )
+  entries.sort((left, right) => compareHotItemsByPublishedAt(left.item, right.item))
 
   return {
     config,
