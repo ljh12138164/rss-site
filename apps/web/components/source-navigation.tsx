@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource, SignalSourceId } from '../lib/technology-sources'
 import { cn } from '../lib/utils'
+import { SourceIcon } from './source-icon'
 
 export function SourceNavigation({
   active,
@@ -15,7 +16,7 @@ export function SourceNavigation({
   sources: readonly SignalSource[]
 }) {
   const linkClassName =
-    'flex min-h-11 items-center whitespace-nowrap border-b-2 border-transparent px-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground'
+    'flex min-h-11 items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-0.5 text-sm text-muted-foreground transition-colors hover:text-foreground'
 
   return (
     <nav aria-label={ariaLabel} className="min-w-0 border-b border-border">
@@ -41,6 +42,7 @@ export function SourceNavigation({
                 )}
                 href={`${basePath}/${source.id}`}
               >
+                <SourceIcon source={source} />
                 {source.shortName}
               </Link>
             </li>

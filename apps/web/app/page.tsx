@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { SiteShell } from '../components/site-shell'
+import { SourceIcon } from '../components/source-icon'
 import { createNewsArticlePath } from '../lib/article-route'
 import {
   type AiFeeds,
@@ -192,12 +193,7 @@ function HomeSection({
                     className="inline-flex min-h-11 items-center gap-2 font-medium hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:min-h-8"
                     aria-label={`浏览${source.name}`}
                   >
-                    <span
-                      aria-hidden="true"
-                      className="flex size-5 items-center justify-center rounded bg-accent font-mono text-[10px] font-semibold text-accent-foreground"
-                    >
-                      {source.shortName.slice(0, 1).toUpperCase()}
-                    </span>
+                    <SourceIcon className="size-5" source={source} />
                     {source.shortName}
                   </Link>
                   {item.publishedAt && (

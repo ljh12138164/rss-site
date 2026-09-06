@@ -114,7 +114,7 @@ describe('HomeView', () => {
     expect(visibleText).not.toContain('2H')
     expect(visibleText).not.toContain('6H')
     expect(html).not.toContain('更新于')
-    expect(html).not.toContain('<img')
+    expect(html.match(/src="\/source-icons\//g)).toHaveLength(36)
   })
 
   it('shows one honest state per empty or failed section', () => {

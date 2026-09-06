@@ -15,6 +15,8 @@ describe('SourceNavigation', () => {
     expect(html).toContain('>Gemini<')
     expect(html).toContain('href="/ai/google-ai"')
     expect(html).toContain('aria-current="page"')
+    expect(html).toContain('src="/source-icons/openai.svg"')
+    expect(html).toContain('src="/source-icons/glm.svg"')
     expect(html).not.toContain('Google AI / Gemini')
     expect(html).not.toContain('2H')
   })

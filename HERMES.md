@@ -1,5 +1,10 @@
 # HERMES
 
+## 2026-09-06 来源平台图标
+
+- 在 `feat/section-rss-feeds` 为 36 个来源增加本地图标，首页文章来源与六类来源导航复用 `SourceIcon`；不增加运行依赖或第三方页面请求。
+- 桌面和 390px 手机分类页已验证图标正常加载且无页面溢出；开发记录见 `docs/development/source-platform-icons.md`。
+
 ## 2026-09-06 首页视觉细化
 
 - 原分支 `feat/section-rss-feeds` 继续优化：首页改为响应式分区目录与独立阅读面板，增强标题栏、来源首字标识及元数据层次。

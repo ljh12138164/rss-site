@@ -37,7 +37,7 @@ describe('SocialView', () => {
     expect(html).toContain('暂无内容。')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)
     expect(html).toContain('from=%2Fsocial')
-    expect(html).not.toContain('<img')
+    expect(html.match(/src="\/source-icons\//g)).toHaveLength(6)
     for (const source of socialSources) expect(html).toContain(source.name)
     expect(html).not.toContain('6H')
     expect(html).not.toContain('更新于')
