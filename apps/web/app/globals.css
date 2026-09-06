@@ -23,6 +23,8 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-skeleton: var(--skeleton);
+  --color-search-highlight: var(--search-highlight);
+  --color-search-highlight-foreground: var(--search-highlight-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -55,6 +57,8 @@
   --ring: #2563eb;
   --skeleton: #d7e0eb;
   --skeleton-highlight: rgb(255 255 255 / 68%);
+  --search-highlight: #1d4ed8;
+  --search-highlight-foreground: #ffffff;
 }
 
 .dark {
@@ -78,6 +82,8 @@
   --ring: #7aa2ff;
   --skeleton: #2d3b50;
   --skeleton-highlight: rgb(148 163 184 / 20%);
+  --search-highlight: #1e40af;
+  --search-highlight-foreground: #ffffff;
 }
 
 @keyframes skeleton-shimmer {

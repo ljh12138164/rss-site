@@ -27,9 +27,9 @@ function readyFeed(source: string): FeedResult {
         sourceKey: `${source}-1`,
         title: `${source} 热点`,
         url: `https://example.com/${source}/1`,
-        summary: null,
+        summary: `${source} 的文章摘要，帮助判断是否值得阅读。`,
         author: null,
-        publishedAt: null,
+        publishedAt: new Date('2026-09-06T01:00:00.000Z'),
         position: 1
       }
     ],
@@ -60,7 +60,7 @@ const gameFeeds = Object.fromEntries(
 ) as GameFeeds
 
 describe('HomeView', () => {
-  it('shows AI first and one independent signal from all thirty-six sources', () => {
+  it('shows six article lists with real summaries, dates and source links', () => {
     const html = renderToStaticMarkup(
       <HomeView
         aiFeeds={aiFeeds}
@@ -72,9 +72,13 @@ describe('HomeView', () => {
       />
     )
 
-    expect(html).toContain('看看今天 AI 圈发生了什么')
+    expect(html).toContain('今日热点')
     expect(html.indexOf('id="ai"')).toBeLessThan(html.indexOf('id="technology"'))
-    expect(html).toContain('这里以 AI 官方动态为主')
+    expect(html).toContain('从 AI 动态到每日热点')
+    expect(html).toContain('openai 的文章摘要')
+    expect(html).toContain('dateTime="2026-09-06T01:00:00.000Z"')
+    expect(html).not.toContain('官方文章与研究')
+    expect(html).not.toContain('20 条内容')
     for (const source of technologySources) {
       expect(html).toContain(source.name)
       expect(html).toContain(`href="/technology/${source.id}"`)
@@ -110,5 +114,51 @@ describe('HomeView', () => {
     expect(html).not.toContain('6H')
     expect(html).not.toContain('更新于')
     expect(html).not.toContain('<img')
+  })
+
+  it('shows one honest state per empty or failed section', () => {
+    const emptyAi = Object.fromEntries(
+      aiSources.map((source) => [source.id, { state: 'empty' }])
+    ) as AiFeeds
+    const failedNews = Object.fromEntries(
+      newsSources.map((source) => [source.id, { state: 'error' }])
+    ) as NewsFeeds
+    const html = renderToStaticMarkup(
+      <HomeView
+        aiFeeds={emptyAi}
+        newsFeeds={failedNews}
+        technologyFeeds={technologyFeeds}
+        socialFeeds={socialFeeds}
+        financeFeeds={financeFeeds}
+        gameFeeds={gameFeeds}
+      />
+    )
+    expect(html.match(/暂无内容。/g)).toHaveLength(1)
+    expect(html.match(/暂时无法加载，请稍后再试。/g)).toHaveLength(1)
+    expect(html).toContain('github 热点')
+  })
+
+  it('keeps available content during partial failure and links news to its article', () => {
+    const feed = readyFeed('xinhua')
+    if (feed.state !== 'ready') throw new Error('Expected ready fixture')
+    feed.items[0] = {
+      ...feed.items[0],
+      articleId: '11111111-1111-4111-8111-111111111111',
+      summary: null,
+      publishedAt: null
+    }
+    const html = renderToStaticMarkup(
+      <HomeView
+        aiFeeds={aiFeeds}
+        newsFeeds={{ ...newsFeeds, xinhua: feed, cctv: { state: 'error' } }}
+        technologyFeeds={technologyFeeds}
+        socialFeeds={socialFeeds}
+        financeFeeds={financeFeeds}
+        gameFeeds={gameFeeds}
+      />
+    )
+    expect(html).toContain('href="/news/xinhua/xinhua-热点--11111111-1111-4111-8111-111111111111"')
+    expect(html).toContain('部分来源暂时无法加载')
+    expect(html).not.toContain('Invalid Date')
   })
 })

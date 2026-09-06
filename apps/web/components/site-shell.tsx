@@ -1,9 +1,16 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { cn } from '../lib/utils'
 import { ArticleSearch } from './article-search'
 import { ThemeToggle } from './theme-toggle'
 
-export function SiteShell({ children }: { children: ReactNode }) {
+export function SiteShell({
+  children,
+  mainClassName
+}: {
+  children: ReactNode
+  mainClassName?: string
+}) {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-5 sm:px-7">
       <header className="sticky top-0 z-20 flex min-h-[4.25rem] flex-wrap items-center justify-between border-b border-border bg-background/95 py-2 backdrop-blur-sm sm:h-[4.25rem] sm:flex-nowrap sm:py-0">
@@ -58,7 +65,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <ThemeToggle />
         </div>
       </header>
-      <main className="flex-1 py-12 sm:py-16">{children}</main>
+      <main className={cn('flex-1 py-12 sm:py-16', mainClassName)}>{children}</main>
       <div aria-hidden="true" className="border-t border-border" />
       <footer className="flex min-h-20 items-center py-5 text-xs text-muted-foreground">
         <p>内容来自公开网页，点击标题查看原文。</p>

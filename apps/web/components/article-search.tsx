@@ -41,7 +41,10 @@ export function Highlight({ text, query }: { text: string; query: string }) {
     const key = offset
     offset += part.length
     return index % 2 ? (
-      <mark className="bg-primary/15 font-semibold text-foreground" key={key}>
+      <mark
+        className="rounded-sm bg-search-highlight px-0.5 font-semibold text-search-highlight-foreground"
+        key={key}
+      >
         {part}
       </mark>
     ) : (
