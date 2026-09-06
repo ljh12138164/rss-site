@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-09-06 新闻详情补充
+
+- 在 `feat/section-rss-feeds` 实现 `/news/[source]/[slug]` 与新闻总览摘要；slug 以标题和持久化 UUID 组成。
+- 云端已应用 `20260906022000_allow_public_signal_article_reads`，公开角色仅能 SELECT 文章；两种公开角色均已验证新闻可读且无修改权限。
+- 开发与验证记录：`docs/development/news-article-details.md`。前端尚未部署，继续留在当前分支开发。
+- canonical 需要最终 `SITE_URL`；ISR、sitemap、清理后的硬 404/410 继续按既有 SEO roadmap 推进。
+
 ## Active objective
 
 在 `feat/section-rss-feeds` 继续未上线开发：保留六个专区 RSS 输出，并完成公开页面的来源导航与口语化文案重构。

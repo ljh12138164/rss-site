@@ -16,6 +16,7 @@ import {
 } from './technology-sources'
 
 export interface HotItemRow {
+  article_id?: string | null
   source: string
   source_key: string
   title: string
@@ -42,6 +43,7 @@ export interface FeedCollectionQueryResult {
 export type FeedCollectionQuery = () => Promise<FeedCollectionQueryResult>
 
 export interface HotItem {
+  articleId?: string | null
   sourceKey: string
   title: string
   url: string
@@ -80,7 +82,9 @@ async function querySectionFeeds(
     const [itemsResult, statusesResult] = await Promise.all([
       supabase
         .from('hot_items')
-        .select('source,source_key,title,url,image_url,summary,author,published_at,position')
+        .select(
+          'article_id,source,source_key,title,url,image_url,summary,author,published_at,position'
+        )
         .eq('section', section)
         .in('source', sourceIds)
         .order('position', { ascending: true }),
@@ -156,6 +160,7 @@ function buildFeed(
   return {
     state: 'ready',
     items: rows.map((row) => ({
+      articleId: row.article_id ?? null,
       sourceKey: row.source_key,
       title: row.title,
       url: row.url,

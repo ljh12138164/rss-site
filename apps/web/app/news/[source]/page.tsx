@@ -35,6 +35,7 @@ export function NewsSourceView({ source, feed }: { source: NewsSource; feed: Fee
       basePath="/news"
       description={source.description}
       feed={feed}
+      internalArticles
       sectionName="新闻"
       source={source}
       sources={newsSources}

@@ -8,10 +8,11 @@ function readyFeed(source: string): FeedResult {
   return {
     state: 'ready',
     items: [1, 2, 3].map((position) => ({
+      articleId: `00000000-0000-0000-0000-${String(position).padStart(12, '0')}`,
       sourceKey: `${source}-${position}`,
       title: `${source} 新闻 ${position}`,
       url: `https://example.com/${source}/${position}`,
-      summary: null,
+      summary: `${source} 新闻 ${position} 的简要介绍。`,
       author: null,
       publishedAt: null,
       position
@@ -34,8 +35,9 @@ describe('NewsView', () => {
     expect(html).toContain('>央视<')
     expect(html).toContain('暂时无法加载，请稍后再试。')
     expect(html).toContain('暂无内容。')
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)
-    expect(html).toContain('from=%2Fnews')
+    expect(html.match(/href="\/news\//g)).toHaveLength(24)
+    expect(html).toContain('xinhua 新闻 1 的简要介绍。')
+    expect(html).not.toContain('href="/out?url=')
     for (const source of newsSources) expect(html).toContain(source.name)
     expect(html).not.toContain('6H')
     expect(html).not.toContain('更新于')

@@ -12,7 +12,8 @@ export function SourceDetailView({
   sources,
   basePath,
   sectionName,
-  description
+  description,
+  internalArticles = false
 }: {
   source: SignalSource
   feed: FeedResult
@@ -20,6 +21,7 @@ export function SourceDetailView({
   basePath: '/technology' | '/news' | '/ai' | '/social' | '/finance' | '/games'
   sectionName: string
   description: string
+  internalArticles?: boolean
 }) {
   return (
     <SiteShell>
@@ -62,7 +64,12 @@ export function SourceDetailView({
         />
 
         <div className="mt-10">
-          <FeedResultView feed={feed} returnTo={basePath} />
+          <FeedResultView
+            feed={feed}
+            internalArticles={internalArticles}
+            returnTo={basePath}
+            source={source.id}
+          />
         </div>
       </div>
     </SiteShell>

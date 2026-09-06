@@ -9,10 +9,11 @@ describe('NewsSourceView', () => {
     const feed: FeedResult = {
       state: 'ready',
       items: Array.from({ length: 7 }, (_, index) => ({
+        articleId: `00000000-0000-0000-0000-${String(index + 1).padStart(12, '0')}`,
         sourceKey: `item-${index + 1}`,
         title: `新闻 ${index + 1}`,
         url: `https://example.com/article/${index + 1}`,
-        summary: null,
+        summary: `新闻 ${index + 1} 的简要介绍。`,
         author: null,
         publishedAt: null,
         position: index + 1
@@ -32,8 +33,9 @@ describe('NewsSourceView', () => {
     expect(html).toContain('新华社')
     expect(html).toContain('aria-current="page"')
     expect(html).toContain('内容来源')
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
-    expect(html).toContain('from=%2Fnews')
+    expect(html.match(/href="\/news\/xinhua\/新闻/g)).toHaveLength(7)
+    expect(html).toContain('新闻 1 的简要介绍。')
+    expect(html).not.toContain('href="/out?url=')
     expect(html).not.toContain('每六小时')
     expect(html).not.toContain('更新于')
   })

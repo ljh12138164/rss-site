@@ -1,5 +1,6 @@
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
+import { createNewsArticlePath } from '../lib/article-route'
 import type { FeedResult } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource } from '../lib/technology-sources'
@@ -20,11 +21,15 @@ function BandState({ feed }: { feed: Exclude<FeedResult, { state: 'ready' }> }) 
 export function SourceBand({
   source,
   feed,
-  basePath = '/technology'
+  basePath = '/technology',
+  internalArticles = false,
+  showSummaries = false
 }: {
   source: SignalSource
   feed: FeedResult
   basePath?: OutboundReturnPath
+  internalArticles?: boolean
+  showSummaries?: boolean
 }) {
   return (
     <section
@@ -56,25 +61,47 @@ export function SourceBand({
             <FeedStatus {...feed.status} />
           </div>
           <ol className="divide-y divide-border border-y border-border">
-            {feed.items.map((item) => (
-              <li className="grid grid-cols-[2rem_minmax(0,1fr)] gap-2 py-4" key={item.sourceKey}>
-                <span className="pt-0.5 font-mono text-xs font-semibold text-primary">
-                  {String(item.position).padStart(2, '0')}
-                </span>
-                <a
-                  className="group flex min-w-0 items-start gap-1.5 text-sm font-medium leading-6 transition-colors hover:text-primary"
-                  href={`/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(basePath)}`}
-                >
-                  <span className="flex min-w-0 items-start gap-1.5">
-                    <span className="line-clamp-2">{item.title}</span>
-                    <ArrowUpRight
-                      aria-hidden="true"
-                      className="mt-1 size-3 shrink-0 text-muted-foreground group-hover:text-primary"
-                    />
+            {feed.items.map((item) => {
+              const internalHref =
+                internalArticles && item.articleId
+                  ? createNewsArticlePath(source.id, item.title, item.articleId)
+                  : null
+              const href =
+                internalHref ??
+                `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(basePath)}`
+
+              return (
+                <li className="grid grid-cols-[2rem_minmax(0,1fr)] gap-2 py-4" key={item.sourceKey}>
+                  <span className="pt-0.5 font-mono text-xs font-semibold text-primary">
+                    {String(item.position).padStart(2, '0')}
                   </span>
-                </a>
-              </li>
-            ))}
+                  <Link
+                    className="group block min-w-0 text-sm font-medium leading-6 transition-colors hover:text-primary"
+                    href={href}
+                  >
+                    <span className="flex min-w-0 items-start gap-1.5">
+                      <span className="line-clamp-2">{item.title}</span>
+                      {internalHref ? (
+                        <ArrowRight
+                          aria-hidden="true"
+                          className="mt-1 size-3 shrink-0 text-muted-foreground group-hover:text-primary"
+                        />
+                      ) : (
+                        <ArrowUpRight
+                          aria-hidden="true"
+                          className="mt-1 size-3 shrink-0 text-muted-foreground group-hover:text-primary"
+                        />
+                      )}
+                    </span>
+                    {showSummaries && item.summary ? (
+                      <span className="mt-1.5 line-clamp-2 text-sm font-normal leading-6 text-muted-foreground">
+                        {item.summary}
+                      </span>
+                    ) : null}
+                  </Link>
+                </li>
+              )
+            })}
           </ol>
         </>
       ) : (

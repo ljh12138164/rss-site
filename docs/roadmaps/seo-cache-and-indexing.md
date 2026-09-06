@@ -110,6 +110,13 @@ Status: cloud schema, backfill and access boundary verified; complete real-inges
 - 非法密钥、未知来源和任意路径注入均被拒绝。
 - 缓存失效失败不会回滚或伪装成数据库抓取失败，两类状态分别记录。
 
+## 新闻详情接入补充（Next）
+
+- 来源：[新闻详情开发记录](../development/news-article-details.md)。`/news/[source]/[slug]` 已可读取持久化文章，现有 loading 会使未找到页在流式响应中返回 200 并附带 noindex。
+- 价值：将新闻稳定 URL 纳入已有 SEO 发布流程，并让已删除文章返回准确状态。
+- 依赖：确认最终 `SITE_URL`，结合 P3 缓存与保留清理方案，再接入 P4 sitemap。
+- 验收：canonical 使用确认的域名；sitemap 仅包含仍保留的新闻详情；失效文章在发出响应正文前确定 404/410，保留有效详情的加载体验。
+
 ## P4：动态 sitemap、robots 与 Google 发现
 
 ### Sitemap

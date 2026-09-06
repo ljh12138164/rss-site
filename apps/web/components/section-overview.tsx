@@ -10,13 +10,17 @@ export function SectionOverview({
   description,
   feeds,
   sources,
-  title
+  title,
+  internalArticles = false,
+  showSummaries = false
 }: {
   basePath: OutboundReturnPath
   description: string
   feeds: Record<string, FeedResult>
   sources: readonly SignalSource[]
   title: string
+  internalArticles?: boolean
+  showSummaries?: boolean
 }) {
   return (
     <SiteShell>
@@ -29,7 +33,14 @@ export function SectionOverview({
 
       <div className="mt-10 min-w-0 space-y-14">
         {sources.map((source) => (
-          <SourceBand basePath={basePath} feed={feeds[source.id]} key={source.id} source={source} />
+          <SourceBand
+            basePath={basePath}
+            feed={feeds[source.id]}
+            internalArticles={internalArticles}
+            key={source.id}
+            showSummaries={showSummaries}
+            source={source}
+          />
         ))}
       </div>
     </SiteShell>
