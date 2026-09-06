@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { ArticleSearch } from './article-search'
 import { ThemeToggle } from './theme-toggle'
 
 export function SiteShell({ children }: { children: ReactNode }) {
@@ -52,7 +53,10 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </Link>
           </nav>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-1">
+          <ArticleSearch />
+          <ThemeToggle />
+        </div>
       </header>
       <main className="flex-1 py-12 sm:py-16">{children}</main>
       <div aria-hidden="true" className="border-t border-border" />

@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-09-06 文章搜索与分支约定
+
+- 用户要求现在和后续均在原本 `feat/section-rss-feeds` 分支开发，不再新建分支。已切回，搜索改动完整保留。
+- 已完成 Pagefind 风格搜索弹窗，搜索标题和摘要，支持防抖、高亮、分页、加载、空态、重试和键盘操作；未部署。
+- 开发记录：`docs/development/article-search.md`；全仓类型与测试、Web 构建、真实数据和桌面/手机明暗主题页面验证均通过。
+
 ## 2026-09-06 新闻详情补充
 
 - 在 `feat/section-rss-feeds` 实现 `/news/[source]/[slug]` 与新闻总览摘要；slug 以标题和持久化 UUID 组成。
