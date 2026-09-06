@@ -1,4 +1,13 @@
-import { ArrowRight } from 'lucide-react'
+import {
+  ArrowRight,
+  Cpu,
+  Gamepad2,
+  Laptop,
+  type LucideIcon,
+  MessagesSquare,
+  Newspaper,
+  TrendingUp
+} from 'lucide-react'
 import Link from 'next/link'
 import { SiteShell } from '../components/site-shell'
 import { createNewsArticlePath } from '../lib/article-route'
@@ -56,46 +65,68 @@ export function HomeView({
   gameFeeds: GameFeeds
 }) {
   const sections = [
-    { id: 'ai', title: 'AI', sources: aiSources, feeds: aiFeeds },
-    { id: 'technology', title: '科技', sources: technologySources, feeds: technologyFeeds },
-    { id: 'news', title: '国内新闻', sources: newsSources, feeds: newsFeeds },
-    { id: 'social', title: '社交热点', sources: socialSources, feeds: socialFeeds },
-    { id: 'finance', title: '财经', sources: financeSources, feeds: financeFeeds },
-    { id: 'games', title: '游戏', sources: gameSources, feeds: gameFeeds }
+    { id: 'ai', title: 'AI', icon: Cpu, sources: aiSources, feeds: aiFeeds },
+    {
+      id: 'technology',
+      title: '科技',
+      icon: Laptop,
+      sources: technologySources,
+      feeds: technologyFeeds
+    },
+    { id: 'news', title: '国内新闻', icon: Newspaper, sources: newsSources, feeds: newsFeeds },
+    {
+      id: 'social',
+      title: '社交热点',
+      icon: MessagesSquare,
+      sources: socialSources,
+      feeds: socialFeeds
+    },
+    {
+      id: 'finance',
+      title: '财经',
+      icon: TrendingUp,
+      sources: financeSources,
+      feeds: financeFeeds
+    },
+    { id: 'games', title: '游戏', icon: Gamepad2, sources: gameSources, feeds: gameFeeds }
   ] as const
 
   return (
-    <SiteShell mainClassName="mx-auto w-full max-w-4xl py-6 sm:py-8">
-      <header className="mb-4">
-        <h1 className="text-balance text-2xl font-semibold sm:text-3xl">今日热点</h1>
+    <SiteShell mainClassName="mx-auto w-full py-6 sm:py-8">
+      <header className="mb-6 border-l-4 border-primary pl-4 sm:mb-8">
+        <h1 className="text-balance text-3xl font-bold tracking-tight sm:text-4xl">今日热点</h1>
         <p className="mt-2 text-pretty text-sm text-muted-foreground">
           从 AI 动态到每日热点，直接读你关心的内容。
         </p>
+      </header>
+      <div className="grid items-start gap-5 lg:grid-cols-[9rem_minmax(0,1fr)] lg:gap-8">
         <nav
           aria-label="首页分区"
-          className="mt-3 flex gap-2 overflow-x-auto whitespace-nowrap [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex gap-1 overflow-x-auto whitespace-nowrap rounded-xl border border-border bg-card p-1.5 lg:sticky lg:top-24 lg:flex-col [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {sections.map((section) => (
             <Link
               key={section.id}
               href={`#${section.id}`}
-              className="flex min-h-11 items-center rounded-md px-3 text-sm text-muted-foreground hover:bg-muted hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+              className="flex min-h-11 shrink-0 items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground focus-visible:outline-2 focus-visible:outline-primary"
             >
+              <section.icon aria-hidden="true" className="size-4 text-primary" />
               {section.title}
             </Link>
           ))}
         </nav>
-      </header>
-      <div className="space-y-10">
-        {sections.map((section) => (
-          <HomeSection
-            key={section.id}
-            id={section.id}
-            title={section.title}
-            sources={section.sources}
-            feeds={section.feeds}
-          />
-        ))}
+        <div className="min-w-0 space-y-7">
+          {sections.map((section) => (
+            <HomeSection
+              key={section.id}
+              id={section.id}
+              title={section.title}
+              icon={section.icon}
+              sources={section.sources}
+              feeds={section.feeds}
+            />
+          ))}
+        </div>
       </div>
     </SiteShell>
   )
@@ -104,11 +135,13 @@ export function HomeView({
 function HomeSection({
   id,
   title,
+  icon: Icon,
   sources,
   feeds
 }: {
   id: string
   title: string
+  icon: LucideIcon
   sources: readonly SignalSource[]
   feeds: Partial<Record<SignalSource['id'], FeedResult>>
 }) {
@@ -120,20 +153,30 @@ function HomeSection({
   const basePath = `/${id}` as OutboundReturnPath
 
   return (
-    <section aria-labelledby={`${id}-heading`} id={id} className="scroll-mt-36 sm:scroll-mt-24">
-      <div className="flex items-center justify-between gap-4 border-b border-border pb-2">
-        <h2 id={`${id}-heading`} className="text-balance text-lg font-semibold">
+    <section
+      aria-labelledby={`${id}-heading`}
+      id={id}
+      className="scroll-mt-36 rounded-xl border border-border bg-card sm:scroll-mt-24"
+    >
+      <div className="flex items-center justify-between gap-4 rounded-t-xl border-b border-border bg-muted/50 px-4 py-3 sm:px-6">
+        <h2
+          id={`${id}-heading`}
+          className="flex items-center gap-3 text-balance text-lg font-semibold"
+        >
+          <span className="flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+            <Icon aria-hidden="true" className="size-5" />
+          </span>
           {title}
         </h2>
         <Link
           href={basePath}
-          className="flex min-h-11 shrink-0 items-center gap-1 text-sm text-muted-foreground hover:text-primary"
+          className="flex min-h-11 shrink-0 items-center gap-1 text-sm text-primary hover:underline"
         >
           查看全部
           <ArrowRight aria-hidden="true" className="size-3.5" />
         </Link>
       </div>
-      <ul>
+      <ul className="divide-y divide-border px-4 sm:px-6">
         {entries.map(({ item, source }) => {
           const href =
             id === 'news' && item.articleId
@@ -141,11 +184,31 @@ function HomeSection({
               : `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(basePath)}`
           const summary = item.summary?.trim()
           return (
-            <li
-              key={`${source.id}:${item.sourceKey}`}
-              className="rounded-lg border-b border-border px-3 py-5 hover:bg-muted/60 focus-within:bg-muted/60 sm:px-4"
-            >
+            <li key={`${source.id}:${item.sourceKey}`} className="py-4 sm:py-5">
               <article>
+                <div className="mb-1 flex flex-wrap items-center justify-between gap-x-3 text-xs text-muted-foreground">
+                  <Link
+                    href={`${basePath}/${source.id}`}
+                    className="inline-flex min-h-11 items-center gap-2 font-medium hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:min-h-8"
+                    aria-label={`浏览${source.name}`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="flex size-5 items-center justify-center rounded bg-accent font-mono text-[10px] font-semibold text-accent-foreground"
+                    >
+                      {source.shortName.slice(0, 1).toUpperCase()}
+                    </span>
+                    {source.shortName}
+                  </Link>
+                  {item.publishedAt && (
+                    <time
+                      className="font-mono text-[11px] tabular-nums"
+                      dateTime={item.publishedAt.toISOString()}
+                    >
+                      {dateFormatter.format(item.publishedAt)}
+                    </time>
+                  )}
+                </div>
                 <Link
                   href={href}
                   className="group block rounded-sm focus-visible:outline-2 focus-visible:outline-primary"
@@ -154,41 +217,26 @@ function HomeSection({
                     {item.title}
                   </h3>
                   {summary && (
-                    <p className="mt-2 line-clamp-2 text-pretty text-sm leading-6 text-muted-foreground sm:text-base sm:leading-7">
+                    <p className="mt-2 line-clamp-2 text-pretty text-sm leading-6 text-muted-foreground">
                       {summary.length > 240 ? `${summary.slice(0, 240)}…` : summary}
                     </p>
                   )}
                 </Link>
-                <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-muted-foreground">
-                  {item.publishedAt && (
-                    <time
-                      className="font-mono tabular-nums"
-                      dateTime={item.publishedAt.toISOString()}
-                    >
-                      {dateFormatter.format(item.publishedAt)}
-                    </time>
-                  )}
-                  <Link
-                    href={`${basePath}/${source.id}`}
-                    className="inline-flex min-h-11 items-center rounded-full bg-muted px-3 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:min-h-8"
-                    aria-label={`浏览${source.name}`}
-                  >
-                    {source.shortName}
-                  </Link>
-                </div>
               </article>
             </li>
           )
         })}
       </ul>
       {hasError ? (
-        <p role="alert" className="py-5 text-pretty text-sm text-muted-foreground">
+        <p role="alert" className="px-4 py-5 text-pretty text-sm text-muted-foreground sm:px-6">
           {entries.length
             ? '部分来源暂时无法加载，可进入分区稍后查看。'
             : '暂时无法加载，请稍后再试。'}
         </p>
       ) : (
-        !entries.length && <p className="py-5 text-sm text-muted-foreground">暂无内容。</p>
+        !entries.length && (
+          <p className="px-4 py-5 text-sm text-muted-foreground sm:px-6">暂无内容。</p>
+        )
       )}
     </section>
   )
