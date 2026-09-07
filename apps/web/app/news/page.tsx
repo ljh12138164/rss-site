@@ -14,12 +14,10 @@ export function NewsView({ feeds }: { feeds: NewsFeeds }) {
   return (
     <SectionOverview
       basePath="/news"
-      description="看看新华社、央视、中新网、澎湃、界面和百度正在关注什么。"
       feeds={feeds}
       internalArticles
       showSummaries
       sources={newsSources}
-      title="国内新闻"
     />
   )
 }

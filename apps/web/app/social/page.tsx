@@ -11,15 +11,7 @@ export const metadata: Metadata = {
 }
 
 export function SocialView({ feeds }: { feeds: SocialFeeds }) {
-  return (
-    <SectionOverview
-      basePath="/social"
-      description="B 站、知乎、酷安、虎扑、少数派和今日头条最近都在聊什么。"
-      feeds={feeds}
-      sources={socialSources}
-      title="大家在聊什么"
-    />
-  )
+  return <SectionOverview basePath="/social" feeds={feeds} sources={socialSources} />
 }
 
 export default async function SocialPage() {

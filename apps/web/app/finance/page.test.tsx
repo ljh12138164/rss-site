@@ -1,7 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import type { FeedResult, FinanceFeeds } from '../../lib/hot-feed'
 import { financeSources } from '../../lib/technology-sources'
+import Layout from './layout'
 import { FinanceView } from './page'
 
 function readyFeed(source: string): FeedResult {
@@ -22,6 +23,8 @@ function readyFeed(source: string): FeedResult {
   }
 }
 
+vi.mock('next/navigation', () => ({ usePathname: () => '/finance' }))
+
 it('renders six independent finance source bands and honest empty states', () => {
   const feeds = Object.fromEntries(
     financeSources.map((source) => [source.id, readyFeed(source.id)])
@@ -29,7 +32,11 @@ it('renders six independent finance source bands and honest empty states', () =>
   feeds.jin10 = { state: 'empty' }
   feeds.stcn = { state: 'error' }
 
-  const html = renderToStaticMarkup(<FinanceView feeds={feeds} />)
+  const html = renderToStaticMarkup(
+    <Layout>
+      <FinanceView feeds={feeds} />
+    </Layout>
+  )
 
   expect(html).toContain('aria-label="内容来源"')
   expect(html).toContain('>财联社<')

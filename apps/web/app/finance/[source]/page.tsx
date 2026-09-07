@@ -30,16 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export function FinanceSourceView({ source, feed }: { source: FinanceSource; feed: FeedResult }) {
-  return (
-    <SourceDetailView
-      basePath="/finance"
-      description={source.description}
-      feed={feed}
-      sectionName="财经"
-      source={source}
-      sources={financeSources}
-    />
-  )
+  return <SourceDetailView basePath="/finance" feed={feed} source={source} />
 }
 
 export default async function FinanceSourcePage({ params }: Props) {

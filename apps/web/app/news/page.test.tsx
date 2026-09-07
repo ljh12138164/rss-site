@@ -1,7 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { FeedResult, NewsFeeds } from '../../lib/hot-feed'
 import { newsSources } from '../../lib/technology-sources'
+import Layout from './layout'
 import { NewsView } from './page'
 
 function readyFeed(source: string): FeedResult {
@@ -21,6 +22,8 @@ function readyFeed(source: string): FeedResult {
   }
 }
 
+vi.mock('next/navigation', () => ({ usePathname: () => '/news' }))
+
 describe('NewsView', () => {
   it('renders six independent news source bands', () => {
     const feeds = Object.fromEntries(
@@ -29,7 +32,11 @@ describe('NewsView', () => {
     feeds.cctv = { state: 'error' }
     feeds.jiemian = { state: 'empty' }
 
-    const html = renderToStaticMarkup(<NewsView feeds={feeds} />)
+    const html = renderToStaticMarkup(
+      <Layout>
+        <NewsView feeds={feeds} />
+      </Layout>
+    )
 
     expect(html).toContain('aria-label="内容来源"')
     expect(html).toContain('>央视<')

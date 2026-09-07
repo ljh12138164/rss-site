@@ -12,10 +12,13 @@ describe('loading skeletons', () => {
     expect(html).not.toContain('animate-pulse')
   })
 
-  it('matches the horizontal source navigation instead of the removed sidebar', () => {
+  it('only replaces article content while the shared layout keeps navigation visible', () => {
     const html = renderToStaticMarkup(<SectionLoading />)
 
-    expect(html).toContain('data-skeleton-region="sources"')
+    expect(html).toContain('aria-label="正在加载文章"')
+    expect(html).not.toContain('data-skeleton-region="sources"')
+    expect(html).not.toContain('<header')
+    expect(html).not.toContain('<nav')
     expect(html).not.toContain('grid-cols-[12rem_minmax(0,1fr)]')
   })
 })

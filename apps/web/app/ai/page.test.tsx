@@ -1,7 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { AiFeeds, FeedResult } from '../../lib/hot-feed'
 import { aiSources } from '../../lib/technology-sources'
+import Layout from './layout'
 import { AiView } from './page'
 
 function readyFeed(source: string): FeedResult {
@@ -20,6 +21,8 @@ function readyFeed(source: string): FeedResult {
   }
 }
 
+vi.mock('next/navigation', () => ({ usePathname: () => '/ai' }))
+
 describe('AiView', () => {
   it('renders six independent official AI platform bands', () => {
     const feeds = Object.fromEntries(
@@ -28,7 +31,11 @@ describe('AiView', () => {
     feeds.deepseek = { state: 'error' }
     feeds.qwen = { state: 'empty' }
 
-    const html = renderToStaticMarkup(<AiView feeds={feeds} />)
+    const html = renderToStaticMarkup(
+      <Layout>
+        <AiView feeds={feeds} />
+      </Layout>
+    )
 
     expect(html).toContain('aria-label="内容来源"')
     expect(html).toContain('>Gemini<')

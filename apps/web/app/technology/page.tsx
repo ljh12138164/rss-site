@@ -11,15 +11,7 @@ export const metadata: Metadata = {
 }
 
 export function TechnologyView({ feeds }: { feeds: TechnologyFeeds }) {
-  return (
-    <SectionOverview
-      basePath="/technology"
-      description="看看 GitHub、Hacker News、掘金、V2EX、IT之家和 36氪最近有哪些热门内容。"
-      feeds={feeds}
-      sources={technologySources}
-      title="科技热门"
-    />
-  )
+  return <SectionOverview basePath="/technology" feeds={feeds} sources={technologySources} />
 }
 
 export default async function TechnologyPage() {

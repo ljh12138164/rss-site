@@ -30,16 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export function AiSourceView({ source, feed }: { source: AiSource; feed: FeedResult }) {
-  return (
-    <SourceDetailView
-      basePath="/ai"
-      description={source.description}
-      feed={feed}
-      sectionName="AI"
-      source={source}
-      sources={aiSources}
-    />
-  )
+  return <SourceDetailView basePath="/ai" feed={feed} source={source} />
 }
 
 export default async function AiSourcePage({ params }: Props) {

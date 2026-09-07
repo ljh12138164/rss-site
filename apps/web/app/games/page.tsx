@@ -11,15 +11,7 @@ export const metadata: Metadata = {
 }
 
 export function GamesView({ feeds }: { feeds: GameFeeds }) {
-  return (
-    <SectionOverview
-      basePath="/games"
-      description="游戏新闻、新文章和 Steam 热销榜都放在这里。"
-      feeds={feeds}
-      sources={gameSources}
-      title="游戏"
-    />
-  )
+  return <SectionOverview basePath="/games" feeds={feeds} sources={gameSources} />
 }
 
 export default async function GamesPage() {

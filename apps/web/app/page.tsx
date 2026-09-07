@@ -9,9 +9,8 @@ import {
   TrendingUp
 } from 'lucide-react'
 import Link from 'next/link'
+import { HotList } from '../components/hot-list'
 import { SiteShell } from '../components/site-shell'
-import { SourceIcon } from '../components/source-icon'
-import { createNewsArticlePath } from '../lib/article-route'
 import {
   type AiFeeds,
   compareHotItemsByPublishedAt,
@@ -40,16 +39,6 @@ import {
 } from '../lib/technology-sources'
 
 export const dynamic = 'force-dynamic'
-
-const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-  timeZone: 'Asia/Shanghai'
-})
 
 export function HomeView({
   aiFeeds,
@@ -179,52 +168,19 @@ function HomeSection({
           <ArrowRight aria-hidden="true" className="size-3.5" />
         </Link>
       </div>
-      <ul className="divide-y divide-border px-4 sm:px-6">
-        {entries.map(({ item, source }) => {
-          const href =
-            id === 'news' && item.articleId
-              ? createNewsArticlePath(source.id, item.title, item.articleId)
-              : `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(basePath)}`
-          const summary = item.summary?.trim()
-          return (
-            <li key={`${source.id}:${item.sourceKey}`} className="py-4 sm:py-5">
-              <article>
-                <div className="mb-1 flex flex-wrap items-center justify-between gap-x-3 text-xs text-muted-foreground">
-                  <Link
-                    href={`${basePath}/${source.id}`}
-                    className="inline-flex min-h-11 items-center gap-2 font-medium hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:min-h-8"
-                    aria-label={`浏览${source.name}`}
-                  >
-                    <SourceIcon className="size-5" source={source} />
-                    {source.shortName}
-                  </Link>
-                  {item.publishedAt && (
-                    <time
-                      className="font-mono text-[11px] tabular-nums"
-                      dateTime={item.publishedAt.toISOString()}
-                    >
-                      {dateFormatter.format(item.publishedAt)}
-                    </time>
-                  )}
-                </div>
-                <Link
-                  href={href}
-                  className="group block rounded-sm focus-visible:outline-2 focus-visible:outline-primary"
-                >
-                  <h3 className="text-pretty text-lg font-semibold leading-7 text-foreground group-hover:text-primary sm:text-xl sm:leading-8">
-                    {item.title}
-                  </h3>
-                  {summary && (
-                    <p className="mt-2 line-clamp-2 text-pretty text-sm leading-6 text-muted-foreground">
-                      {summary.length > 240 ? `${summary.slice(0, 240)}…` : summary}
-                    </p>
-                  )}
-                </Link>
-              </article>
-            </li>
-          )
-        })}
-      </ul>
+      <div className="px-4 sm:px-6">
+        <HotList
+          internalArticles={id === 'news'}
+          items={entries.map(({ item, source }, index) => ({
+            ...item,
+            author: null,
+            summary: item.summary?.trim().slice(0, 240) || null,
+            position: index + 1,
+            platform: source
+          }))}
+          returnTo={basePath}
+        />
+      </div>
       {hasError ? (
         <p role="alert" className="px-4 py-5 text-pretty text-sm text-muted-foreground sm:px-6">
           {entries.length

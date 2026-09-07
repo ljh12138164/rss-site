@@ -1,8 +1,11 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { getSocialSource } from '../../../lib/technology-sources'
+import Layout from '../layout'
 import { SocialSourceView } from './page'
+
+vi.mock('next/navigation', () => ({ usePathname: () => '/social/bilibili' }))
 
 describe('SocialSourceView', () => {
   it('renders the full source list and social platform navigation without images', () => {
@@ -25,7 +28,9 @@ describe('SocialSourceView', () => {
     }
 
     const html = renderToStaticMarkup(
-      <SocialSourceView feed={feed} source={getSocialSource('bilibili')} />
+      <Layout>
+        <SocialSourceView feed={feed} source={getSocialSource('bilibili')} />
+      </Layout>
     )
 
     expect(html).toContain('首页')

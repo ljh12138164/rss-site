@@ -73,6 +73,8 @@ describe('HomeView', () => {
     )
 
     expect(html).toContain('今日热点')
+    expect(html.match(/<ol /g)).toHaveLength(6)
+    expect(html).toContain('>02</span>')
     expect(html.indexOf('id="ai"')).toBeLessThan(html.indexOf('id="technology"'))
     expect(html).toContain('从 AI 动态到每日热点')
     expect(html).toContain('openai 的文章摘要')

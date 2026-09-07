@@ -1,8 +1,11 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { getAiSource } from '../../../lib/technology-sources'
+import Layout from '../layout'
 import { AiSourceView } from './page'
+
+vi.mock('next/navigation', () => ({ usePathname: () => '/ai/openai' }))
 
 describe('AiSourceView', () => {
   it('renders the full AI source list and breadcrumb context', () => {
@@ -23,7 +26,11 @@ describe('AiSourceView', () => {
       }
     }
 
-    const html = renderToStaticMarkup(<AiSourceView feed={feed} source={getAiSource('openai')} />)
+    const html = renderToStaticMarkup(
+      <Layout>
+        <AiSourceView feed={feed} source={getAiSource('openai')} />
+      </Layout>
+    )
 
     expect(html).toContain('首页')
     expect(html).toContain('href="/ai"')

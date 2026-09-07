@@ -1,8 +1,11 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { getNewsSource } from '../../../lib/technology-sources'
+import Layout from '../layout'
 import { NewsSourceView } from './page'
+
+vi.mock('next/navigation', () => ({ usePathname: () => '/news/xinhua' }))
 
 describe('NewsSourceView', () => {
   it('renders the full news source list and breadcrumb context', () => {
@@ -25,7 +28,9 @@ describe('NewsSourceView', () => {
     }
 
     const html = renderToStaticMarkup(
-      <NewsSourceView feed={feed} source={getNewsSource('xinhua')} />
+      <Layout>
+        <NewsSourceView feed={feed} source={getNewsSource('xinhua')} />
+      </Layout>
     )
 
     expect(html).toContain('首页')

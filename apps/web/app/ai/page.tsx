@@ -11,15 +11,7 @@ export const metadata: Metadata = {
 }
 
 export function AiView({ feeds }: { feeds: AiFeeds }) {
-  return (
-    <SectionOverview
-      basePath="/ai"
-      description="看看 OpenAI、Anthropic、DeepSeek、智谱、Google 和 Qwen 最近发布了什么。"
-      feeds={feeds}
-      sources={aiSources}
-      title="AI 最新动态"
-    />
-  )
+  return <SectionOverview basePath="/ai" feeds={feeds} sources={aiSources} />
 }
 
 export default async function AiPage() {

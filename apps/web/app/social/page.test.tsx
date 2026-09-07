@@ -1,7 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { FeedResult, SocialFeeds } from '../../lib/hot-feed'
 import { socialSources } from '../../lib/technology-sources'
+import Layout from './layout'
 import { SocialView } from './page'
 
 function readyFeed(source: string): FeedResult {
@@ -21,6 +22,8 @@ function readyFeed(source: string): FeedResult {
   }
 }
 
+vi.mock('next/navigation', () => ({ usePathname: () => '/social' }))
+
 describe('SocialView', () => {
   it('renders six independent public social source bands with real preview support', () => {
     const feeds = Object.fromEntries(
@@ -29,7 +32,11 @@ describe('SocialView', () => {
     feeds.zhihu = { state: 'error' }
     feeds.hupu = { state: 'empty' }
 
-    const html = renderToStaticMarkup(<SocialView feeds={feeds} />)
+    const html = renderToStaticMarkup(
+      <Layout>
+        <SocialView feeds={feeds} />
+      </Layout>
+    )
 
     expect(html).toContain('aria-label="内容来源"')
     expect(html).toContain('>B 站<')

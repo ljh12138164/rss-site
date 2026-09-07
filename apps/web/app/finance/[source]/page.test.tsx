@@ -1,8 +1,11 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { getFinanceSource } from '../../../lib/technology-sources'
+import Layout from '../layout'
 import { FinanceSourceView } from './page'
+
+vi.mock('next/navigation', () => ({ usePathname: () => '/finance/wallstreetcn' }))
 
 it('renders the full finance source list and breadcrumb context', () => {
   const feed: FeedResult = {
@@ -22,7 +25,9 @@ it('renders the full finance source list and breadcrumb context', () => {
   }
 
   const html = renderToStaticMarkup(
-    <FinanceSourceView feed={feed} source={getFinanceSource('wallstreetcn')} />
+    <Layout>
+      <FinanceSourceView feed={feed} source={getFinanceSource('wallstreetcn')} />
+    </Layout>
   )
 
   expect(html).toContain('首页')

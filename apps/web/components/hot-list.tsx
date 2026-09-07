@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { createNewsArticlePath } from '../lib/article-route'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
+import type { SignalSource } from '../lib/technology-sources'
+import { SourceIcon } from './source-icon'
 
 const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
   year: 'numeric',
@@ -10,7 +12,8 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
   day: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
-  hour12: false
+  hourCycle: 'h23',
+  timeZone: 'Asia/Shanghai'
 })
 
 export function HotList({
@@ -19,7 +22,7 @@ export function HotList({
   internalArticles = false,
   source
 }: {
-  items: HotItem[]
+  items: (HotItem & { platform?: SignalSource })[]
   returnTo?: OutboundReturnPath
   internalArticles?: boolean
   source?: string
@@ -27,9 +30,10 @@ export function HotList({
   return (
     <ol className="divide-y divide-border border-y border-border">
       {items.map((item) => {
+        const sourceId = item.platform?.id ?? source
         const internalHref =
-          internalArticles && source && item.articleId
-            ? createNewsArticlePath(source, item.title, item.articleId)
+          internalArticles && sourceId && item.articleId
+            ? createNewsArticlePath(sourceId, item.title, item.articleId)
             : null
         const href =
           internalHref ??
@@ -38,7 +42,7 @@ export function HotList({
         return (
           <li
             className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 py-5 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-5"
-            key={item.sourceKey}
+            key={`${sourceId ?? ''}:${item.sourceKey}`}
           >
             <span className="pt-0.5 font-mono text-sm font-semibold tabular-nums text-primary">
               {String(item.position).padStart(2, '0')}
@@ -78,6 +82,16 @@ export function HotList({
                   ) : null}
                 </span>
               </Link>
+              {item.platform && (
+                <Link
+                  href={`${returnTo}/${item.platform.id}`}
+                  aria-label={`浏览${item.platform.name}`}
+                  className="inline-flex min-h-11 max-w-full items-center gap-2 text-xs font-medium text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:min-h-8"
+                >
+                  <SourceIcon className="size-4" source={item.platform} />
+                  <span className="truncate">{item.platform.shortName}</span>
+                </Link>
+              )}
             </article>
           </li>
         )

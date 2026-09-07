@@ -30,16 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export function GameSourceView({ source, feed }: { source: GameSource; feed: FeedResult }) {
-  return (
-    <SourceDetailView
-      basePath="/games"
-      description={source.description}
-      feed={feed}
-      sectionName="游戏"
-      source={source}
-      sources={gameSources}
-    />
-  )
+  return <SourceDetailView basePath="/games" feed={feed} source={source} />
 }
 
 export default async function GameSourcePage({ params }: Props) {

@@ -1,7 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import type { FeedResult, GameFeeds } from '../../lib/hot-feed'
 import { gameSources } from '../../lib/technology-sources'
+import Layout from './layout'
 import { GamesView } from './page'
 
 function readyFeed(source: string): FeedResult {
@@ -22,6 +23,8 @@ function readyFeed(source: string): FeedResult {
   }
 }
 
+vi.mock('next/navigation', () => ({ usePathname: () => '/games' }))
+
 it('renders six game sources while describing Steam as a snapshot', () => {
   const feeds = Object.fromEntries(
     gameSources.map((source) => [source.id, readyFeed(source.id)])
@@ -29,7 +32,11 @@ it('renders six game sources while describing Steam as a snapshot', () => {
   feeds.indienova = { state: 'empty' }
   feeds.ali213 = { state: 'error' }
 
-  const html = renderToStaticMarkup(<GamesView feeds={feeds} />)
+  const html = renderToStaticMarkup(
+    <Layout>
+      <GamesView feeds={feeds} />
+    </Layout>
+  )
 
   expect(html).toContain('aria-label="内容来源"')
   expect(html).toContain('>Steam<')

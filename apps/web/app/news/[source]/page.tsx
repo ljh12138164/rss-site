@@ -30,17 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export function NewsSourceView({ source, feed }: { source: NewsSource; feed: FeedResult }) {
-  return (
-    <SourceDetailView
-      basePath="/news"
-      description={source.description}
-      feed={feed}
-      internalArticles
-      sectionName="新闻"
-      source={source}
-      sources={newsSources}
-    />
-  )
+  return <SourceDetailView basePath="/news" feed={feed} internalArticles source={source} />
 }
 
 export default async function NewsSourcePage({ params }: Props) {

@@ -11,15 +11,7 @@ export const metadata: Metadata = {
 }
 
 export function FinanceView({ feeds }: { feeds: FinanceFeeds }) {
-  return (
-    <SectionOverview
-      basePath="/finance"
-      description="看看市场快讯和财经媒体今天在关注什么。"
-      feeds={feeds}
-      sources={financeSources}
-      title="财经"
-    />
-  )
+  return <SectionOverview basePath="/finance" feeds={feeds} sources={financeSources} />
 }
 
 export default async function FinancePage() {

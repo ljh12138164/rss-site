@@ -1,7 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { FeedResult, TechnologyFeeds } from '../../lib/hot-feed'
 import { technologySources } from '../../lib/technology-sources'
+import Layout from './layout'
 import { TechnologyView } from './page'
 
 function readyFeed(source: string): FeedResult {
@@ -20,6 +21,8 @@ function readyFeed(source: string): FeedResult {
   }
 }
 
+vi.mock('next/navigation', () => ({ usePathname: () => '/technology' }))
+
 describe('TechnologyView', () => {
   it('renders six source bands and isolates source states', () => {
     const feeds = Object.fromEntries(
@@ -28,7 +31,11 @@ describe('TechnologyView', () => {
     feeds.v2ex = { state: 'error' }
     feeds.ithome = { state: 'empty' }
 
-    const html = renderToStaticMarkup(<TechnologyView feeds={feeds} />)
+    const html = renderToStaticMarkup(
+      <Layout>
+        <TechnologyView feeds={feeds} />
+      </Layout>
+    )
 
     expect(html).toContain('aria-label="内容来源"')
     expect(html).toContain('>Hacker News<')

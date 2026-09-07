@@ -36,16 +36,7 @@ export function TechnologySourceView({
   source: TechnologySource
   feed: FeedResult
 }) {
-  return (
-    <SourceDetailView
-      basePath="/technology"
-      description={source.description}
-      feed={feed}
-      sectionName="科技"
-      source={source}
-      sources={technologySources}
-    />
-  )
+  return <SourceDetailView basePath="/technology" feed={feed} source={source} />
 }
 
 export default async function TechnologySourcePage({ params }: Props) {
