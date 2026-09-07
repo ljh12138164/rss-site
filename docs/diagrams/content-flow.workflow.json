@@ -1,0 +1,71 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "AI 热榜的内容如何到达你",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "animation": "none",
+    "legend": {
+      "entries": {
+        "frontend": { "label": "阅读入口" },
+        "backend": { "label": "采集服务" },
+        "database": { "label": "内容存储" },
+        "external": { "label": "公开来源" }
+      }
+    }
+  },
+  "lanes": [
+    { "id": "collection", "label": "定期整理" },
+    { "id": "reading", "label": "阅读与订阅" }
+  ],
+  "mainPath": ["public-feeds", "collect-items", "save-items", "browse-items"],
+  "nodes": [
+    {
+      "id": "public-feeds",
+      "lane": "collection",
+      "col": 0,
+      "type": "external",
+      "label": "公开内容",
+      "sublabel": "官方订阅源或 RSSHub"
+    },
+    {
+      "id": "collect-items",
+      "lane": "collection",
+      "col": 1,
+      "type": "backend",
+      "label": "定期获取",
+      "sublabel": "解析标题、链接与时间"
+    },
+    {
+      "id": "save-items",
+      "lane": "collection",
+      "col": 2,
+      "type": "database",
+      "label": "整理保存",
+      "sublabel": "更新文章与当前列表"
+    },
+    {
+      "id": "browse-items",
+      "lane": "reading",
+      "col": 3,
+      "type": "frontend",
+      "label": "浏览与搜索",
+      "sublabel": "六个分区，按时间阅读"
+    },
+    {
+      "id": "subscribe-items",
+      "lane": "reading",
+      "col": 2,
+      "type": "frontend",
+      "label": "RSS 订阅",
+      "sublabel": "在你的阅读器中查看"
+    }
+  ],
+  "edges": [
+    { "from": "public-feeds", "to": "collect-items", "label": "获取订阅内容", "role": "main" },
+    { "from": "collect-items", "to": "save-items", "label": "校验后更新", "role": "main" },
+    { "from": "save-items", "to": "browse-items", "label": "读取已保存内容", "role": "main" },
+    { "from": "save-items", "to": "subscribe-items", "label": "生成分区订阅", "role": "branch" }
+  ]
+}

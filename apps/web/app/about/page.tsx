@@ -1,3 +1,4 @@
+import { ArrowDown, ArrowRight } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { InformationPage } from '../../components/information-page'
@@ -19,6 +20,45 @@ export default function AboutPage() {
           AI 热榜汇集 AI、科技、新闻、社交、财经和游戏六个分区的公开内容。你可以浏览最新文章，
           按来源查看动态，也可以搜索标题和摘要，找到感兴趣的话题。
         </p>
+      </section>
+      <section aria-labelledby="content-flow-heading">
+        <h2 id="content-flow-heading">本站如何运作</h2>
+        <p>定期把公开来源的内容整理到一起，你看到的是已保存的文章列表。</p>
+        <ol className="my-5 grid gap-3 sm:grid-cols-4">
+          {[
+            ['公开内容', '官方订阅源或 RSSHub'],
+            ['定期获取', '提取标题、链接与时间'],
+            ['整理保存', '更新文章与当前列表'],
+            ['阅读与订阅', '浏览、搜索或使用 RSS']
+          ].map(([title, detail], index) => (
+            <li className="min-w-0" key={title}>
+              <div className="flex items-center gap-2 text-sm font-semibold">
+                <span className="font-mono text-xs text-primary">{index + 1}</span>
+                <span>{title}</span>
+                {index < 3 && (
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="ml-auto hidden size-4 shrink-0 text-muted-foreground sm:block"
+                  />
+                )}
+              </div>
+              <div className="mt-2 text-xs leading-6 text-muted-foreground">{detail}</div>
+              {index < 3 && (
+                <ArrowDown
+                  aria-hidden="true"
+                  className="mt-3 size-4 text-muted-foreground sm:hidden"
+                />
+              )}
+            </li>
+          ))}
+        </ol>
+        <a
+          className="inline-flex min-h-11 items-center gap-2 text-sm text-primary underline underline-offset-4"
+          href="/diagrams/content-flow.html"
+        >
+          查看原理图
+          <ArrowRight aria-hidden="true" className="size-4" />
+        </a>
       </section>
       <section>
         <h2>内容从哪里来</h2>

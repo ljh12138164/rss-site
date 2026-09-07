@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-09-07 关于页原理小结
+
+- `/about` 新增四步原理小结，手机纵排；“查看原理图”打开 Archify 生成的独立工作流图。
+- 开发记录：`docs/development/about-content-flow.md`。构建、类型检查及本次 Biome 通过；图的 9/9 结构校验通过，最终自动截图遇 Chrome 超时，已通过手动浏览器检查补充确认四种桌面尺寸和明暗主题。
+- 继续当前 `feat/section-rss-feeds`，不推送、不部署、不合并。
+
 ## 2026-09-07 关于、隐私与离站访问
 
 - 在 `feat/section-rss-feeds` 添加 `/about`、`/privacy` 与页脚入口，沿用项目现有配色和风格。
