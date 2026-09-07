@@ -4,6 +4,7 @@ import { cn } from '../lib/utils'
 
 const sourceIconPaths: Record<SignalSourceId, string> = {
   github: '/source-icons/github.svg',
+  'github-blog': '/source-icons/github.svg',
   'hacker-news': '/source-icons/hacker-news.svg',
   juejin: '/source-icons/juejin.svg',
   v2ex: '/source-icons/v2ex.svg',

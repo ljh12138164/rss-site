@@ -1,13 +1,16 @@
 import type { Metadata } from 'next'
+import { PaginatedArticleFeed } from '../../components/paginated-article-feed'
 import { SectionOverview } from '../../components/section-overview'
-import { getTechnologyFeeds, type TechnologyFeeds } from '../../lib/hot-feed'
+import type { TechnologyFeeds } from '../../lib/hot-feed'
 import { technologySources } from '../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
+export const revalidate = 21600
 
 export const metadata: Metadata = {
+  alternates: { canonical: optionalCanonical('/technology') },
   title: '科技热点',
-  description: 'GitHub、Hacker News、掘金、V2EX、IT之家和 36氪的热门内容。'
+  description: 'GitHub Blog、开发者社区与科技媒体的最新内容，以及 GitHub 开源周榜。'
 }
 
 export function TechnologyView({ feeds }: { feeds: TechnologyFeeds }) {
@@ -15,5 +18,7 @@ export function TechnologyView({ feeds }: { feeds: TechnologyFeeds }) {
 }
 
 export default async function TechnologyPage() {
-  return <TechnologyView feeds={await getTechnologyFeeds()} />
+  return <PaginatedArticleFeed section="/technology" />
 }
+
+import { optionalCanonical } from '../../lib/site-url'

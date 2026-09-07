@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { PaginatedArticleFeed } from '../../../components/paginated-article-feed'
 import { SourceDetailView } from '../../../components/source-detail'
-import { type FeedResult, getTechnologyFeed } from '../../../lib/hot-feed'
+import type { FeedResult } from '../../../lib/hot-feed'
 import {
   getTechnologySource,
   isTechnologySourceId,
@@ -9,7 +10,8 @@ import {
   technologySources
 } from '../../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
+export const revalidate = 21600
 export const dynamicParams = false
 
 type Props = { params: Promise<{ source: string }> }
@@ -24,8 +26,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const source = getTechnologySource(sourceId)
   return {
-    title: `${source.name} 热榜`,
-    description: source.description
+    title: source.id === 'github-blog' ? source.name : `${source.name} 热榜`,
+    description: source.description,
+    alternates: { canonical: optionalCanonical(`/technology/${source.id}`) }
   }
 }
 
@@ -43,10 +46,7 @@ export default async function TechnologySourcePage({ params }: Props) {
   const { source: sourceId } = await params
   if (!isTechnologySourceId(sourceId)) notFound()
 
-  return (
-    <TechnologySourceView
-      feed={await getTechnologyFeed(sourceId)}
-      source={getTechnologySource(sourceId)}
-    />
-  )
+  return <PaginatedArticleFeed section="/technology" source={sourceId} />
 }
+
+import { optionalCanonical } from '../../../lib/site-url'

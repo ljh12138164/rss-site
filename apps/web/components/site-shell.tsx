@@ -21,7 +21,16 @@ export function SiteShell({
           AI 热榜
         </Link>
         <div className="order-3 mt-2 flex w-full items-center border-t border-border sm:order-none sm:mt-0 sm:w-auto sm:border-t-0">
-          <nav aria-label="主导航" className="flex w-full items-center justify-between sm:w-auto">
+          <nav
+            aria-label="主导航"
+            className="flex w-full items-center justify-between overflow-x-auto whitespace-nowrap sm:w-auto"
+          >
+            <Link
+              className="flex min-h-11 shrink-0 items-center px-1.5 text-xs text-muted-foreground hover:text-foreground sm:px-2 sm:text-sm"
+              href="/ai/events"
+            >
+              AI 时间轴
+            </Link>
             <Link
               className="flex min-h-11 items-center px-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground sm:px-2 sm:text-sm"
               href="/ai"

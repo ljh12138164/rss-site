@@ -1,202 +1,69 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
-import type {
-  AiFeeds,
-  FeedResult,
-  FinanceFeeds,
-  GameFeeds,
-  NewsFeeds,
-  SocialFeeds,
-  TechnologyFeeds
-} from '../lib/hot-feed'
-import {
-  aiSources,
-  financeSources,
-  gameSources,
-  newsSources,
-  socialSources,
-  technologySources
-} from '../lib/technology-sources'
+import { expect, it } from 'vitest'
+import { QueryProvider } from '../components/query-provider'
+import type { HomeArticlePage } from '../lib/home-articles'
+import { aiSources, newsSources } from '../lib/technology-sources'
 import { HomeView } from './page'
 
-function readyFeed(source: string): FeedResult {
-  return {
-    state: 'ready',
-    items: [
-      {
-        sourceKey: `${source}-1`,
-        title: `${source} 热点`,
-        url: `https://example.com/${source}/1`,
-        summary: `${source} 的文章摘要，帮助判断是否值得阅读。`,
-        author: null,
-        publishedAt: new Date('2026-09-06T01:00:00.000Z'),
-        position: 1
-      }
-    ],
-    status: {
-      itemCount: 20,
-      lastSuccessAt: new Date('2026-09-04T01:00:00.000Z')
+const initialPage: HomeArticlePage = {
+  items: [
+    {
+      articleId: '11111111-1111-4111-8111-111111111111',
+      sourceKey: 'news',
+      title: '最新新闻',
+      url: 'https://example.com/news',
+      summary: '新闻摘要',
+      author: null,
+      publishedAt: '2026-09-07T00:00:00Z',
+      position: 1,
+      section: '/news',
+      platform: newsSources[0]
+    },
+    {
+      articleId: '22222222-2222-4222-8222-222222222222',
+      sourceKey: 'ai',
+      title: '模型动态',
+      url: 'https://example.com/ai',
+      summary: null,
+      author: null,
+      publishedAt: '2026-09-06T00:00:00Z',
+      position: 2,
+      section: '/ai',
+      platform: aiSources[0]
     }
-  }
+  ],
+  nextCursor: 'next-page'
 }
 
-const technologyFeeds = Object.fromEntries(
-  technologySources.map((source) => [source.id, readyFeed(source.id)])
-) as TechnologyFeeds
-const newsFeeds = Object.fromEntries(
-  newsSources.map((source) => [source.id, readyFeed(source.id)])
-) as NewsFeeds
-const aiFeeds = Object.fromEntries(
-  aiSources.map((source) => [source.id, readyFeed(source.id)])
-) as AiFeeds
-const socialFeeds = Object.fromEntries(
-  socialSources.map((source) => [source.id, readyFeed(source.id)])
-) as SocialFeeds
-const financeFeeds = Object.fromEntries(
-  financeSources.map((source) => [source.id, readyFeed(source.id)])
-) as FinanceFeeds
-const gameFeeds = Object.fromEntries(
-  gameSources.map((source) => [source.id, readyFeed(source.id)])
-) as GameFeeds
+it('renders a single cross-section article list and continuation control', () => {
+  const html = renderToStaticMarkup(
+    <QueryProvider>
+      <HomeView initialPage={initialPage} />
+    </QueryProvider>
+  )
+  expect(html.match(/<ol /g)).toHaveLength(1)
+  expect(html.indexOf('最新新闻')).toBeLessThan(html.indexOf('模型动态'))
+  expect(html).toContain('>02</span>')
+  expect(html).toContain('加载更多')
+  expect(html).toContain('href="/news/xinhua/最新新闻--11111111-1111-4111-8111-111111111111"')
+  expect(html).toContain('href="/ai/openai"')
+  expect(html).toContain('href="/technology/github"')
+})
 
-describe('HomeView', () => {
-  it('shows six article lists with real summaries, dates and source links', () => {
-    const html = renderToStaticMarkup(
-      <HomeView
-        aiFeeds={aiFeeds}
-        financeFeeds={financeFeeds}
-        gameFeeds={gameFeeds}
-        newsFeeds={newsFeeds}
-        socialFeeds={socialFeeds}
-        technologyFeeds={technologyFeeds}
-      />
+it('distinguishes an empty list from a failed initial request', () => {
+  const empty = { items: [], nextCursor: null }
+  expect(
+    renderToStaticMarkup(
+      <QueryProvider>
+        <HomeView initialPage={empty} />
+      </QueryProvider>
     )
-
-    expect(html).toContain('今日热点')
-    expect(html.match(/<ol /g)).toHaveLength(6)
-    expect(html).toContain('>02</span>')
-    expect(html.indexOf('id="ai"')).toBeLessThan(html.indexOf('id="technology"'))
-    expect(html).toContain('从 AI 动态到每日热点')
-    expect(html).toContain('openai 的文章摘要')
-    expect(html).toContain('dateTime="2026-09-06T01:00:00.000Z"')
-    expect(html).not.toContain('官方文章与研究')
-    expect(html).not.toContain('20 条内容')
-    for (const source of technologySources) {
-      expect(html).toContain(source.name)
-      expect(html).toContain(`href="/technology/${source.id}"`)
-    }
-    for (const source of newsSources) {
-      expect(html).toContain(source.name)
-      expect(html).toContain(`href="/news/${source.id}"`)
-    }
-    for (const source of aiSources) {
-      expect(html).toContain(source.name)
-      expect(html).toContain(`href="/ai/${source.id}"`)
-    }
-    for (const source of socialSources) {
-      expect(html).toContain(source.name)
-      expect(html).toContain(`href="/social/${source.id}"`)
-    }
-    for (const source of financeSources) {
-      expect(html).toContain(source.name)
-      expect(html).toContain(`href="/finance/${source.id}"`)
-    }
-    for (const source of gameSources) {
-      expect(html).toContain(source.name)
-      expect(html).toContain(`href="/games/${source.id}"`)
-    }
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(36)
-    expect(html).toContain('href="/technology"')
-    expect(html).toContain('href="/news"')
-    expect(html).toContain('href="/ai"')
-    expect(html).toContain('href="/social"')
-    expect(html).toContain('href="/finance"')
-    expect(html).toContain('href="/games"')
-    const visibleText = html.replace(/<[^>]*>/g, '')
-    expect(visibleText).not.toContain('2H')
-    expect(visibleText).not.toContain('6H')
-    expect(html).not.toContain('更新于')
-    expect(html.match(/src="\/source-icons\//g)).toHaveLength(36)
-  })
-
-  it('shows one honest state per empty or failed section', () => {
-    const emptyAi = Object.fromEntries(
-      aiSources.map((source) => [source.id, { state: 'empty' }])
-    ) as AiFeeds
-    const failedNews = Object.fromEntries(
-      newsSources.map((source) => [source.id, { state: 'error' }])
-    ) as NewsFeeds
-    const html = renderToStaticMarkup(
-      <HomeView
-        aiFeeds={emptyAi}
-        newsFeeds={failedNews}
-        technologyFeeds={technologyFeeds}
-        socialFeeds={socialFeeds}
-        financeFeeds={financeFeeds}
-        gameFeeds={gameFeeds}
-      />
-    )
-    expect(html.match(/暂无内容。/g)).toHaveLength(1)
-    expect(html.match(/暂时无法加载，请稍后再试。/g)).toHaveLength(1)
-    expect(html).toContain('github 热点')
-  })
-
-  it('orders each homepage section by publication time', () => {
-    const older = readyFeed('openai')
-    const newer = readyFeed('anthropic')
-    if (older.state !== 'ready' || newer.state !== 'ready') throw new Error('Expected fixtures')
-    older.items[0] = {
-      ...older.items[0],
-      title: '较早文章',
-      publishedAt: new Date('2026-09-05T01:00:00.000Z')
-    }
-    newer.items[0] = {
-      ...newer.items[0],
-      title: '较新文章',
-      publishedAt: new Date('2026-09-06T01:00:00.000Z')
-    }
-    const orderedAi = Object.fromEntries(
-      aiSources.map((source) => [
-        source.id,
-        source.id === 'openai' ? older : source.id === 'anthropic' ? newer : { state: 'empty' }
-      ])
-    ) as AiFeeds
-
-    const html = renderToStaticMarkup(
-      <HomeView
-        aiFeeds={orderedAi}
-        financeFeeds={financeFeeds}
-        gameFeeds={gameFeeds}
-        newsFeeds={newsFeeds}
-        socialFeeds={socialFeeds}
-        technologyFeeds={technologyFeeds}
-      />
-    )
-
-    expect(html.indexOf('较新文章')).toBeLessThan(html.indexOf('较早文章'))
-  })
-
-  it('keeps available content during partial failure and links news to its article', () => {
-    const feed = readyFeed('xinhua')
-    if (feed.state !== 'ready') throw new Error('Expected ready fixture')
-    feed.items[0] = {
-      ...feed.items[0],
-      articleId: '11111111-1111-4111-8111-111111111111',
-      summary: null,
-      publishedAt: null
-    }
-    const html = renderToStaticMarkup(
-      <HomeView
-        aiFeeds={aiFeeds}
-        newsFeeds={{ ...newsFeeds, xinhua: feed, cctv: { state: 'error' } }}
-        technologyFeeds={technologyFeeds}
-        socialFeeds={socialFeeds}
-        financeFeeds={financeFeeds}
-        gameFeeds={gameFeeds}
-      />
-    )
-    expect(html).toContain('href="/news/xinhua/xinhua-热点--11111111-1111-4111-8111-111111111111"')
-    expect(html).toContain('部分来源暂时无法加载')
-    expect(html).not.toContain('Invalid Date')
-  })
+  ).toContain('暂无内容。')
+  const html = renderToStaticMarkup(
+    <QueryProvider>
+      <HomeView initialPage={empty} initialError />
+    </QueryProvider>
+  )
+  expect(html).toContain('重试')
+  expect(html).toContain('role="alert"')
 })

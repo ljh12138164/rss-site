@@ -1,5 +1,51 @@
 # HERMES
 
+## 2026-09-07 P1–P5 补齐（本地实施，未验收）
+
+- 用户要求逐项实现 P1–P5，并明确 AI 时间轴入口放在页面头部；已加入 SiteShell 主导航。
+- `/ai/events` 时间轴与 `/ai/events/[slug]` 事件详情读取已发布真实事件；首屏 ISR、来源引用、关联事件、React Query 游标分页和一页预取。
+- 新生命周期迁移 `20260907095143_complete_content_lifecycle.sql` 固定 slug、维护内容修改时间并记录删除标记；尚未应用云端。代理层用标记和公开可见性在流式正文前返回 410/404，失败返回 503。
+- 增加 sitemap/robots、事件发布后受保护失效、新闻详情 ISR；薄新闻摘要设置 noindex 并排除 sitemap。搜索迁移 React Query，保留中文输入法和防抖。
+- 新增人工编辑事件 CLI `pnpm --filter @rss-site/api publish:event <JSON文件>`，校验真实 AI 文章引用，事务写入后通知 Web；没有创建或发布任何事件。
+- 只读云端盘点：2,208 篇文章、0 个已发布 AI 事件、25 个活跃 Cron。P1 全来源生产门禁未完成；未部署 API/前端，未启用任何新 Cron。
+- 用户要求跳过测试，未测试、类型检查、构建或浏览器验收。详见 `docs/development/roadmap-p1-p5.md`；不能标记 P1–P5 全部完成。
+
+## 2026-09-07 React Query 列表迁移
+
+- 用户要求继续迁移；已固定安装 @tanstack/react-query 5.102.8，根 Provider + 服务端 HydrationBoundary + useInfiniteQuery 接管全部滚动列表。
+- 保留一页预取，缓存按分区/来源/游标隔离，关闭无必要自动刷新，不修改 ISR 周期。
+- 记录：`docs/development/react-query-lists.md`。依约未测试、未构建、未部署，P5 运行验收仍待完成。
+
+## 2026-09-07 优先启用列表 ISR
+
+- 用户暂停 React Query 迁移，优先实现 SEO roadmap P3。首页和 AI 列表 2 小时 ISR，其余分区及来源列表 6 小时。
+- 新增 /api/revalidate 白名单鉴权接口；采集事务成功后可通知 Web，发布失败单独记录，不改变采集结果。
+- 记录：`docs/development/list-page-isr.md`。未配置真实密钥或生产 URL，未测试、构建或部署，不能宣称缓存命中已验证；完整 P3 仍未完成。
+
+## 2026-09-07 列表下一页预取
+
+- 首页、六个分区及来源详情共用一页预取：首屏后后台取下一页，触底复用结果，显示后再预取一页。
+- 当前未使用 React Query，保持 fetch + IntersectionObserver；后台失败静默，触底重试，离开页面取消请求。按约定未测试或构建。
+
+## 2026-09-07 分区与来源滚动加载
+
+- 六个分区总览及来源详情页接入 PaginatedArticleFeed，首屏 30 条并按范围继续加载；文章按时间，GitHub 当前榜单按排名。
+- /api/articles 增加分区与来源白名单；切换来源重置列表和请求，保留重试及手动加载。
+- 记录：`docs/development/section-infinite-scroll.md`。按用户要求跳过测试与构建，未部署、未推送，继续当前分支。
+
+## 2026-09-07 首页全部文章与滚动加载
+
+- 用户纠正首页需求：一个全站文章列表，按发布时间倒序、滚动加载，取消六分区分别展示。
+- 已改用 signal_articles 首屏 30 条及 /api/articles 游标续取，保留来源链接、新闻详情和独立开源榜入口。
+- 记录：`docs/development/home-all-articles.md`。用户要求跳过测试；本轮不运行测试、类型检查、构建或浏览器验收。保持本分支、不部署、不推送。
+
+## 2026-09-07 GitHub Blog 与开源排行榜
+
+- 当前目标：在 `feat/section-rss-feeds` 分离 GitHub Trending 排行榜与 GitHub Blog 文章；用户明确继续本分支。
+- Trending 保持原始排名和已有来源 ID；Blog 使用独立 `github-blog` 与官方 `https://github.blog/feed/`。
+- 开发记录：`docs/development/github-blog-ranking.md`。GitHub 分离部分通过测试、构建与独立评审；用户随后要求跳过测试，首页按截图改为大标题、说明、横向来源导航与平面列表，新增布局未测试。
+- 沿用不部署、不推送、不合并约定；新来源生产门禁未执行，Cron 未添加。
+
 ## 2026-09-07 关于页原理小结
 
 - `/about` 新增四步原理小结，手机纵排；“查看原理图”打开 Archify 生成的独立工作流图。

@@ -175,8 +175,10 @@ function buildFeed(
       publishedAt: row.published_at ? new Date(row.published_at) : null,
       position: row.position
     }))
-    .sort(
-      (left, right) => compareHotItemsByPublishedAt(left, right) || left.position - right.position
+    .sort((left, right) =>
+      source === 'github'
+        ? left.position - right.position
+        : compareHotItemsByPublishedAt(left, right) || left.position - right.position
     )
     .slice(0, limit)
 

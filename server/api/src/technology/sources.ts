@@ -40,6 +40,13 @@ export const technologySources = [
     rsshubPath: '/36kr/hot-list/24',
     section: 'technology',
     itemLimit: 30
+  },
+  {
+    id: 'github-blog',
+    name: 'GitHub Blog',
+    feedUrl: 'https://github.blog/feed/',
+    section: 'technology',
+    itemLimit: 30
   }
 ] as const
 

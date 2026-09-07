@@ -3,7 +3,7 @@ export const technologySources = [
     id: 'github',
     code: 'GH',
     name: 'GitHub Trending',
-    shortName: 'GitHub',
+    shortName: '开源榜',
     description: '本周热门开源项目'
   },
   {
@@ -40,6 +40,13 @@ export const technologySources = [
     name: '36氪',
     shortName: '36氪',
     description: '科技与商业热门资讯'
+  },
+  {
+    id: 'github-blog',
+    code: 'GH',
+    name: 'GitHub Blog',
+    shortName: 'GitHub Blog',
+    description: 'GitHub 官方文章与产品动态'
   }
 ] as const
 

@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
+import { PaginatedArticleFeed } from '../../components/paginated-article-feed'
 import { SectionOverview } from '../../components/section-overview'
-import { getSocialFeeds, type SocialFeeds } from '../../lib/hot-feed'
+import type { SocialFeeds } from '../../lib/hot-feed'
 import { socialSources } from '../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
+export const revalidate = 21600
 
 export const metadata: Metadata = {
+  alternates: { canonical: optionalCanonical('/social') },
   title: '社交热点',
   description: '来自哔哩哔哩、知乎、酷安、虎扑、少数派和今日头条的公开热门内容。'
 }
@@ -15,5 +18,7 @@ export function SocialView({ feeds }: { feeds: SocialFeeds }) {
 }
 
 export default async function SocialPage() {
-  return <SocialView feeds={await getSocialFeeds()} />
+  return <PaginatedArticleFeed section="/social" />
 }
+
+import { optionalCanonical } from '../../lib/site-url'

@@ -49,6 +49,9 @@ export const signalArticles = pgTable(
     publishedAt: timestamp('published_at', { withTimezone: true }),
     firstSeenAt: timestamp('first_seen_at', { withTimezone: true }).defaultNow().notNull(),
     lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull(),
+    contentUpdatedAt: timestamp('content_updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
     isPinned: boolean('is_pinned').default(false).notNull()
   },
   (table) => [

@@ -24,7 +24,7 @@ function readyFeed(source: string): FeedResult {
 vi.mock('next/navigation', () => ({ usePathname: () => '/technology' }))
 
 describe('TechnologyView', () => {
-  it('renders six source bands and isolates source states', () => {
+  it('renders article sources and a separate GitHub ranking, isolating source states', () => {
     const feeds = Object.fromEntries(
       technologySources.map((source) => [source.id, readyFeed(source.id)])
     ) as TechnologyFeeds
@@ -42,7 +42,8 @@ describe('TechnologyView', () => {
     expect(html).toContain('部分来源暂时无法加载，请稍后再试。')
     expect(html).not.toContain('暂无内容。')
     expect(html).not.toContain('查看全部')
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)
+    expect(html.match(/href="\/out\?url=/g)).toHaveLength(15)
+    expect(html).toContain('开源排行榜')
     for (const source of technologySources) expect(html).toContain(source.shortName)
     expect(html).not.toContain('6H')
     expect(html).not.toContain('更新于')

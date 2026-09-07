@@ -25,7 +25,11 @@ export function FeedResultView({
   return (
     <HotList
       internalArticles={internalArticles}
-      items={feed.items}
+      items={
+        source === 'github'
+          ? feed.items.map((item) => ({ ...item, publishedAt: null, author: null }))
+          : feed.items
+      }
       returnTo={returnTo}
       source={source}
     />

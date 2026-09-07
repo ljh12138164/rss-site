@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
+import { PaginatedArticleFeed } from '../../components/paginated-article-feed'
 import { SectionOverview } from '../../components/section-overview'
-import { type FinanceFeeds, getFinanceFeeds } from '../../lib/hot-feed'
+import type { FinanceFeeds } from '../../lib/hot-feed'
 import { financeSources } from '../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
+export const revalidate = 21600
 
 export const metadata: Metadata = {
+  alternates: { canonical: optionalCanonical('/finance') },
   title: '财经热点',
   description: '华尔街见闻、财联社、金十数据、第一财经、证券时报和同花顺财经的热门内容。'
 }
@@ -15,5 +18,7 @@ export function FinanceView({ feeds }: { feeds: FinanceFeeds }) {
 }
 
 export default async function FinancePage() {
-  return <FinanceView feeds={await getFinanceFeeds()} />
+  return <PaginatedArticleFeed section="/finance" />
 }
+
+import { optionalCanonical } from '../../lib/site-url'

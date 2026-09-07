@@ -64,14 +64,14 @@ describe('technology feeds', () => {
       items: [
         {
           articleId: null,
-          sourceKey: 'github-2',
-          title: 'GitHub 2',
-          url: 'https://github.com/example/two',
+          sourceKey: 'github-1',
+          title: 'GitHub 1',
+          url: 'https://github.com/example/one',
           imageUrl: null,
           summary: null,
-          author: null,
-          publishedAt: new Date('2026-09-05T01:00:00.000Z'),
-          position: 2
+          author: 'example',
+          publishedAt: new Date('2026-09-04T01:00:00.000Z'),
+          position: 1
         }
       ],
       status: {
@@ -88,7 +88,7 @@ describe('technology feeds', () => {
 
     expect(feed.state).toBe('ready')
     if (feed.state === 'ready') {
-      expect(feed.items.map((item) => item.position)).toEqual([2, 1])
+      expect(feed.items.map((item) => item.position)).toEqual([1, 2])
     }
   })
 

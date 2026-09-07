@@ -105,8 +105,9 @@ export function buildRssSectionData<
   const entries: RssEntry[] = []
   const successfulDates: Date[] = []
   let errorCount = 0
+  const articleSources = config.sources.filter((source) => source.id !== 'github')
 
-  for (const source of config.sources) {
+  for (const source of articleSources) {
     const feed = feeds[source.id]
 
     if (feed.state === 'error') {
@@ -135,7 +136,7 @@ export function buildRssSectionData<
     config,
     entries,
     lastBuildDate: lastBuildTimestamp > 0 ? new Date(lastBuildTimestamp) : null,
-    unavailable: errorCount === config.sources.length
+    unavailable: articleSources.length > 0 && errorCount === articleSources.length
   }
 }
 

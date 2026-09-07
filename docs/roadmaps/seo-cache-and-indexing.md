@@ -2,6 +2,8 @@
 
 Status: P1 schema and historical backfill verified in cloud; full 36-source Cron gate pending
 
+2026-09-07 P1–P5 补齐进度：新增生命周期迁移、AI 时间轴/详情与头部入口、事件/新闻 ISR、sitemap/robots、事件和搜索 React Query；见 [实施记录](../development/roadmap-p1-p5.md)。均为当前分支代码，新增迁移未落云，未部署或运行验收。P1 全来源门禁和 Search Console 提交仍是外部待办，不把“代码已实现”算作完成。
+
 Batch gate: 财经、游戏与 P1 数据模型已合并，四条云端迁移、496 条历史文章回填和权限审计已完成。完整来源
 门禁先后被掘金瞬时 503 与金十无链接条目中断，且安全顺序保证 Cron 未被更改。当前解析与有限重试修复部署后，
 必须从第一路重新验证 36 路并启用错峰 Cron，P2 才开始。最终前端部署顺序见
@@ -54,6 +56,8 @@ Status: cloud schema, backfill and access boundary verified; complete real-inges
 
 ## P2：稳定详情路由与内容质量
 
+当前分支已实现 `/ai/events` 和 `/ai/events/[slug]`；云端无已发布事件，页面显示真实空状态。新闻详情为第三方薄摘要，依本节规则设置 noindex，因此不进入 sitemap。
+
 ### 路由
 
 - 事件详情主路由使用 `/ai/events/[slug]`。
@@ -75,6 +79,8 @@ Status: cloud schema, backfill and access boundary verified; complete real-inges
 - 页面通过桌面端、移动端、键盘和无 JavaScript 基础内容检查。
 
 ## P3：Next.js ISR 与按需失效
+
+2026-09-07：当前分支已覆盖首页、分区、来源、新闻及事件详情 ISR，并接入 sitemap 失效、带标签的内容状态缓存和删除后通知；见 [P1–P5 实施](../development/roadmap-p1-p5.md)。尚未部署、配置通知或验证缓存命中，P3 未验收。Cloudflare 仍属 P6。
 
 ### 页面缓存
 
@@ -119,6 +125,8 @@ Status: cloud schema, backfill and access boundary verified; complete real-inges
 
 ## P4：动态 sitemap、robots 与 Google 发现
 
+当前分支已加入 `/sitemap.xml` 与 `/robots.txt`，覆盖首页、分区、来源、已发布事件；读取全部事件时分批查询，事件 lastModified 使用内容更新时间。尚未配置正式域名或提交 Search Console。
+
 ### Sitemap
 
 - 使用 Next.js Metadata Route 生成根级 `/sitemap.xml`。
@@ -142,6 +150,8 @@ Status: cloud schema, backfill and access boundary verified; complete real-inges
 - Search Console 能读取 sitemap，且没有 URL、canonical 或 robots 冲突。
 
 ## P5：React Query 浏览器缓存
+
+2026-09-07：首页、分区、来源及 AI 事件列表已迁移 React Query 5.102.8，包含 HydrationBoundary、useInfiniteQuery 和一页预取；搜索弹窗也已迁移，保留中文输入法和防抖。见 [P1–P5 实施](../development/roadmap-p1-p5.md)。依用户要求未运行测试或构建，完成信号尚未验收。
 
 ### 使用边界
 

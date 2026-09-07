@@ -22,7 +22,7 @@ export function HotList({
   internalArticles = false,
   source
 }: {
-  items: (HotItem & { platform?: SignalSource })[]
+  items: (HotItem & { platform?: SignalSource; section?: OutboundReturnPath })[]
   returnTo?: OutboundReturnPath
   internalArticles?: boolean
   source?: string
@@ -32,7 +32,7 @@ export function HotList({
       {items.map((item) => {
         const sourceId = item.platform?.id ?? source
         const internalHref =
-          internalArticles && sourceId && item.articleId
+          (internalArticles || item.section === '/news') && sourceId && item.articleId
             ? createNewsArticlePath(sourceId, item.title, item.articleId)
             : null
         const href =
@@ -51,7 +51,7 @@ export function HotList({
               <Link className="group block max-w-full text-foreground" href={href}>
                 <span className="block min-w-0">
                   <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-lg">
-                    <span>{item.title}</span>
+                    <span className="min-w-0 wrap-anywhere">{item.title}</span>
                     {internalHref ? (
                       <ArrowRight
                         aria-hidden="true"
@@ -84,7 +84,7 @@ export function HotList({
               </Link>
               {item.platform && (
                 <Link
-                  href={`${returnTo}/${item.platform.id}`}
+                  href={`${item.section ?? returnTo}/${item.platform.id}`}
                   aria-label={`浏览${item.platform.name}`}
                   className="inline-flex min-h-11 max-w-full items-center gap-2 text-xs font-medium text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:min-h-8"
                 >

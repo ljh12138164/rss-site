@@ -9,7 +9,12 @@ import { createNewsArticlePath, parseArticleIdFromSlug } from '../../../../lib/a
 import { getNewsArticle, type SignalArticle } from '../../../../lib/signal-article'
 import { getNewsSource, isNewsSourceId, type NewsSource } from '../../../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
+export const revalidate = 21600
+export const dynamicParams = true
+export function generateStaticParams() {
+  return []
+}
 
 type Props = { params: Promise<{ source: string; slug: string }> }
 
@@ -55,6 +60,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     title: article.title,
+    robots: { index: false, follow: true },
     description: article.summary ?? source.description,
     ...(canonical ? { alternates: { canonical } } : {}),
     openGraph: {

@@ -1,11 +1,14 @@
 import type { Metadata } from 'next'
+import { PaginatedArticleFeed } from '../../components/paginated-article-feed'
 import { SectionOverview } from '../../components/section-overview'
-import { type GameFeeds, getGameFeeds } from '../../lib/hot-feed'
+import type { GameFeeds } from '../../lib/hot-feed'
 import { gameSources } from '../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
+export const revalidate = 21600
 
 export const metadata: Metadata = {
+  alternates: { canonical: optionalCanonical('/games') },
   title: '游戏热点',
   description: '3DM、机核、游民星空、游侠网、indienova 与 Steam 的游戏资讯和榜单。'
 }
@@ -15,5 +18,7 @@ export function GamesView({ feeds }: { feeds: GameFeeds }) {
 }
 
 export default async function GamesPage() {
-  return <GamesView feeds={await getGameFeeds()} />
+  return <PaginatedArticleFeed section="/games" />
 }
+
+import { optionalCanonical } from '../../lib/site-url'

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
+import { QueryProvider } from '../components/query-provider'
 import { ReactAriaProvider } from '../components/react-aria-provider'
 import { ThemeProvider } from '../components/theme-provider'
 import './globals.css'
@@ -19,7 +20,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           disableTransitionOnChange
           enableSystem
         >
-          <ReactAriaProvider>{children}</ReactAriaProvider>
+          <QueryProvider>
+            <ReactAriaProvider>{children}</ReactAriaProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

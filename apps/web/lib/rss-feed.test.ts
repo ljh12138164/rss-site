@@ -8,7 +8,7 @@ import {
 } from './rss-feed'
 import { technologySources } from './technology-sources'
 
-const github = technologySources[0]
+const github = technologySources[6]
 const hackerNews = technologySources[1]
 
 function item(overrides: Partial<HotItem> = {}): HotItem {
@@ -54,7 +54,7 @@ describe('section RSS feeds', () => {
         [item({ title: 'HN', publishedAt: new Date('2026-09-05T03:00:00.000Z') })],
         '2026-09-05T01:00:00.000Z'
       ),
-      github: ready(
+      'github-blog': ready(
         [
           item({ title: 'GitHub 1', publishedAt: new Date('2026-09-05T01:00:00.000Z') }),
           item({ sourceKey: 'item-2', title: 'GitHub 2', position: 2 })
@@ -65,8 +65,8 @@ describe('section RSS feeds', () => {
 
     expect(data.entries.map(({ source, item: entry }) => `${source.id}:${entry.title}`)).toEqual([
       'hacker-news:HN',
-      'github:GitHub 1',
-      'github:GitHub 2'
+      'github-blog:GitHub 1',
+      'github-blog:GitHub 2'
     ])
     expect(data.lastBuildDate).toEqual(new Date('2026-09-05T02:00:00.000Z'))
     expect(data.unavailable).toBe(false)
@@ -74,18 +74,22 @@ describe('section RSS feeds', () => {
 
   it('marks a section unavailable only when every source failed', () => {
     expect(
-      buildRssSectionData(config, { github: { state: 'error' }, 'hacker-news': { state: 'error' } })
-        .unavailable
+      buildRssSectionData(config, {
+        'github-blog': { state: 'error' },
+        'hacker-news': { state: 'error' }
+      }).unavailable
     ).toBe(true)
     expect(
-      buildRssSectionData(config, { github: { state: 'empty' }, 'hacker-news': { state: 'error' } })
-        .unavailable
+      buildRssSectionData(config, {
+        'github-blog': { state: 'empty' },
+        'hacker-news': { state: 'error' }
+      }).unavailable
     ).toBe(false)
   })
 
   it('escapes XML, removes invalid controls, and omits missing publication dates', () => {
     const data = buildRssSectionData(config, {
-      github: ready(
+      'github-blog': ready(
         [
           item({
             sourceKey: 'key&"',
@@ -104,8 +108,8 @@ describe('section RSS feeds', () => {
     expect(xml).toContain('<title>A &amp; &lt;B&gt;</title>')
     expect(xml).not.toContain('\u0001')
     expect(xml).toContain('<link>https://example.com/article?a=1&amp;b=2</link>')
-    expect(xml).toContain('<guid isPermaLink="false">technology:github:key&amp;&quot;</guid>')
-    expect(xml).toContain('<category>GitHub Trending</category>')
+    expect(xml).toContain('<guid isPermaLink="false">technology:github-blog:key&amp;&quot;</guid>')
+    expect(xml).toContain('<category>GitHub Blog</category>')
     expect(xml).toContain('<description>A &quot;short&quot; summary &amp; more</description>')
     expect(xml).toContain(
       '<atom:link href="https://hot.example/feeds/technology.xml" rel="self" type="application/rss+xml" />'
@@ -115,7 +119,7 @@ describe('section RSS feeds', () => {
 
   it('emits a real item publication date when one is available', () => {
     const data = buildRssSectionData(config, {
-      github: ready(
+      'github-blog': ready(
         [item({ publishedAt: new Date('2026-09-05T03:04:05.000Z') })],
         '2026-09-05T04:00:00.000Z'
       ),

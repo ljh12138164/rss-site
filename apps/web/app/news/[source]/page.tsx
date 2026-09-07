@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { PaginatedArticleFeed } from '../../../components/paginated-article-feed'
 import { SourceDetailView } from '../../../components/source-detail'
-import { type FeedResult, getNewsFeed } from '../../../lib/hot-feed'
+import type { FeedResult } from '../../../lib/hot-feed'
 import {
   getNewsSource,
   isNewsSourceId,
@@ -9,7 +10,8 @@ import {
   newsSources
 } from '../../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
+export const revalidate = 21600
 export const dynamicParams = false
 
 type Props = { params: Promise<{ source: string }> }
@@ -25,7 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const source = getNewsSource(sourceId)
   return {
     title: source.name,
-    description: source.description
+    description: source.description,
+    alternates: { canonical: optionalCanonical(`/news/${source.id}`) }
   }
 }
 
@@ -37,5 +40,7 @@ export default async function NewsSourcePage({ params }: Props) {
   const { source: sourceId } = await params
   if (!isNewsSourceId(sourceId)) notFound()
 
-  return <NewsSourceView feed={await getNewsFeed(sourceId)} source={getNewsSource(sourceId)} />
+  return <PaginatedArticleFeed section="/news" source={sourceId} />
 }
+
+import { optionalCanonical } from '../../../lib/site-url'
