@@ -1,8 +1,11 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { getGameSource } from '../../../lib/technology-sources'
+import Layout from '../layout'
 import { GameSourceView } from './page'
+
+vi.mock('next/navigation', () => ({ usePathname: () => '/games/steam' }))
 
 it('renders Steam as a collection snapshot without a fabricated publication time', () => {
   const feed: FeedResult = {
@@ -21,12 +24,19 @@ it('renders Steam as a collection snapshot without a fabricated publication time
     status: { itemCount: 1, lastSuccessAt: new Date('2026-09-05T08:05:00.000Z') }
   }
 
-  const html = renderToStaticMarkup(<GameSourceView feed={feed} source={getGameSource('steam')} />)
+  const html = renderToStaticMarkup(
+    <Layout>
+      <GameSourceView feed={feed} source={getGameSource('steam')} />
+    </Layout>
+  )
 
   expect(html).toContain('首页')
   expect(html).toContain('游戏')
   expect(html).toContain('Steam 热销榜')
-  expect(html).toContain('采集时间只表示榜单快照更新时间')
+  expect(html).toContain('Steam 商店热销榜')
+  expect(html).toContain('内容来源')
   expect(html).toContain('from=%2Fgames')
-  expect(html.match(/<time/g)).toHaveLength(1)
+  expect(html).not.toContain('采集时间')
+  expect(html).not.toContain('更新于')
+  expect(html).not.toContain('<time')
 })

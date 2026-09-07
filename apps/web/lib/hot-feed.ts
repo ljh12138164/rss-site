@@ -16,6 +16,7 @@ import {
 } from './technology-sources'
 
 export interface HotItemRow {
+  article_id?: string | null
   source: string
   source_key: string
   title: string
@@ -42,6 +43,7 @@ export interface FeedCollectionQueryResult {
 export type FeedCollectionQuery = () => Promise<FeedCollectionQueryResult>
 
 export interface HotItem {
+  articleId?: string | null
   sourceKey: string
   title: string
   url: string
@@ -50,6 +52,21 @@ export interface HotItem {
   author: string | null
   publishedAt: Date | null
   position: number
+}
+
+export function compareHotItemsByPublishedAt(
+  left: Pick<HotItem, 'publishedAt'>,
+  right: Pick<HotItem, 'publishedAt'>
+): number {
+  const leftTime = left.publishedAt?.getTime()
+  const rightTime = right.publishedAt?.getTime()
+  const hasLeftTime = leftTime !== undefined && Number.isFinite(leftTime)
+  const hasRightTime = rightTime !== undefined && Number.isFinite(rightTime)
+
+  if (hasLeftTime && hasRightTime) return rightTime - leftTime
+  if (hasLeftTime) return -1
+  if (hasRightTime) return 1
+  return 0
 }
 
 export type FeedResult =
@@ -80,7 +97,9 @@ async function querySectionFeeds(
     const [itemsResult, statusesResult] = await Promise.all([
       supabase
         .from('hot_items')
-        .select('source,source_key,title,url,image_url,summary,author,published_at,position')
+        .select(
+          'article_id,source,source_key,title,url,image_url,summary,author,published_at,position'
+        )
         .eq('section', section)
         .in('source', sourceIds)
         .order('position', { ascending: true }),
@@ -143,19 +162,10 @@ function buildFeed(
 ): FeedResult {
   if (result.error) return { state: 'error' }
 
-  const rows = (result.items ?? [])
+  const items = (result.items ?? [])
     .filter((row) => row.source === source)
-    .sort((left, right) => left.position - right.position)
-    .slice(0, limit)
-
-  if (rows.length === 0) return { state: 'empty' }
-
-  const status = (result.statuses ?? []).find((candidate) => candidate.source === source)
-  if (!status) return { state: 'error' }
-
-  return {
-    state: 'ready',
-    items: rows.map((row) => ({
+    .map((row) => ({
+      articleId: row.article_id ?? null,
       sourceKey: row.source_key,
       title: row.title,
       url: row.url,
@@ -164,7 +174,22 @@ function buildFeed(
       author: row.author,
       publishedAt: row.published_at ? new Date(row.published_at) : null,
       position: row.position
-    })),
+    }))
+    .sort((left, right) =>
+      source === 'github'
+        ? left.position - right.position
+        : compareHotItemsByPublishedAt(left, right) || left.position - right.position
+    )
+    .slice(0, limit)
+
+  if (items.length === 0) return { state: 'empty' }
+
+  const status = (result.statuses ?? []).find((candidate) => candidate.source === source)
+  if (!status) return { state: 'error' }
+
+  return {
+    state: 'ready',
+    items,
     status: {
       itemCount: status.item_count,
       lastSuccessAt: new Date(status.last_success_at)

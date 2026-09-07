@@ -24,7 +24,7 @@ const query: FeedCollectionQuery = async () => ({
       url: 'https://github.com/example/two',
       summary: null,
       author: null,
-      published_at: null,
+      published_at: '2026-09-05T01:00:00.000Z',
       position: 2
     },
     {
@@ -63,6 +63,7 @@ describe('technology feeds', () => {
       state: 'ready',
       items: [
         {
+          articleId: null,
           sourceKey: 'github-1',
           title: 'GitHub 1',
           url: 'https://github.com/example/one',
@@ -138,6 +139,7 @@ describe('news feeds', () => {
   const newsQuery: FeedCollectionQuery = async () => ({
     items: [
       {
+        article_id: '00000000-0000-0000-0000-000000000102',
         source: 'xinhua',
         source_key: 'xinhua-1',
         title: '新华社新闻',
@@ -159,6 +161,9 @@ describe('news feeds', () => {
     expect(feeds.xinhua.state).toBe('ready')
     expect(feeds.cctv).toEqual({ state: 'empty' })
     expect(feed.state).toBe('ready')
+    if (feed.state === 'ready') {
+      expect(feed.items[0]?.articleId).toBe('00000000-0000-0000-0000-000000000102')
+    }
   })
 })
 

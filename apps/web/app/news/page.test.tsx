@@ -1,17 +1,19 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { FeedResult, NewsFeeds } from '../../lib/hot-feed'
 import { newsSources } from '../../lib/technology-sources'
+import Layout from './layout'
 import { NewsView } from './page'
 
 function readyFeed(source: string): FeedResult {
   return {
     state: 'ready',
     items: [1, 2, 3].map((position) => ({
+      articleId: `00000000-0000-0000-0000-${String(position).padStart(12, '0')}`,
       sourceKey: `${source}-${position}`,
       title: `${source} 新闻 ${position}`,
       url: `https://example.com/${source}/${position}`,
-      summary: null,
+      summary: `${source} 新闻 ${position} 的简要介绍。`,
       author: null,
       publishedAt: null,
       position
@@ -19,6 +21,8 @@ function readyFeed(source: string): FeedResult {
     status: { itemCount: 20, lastSuccessAt: new Date('2026-09-05T01:00:00.000Z') }
   }
 }
+
+vi.mock('next/navigation', () => ({ usePathname: () => '/news' }))
 
 describe('NewsView', () => {
   it('renders six independent news source bands', () => {
@@ -28,13 +32,23 @@ describe('NewsView', () => {
     feeds.cctv = { state: 'error' }
     feeds.jiemian = { state: 'empty' }
 
-    const html = renderToStaticMarkup(<NewsView feeds={feeds} />)
+    const html = renderToStaticMarkup(
+      <Layout>
+        <NewsView feeds={feeds} />
+      </Layout>
+    )
 
-    expect(html).toContain('国内新闻信号台')
-    expect(html).toContain('这一路信号暂时不可读')
-    expect(html).toContain('正在等待第一轮采集')
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)
-    expect(html).toContain('from=%2Fnews')
-    for (const source of newsSources) expect(html).toContain(source.name)
+    expect(html).toContain('aria-label="内容来源"')
+    expect(html).toContain('>央视<')
+    expect(html).toContain('部分来源暂时无法加载，请稍后再试。')
+    expect(html).not.toContain('暂无内容。')
+    expect(html).not.toContain('查看全部')
+    expect(html.match(/href="\/news\//g)).toHaveLength(30)
+    expect(html).toContain('xinhua 新闻 1 的简要介绍。')
+    expect(html).not.toContain('href="/out?url=')
+    for (const source of newsSources) expect(html).toContain(source.shortName)
+    expect(html).not.toContain('6H')
+    expect(html).not.toContain('更新于')
+    expect(html).not.toContain('信号台')
   })
 })

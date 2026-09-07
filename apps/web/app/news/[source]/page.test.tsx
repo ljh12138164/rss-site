@@ -1,18 +1,22 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { getNewsSource } from '../../../lib/technology-sources'
+import Layout from '../layout'
 import { NewsSourceView } from './page'
+
+vi.mock('next/navigation', () => ({ usePathname: () => '/news/xinhua' }))
 
 describe('NewsSourceView', () => {
   it('renders the full news source list and breadcrumb context', () => {
     const feed: FeedResult = {
       state: 'ready',
       items: Array.from({ length: 7 }, (_, index) => ({
+        articleId: `00000000-0000-0000-0000-${String(index + 1).padStart(12, '0')}`,
         sourceKey: `item-${index + 1}`,
         title: `新闻 ${index + 1}`,
         url: `https://example.com/article/${index + 1}`,
-        summary: null,
+        summary: `新闻 ${index + 1} 的简要介绍。`,
         author: null,
         publishedAt: null,
         position: index + 1
@@ -24,14 +28,20 @@ describe('NewsSourceView', () => {
     }
 
     const html = renderToStaticMarkup(
-      <NewsSourceView feed={feed} source={getNewsSource('xinhua')} />
+      <Layout>
+        <NewsSourceView feed={feed} source={getNewsSource('xinhua')} />
+      </Layout>
     )
 
     expect(html).toContain('首页')
     expect(html).toContain('新闻')
     expect(html).toContain('新华社')
     expect(html).toContain('aria-current="page"')
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
-    expect(html).toContain('from=%2Fnews')
+    expect(html).toContain('内容来源')
+    expect(html.match(/href="\/news\/xinhua\/新闻/g)).toHaveLength(7)
+    expect(html).toContain('新闻 1 的简要介绍。')
+    expect(html).not.toContain('href="/out?url=')
+    expect(html).not.toContain('每六小时')
+    expect(html).not.toContain('更新于')
   })
 })

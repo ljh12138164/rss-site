@@ -28,6 +28,8 @@ async function main() {
     const results = await setupSignalCron({
       apiUrl,
       cronSecret,
+      webUrl: process.env.WEB_APP_URL,
+      revalidateSecret: process.env.REVALIDATE_SECRET,
       repository: new PostgresCronRepository(sql)
     })
 

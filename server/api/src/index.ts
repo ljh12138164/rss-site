@@ -2,6 +2,7 @@ import { Hono } from 'hono'
 import { createDatabase } from './db/client.js'
 import { configureApp } from './http-app.js'
 import { ingestSignal } from './technology/ingest.js'
+import { publishSourceUpdate } from './technology/publish.js'
 import { getSignalSource, resolveSignalFeedUrl } from './technology/sources.js'
 import { DrizzleSignalStore } from './technology/store.js'
 
@@ -25,11 +26,14 @@ async function fetchSignalFeed(url: string) {
 
 export default configureApp(new Hono(), {
   cronSecret: requiredEnvironment('CRON_SECRET'),
-  runIngestion: (sourceId) => {
+  runIngestion: async (sourceId) => {
     const source = getSignalSource(sourceId)
-    return ingestSignal(source, {
+    const result = await ingestSignal(source, {
       fetchFeed: () => fetchSignalFeed(resolveSignalFeedUrl(source, rsshubBaseUrl)),
       store: new DrizzleSignalStore(database, source.id, source.section)
     })
+    const publication = await publishSourceUpdate(source)
+    console.info(JSON.stringify({ source: source.id, batchId: result.batchId, publication }))
+    return { ...result, publication }
   }
 })

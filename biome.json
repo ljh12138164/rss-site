@@ -6,7 +6,12 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!**/.next", "!!**/next-env.d.ts"]
+    "includes": [
+      "**",
+      "!!**/.next",
+      "!!**/next-env.d.ts",
+      "!!apps/web/public/diagrams/content-flow.html"
+    ]
   },
   "formatter": {
     "enabled": true,

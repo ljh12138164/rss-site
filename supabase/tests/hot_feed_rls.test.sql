@@ -1,5 +1,5 @@
 begin;
-select plan(53);
+select plan(56);
 
 select has_table('public', 'hot_items', 'hot_items exists');
 select has_table('public', 'source_status', 'source_status exists');
@@ -62,7 +62,7 @@ select results_eq(
 set local role anon;
 select lives_ok($$select * from public.hot_items$$, 'anon reads hot items');
 select lives_ok($$select * from public.source_status$$, 'anon reads source status');
-select lives_ok($$select * from public.signal_articles$$, 'anon reads published AI event articles');
+select lives_ok($$select * from public.signal_articles$$, 'anon reads public signal articles');
 select lives_ok($$select * from public.ai_events$$, 'anon reads published AI events');
 select lives_ok(
   $$select * from public.ai_event_articles$$,
@@ -356,8 +356,23 @@ select results_eq(
 );
 select results_eq(
   $$select count(*) from public.signal_articles$$,
-  array[1::bigint],
-  'anon sees only articles linked to published AI events'
+  array[6::bigint],
+  'anon sees all public signal articles'
+);
+
+select ok(
+  not has_table_privilege('anon', 'public.signal_articles', 'INSERT,UPDATE,DELETE,TRUNCATE'),
+  'anon cannot mutate signal articles'
+);
+set local role authenticated;
+select results_eq(
+  $$select count(*) from public.signal_articles$$,
+  array[6::bigint],
+  'authenticated sees all public signal articles'
+);
+select ok(
+  not has_table_privilege('authenticated', 'public.signal_articles', 'INSERT,UPDATE,DELETE,TRUNCATE'),
+  'authenticated cannot mutate signal articles'
 );
 
 select * from finish();

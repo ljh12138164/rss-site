@@ -9,7 +9,8 @@
     "lint": "biome check .",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
-    "setup:cron": "tsx --env-file=.env src/setup/cli.ts"
+    "setup:cron": "tsx --env-file=.env src/setup/cli.ts",
+    "publish:event": "tsx --env-file=.env src/technology/publish-event.ts"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

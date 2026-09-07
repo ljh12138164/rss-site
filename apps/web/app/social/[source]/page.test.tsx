@@ -1,11 +1,14 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { getSocialSource } from '../../../lib/technology-sources'
+import Layout from '../layout'
 import { SocialSourceView } from './page'
 
+vi.mock('next/navigation', () => ({ usePathname: () => '/social/bilibili' }))
+
 describe('SocialSourceView', () => {
-  it('renders the full source list, media previews, and social breadcrumb context', () => {
+  it('renders the full source list and social platform navigation without images', () => {
     const feed: FeedResult = {
       state: 'ready',
       items: Array.from({ length: 7 }, (_, index) => ({
@@ -25,16 +28,21 @@ describe('SocialSourceView', () => {
     }
 
     const html = renderToStaticMarkup(
-      <SocialSourceView feed={feed} source={getSocialSource('bilibili')} />
+      <Layout>
+        <SocialSourceView feed={feed} source={getSocialSource('bilibili')} />
+      </Layout>
     )
 
     expect(html).toContain('首页')
-    expect(html).toContain('社交热点')
+    expect(html).toContain('社交')
     expect(html).toContain('哔哩哔哩综合热门')
     expect(html).toContain('示例 UP 主')
     expect(html).toContain('aria-current="page"')
-    expect(html.match(/loading="lazy"/g)).toHaveLength(7)
+    expect(html).toContain('内容来源')
     expect(html.match(/href="\/out\?url=/g)).toHaveLength(7)
     expect(html).toContain('from=%2Fsocial')
+    expect(html.match(/src="\/source-icons\//g)).toHaveLength(6)
+    expect(html).not.toContain('每六小时')
+    expect(html).not.toContain('更新于')
   })
 })

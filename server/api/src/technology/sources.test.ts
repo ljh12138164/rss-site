@@ -26,13 +26,16 @@ import {
 
 describe('technologySources', () => {
   it('keeps the confirmed sources and RSSHub paths in display order', () => {
-    expect(technologySources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
+    expect(
+      technologySources.map((source) => [source.id, resolveSignalFeedUrl(source, '')])
+    ).toEqual([
       ['github', '/github/trending/weekly/any'],
       ['hacker-news', '/hackernews'],
       ['juejin', '/juejin/trending/all/weekly'],
       ['v2ex', '/v2ex/topics/hot'],
       ['ithome', '/ithome/ranking/24h'],
-      ['36kr', '/36kr/hot-list/24']
+      ['36kr', '/36kr/hot-list/24'],
+      ['github-blog', 'https://github.blog/feed/']
     ])
     expect(technologySources.every((source) => source.section === 'technology')).toBe(true)
   })
@@ -131,7 +134,7 @@ describe('technologySources', () => {
     expect(isFinanceSourceId('github')).toBe(false)
     expect(isGameSourceId('steam')).toBe(true)
     expect(isGameSourceId('github')).toBe(false)
-    expect(signalSources).toHaveLength(36)
+    expect(signalSources).toHaveLength(37)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

@@ -149,6 +149,8 @@ export interface CronRepository {
 }
 
 interface SetupSignalCronOptions {
+  webUrl?: string
+  revalidateSecret?: string
   apiUrl: string
   cronSecret: string
   repository: CronRepository
@@ -239,6 +241,8 @@ function parseIngestionResult(value: unknown): IngestionResult {
 }
 
 export async function setupSignalCron({
+  webUrl,
+  revalidateSecret,
   apiUrl,
   cronSecret,
   repository,
@@ -247,6 +251,15 @@ export async function setupSignalCron({
 }: SetupSignalCronOptions): Promise<SourceIngestionResult[]> {
   const ingestBaseUrl = normalizeIngestUrl(apiUrl)
   if (!cronSecret) throw new Error('CRON_SECRET 不能为空')
+  if (Boolean(webUrl) !== Boolean(revalidateSecret))
+    throw new Error('WEB_APP_URL 与 REVALIDATE_SECRET 必须同时配置')
+  let webOrigin: string | undefined
+  if (webUrl) {
+    const parsed = new URL(webUrl)
+    if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password)
+      throw new Error('WEB_APP_URL 无效')
+    webOrigin = parsed.origin
+  }
 
   const verifiedSources: SourceIngestionResult[] = []
   for (const { source } of SIGNAL_CRON_JOBS) {
@@ -284,6 +297,10 @@ export async function setupSignalCron({
   await repository.installExtensions()
   await repository.upsertSecret('signal_ingest_base_url', ingestBaseUrl)
   await repository.upsertSecret('signal_cron_secret', cronSecret)
+  if (webOrigin && revalidateSecret) {
+    await repository.upsertSecret('signal_web_url', webOrigin)
+    await repository.upsertSecret('signal_revalidate_secret', revalidateSecret)
+  }
 
   for (const name of LEGACY_SIGNAL_CRON_JOB_NAMES) {
     await repository.unschedule(name)
