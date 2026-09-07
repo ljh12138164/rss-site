@@ -15,5 +15,5 @@ export function AiView({ feeds }: { feeds: AiFeeds }) {
 }
 
 export default async function AiPage() {
-  return <AiView feeds={await getAiFeeds(3)} />
+  return <AiView feeds={await getAiFeeds()} />
 }

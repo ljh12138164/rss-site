@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-09-07 分区统一时间列表
+
+- 六分区概览移除平台分组，按发布时间混合显示全部当前条目，连续编号、平台图标/链接与最多 240 字符简介；复用现有 RSS 正文兜底。
+- 开发文档：`docs/development/section-article-list.md`。Web 77 测试、全仓类型检查、Web 构建与本次 Biome 通过；本地 /ai DOM 已验证，截图工具超时，移动端和主题像素复核待完成。
+- 继续 `feat/section-rss-feeds`，不部署、推送或合并；保留用户 next-env.d.ts 修改。
+
 ## 2026-09-07 首页顺序列表与分区局部加载
 
 - 在 `feat/section-rss-feeds` 继续实现首页编号列表与平台图标/名称，复用平台页 HotList。

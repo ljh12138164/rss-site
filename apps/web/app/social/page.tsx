@@ -15,5 +15,5 @@ export function SocialView({ feeds }: { feeds: SocialFeeds }) {
 }
 
 export default async function SocialPage() {
-  return <SocialView feeds={await getSocialFeeds(3)} />
+  return <SocialView feeds={await getSocialFeeds()} />
 }

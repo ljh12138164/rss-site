@@ -15,5 +15,5 @@ export function TechnologyView({ feeds }: { feeds: TechnologyFeeds }) {
 }
 
 export default async function TechnologyPage() {
-  return <TechnologyView feeds={await getTechnologyFeeds(3)} />
+  return <TechnologyView feeds={await getTechnologyFeeds()} />
 }

@@ -15,5 +15,5 @@ export function FinanceView({ feeds }: { feeds: FinanceFeeds }) {
 }
 
 export default async function FinancePage() {
-  return <FinanceView feeds={await getFinanceFeeds(3)} />
+  return <FinanceView feeds={await getFinanceFeeds()} />
 }

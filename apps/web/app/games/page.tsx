@@ -15,5 +15,5 @@ export function GamesView({ feeds }: { feeds: GameFeeds }) {
 }
 
 export default async function GamesPage() {
-  return <GamesView feeds={await getGameFeeds(3)} />
+  return <GamesView feeds={await getGameFeeds()} />
 }
