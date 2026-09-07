@@ -10,7 +10,7 @@ describe('OutboundView', () => {
     expect(html).toContain('即将离开 AI 热榜，请注意账号财产安全')
     expect(html).toContain('https://juejin.cn/post/123')
     expect(html).toContain('href="https://juejin.cn/post/123"')
-    expect(html).toContain('target="_blank"')
+    expect(html).not.toContain('target=')
     expect(html).toContain('rel="noreferrer noopener external"')
     expect(html).toContain('继续访问')
     expect(html).not.toContain('本站仅作信息聚合与索引')

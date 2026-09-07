@@ -67,8 +67,16 @@ export function SiteShell({
       </header>
       <main className={cn('flex-1 py-12 sm:py-16', mainClassName)}>{children}</main>
       <div aria-hidden="true" className="border-t border-border" />
-      <footer className="flex min-h-20 items-center py-5 text-xs text-muted-foreground">
+      <footer className="flex min-h-20 flex-wrap items-center justify-between gap-x-6 gap-y-2 py-5 text-xs text-muted-foreground">
         <p>内容来自公开网页，点击标题查看原文。</p>
+        <nav aria-label="站点信息" className="flex items-center gap-5">
+          <Link className="flex min-h-11 items-center hover:text-foreground" href="/about">
+            关于本站
+          </Link>
+          <Link className="flex min-h-11 items-center hover:text-foreground" href="/privacy">
+            隐私说明
+          </Link>
+        </nav>
       </footer>
     </div>
   )

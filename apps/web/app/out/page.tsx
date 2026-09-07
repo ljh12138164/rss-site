@@ -77,7 +77,6 @@ export function OutboundView({
           className={actionStyles('primary')}
           href={destination}
           rel="noreferrer noopener external"
-          target="_blank"
         >
           继续访问
         </a>
