@@ -1,5 +1,26 @@
 # HERMES
 
+## 2026-09-08 云迁移已完成，API 发布受作者关联阻断
+
+- 用户要求继续接通。三条迁移已应用，SQL 文件按云端版本同步为 20260907160405 / 20260907160408 / 20260907160426；公开写权限为 0，25 个 Cron 未变。
+- 本地真实社交摘要详情可读，桌面及 390px 手机无横向溢出，主题切换可用。
+- API 部署 dpl_HWJqd5uWgcBwbUSnrYNMqNe6cP5F 被 Vercel 标记 BLOCKED：HEAD 作者 Vitality <vitality@kreator-inc.com> 未关联 Git 账号；CLI 登录为 ljh12138164。未改作者身份绕过限制，未手动采集或发布前端。
+- 下一步等待用户确认合法提交身份或关联邮箱后重新发布 API，再验证正文落库。细节见 docs/development/article-reader.md。
+
+## 2026-09-07 全分区阅读与正文保存（待云端接通）
+
+- 在当前分支完成六分区 /{section}/{source}/{slug} 阅读页，列表与搜索进入站内详情；保留旧新闻 URL。
+- Feed 保留 content:encoded 优先的 HTML，signal_articles 新增 content_html 迁移；正文仅在详情清洗渲染，保留标题、段落、列表、引用、代码和表格。沿用不显示图片偏好。
+- Web 93 项、API 56 项测试与类型检查通过，临时 SITE_URL=http://localhost:3000 下生产构建通过。真实 GitHub Blog Feed 验证正文结构保留，未写入云端。
+- 云端只读确认仍缺生命周期和正文迁移；真实详情返回 503，完整视觉验收、落库验收待接通。不擅自应用迁移、部署或重跑生产采集。
+- 下一步：获得云迁移执行授权后应用前置迁移，再更新 API 并重新采集、验证正文写入及阅读页。详见 docs/development/article-reader.md 和 docs/roadmaps/article-content.md。
+
+## 2026-09-07 今日热点头部
+
+- 继续 feat/section-rss-feeds，共享头部改为“今日热点”，补上分类高亮与时间轴分组，默认 metadata 同步更名。
+- 文章跳转原因：仅新闻分区支持站内摘要详情，其余来源进入 /out；没有第三方全文。此轮解释现状，未扩展详情模型。
+- 本地首页 HTTP 200，diff 空白检查通过；Biome 和类型检查受 node_modules 缺失阻断，视觉验收待完成。见 docs/development/today-hot-header.md。
+
 ## 2026-09-07 P1–P5 补齐（本地实施，未验收）
 
 - 用户要求逐项实现 P1–P5，并明确 AI 时间轴入口放在页面头部；已加入 SiteShell 主导航。

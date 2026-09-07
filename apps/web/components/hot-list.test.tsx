@@ -35,7 +35,6 @@ describe('HotList', () => {
   it('links persisted news items to their internal detail page', () => {
     const html = renderToStaticMarkup(
       <HotList
-        internalArticles
         items={[
           {
             articleId: '00000000-0000-0000-0000-000000000101',

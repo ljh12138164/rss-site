@@ -7,13 +7,11 @@ import { HotList } from './hot-list'
 export function SectionOverview({
   basePath,
   feeds,
-  sources,
-  internalArticles = false
+  sources
 }: {
   basePath: OutboundReturnPath
   feeds: Record<string, FeedResult>
   sources: readonly SignalSource[]
-  internalArticles?: boolean
 }) {
   const articleSources = sources.filter((source) => source.id !== 'github')
   const items = articleSources
@@ -32,7 +30,7 @@ export function SectionOverview({
 
   return (
     <div className="min-w-0">
-      <HotList items={items} returnTo={basePath} internalArticles={internalArticles} />
+      <HotList items={items} returnTo={basePath} />
       {hasError ? (
         <p role="alert" className="py-5 text-pretty text-sm text-muted-foreground">
           {items.length ? '部分来源暂时无法加载，请稍后再试。' : '暂时无法加载，请稍后再试。'}

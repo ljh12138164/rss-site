@@ -2,6 +2,19 @@ import { describe, expect, it } from 'vitest'
 import { parseTechnologyFeed } from './feed.js'
 
 describe('parseTechnologyFeed', () => {
+  it('falls back to a bounded summary for oversized content', () => {
+    const xml = `<rss><channel><item><title>文章</title><link>https://example.com/a</link><description><![CDATA[<p>${'中'.repeat(180000)}</p>]]></description></item></channel></rss>`
+    const item = parseTechnologyFeed(xml, 'test')[0]
+    expect(item.contentHtml).toBeNull()
+    expect(item.summary).toHaveLength(500)
+  })
+  it('keeps encoded HTML independently from its short list summary', () => {
+    const body = `<h2>标题</h2><p>${'正文'.repeat(400)}</p>`
+    const xml = `<rss><channel><item><title>文章</title><link>https://example.com/a</link><description>摘要</description><content:encoded><![CDATA[${body}]]></content:encoded></item></channel></rss>`
+    const item = parseTechnologyFeed(xml, 'test')[0]
+    expect(item.contentHtml).toBe(body)
+    expect(item.summary).toBe('摘要')
+  })
   it('preserves RSS order and accepts external article hosts', () => {
     const xml = `
       <rss><channel>
@@ -26,6 +39,7 @@ describe('parseTechnologyFeed', () => {
         url: 'https://example.com/story',
         imageUrl: null,
         summary: 'A plain summary.',
+        contentHtml: '<p>A <strong>plain</strong> summary.</p>',
         author: 'Ada',
         publishedAt: new Date('2026-09-03T08:00:00.000Z'),
         position: 1
@@ -36,6 +50,7 @@ describe('parseTechnologyFeed', () => {
         url: 'http://news.example.org/article',
         imageUrl: null,
         summary: null,
+        contentHtml: null,
         author: null,
         publishedAt: null,
         position: 2
@@ -80,6 +95,7 @@ describe('parseTechnologyFeed', () => {
         url: 'https://example.com/finance/story',
         imageUrl: null,
         summary: null,
+        contentHtml: null,
         author: null,
         publishedAt: null,
         position: 1

@@ -1,6 +1,6 @@
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
-import { createNewsArticlePath } from '../lib/article-route'
+import { createArticlePath } from '../lib/article-route'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource } from '../lib/technology-sources'
@@ -19,12 +19,10 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
 export function HotList({
   items,
   returnTo = '/technology',
-  internalArticles = false,
   source
 }: {
   items: (HotItem & { platform?: SignalSource; section?: OutboundReturnPath })[]
   returnTo?: OutboundReturnPath
-  internalArticles?: boolean
   source?: string
 }) {
   return (
@@ -32,8 +30,8 @@ export function HotList({
       {items.map((item) => {
         const sourceId = item.platform?.id ?? source
         const internalHref =
-          (internalArticles || item.section === '/news') && sourceId && item.articleId
-            ? createNewsArticlePath(sourceId, item.title, item.articleId)
+          sourceId && item.articleId
+            ? createArticlePath(sourceId, item.title, item.articleId)
             : null
         const href =
           internalHref ??

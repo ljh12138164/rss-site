@@ -1,0 +1,10 @@
+.pnpm-store
+.turbo
+**/.turbo
+supabase
+.agents
+.codex
+docs
+**/.env*
+**/node_modules
+**/.next

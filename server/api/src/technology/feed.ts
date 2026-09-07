@@ -6,6 +6,7 @@ export interface TechnologyFeedItem {
   url: string
   imageUrl: string | null
   summary: string | null
+  contentHtml?: string | null
   author: string | null
   publishedAt: Date | null
   position: number
@@ -151,13 +152,17 @@ export function parseTechnologyFeed(
     if (!title || !url) return []
 
     const rawGuid = textValue(item.guid)
+    // Feed HTML is archived as untrusted content; the reader sanitizes it before rendering.
+    const html = textValue(content) ?? textValue(item.description)
+    const contentHtml = html && Buffer.byteLength(html, 'utf8') <= 512 * 1024 ? html : null
     return [
       {
         sourceKey: canonicalWebUrl(rawGuid) ?? rawGuid ?? url,
         title,
         url,
         imageUrl: firstImageUrl(item.description, content),
-        summary: plainText(item.description) ?? plainText(content),
+        summary: (plainText(item.description) ?? plainText(content))?.slice(0, 500) ?? null,
+        contentHtml,
         author: textValue(item.author),
         publishedAt: publishedDate(item.pubDate)
       }

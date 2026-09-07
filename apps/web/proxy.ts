@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
-import { parseArticleIdFromSlug } from './lib/article-route'
+import { articleSource, parseArticleIdFromSlug } from './lib/article-route'
 import { getContentStatus } from './lib/content-status'
 import {
   isAiSourceId,
@@ -16,8 +16,7 @@ export async function proxy(request: NextRequest) {
   if (section === 'ai' && sourceId === 'events' && !encodedSlug) return NextResponse.next()
   if (
     encodedSlug &&
-    ((section === 'ai' && sourceId === 'events') ||
-      (section === 'news' && isNewsSourceId(sourceId)))
+    ((section === 'ai' && sourceId === 'events') || articleSource(sourceId)?.section.id === section)
   ) {
     let slug: string
     try {
@@ -25,7 +24,7 @@ export async function proxy(request: NextRequest) {
     } catch {
       return new NextResponse('Not found', { status: 404 })
     }
-    const event = section === 'ai'
+    const event = section === 'ai' && sourceId === 'events'
     const id = event ? slug : parseArticleIdFromSlug(slug)
     if (!id || (event && (slug.length > 200 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))))
       return new NextResponse('Not found', { status: 404 })
@@ -82,6 +81,11 @@ export const config = {
     '/finance/:source',
     '/games/:source',
     '/ai/events/:slug',
-    '/news/:source/:slug'
+    '/news/:source/:slug',
+    '/ai/:source/:slug',
+    '/technology/:source/:slug',
+    '/social/:source/:slug',
+    '/finance/:source/:slug',
+    '/games/:source/:slug'
   ]
 }

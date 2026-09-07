@@ -1,7 +1,7 @@
 'use client'
 
 import { useInfiniteQuery } from '@tanstack/react-query'
-import { ArrowUpRight, Search, X } from 'lucide-react'
+import { ArrowRight, Search, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -13,7 +13,7 @@ import {
   ModalOverlay,
   TextField
 } from 'react-aria-components'
-import { createNewsArticlePath } from '../lib/article-route'
+import { createArticlePath } from '../lib/article-route'
 import { type SearchArticle, searchValidation } from '../lib/article-search'
 import {
   aiSources,
@@ -174,16 +174,12 @@ function SearchPanel() {
                 )}
               </p>
               <Link
-                href={
-                  item.section === 'news'
-                    ? createNewsArticlePath(item.source, item.title, item.id)
-                    : `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(`/${item.section}`)}`
-                }
+                href={createArticlePath(item.source, item.title, item.id)}
                 className="block rounded-sm text-foreground outline-offset-4 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
               >
                 <span className="text-base font-semibold leading-7">
                   <Highlight text={item.title} query={query} />{' '}
-                  <ArrowUpRight className="inline size-3.5" aria-hidden="true" />
+                  <ArrowRight className="inline size-3.5" aria-hidden="true" />
                 </span>
                 {item.summary && (
                   <p className="mt-2 text-pretty text-sm leading-6 text-muted-foreground">

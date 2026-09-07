@@ -1,8 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import { createNewsArticlePath, parseArticleIdFromSlug } from './article-route'
+import {
+  articleSections,
+  createArticlePath,
+  createNewsArticlePath,
+  parseArticleIdFromSlug
+} from './article-route'
 
 describe('news article routes', () => {
   const id = '550e8400-e29b-41d4-a716-446655440000'
+
+  it('routes every registered source to its own section detail', () => {
+    for (const section of articleSections) {
+      for (const source of section.sources) {
+        expect(createArticlePath(source.id, '文章', id)).toBe(
+          `/${section.id}/${source.id}/文章--${id}`
+        )
+      }
+    }
+    expect(() => createArticlePath('unknown', '文章', id)).toThrow()
+  })
 
   it('keeps a readable title while using the UUID as the stable suffix', () => {
     expect(createNewsArticlePath('xinhua', ' 新华社：AI 产业新进展！ ', id)).toBe(

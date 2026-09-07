@@ -43,4 +43,20 @@ describe('NewsArticleView', () => {
     expect(html).not.toContain('暂无摘要')
     expect(html).toContain('查看原文')
   })
+
+  it('renders safe Feed HTML instead of repeating the summary', () => {
+    const html = renderToStaticMarkup(
+      <NewsArticleView
+        article={{
+          ...article,
+          contentHtml: '<h2>正文标题</h2><p>正文段落</p><script>alert(1)</script>'
+        }}
+        source={getNewsSource('xinhua')}
+      />
+    )
+    expect(html).toContain('<h2>正文标题</h2>')
+    expect(html).toContain('<p>正文段落</p>')
+    expect(html).not.toContain('alert(1)')
+    expect(html).not.toContain(article.summary)
+  })
 })

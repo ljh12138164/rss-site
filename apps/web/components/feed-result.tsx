@@ -6,12 +6,10 @@ import { HotList } from './hot-list'
 export function FeedResultView({
   feed,
   returnTo = '/technology',
-  internalArticles = false,
   source
 }: {
   feed: FeedResult
   returnTo?: OutboundReturnPath
-  internalArticles?: boolean
   source?: string
 }) {
   if (feed.state === 'empty') {
@@ -24,7 +22,6 @@ export function FeedResultView({
 
   return (
     <HotList
-      internalArticles={internalArticles}
       items={
         source === 'github'
           ? feed.items.map((item) => ({ ...item, publishedAt: null, author: null }))

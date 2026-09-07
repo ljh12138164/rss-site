@@ -1,4 +1,0 @@
-interface:
-  display_name: "Maintain Blog"
-  short_description: "Update blog content, docs, SEO, and verified builds"
-  default_prompt: "Use $maintain-blog to update this blog and verify its static build."

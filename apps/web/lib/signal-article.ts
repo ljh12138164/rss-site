@@ -1,5 +1,6 @@
+import { articleSource } from './article-route'
 import { getPublicSupabaseClient } from './supabase'
-import type { NewsSourceId } from './technology-sources'
+import type { SignalSourceId } from './technology-sources'
 
 export interface SignalArticleRow {
   id: string
@@ -8,6 +9,7 @@ export interface SignalArticleRow {
   title: string
   url: string
   summary: string | null
+  content_html?: string | null
   author: string | null
   published_at: string | null
   first_seen_at: string
@@ -16,11 +18,12 @@ export interface SignalArticleRow {
 
 export interface SignalArticle {
   id: string
-  source: NewsSourceId
+  source: SignalSourceId
   sourceKey: string
   title: string
   url: string
   summary: string | null
+  contentHtml?: string | null
   author: string | null
   publishedAt: Date | null
   firstSeenAt: Date
@@ -29,19 +32,18 @@ export interface SignalArticle {
 
 export type NewsArticleQuery = (
   id: string,
-  source: NewsSourceId
+  source: SignalSourceId
 ) => Promise<{ data: SignalArticleRow | null; error: string | null }>
 
 const queryNewsArticle: NewsArticleQuery = async (id, source) => {
   try {
     const result = await getPublicSupabaseClient()
       .from('signal_articles')
-      .select(
-        'id,source,source_key,title,url,summary,author,published_at,first_seen_at,last_seen_at'
-      )
+      .select('*')
       .eq('id', id)
-      .eq('section', 'news')
+      .eq('section', articleSource(source)?.section.id ?? '')
       .eq('source', source)
+      .abortSignal(AbortSignal.timeout(10000))
       .maybeSingle()
 
     return {
@@ -55,7 +57,7 @@ const queryNewsArticle: NewsArticleQuery = async (id, source) => {
 
 export async function getNewsArticle(
   id: string,
-  source: NewsSourceId,
+  source: SignalSourceId,
   query: NewsArticleQuery = queryNewsArticle
 ): Promise<SignalArticle | null> {
   const result = await query(id, source)
@@ -69,6 +71,7 @@ export async function getNewsArticle(
     title: result.data.title,
     url: result.data.url,
     summary: result.data.summary,
+    ...(result.data.content_html ? { contentHtml: result.data.content_html } : {}),
     author: result.data.author,
     publishedAt: result.data.published_at ? new Date(result.data.published_at) : null,
     firstSeenAt: new Date(result.data.first_seen_at),

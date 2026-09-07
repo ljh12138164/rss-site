@@ -173,6 +173,8 @@ RLS 仅允许匿名及登录用户读取 `hot_items` 和 `source_status`；客�
 
 ## Vercel deployment
 
+通过 CLI 更新现有项目时，仓库根 `.vercelignore` 排除本地环境文件、依赖和构建缓存；部署使用 Vercel 项目中已有的环境变量。提交作者必须关联可访问项目的 Git 账号，否则 Vercel 会阻断发布。
+
 创建两个 Vercel 项目并连接同一个仓库：
 
 - Web 项目的 Root Directory 为 `apps/web`。

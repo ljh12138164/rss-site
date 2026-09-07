@@ -45,6 +45,7 @@ export const signalArticles = pgTable(
     url: text().notNull(),
     imageUrl: text('image_url'),
     summary: text(),
+    contentHtml: text('content_html'),
     author: text(),
     publishedAt: timestamp('published_at', { withTimezone: true }),
     firstSeenAt: timestamp('first_seen_at', { withTimezone: true }).defaultNow().notNull(),

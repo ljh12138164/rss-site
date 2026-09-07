@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
   try {
     if (section === '/ai' || eventSlugs.length) revalidateTag('event-status', { expire: 0 })
-    if (section === '/news') revalidateTag(`news-status:${source}`, { expire: 0 })
+    if (section) revalidateTag(`news-status:${source}`, { expire: 0 })
     const paths = [
       '/',
       '/sitemap.xml',
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     if (section === '/ai' || eventSlugs.length) paths.push('/ai/events')
     for (const path of paths) revalidatePath(path)
     if (section === '/ai' || eventSlugs.length) revalidatePath('/ai/events/[slug]', 'page')
-    if (section === '/news') revalidatePath(`/news/${source}/[slug]`, 'page')
+    if (section) revalidatePath(`${section}/${source}/[slug]`, 'page')
     return Response.json({ revalidated: true, paths }, { headers: { 'Cache-Control': 'no-store' } })
   } catch {
     return Response.json({ error: 'Revalidation failed' }, { status: 500 })

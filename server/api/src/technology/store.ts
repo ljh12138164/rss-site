@@ -33,6 +33,7 @@ export class DrizzleSignalStore implements SignalStore {
             url: item.url,
             imageUrl: item.imageUrl,
             summary: item.summary,
+            contentHtml: item.contentHtml ?? null,
             author: item.author,
             publishedAt: item.publishedAt,
             firstSeenAt: input.finishedAt,
@@ -47,6 +48,7 @@ export class DrizzleSignalStore implements SignalStore {
             url: sql.raw(`excluded.${signalArticles.url.name}`),
             imageUrl: sql.raw(`excluded.${signalArticles.imageUrl.name}`),
             summary: sql.raw(`excluded.${signalArticles.summary.name}`),
+            contentHtml: sql`coalesce(excluded.content_html, ${signalArticles.contentHtml})`,
             author: sql.raw(`excluded.${signalArticles.author.name}`),
             publishedAt: sql.raw(`excluded.${signalArticles.publishedAt.name}`),
             lastSeenAt: sql.raw(`excluded.${signalArticles.lastSeenAt.name}`)

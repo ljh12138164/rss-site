@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 export function NewsView({ feeds }: { feeds: NewsFeeds }) {
-  return <SectionOverview basePath="/news" feeds={feeds} internalArticles sources={newsSources} />
+  return <SectionOverview basePath="/news" feeds={feeds} sources={newsSources} />
 }
 
 export default async function NewsPage() {

@@ -7,13 +7,11 @@ import { FeedStatus } from './feed-status'
 export function SourceDetailView({
   source,
   feed,
-  basePath,
-  internalArticles = false
+  basePath
 }: {
   source: SignalSource
   feed: FeedResult
   basePath: OutboundReturnPath
-  internalArticles?: boolean
 }) {
   return (
     <>
@@ -22,12 +20,7 @@ export function SourceDetailView({
           <FeedStatus {...feed.status} />
         </div>
       )}
-      <FeedResultView
-        feed={feed}
-        internalArticles={internalArticles}
-        returnTo={basePath}
-        source={source.id}
-      />
+      <FeedResultView feed={feed} returnTo={basePath} source={source.id} />
     </>
   )
 }

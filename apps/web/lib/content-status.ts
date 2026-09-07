@@ -1,4 +1,5 @@
 import { unstable_cache } from 'next/cache'
+import { articleSource } from './article-route'
 import { getPublicSupabaseClient } from './supabase'
 
 export function getContentStatus(kind: 'event' | 'news', id: string, source: string) {
@@ -10,6 +11,7 @@ export function getContentStatus(kind: 'event' | 'news', id: string, source: str
         .select('key')
         .eq('kind', kind)
         .eq('key', kind === 'event' ? id : `${source}/${id}`)
+        .abortSignal(AbortSignal.timeout(10000))
         .maybeSingle()
       if (removed.error) throw new Error('Content status unavailable')
       if (removed.data) return 410
@@ -20,13 +22,15 @@ export function getContentStatus(kind: 'event' | 'news', id: string, source: str
               .select('id')
               .eq('slug', id)
               .eq('status', 'published')
+              .abortSignal(AbortSignal.timeout(10000))
               .maybeSingle()
           : await db
               .from('signal_articles')
               .select('id')
               .eq('id', id)
-              .eq('section', 'news')
+              .eq('section', articleSource(source)?.section.id ?? '')
               .eq('source', source)
+              .abortSignal(AbortSignal.timeout(10000))
               .maybeSingle()
       if (visible.error) throw new Error('Content status unavailable')
       return visible.data ? 200 : 404
