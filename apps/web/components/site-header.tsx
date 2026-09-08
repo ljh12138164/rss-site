@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '../lib/utils'
@@ -27,7 +28,7 @@ export function SiteHeader() {
         href="/"
         className="flex min-h-11 shrink-0 items-center gap-2.5 text-xl font-bold tracking-tight text-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
       >
-        <span aria-hidden="true" className="h-5 w-1 rounded-full bg-primary" />
+        <Image src="/icon.svg" alt="" width={28} height={28} className="shrink-0" unoptimized />
         今日热点
       </Link>
       <nav

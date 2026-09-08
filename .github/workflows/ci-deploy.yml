@@ -1,0 +1,101 @@
+name: Verify and deploy news
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      SITE_URL: https://news.ljhboard.cn
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      NEXT_PUBLIC_GA_ID: ${{ vars.NEXT_PUBLIC_GA_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.23.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm check-types
+      - name: Check deployment shell scripts
+        run: |
+          bash -n deploy/server/deploy-rss-site
+          sh -n deploy/server/rss-site-deploy-gate
+          bash -n deploy/server/bootstrap-rss-site
+          shellcheck deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/bootstrap-rss-site
+      - name: Build release image
+        run: |
+          test -n "$NEXT_PUBLIC_SUPABASE_URL"
+          test -n "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
+          docker build --tag "rss-site-web:sha-${GITHUB_SHA}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL \
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
+            --build-arg NEXT_PUBLIC_GA_ID .
+      - name: Verify runtime
+        run: |
+          trap 'docker rm -f news-verify >/dev/null 2>&1 || true' EXIT
+          docker run -d --name news-verify -p 127.0.0.1:18101:3000 \
+            -e SITE_URL -e NEXT_PUBLIC_SUPABASE_URL -e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
+            "rss-site-web:sha-${GITHUB_SHA}"
+          curl --fail --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:18101/healthz
+          curl -fsS http://127.0.0.1:18101/ > /tmp/news-home.html
+          grep -Fq 'news.ljhboard.cn' /tmp/news-home.html
+          curl -fsS http://127.0.0.1:18101/icon.svg > /dev/null
+          curl -fsS http://127.0.0.1:18101/ads.txt | grep -F 'pub-7441827328189379'
+      - name: Package verified image
+        if: github.event_name != 'pull_request'
+        run: |
+          docker save "rss-site-web:sha-${GITHUB_SHA}" -o image.tar
+          tar -czf release.tar.gz image.tar compose.yaml \
+            deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers
+      - uses: actions/upload-artifact@v4
+        if: github.event_name != 'pull_request'
+        with:
+          name: news-${{ github.sha }}
+          path: release.tar.gz
+          retention-days: 3
+
+  deploy:
+    needs: verify
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: news-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: news-${{ github.sha }}
+      - name: Install SSH credentials
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          umask 077
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+      - name: Deploy verified bundle
+        env:
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+          DEPLOY_USER: ${{ vars.DEPLOY_USER || 'rss-site-deploy' }}
+        run: |
+          test -n "$DEPLOY_HOST"
+          ssh -i ~/.ssh/deploy_key -p "$DEPLOY_PORT" \
+            -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$DEPLOY_USER@$DEPLOY_HOST" "deploy sha-${GITHUB_SHA}" < release.tar.gz
+      - name: Verify public site
+        run: curl --fail --retry 5 --retry-delay 3 --max-time 15 https://news.ljhboard.cn/healthz

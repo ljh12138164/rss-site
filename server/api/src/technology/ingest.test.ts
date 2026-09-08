@@ -15,6 +15,7 @@ class MemoryStore implements SignalStore {
     }
     for (const item of input.items) this.items.set(item.sourceKey, item)
     this.successCount += 1
+    return { changed: true, events: [] }
   }
 
   async recordFailure(input: { errorMessage: string }) {

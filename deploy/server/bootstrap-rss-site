@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# Run through the existing administrator Workbench channel before the first release.
+set -euo pipefail
+[[ $(id -u) -eq 0 && $# -eq 2 ]] || { echo 'Usage: bootstrap-rss-site PUBLIC_KEY RUNTIME_ENV (as root)' >&2; exit 2; }
+PUBLIC_KEY=$1
+RUNTIME_ENV=$2
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+STACK=/opt/stacks/rss-site
+for tool in docker curl flock visudo ssh-keygen useradd install; do
+  command -v "$tool" >/dev/null
+done
+docker compose version >/dev/null
+ssh-keygen -lf "$PUBLIC_KEY" >/dev/null
+[[ $(wc -l < "$PUBLIC_KEY") -eq 1 ]] || exit 2
+grep -Eq '^ssh-ed25519 [A-Za-z0-9+/=]+( .*)?$' "$PUBLIC_KEY"
+test -s "$RUNTIME_ENV"
+bash -n "$SCRIPT_DIR/deploy-rss-site"
+sh -n "$SCRIPT_DIR/rss-site-deploy-gate"
+visudo -cf "$SCRIPT_DIR/rss-site-deploy.sudoers"
+exec 9>/run/lock/rss-site-deploy.lock
+flock -n 9 || exit 3
+# Never change an existing privileged entrypoint during bootstrap.
+TARGETS=(/usr/local/sbin/deploy-rss-site /usr/local/bin/rss-site-deploy-gate /etc/sudoers.d/rss-site-deploy)
+SOURCES=(deploy-rss-site rss-site-deploy-gate rss-site-deploy.sudoers)
+MODES=(755 755 440)
+for i in "${!TARGETS[@]}"; do
+  if test -e "${TARGETS[$i]}"; then
+    cmp -s "$SCRIPT_DIR/${SOURCES[$i]}" "${TARGETS[$i]}" || { echo "Existing file differs: ${TARGETS[$i]}" >&2; exit 2; }
+  fi
+done
+if ! getent passwd rss-site-deploy >/dev/null; then
+  useradd --create-home --shell /bin/sh rss-site-deploy
+fi
+DEPLOY_HOME=$(getent passwd rss-site-deploy | cut -d: -f6)
+[[ "$DEPLOY_HOME" == /home/rss-site-deploy ]] || { echo 'Unexpected deployment home' >&2; exit 2; }
+install -d -m 755 "$STACK"
+for i in "${!TARGETS[@]}"; do
+  if ! test -e "${TARGETS[$i]}"; then
+    install -o root -g root -m "${MODES[$i]}" "$SCRIPT_DIR/${SOURCES[$i]}" "${TARGETS[$i]}"
+  fi
+done
+if ! test -e "$STACK/runtime.env"; then
+  install -o root -g root -m 600 "$RUNTIME_ENV" "$STACK/runtime.env"
+fi
+install -d -o rss-site-deploy -g rss-site-deploy -m 700 "$DEPLOY_HOME/.ssh"
+AUTH="$DEPLOY_HOME/.ssh/authorized_keys"
+LINE="restrict,command=\"/usr/local/bin/rss-site-deploy-gate\" $(cat "$PUBLIC_KEY")"
+if test -e "$AUTH"; then
+  cp -p "$AUTH" "$AUTH.backup-$(date -u +%Y%m%dT%H%M%S)-$$"
+fi
+if ! grep -Fqx "$LINE" "$AUTH" 2>/dev/null; then
+  printf '\n%s\n' "$LINE" >> "$AUTH"
+fi
+chown rss-site-deploy:rss-site-deploy "$AUTH"
+chmod 600 "$AUTH"
+echo 'Bootstrap complete; existing keys and runtime.env preserved. No application started.'

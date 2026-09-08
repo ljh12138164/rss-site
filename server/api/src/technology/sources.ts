@@ -204,7 +204,7 @@ export const financeSources = [
   {
     id: 'jin10',
     name: '金十数据',
-    rsshubPath: '/jin10/important',
+    rsshubPath: '/jin10/topic/343',
     section: 'finance',
     itemLimit: 30
   },
@@ -218,7 +218,7 @@ export const financeSources = [
   {
     id: 'stcn',
     name: '证券时报',
-    rsshubPath: '/stcn/article/rank/yw',
+    rsshubPath: '/stcn/article/list/yw',
     section: 'finance',
     itemLimit: 30
   },

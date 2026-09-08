@@ -1,6 +1,8 @@
 # SEO、缓存与索引发布 roadmap
 
-Status: P1 schema and historical backfill verified in cloud; full 36-source Cron gate pending
+Status: P1 cloud persistence and full 36-source Cron gate verified; P2–P7 implemented locally and awaiting frontend production acceptance
+
+2026-09-08 最新验收：金十文章链接与证券时报日期问题已修复并发布；36 路完整门禁通过，共 710 条，37 个 Vault 支持的来源/清理任务全部 active。API 61、Web 108 项测试、类型检查和 Web 55/55 页面构建通过。前端未发布，Cloudflare 与 IndexNow 公网验收仍待上线。证据见 [云端来源验收](../development/cloud-source-validation.md)。下方日期较早的进度段落保留为历史记录。
 
 2026-09-07 P1–P5 补齐进度：新增生命周期迁移、AI 时间轴/详情与头部入口、事件/新闻 ISR、sitemap/robots、事件和搜索 React Query；见 [实施记录](../development/roadmap-p1-p5.md)。均为当前分支代码，新增迁移未落云，未部署或运行验收。P1 全来源门禁和 Search Console 提交仍是外部待办，不把“代码已实现”算作完成。
 
@@ -30,7 +32,7 @@ Google 普通文章不调用 Indexing API。Google Indexing API 只用于符合�
 
 ## P1：持久化文章与 AI 事件模型
 
-Status: cloud schema, backfill and access boundary verified; complete real-ingestion/Cron verification pending
+Status: cloud schema, backfill, access boundary and complete 36-source real-ingestion/Cron verification passed on 2026-09-08
 
 ### 数据职责
 
@@ -169,6 +171,8 @@ Status: cloud schema, backfill and access boundary verified; complete real-inges
 
 ## P6：Cloudflare 边缘缓存与清除
 
+2026-09-08：当前分支已实现按 URL 分批清除、最多 5 个页面顺序预热、超时和失败隔离；未配置生产变量、部署前端或验证 `CF-Cache-Status`，因此 P6 代码完成但未验收。
+
 ### 应用职责
 
 - 用户继续负责优选 IP 与 Cloudflare Dashboard 中的边缘 Cache Rules。
@@ -199,6 +203,8 @@ Status: cloud schema, backfill and access boundary verified; complete real-inges
 - 未配置 Cloudflare 环境变量时，应用仍可仅依靠 ISR 正常运行。
 
 ## P7：IndexNow 通知
+
+2026-09-08：当前分支已实现根级 key 文件、本站 URL 校验、变更检测、关联事件 URL、批量提交和有限重试；未部署或提交真实 URL，因此 P7 代码完成但未验收。实现记录见 [边缘缓存与索引通知](../development/edge-cache-indexnow.md)。
 
 ### 提交范围
 

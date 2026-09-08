@@ -2,6 +2,8 @@
 
 ## Context
 
+2026-09-08：用户明确要求实现 Actions 到服务器的发布，正式域名为 `news.ljhboard.cn`。部署文件已完成，当前采用 master push 验证通过后自动发布，production Environment 管理审批。此决定替代下方历史方案中“尚不创建部署文件/仅手动触发”的限制。实现、验证和首次配置见 [新闻站部署](../development/news-deployment.md)。GitHub Secrets/Variables 与服务器首次准备尚待完成，未运行远端发布。
+
 相关实施记录：[生产上线准备与门禁可靠性](../development/production-launch-readiness.md)。
 
 前端上线由用户明确批准后才开始配置和发布。此前继续完成数据、SEO、ISR、缓存失效、sitemap 与索引通知；
@@ -14,7 +16,7 @@ Supabase Cron → Hono API / Vercel → RSSHub / official RSS
       │                    │
       └──────────────→ cloud Supabase
                                ↑
-Cloudflare → host Nginx → 127.0.0.1:18100 → Docker
+Cloudflare → host Nginx → 127.0.0.1:18104 → Docker
                                               └→ pm2-runtime (1 instance)
                                                    └→ Next standalone server.js
 
@@ -42,19 +44,18 @@ GitHub Actions → verify → build rss-site-web:sha-<commit>
 
 ## Now
 
-### 1. 完成云端来源门禁
+### 1. 完成云端来源门禁（2026-09-08 已完成）
 
 - Value：确保 36 路来源和持久化文章在更新 Cron 前都能真实工作。
-- Evidence：迁移和 496 条历史文章回填已通过；完整门禁被金十无链接条目阻断，Cron 尚未更改。
-- Dependencies：合并并部署当前解析器与有限重试修复；随后从第一路重新运行 `pnpm setup:cron`。
+- Evidence：金十路由和 RSSHub 证券时报日期修复部署后，完整 36 路门禁通过，共 710 条热点；37 个任务全部 active，36 个来源任务均引用 Vault。详见 [云端验收记录](../development/cloud-source-validation.md)。
+- Dependencies：已完成代码发布、云端迁移、全源验证和调度安装。
 - Completion signal：36 路均返回非零条数；批次、状态、热点、文章关联字段合理；Vault 使用正确秘密；36 个
   来源任务和 1 个保留任务 active，旧五小时任务不存在。
 
 ### 2. 完成公开内容与 SEO 发布链路
 
 - Value：让最终服务器上线时已经具备稳定 URL、可索引 HTML 和可控新鲜度，而不是上线后再改缓存语义。
-- Evidence：[SEO、缓存与索引发布 roadmap](seo-cache-and-indexing.md) 的 P2–P7 尚未完成；旧
-  `feat/ai-event-timeline` 只基于 `hot_items`，需在新 P1 数据模型上重新整合，不能直接合并旧分支。
+- Evidence：[SEO、缓存与索引发布 roadmap](seo-cache-and-indexing.md) 的 P2–P7 已在当前分支实现并通过本地回归；前端未发布，真实缓存命中、失效与 IndexNow 公网验收待上线。
 - Dependencies：按 P2 事件详情 → P3 ISR/按需失效 → P4 sitemap/robots → P5 必要的客户端缓存 → P6
   Cloudflare 精确清除 → P7 IndexNow 顺序实施。Google 普通文章仍只依赖 sitemap/Search Console。
 - Completion signal：所有公开页面有服务端 HTML、canonical 与真实 metadata；AI 2 小时、辅助分区 6 小时
@@ -92,7 +93,7 @@ GitHub Actions → verify → build rss-site-web:sha-<commit>
 
 - Value：部署密钥无法获得任意 shell，失败版本自动恢复。
 - Evidence：nextra-blog 已有强制命令 gate、flock、配置快照、Nginx `-t`、Compose health 和回滚范式。
-- Dependencies：独立用户 `rss-site-deploy`、栈目录 `/opt/stacks/rss-site`、回环端口 18100；避免覆盖 blog 栈。
+- Dependencies：独立用户 `rss-site-deploy`、栈目录 `/opt/stacks/rss-site`、回环端口 18104；避免覆盖 blog 栈。
 - Completion signal：gate 只接受 `deploy sha-<commit>`；发布前备份 image tag/Compose/Nginx/脚本/env；
   `docker load` 后 `compose up`，健康失败恢复旧快照和旧本地镜像；并发发布被锁拒绝。
 
