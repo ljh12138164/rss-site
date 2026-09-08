@@ -16,7 +16,9 @@ export interface FailedIngestion {
 }
 
 export interface SignalStore {
-  replaceRanking(input: SuccessfulIngestion): Promise<void>
+  replaceRanking(
+    input: SuccessfulIngestion
+  ): Promise<{ changed: boolean; events: string[] } | undefined>
   recordFailure(input: FailedIngestion): Promise<void>
 }
 
@@ -41,8 +43,18 @@ export async function ingestSignal(
       titleFromFirstStrong:
         'titleFromFirstStrong' in source ? source.titleFromFirstStrong : undefined
     }).slice(0, source.itemLimit)
-    await deps.store.replaceRanking({ batchId, startedAt: now, finishedAt: now, items })
-    return { batchId, itemCount: items.length }
+    const change = await deps.store.replaceRanking({
+      batchId,
+      startedAt: now,
+      finishedAt: now,
+      items
+    })
+    return {
+      batchId,
+      itemCount: items.length,
+      changed: change?.changed ?? true,
+      events: change?.events ?? []
+    }
   } catch (error) {
     await deps.store.recordFailure({
       batchId,

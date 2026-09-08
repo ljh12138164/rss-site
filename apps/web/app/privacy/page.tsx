@@ -15,8 +15,9 @@ export default function PrivacyPage() {
       <section>
         <h2>浏览本站</h2>
         <p>
-          目前浏览 AI 热榜无需注册或登录，本站不要求你提供姓名、手机号或邮箱，
-          当前页面未接入第三方广告或访问统计脚本。
+          目前浏览 AI 热榜无需注册或登录，本站不要求你提供姓名、手机号或邮箱， 本站使用 Google
+          AdSense 加载广告，并在配置启用时使用 Google Analytics 统计访问情况。 这些服务可能使用
+          Cookie 并处理页面地址、设备及访问数据。
         </p>
       </section>
       <section>
@@ -60,7 +61,7 @@ export default function PrivacyPage() {
           你可以随时通过页脚的“隐私说明”查看当前内容。
         </p>
         <p>
-          更新日期：<time dateTime="2026-09-07">2026 年 9 月 7 日</time>
+          更新日期：<time dateTime="2026-09-08">2026 年 9 月 8 日</time>
         </p>
       </section>
     </InformationPage>

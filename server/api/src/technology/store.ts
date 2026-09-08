@@ -1,6 +1,14 @@
-import { and, eq, ne, sql } from 'drizzle-orm'
+import { and, eq, inArray, ne, sql } from 'drizzle-orm'
 import type { Database } from '../db/client.js'
-import { hotItems, ingestionRuns, signalArticles, sourceStatus } from '../db/schema.js'
+import {
+  aiEventArticles,
+  aiEvents,
+  hotItems,
+  ingestionRuns,
+  signalArticles,
+  sourceStatus
+} from '../db/schema.js'
+import { changedSourceKeys } from './content-change.js'
 import type { FailedIngestion, SignalStore, SuccessfulIngestion } from './ingest.js'
 import type { SignalSection, SignalSourceId } from './sources.js'
 
@@ -12,7 +20,23 @@ export class DrizzleSignalStore implements SignalStore {
   ) {}
 
   async replaceRanking(input: SuccessfulIngestion) {
-    await this.db.transaction(async (tx) => {
+    return this.db.transaction(async (tx) => {
+      const previous = await tx
+        .select({
+          sourceKey: hotItems.sourceKey,
+          title: hotItems.title,
+          url: hotItems.url,
+          summary: hotItems.summary,
+          author: hotItems.author,
+          publishedAt: hotItems.publishedAt,
+          position: hotItems.position,
+          imageUrl: hotItems.imageUrl,
+          contentHtml: signalArticles.contentHtml
+        })
+        .from(hotItems)
+        .leftJoin(signalArticles, eq(hotItems.articleId, signalArticles.id))
+        .where(eq(hotItems.source, this.source))
+      const changedKeys = changedSourceKeys(previous, input.items)
       await tx.insert(ingestionRuns).values({
         id: input.batchId,
         source: this.source,
@@ -119,6 +143,22 @@ export class DrizzleSignalStore implements SignalStore {
             lastBatchId: input.batchId
           }
         })
+      const events =
+        this.section === 'ai' && changedKeys.length
+          ? await tx
+              .selectDistinct({ slug: aiEvents.slug })
+              .from(aiEvents)
+              .innerJoin(aiEventArticles, eq(aiEventArticles.eventId, aiEvents.id))
+              .innerJoin(signalArticles, eq(aiEventArticles.articleId, signalArticles.id))
+              .where(
+                and(
+                  eq(aiEvents.status, 'published'),
+                  eq(signalArticles.source, this.source),
+                  inArray(signalArticles.sourceKey, changedKeys)
+                )
+              )
+          : []
+      return { changed: changedKeys.length > 0, events: events.map((event) => event.slug) }
     })
   }
 

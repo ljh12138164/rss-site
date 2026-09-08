@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+set -f
+# Word splitting is intentional; glob expansion is disabled above.
+# shellcheck disable=SC2086
+set -- ${SSH_ORIGINAL_COMMAND:-}
+if [ "$#" -ne 2 ] || [ "$1" != deploy ] || ! printf '%s\n' "$2" | grep -Eq '^sha-[0-9a-f]{40}$'; then
+  echo 'Only deploy sha-<40 lowercase hex characters> is allowed.' >&2
+  exit 126
+fi
+exec sudo -n /usr/local/sbin/deploy-rss-site "$2"

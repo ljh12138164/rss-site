@@ -32,7 +32,7 @@ export default configureApp(new Hono(), {
       fetchFeed: () => fetchSignalFeed(resolveSignalFeedUrl(source, rsshubBaseUrl)),
       store: new DrizzleSignalStore(database, source.id, source.section)
     })
-    const publication = await publishSourceUpdate(source)
+    const publication = await publishSourceUpdate(source, result)
     console.info(JSON.stringify({ source: source.id, batchId: result.batchId, publication }))
     return { ...result, publication }
   }

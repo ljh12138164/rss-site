@@ -1,5 +1,27 @@
 # HERMES
 
+## 2026-09-08 新闻站 Google 接入、轻量标识与服务器发布配置
+
+- 用户确认 `news.ljhboard.cn` 并要求实现 Actions 到服务器。已新增 `.github/workflows/ci-deploy.yml`、standalone Dockerfile、单实例 PM2、Compose、SSH gate、健康检查和回滚脚本。master push 验证通过后部署，手动入口保留，PR 不部署。
+- 231 字节 SVG 用于标签页和“今日热点”左侧；AdSense 复用 blog 发布商并提供 ads.txt；GA 读取 NEXT_PUBLIC_GA_ID，用户尚未给出新闻站 ID。
+- 61+108 项测试和 Web 55/55 构建通过，standalone 首页/healthz/icon/ads.txt 均 200。Docker daemon 未运行，镜像和远端发布尚待 Actions 验证。
+- 配置及首次服务器准备见 `docs/development/news-deployment.md`。尚未推送或实际运行 GitHub Actions；需 GitHub 参数、部署密钥和服务器一次性安装。保留既有未推送改动。
+
+## 2026-09-08 RSSHub 日期修复已发布，完整门禁通过
+
+- RSSHub 实际工作区为 `C:/Users/PC/Desktop/front/TEST/RSSHub`，修复分支 `codex/fix-stcn-publication-date`。证券时报直接子级日期选择器、完整日期优先解析和缓存键更新已部署：`dpl_86ZgnE7927s4NMkuGiffsF2gb23z`。
+- 生产证券时报列表返回 HTTP 200，10 条全部包含有效发布时间；金十已改用 `/jin10/topic/343` 并验证 10 条真实文章落库。详细批次见 `docs/development/cloud-source-validation.md`。
+- RSSHub 两项回归测试及静态检查通过；rss-site API 61、Web 108 项测试和类型检查通过；直接构建 Web 包成功生成 55/55 页面。根 Turbo 构建会过滤临时 SITE_URL，验证使用包级构建。
+- 完整 36 路门禁从第一路复跑成功：710 条热点、0 个失败批次；37 个 Cron 全部 active，6 路 AI 每 2 小时、30 路其他来源每 6 小时、1 个清理任务。36 路来源任务均引用 Vault；云端 3,380 篇文章，1,281 篇有正文。
+- 前端未发布，P6/P7 的公网缓存及 IndexNow 验收仍待前端上线。代码保留在现有分支，未推送；下一步按生产上线 roadmap 准备前端发布候选，沿用用户明确批准前端部署的约定。
+
+## 2026-09-08 P6–P7 本地实现与正文生产验证
+
+- 用户确认 API 已发布；生产 health 为 200。完整 36 路门禁复跑前 26 路成功，金十当前 4 条均无 Web URL，三次失败后安全停止；Cron 保持 25 个旧任务，0 个新任务。
+- 云端现有 2,914 篇文章，805 篇保存 content_html，已确认正文 API 真正写入。
+- 当前分支实现 Cloudflare 精确清除、最多 5 页预热、IndexNow key/批量通知，以及无变化采集抑制和 AI 关联事件失效。API 61、Web 107 项测试、类型检查及 55/55 页面生产构建通过。
+- 下一步：确认构建，完成代码评审收口；等待金十恢复链接后从第一路重跑门禁。前端与本轮新增 API 代码仍未部署或推送。
+
 ## 2026-09-08 云迁移已完成，API 发布受作者关联阻断
 
 - 用户要求继续接通。三条迁移已应用，SQL 文件按云端版本同步为 20260907160405 / 20260907160408 / 20260907160426；公开写权限为 0，25 个 Cron 未变。

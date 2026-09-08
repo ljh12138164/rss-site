@@ -96,9 +96,9 @@ describe('technologySources', () => {
     expect(financeSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
       ['wallstreetcn', '/wallstreetcn/hot/day'],
       ['cls', '/cls/hot?limit=20'],
-      ['jin10', '/jin10/important'],
+      ['jin10', '/jin10/topic/343'],
       ['yicai', '/yicai/headline'],
-      ['stcn', '/stcn/article/rank/yw'],
+      ['stcn', '/stcn/article/list/yw'],
       ['10jqka', '/10jqka/realtimenews']
     ])
     expect(financeSources.every((source) => source.section === 'finance')).toBe(true)

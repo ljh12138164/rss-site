@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+STACK=/opt/stacks/rss-site
+TAG=${1:-}
+[[ $# -eq 1 && "$TAG" =~ ^sha-[0-9a-f]{40}$ ]] || exit 2
+test -f "$STACK/runtime.env"
+exec 9>/run/lock/rss-site-deploy.lock
+flock -n 9 || exit 3
+TEMP=$(mktemp -d /tmp/rss-site-release.XXXXXX)
+trap 'rm -rf "$TEMP"' EXIT
+cat > "$TEMP/bundle.tar.gz"
+# Extract only the two expected regular files, never archive paths or symlinks.
+tar -tzf "$TEMP/bundle.tar.gz" | sort > "$TEMP/entries"
+printf 'compose.yaml\nimage.tar\n' | cmp -s - "$TEMP/entries"
+tar -tvzf "$TEMP/bundle.tar.gz" | awk 'substr($0,1,1)!="-" {bad=1} END {exit bad}'
+tar -xOzf "$TEMP/bundle.tar.gz" image.tar > "$TEMP/image.tar"
+tar -xOzf "$TEMP/bundle.tar.gz" compose.yaml > "$TEMP/compose.yaml"
+docker load -i "$TEMP/image.tar"
+docker image inspect "rss-site-web:$TAG" >/dev/null
+PREVIOUS=''
+if test -f "$STACK/.env"; then
+  PREVIOUS=$(sed -n 's/^IMAGE_TAG=//p' "$STACK/.env")
+  [[ "$PREVIOUS" =~ ^sha-[0-9a-f]{40}$ ]] || exit 2
+  cp "$STACK/.env" "$TEMP/previous.env"
+  cp "$STACK/compose.yaml" "$TEMP/previous.compose"
+fi
+write_tag() {
+  (umask 077; printf 'IMAGE_TAG=%s\n' "$1" > "$STACK/.env.next")
+  mv "$STACK/.env.next" "$STACK/.env"
+}
+healthy() {
+  for _ in {1..30}; do
+    if curl -fsS --max-time 3 http://127.0.0.1:18104/healthz >/dev/null &&
+       curl -fsS --max-time 10 http://127.0.0.1:18104/ > "$TEMP/home" &&
+       grep -Fq 'news.ljhboard.cn' "$TEMP/home"; then
+      return 0
+    fi
+    sleep 2
+  done
+  return 1
+}
+rollback() {
+  trap - ERR
+  if test -n "$PREVIOUS"; then
+    cp "$TEMP/previous.compose" "$STACK/compose.yaml"
+    cp "$TEMP/previous.env" "$STACK/.env"
+    docker compose --project-directory "$STACK" up -d --pull never web
+    healthy || { echo 'Rollback health check failed' >&2; exit 5; }
+    echo "Rolled back to $PREVIOUS" >&2
+  else
+    docker compose --project-directory "$STACK" down || true
+    rm -f "$STACK/.env"
+    echo 'Initial release failed; service stopped' >&2
+  fi
+  exit 4
+}
+trap rollback ERR
+install -m 644 "$TEMP/compose.yaml" "$STACK/compose.yaml"
+write_tag "$TAG"
+docker compose --project-directory "$STACK" up -d --pull never web
+healthy
+trap - ERR
+echo "Deployment healthy: $TAG"

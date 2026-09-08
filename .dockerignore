@@ -1,0 +1,9 @@
+.git
+**/node_modules
+**/.next
+**/.env*
+**/runtime.env
+.vercel
+.cache
+.turbo
+**/*.log
