@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource } from '../lib/technology-sources'
+import { RssSubscription } from './rss-subscription'
 import { SiteShell } from './site-shell'
 import { SourceNavigation } from './source-navigation'
 
@@ -60,6 +61,7 @@ export function SectionLayout({
         <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground">
           {source?.description ?? description}
         </p>
+        <RssSubscription key={basePath} basePath={basePath} sectionName={sectionName} />
       </header>
       <SourceNavigation
         active={source?.id}
