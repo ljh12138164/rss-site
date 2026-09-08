@@ -1,5 +1,11 @@
 # 今日热点标识、Google 接入与 Actions 部署
 
+## CI 启动检查修复
+
+运行检查在容器启动后遇到 curl 56（连接重置）立即失败；原有 `--retry-connrefused` 不涵盖该错误。健康检查改用 `--retry-all-errors`，限制单次请求 5 秒及重试窗口 60 秒，失败时先输出容器最近 100 行日志，再清理容器并保留失败退出码。首页、图标和 ads.txt 检查仍需通过。
+
+本地 TCP 服务模拟首次连接重置、随后 HTTP 200：原参数退出 56，直接提取修复后的 workflow 参数运行则退出 0。Workflow YAML 解析、运行步骤 bash 语法和 git diff 检查通过。真实 Actions 镜像尚需重新运行；当前证据不能排除容器内部的其他启动错误。
+
 ## 范围与决定
 
 用户指定正式域名 `news.ljhboard.cn`，要求参考相邻 blog 项目补齐 GA、AdSense、轻量图标以及 Actions 到服务器的发布。沿用已批准的单实例 Next standalone、容器内 PM2、Compose、SSH 镜像包和回滚设计。
