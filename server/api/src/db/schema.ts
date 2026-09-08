@@ -70,6 +70,9 @@ export const aiEvents = pgTable(
   'ai_events',
   {
     id: uuid().defaultRandom().primaryKey(),
+    autoArticleId: uuid('auto_article_id')
+      .unique()
+      .references(() => signalArticles.id, { onDelete: 'restrict' }),
     slug: text().notNull().unique(),
     title: text().notNull(),
     summary: text().notNull(),
