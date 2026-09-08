@@ -44,11 +44,20 @@ jobs:
             --build-arg NEXT_PUBLIC_GA_ID .
       - name: Verify runtime
         run: |
-          trap 'docker rm -f news-verify >/dev/null 2>&1 || true' EXIT
+          cleanup() {
+            status=$?
+            if [ "$status" -ne 0 ]; then
+              docker logs --tail 100 news-verify || true
+            fi
+            docker rm -f news-verify >/dev/null 2>&1 || true
+            exit "$status"
+          }
+          trap cleanup EXIT
           docker run -d --name news-verify -p 127.0.0.1:18101:3000 \
             -e SITE_URL -e NEXT_PUBLIC_SUPABASE_URL -e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
             "rss-site-web:sha-${GITHUB_SHA}"
-          curl --fail --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:18101/healthz
+          curl --fail --silent --show-error --retry 15 --retry-all-errors --retry-delay 2 \
+            --connect-timeout 3 --max-time 5 --retry-max-time 60 http://127.0.0.1:18101/healthz
           curl -fsS http://127.0.0.1:18101/ > /tmp/news-home.html
           grep -Fq 'news.ljhboard.cn' /tmp/news-home.html
           curl -fsS http://127.0.0.1:18101/icon.svg > /dev/null
