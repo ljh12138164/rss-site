@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-09-08 分区 RSS 订阅弹窗
+
+- feat/rss-subscription-dialog 为六个分区总览与平台列表增加 RSS 订阅按钮，弹窗包含完整地址、复制反馈和三步配置说明，沿用现有 React Aria 与样式。
+- Web 116 项测试、类型检查、相关 Biome 与临时 SITE_URL 下 55/55 页面生产构建通过；六分区地址、复制、关闭、桌面/手机及明暗主题已检查。浏览器拒绝复制场景仅代码检查。
+- 用户授权原有 next-env.d.ts 开发类型路径修改随本需求一起提交。文档：docs/development/rss-subscription-dialog.md。
+- 下一步推送分支，由用户创建并合并到 master 的 PR；没有部署或修改数据源。
+
 ## 2026-09-08 修复 GitHub Blog 与自动 AI 时间轴
 
 - GitHub Blog 生产采集验证成功，10 篇文章；数据门禁后新增 Vault 支持的六小时 Cron，任务 108 active。
