@@ -9,20 +9,33 @@ flock -n 9 || exit 3
 TEMP=$(mktemp -d /tmp/rss-site-release.XXXXXX)
 trap 'rm -rf "$TEMP"' EXIT
 cat > "$TEMP/bundle.tar.gz"
-# Extract only the two expected regular files, never archive paths or symlinks.
+# Extract only expected regular files, never archive paths or symlinks.
+FILES=(compose.yaml image.tar deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers)
 tar -tzf "$TEMP/bundle.tar.gz" | sort > "$TEMP/entries"
-printf 'compose.yaml\nimage.tar\n' | cmp -s - "$TEMP/entries"
+printf '%s\n' "${FILES[@]}" | sort | cmp -s - "$TEMP/entries"
 tar -tvzf "$TEMP/bundle.tar.gz" | awk 'substr($0,1,1)!="-" {bad=1} END {exit bad}'
-tar -xOzf "$TEMP/bundle.tar.gz" image.tar > "$TEMP/image.tar"
-tar -xOzf "$TEMP/bundle.tar.gz" compose.yaml > "$TEMP/compose.yaml"
+for file in "${FILES[@]}"; do
+  mkdir -p "$TEMP/$(dirname "$file")"
+  tar -xOzf "$TEMP/bundle.tar.gz" "$file" > "$TEMP/$file"
+done
+bash -n "$TEMP/deploy/server/deploy-rss-site"
+sh -n "$TEMP/deploy/server/rss-site-deploy-gate"
+visudo -cf "$TEMP/deploy/server/rss-site-deploy.sudoers"
 docker load -i "$TEMP/image.tar"
 docker image inspect "rss-site-web:$TAG" >/dev/null
+# Keep configuration and privileged entrypoints together for rollback.
+BACKUP=$(mktemp -d "$STACK/backup-${TAG}.XXXXXX")
+chmod 700 "$BACKUP"
+MANAGED=(/usr/local/sbin/deploy-rss-site /usr/local/bin/rss-site-deploy-gate /etc/sudoers.d/rss-site-deploy)
+for file in "${MANAGED[@]}"; do
+  cp -p "$file" "$BACKUP/$(basename "$file")"
+done
 PREVIOUS=''
 if test -f "$STACK/.env"; then
   PREVIOUS=$(sed -n 's/^IMAGE_TAG=//p' "$STACK/.env")
   [[ "$PREVIOUS" =~ ^sha-[0-9a-f]{40}$ ]] || exit 2
-  cp "$STACK/.env" "$TEMP/previous.env"
-  cp "$STACK/compose.yaml" "$TEMP/previous.compose"
+  cp "$STACK/.env" "$BACKUP/previous.env"
+  cp "$STACK/compose.yaml" "$BACKUP/previous.compose"
 fi
 write_tag() {
   (umask 077; printf 'IMAGE_TAG=%s\n' "$1" > "$STACK/.env.next")
@@ -41,9 +54,12 @@ healthy() {
 }
 rollback() {
   trap - ERR
+  for file in "${MANAGED[@]}"; do
+    cp -p "$BACKUP/$(basename "$file")" "$file"
+  done
   if test -n "$PREVIOUS"; then
-    cp "$TEMP/previous.compose" "$STACK/compose.yaml"
-    cp "$TEMP/previous.env" "$STACK/.env"
+    cp "$BACKUP/previous.compose" "$STACK/compose.yaml"
+    cp "$BACKUP/previous.env" "$STACK/.env"
     docker compose --project-directory "$STACK" up -d --pull never web
     healthy || { echo 'Rollback health check failed' >&2; exit 5; }
     echo "Rolled back to $PREVIOUS" >&2
@@ -59,5 +75,8 @@ install -m 644 "$TEMP/compose.yaml" "$STACK/compose.yaml"
 write_tag "$TAG"
 docker compose --project-directory "$STACK" up -d --pull never web
 healthy
+install -m 755 "$TEMP/deploy/server/deploy-rss-site" /usr/local/sbin/deploy-rss-site
+install -m 755 "$TEMP/deploy/server/rss-site-deploy-gate" /usr/local/bin/rss-site-deploy-gate
+install -m 440 "$TEMP/deploy/server/rss-site-deploy.sudoers" /etc/sudoers.d/rss-site-deploy
 trap - ERR
 echo "Deployment healthy: $TAG"

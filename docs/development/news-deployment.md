@@ -11,7 +11,7 @@
 - `.github/workflows/ci-deploy.yml`：PR 只验证；master 推送和手动 workflow_dispatch 在验证成功后部署，经过 production Environment。
 - Dockerfile：Actions 内构建 standalone；复制 public 和 static；PM2 单进程运行。
 - compose.yaml：仅监听 `127.0.0.1:18104`，内存上限 1 GB，禁止拉镜像。
-- deploy/server：受限 SSH 命令和部署脚本，校验包内仅含两个普通文件，加载已验证镜像，健康失败恢复上个版本。
+- deploy/server：受限 SSH 命令和部署脚本，校验包内仅含五个普通文件（镜像、Compose、部署脚本、SSH gate、sudoers），加载已验证镜像，健康通过后同步三个部署入口；失败恢复上个版本及入口备份。
 - deploy/host-nginx.conf：放入 news 域名已有 HTTPS server，关闭代理缓存和流式缓冲。
 
 ## GitHub 配置
@@ -22,29 +22,15 @@ production Environment Variables：`DEPLOY_HOST`、`DEPLOY_PORT`（默认 22）�
 
 ## 首次服务器准备
 
-服务器需要 Docker Compose、bash、curl、tar、flock、sudo；不需要 Node 或 pnpm。以下由管理员在审核脚本后执行，仓库文件先传入服务器：
+服务器需要 Docker Compose、bash、curl、tar、flock、sudo；不需要 Node 或 pnpm。首次使用已认证的阿里云 Workbench 通道执行 deploy/server/bootstrap-rss-site，传入独立部署公钥和受保护的 runtime.env，无需手工逐条创建账号、安装脚本。GitHub Actions 后续使用受限 SSH 入口。
 
-```sh
-sudo useradd --create-home --shell /bin/sh rss-site-deploy
-sudo install -d -m 755 /opt/stacks/rss-site
-sudo install -m 755 deploy/server/deploy-rss-site /usr/local/sbin/deploy-rss-site
-sudo install -m 755 deploy/server/rss-site-deploy-gate /usr/local/bin/rss-site-deploy-gate
-sudo visudo -cf deploy/server/rss-site-deploy.sudoers
-sudo install -m 440 deploy/server/rss-site-deploy.sudoers /etc/sudoers.d/rss-site-deploy
-sudo install -m 600 deploy/runtime.env.example /opt/stacks/rss-site/runtime.env
-```
+2026-09-08 已在 60.205.171.159 完成自动初始化：创建 rss-site-deploy（未加入 docker 组），安装部署脚本和经过 visudo 校验的 sudoers，安装独立公钥及 root:root 600 的运行配置。重复执行后，authorized_keys 和 runtime.env 的校验和保持一致。未启动应用，18104 未监听。
 
-编辑 runtime.env 填入实际公开 Supabase 配置和服务端 revalidation 等秘密。保持 root 所有和 600 权限。部署用户不要加入 docker 组。
-
-在该用户的 authorized_keys 中加入 Actions 对应公钥，前缀为：
-
-```text
-restrict,command="/usr/local/bin/rss-site-deploy-gate" ssh-ed25519 PUBLIC_KEY
-```
+初始化保留已有 runtime.env，追加公钥并备份已有 authorized_keys；遇到不同的既有部署脚本会退出，避免覆盖未知配置。后续发布通过镜像包同步部署脚本，先备份再更新，运行配置不被发布包覆盖。
 
 为 news.ljhboard.cn 配置 DNS、TLS 与 Nginx 反向代理（18104）。AdSense 后台添加/核验新闻站；子域 ads.txt 如有识别问题，按后台提示配置根域委派。接入脚本不等于广告审核通过。
 
-合并到 master 后自动执行；也可在 Actions 的 Verify and deploy news 中选择 master 并 Run workflow。verify 作业构建并启动镜像验证 healthz、首页、图标和 ads.txt；deploy 下载同一镜像包，通过受限 SSH 执行，最后检查公网 healthz。生产首次部署需要上述服务器准备与 GitHub 参数齐备。
+合并到 master 后自动执行；也可在 Actions 的 Verify and deploy news 中选择 master 并 Run workflow。verify 作业构建并启动镜像验证 healthz、首页、图标和 ads.txt；deploy 下载同一镜像包，通过受限 SSH 执行，最后检查公网 healthz。服务器初始化已完成；首次上线仍需 GitHub 参数齐备。当前未推送或触发 Actions，未配置正式域名反向代理。运行配置中的 REVALIDATE_SECRET 还需与 API 端同步，并在 API 设置 WEB_APP_URL；GA ID 尚未提供。
 
 ## 验收边界
 

@@ -32,7 +32,8 @@ jobs:
         run: |
           bash -n deploy/server/deploy-rss-site
           sh -n deploy/server/rss-site-deploy-gate
-          shellcheck deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate
+          bash -n deploy/server/bootstrap-rss-site
+          shellcheck deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/bootstrap-rss-site
       - name: Build release image
         run: |
           test -n "$NEXT_PUBLIC_SUPABASE_URL"
@@ -56,7 +57,8 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           docker save "rss-site-web:sha-${GITHUB_SHA}" -o image.tar
-          tar -czf release.tar.gz image.tar compose.yaml
+          tar -czf release.tar.gz image.tar compose.yaml \
+            deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers
       - uses: actions/upload-artifact@v4
         if: github.event_name != 'pull_request'
         with:
