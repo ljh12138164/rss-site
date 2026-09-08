@@ -67,19 +67,29 @@ export function EventTimeline({ initialPage }: { initialPage: EventPage }) {
           </Link>
         </div>
       )}
-      <ol className="divide-y divide-border">
+      <ol aria-label="AI 事件时间轴" className="pt-2">
         {items.map((event) => (
-          <li key={event.id} className="grid gap-3 py-7 sm:grid-cols-[9rem_1fr]">
+          <li
+            key={event.id}
+            className="group relative grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-4 sm:grid-cols-[7.5rem_1.25rem_minmax(0,1fr)] sm:gap-x-6"
+          >
             <time
-              className="text-sm tabular-nums text-muted-foreground"
+              className="col-start-2 mb-2 pt-0.5 font-mono text-xs leading-6 tabular-nums text-muted-foreground sm:col-start-1 sm:row-start-1 sm:text-right"
               dateTime={event.occurred_at}
             >
               {new Date(event.occurred_at).toLocaleDateString('zh-CN', {
                 timeZone: 'Asia/Shanghai'
               })}
             </time>
-            <div className="min-w-0">
-              <h2 className="text-xl font-semibold text-balance">
+            <div
+              aria-hidden="true"
+              className="absolute inset-y-0 left-0 flex w-5 justify-center sm:left-[9rem]"
+            >
+              <span className="absolute bottom-0 top-3 w-px bg-border group-last:hidden" />
+              <span className="relative mt-2 size-2.5 rounded-full border-2 border-primary bg-background group-first:bg-primary" />
+            </div>
+            <div className="col-start-2 min-w-0 pb-10 sm:col-start-3 sm:row-start-1 sm:pb-12">
+              <h2 className="text-lg font-semibold leading-7 break-words sm:text-xl">
                 <Link
                   className="hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
                   href={`/ai/events/${event.slug}`}
@@ -87,9 +97,18 @@ export function EventTimeline({ initialPage }: { initialPage: EventPage }) {
                   {event.title}
                 </Link>
               </h2>
-              <p className="mt-3 text-pretty text-sm leading-7 text-muted-foreground">
+              <p className="mt-2 max-w-3xl text-pretty text-sm leading-7 break-words text-muted-foreground">
                 {event.summary}
               </p>
+              <Link
+                className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-primary"
+                href={`/ai/events/${event.slug}`}
+              >
+                查看事件与来源{' '}
+                <span aria-hidden="true" className="ml-2">
+                  →
+                </span>
+              </Link>
             </div>
           </li>
         ))}

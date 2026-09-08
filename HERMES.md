@@ -1,5 +1,18 @@
 # HERMES
 
+## 2026-09-08 修复 GitHub Blog 与自动 AI 时间轴
+
+- GitHub Blog 生产采集验证成功，10 篇文章；数据门禁后新增 Vault 支持的六小时 Cron，任务 108 active。
+- 云端自动时间轴迁移已应用，105 篇 AI 文章回填为 105 个带来源事件；未来采集自动同步，稳定链接并防重复，保留人工事件与归档状态。
+- 云端事务回归、API 61 项测试通过；服务器 Blog 数据接口返回 10 条、时间轴首屏 20 条并有下一页，缓存已刷新。
+- 分支 codex/fix-content-pipelines，证据和边界见 docs/development/content-pipelines.md。
+
+## 2026-09-08 全站详情加载边界
+
+- 六栏目文章详情及 AI 事件详情共用带 SiteShell 的文章骨架，AI 时间轴补齐独立加载外框，修复冷导航时列表骨架铺满视口的问题。
+- Web 116 项测试、类型和相关 Biome 检查通过。文档：`docs/development/detail-loading.md`；分支 `codex/fix-detail-loading`，目标 master。
+- 下一步由用户创建并合并 PR，Actions 发布后验收真实慢网导航。未变更缓存、数据和部署配置。
+
 ## 2026-09-08 新闻站 Google 接入、轻量标识与服务器发布配置
 
 - 用户确认 `news.ljhboard.cn` 并要求实现 Actions 到服务器。已新增 `.github/workflows/ci-deploy.yml`、standalone Dockerfile、单实例 PM2、Compose、SSH gate、健康检查和回滚脚本。master push 验证通过后部署，手动入口保留，PR 不部署。
