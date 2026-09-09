@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-09-09 来源列表缓存恢复
+
+- feat/fix-source-routes 修复六分区来源列表在缓存缺失后因 dynamicParams=false 抛 NoFallbackError 的问题，允许白名单来源重新生成。
+- 生产构建 55/55、Web 116 测试及六来源缓存缺失 HTTP 回归通过，无效来源仍为 404。
+- 记录：docs/development/fix-source-routes.md。下一步推送分支，由用户创建并合并到 master 的 PR，发布后复核线上来源页；本轮未修改生产服务。
+
 ## 2026-09-08 分区 RSS 订阅弹窗
 
 - feat/rss-subscription-dialog 为六个分区总览与平台列表增加 RSS 订阅按钮，弹窗包含完整地址、复制反馈和三步配置说明，沿用现有 React Aria 与样式。

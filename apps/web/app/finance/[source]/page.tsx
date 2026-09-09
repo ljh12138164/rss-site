@@ -12,7 +12,7 @@ import {
 
 export const dynamic = 'force-static'
 export const revalidate = 21600
-export const dynamicParams = false
+export const dynamicParams = true
 
 type Props = { params: Promise<{ source: string }> }
 
