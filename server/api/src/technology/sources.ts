@@ -2,7 +2,7 @@ export const technologySources = [
   {
     id: 'github',
     name: 'GitHub Trending',
-    rsshubPath: '/github/trending/weekly/any',
+    rsshubPath: '/github/trending/weekly/any/zh',
     section: 'technology',
     itemLimit: 30
   },

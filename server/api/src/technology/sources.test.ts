@@ -29,7 +29,7 @@ describe('technologySources', () => {
     expect(
       technologySources.map((source) => [source.id, resolveSignalFeedUrl(source, '')])
     ).toEqual([
-      ['github', '/github/trending/weekly/any'],
+      ['github', '/github/trending/weekly/any/zh'],
       ['hacker-news', '/hackernews'],
       ['juejin', '/juejin/trending/all/weekly'],
       ['v2ex', '/v2ex/topics/hot'],

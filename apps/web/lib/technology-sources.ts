@@ -4,7 +4,7 @@ export const technologySources = [
     code: 'GH',
     name: 'GitHub Trending',
     shortName: '开源榜',
-    description: '本周热门开源项目'
+    description: '每周热门中文开源项目'
   },
   {
     id: 'hacker-news',

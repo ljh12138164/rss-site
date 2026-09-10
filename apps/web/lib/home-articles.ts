@@ -119,7 +119,7 @@ export async function getHomeArticles(
         sourceKey: row.source_key,
         title: row.title,
         url: row.url,
-        summary: row.summary?.trim().slice(0, 240) || null,
+        summary: row.summary?.trim() || null,
         author: null,
         publishedAt: null,
         position: row.position,

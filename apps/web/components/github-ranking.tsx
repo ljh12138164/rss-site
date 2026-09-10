@@ -11,7 +11,7 @@ export function GithubRanking({ feed }: { feed: FeedResult }) {
           className="min-h-11 content-center text-sm text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
           href="/technology/github"
         >
-          GitHub Trending · 周榜
+          GitHub Trending · 中文周榜
         </Link>
       </div>
       <FeedResultView feed={feed} source="github" returnTo="/technology" />
