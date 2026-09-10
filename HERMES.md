@@ -7,7 +7,7 @@
 - 榜单已显示排名、作者头像与名称、仓库名、简介、语言、Stars 和 Forks；点击经现有离站确认页进入 GitHub。
 - UI Skills registry 当前不可用，沿用仓库既有视觉系统与 UI quality 清单。开发记录：`docs/development/github-ranking-ui.md`。
 - API 61 项、Web 120 项测试、类型、修改范围 Biome、55/55 页面构建以及桌面/390px 手机明暗主题检查通过；全仓 lint 仍只有既有 CRLF 格式诊断。
-- 下一步：提交并推送分支，由用户创建目标为 master 的 PR；合并并部署 API 后手动重新采集 GitHub，确认云端默认快照确为中文榜，再保持现有 Cron。
+- 提交 `d99aaf2` 已推送到 `origin/feat/github-ranking-ui`。下一步由用户创建目标为 master 的 PR；合并并部署 API 后手动重新采集 GitHub，确认云端默认快照确为中文榜，再保持现有 Cron。
 
 ## 2026-09-09 来源列表缓存恢复
 
