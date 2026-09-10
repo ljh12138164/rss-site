@@ -1,7 +1,6 @@
 import { compareHotItemsByPublishedAt, type FeedResult } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource } from '../lib/technology-sources'
-import { GithubRanking } from './github-ranking'
 import { HotList } from './hot-list'
 
 export function SectionOverview({
@@ -13,8 +12,7 @@ export function SectionOverview({
   feeds: Record<string, FeedResult>
   sources: readonly SignalSource[]
 }) {
-  const articleSources = sources.filter((source) => source.id !== 'github')
-  const items = articleSources
+  const items = sources
     .flatMap((platform) => {
       const feed = feeds[platform.id]
       return feed?.state === 'ready' ? feed.items.map((item) => ({ ...item, platform })) : []
@@ -26,7 +24,7 @@ export function SectionOverview({
       position: index + 1,
       summary: item.summary?.trim().slice(0, 240) || null
     }))
-  const hasError = articleSources.some((source) => feeds[source.id]?.state === 'error')
+  const hasError = sources.some((source) => feeds[source.id]?.state === 'error')
 
   return (
     <div className="min-w-0">
@@ -37,9 +35,6 @@ export function SectionOverview({
         </p>
       ) : (
         !items.length && <p className="py-5 text-sm text-muted-foreground">暂无内容。</p>
-      )}
-      {sources.some((source) => source.id === 'github') && (
-        <GithubRanking feed={feeds.github ?? { state: 'empty' }} />
       )}
     </div>
   )

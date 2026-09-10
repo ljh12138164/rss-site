@@ -1,4 +1,4 @@
-import { ArrowUpRight, GitFork, Star } from 'lucide-react'
+import { ArrowUpRight, Code2, GitFork, Star } from 'lucide-react'
 import Link from 'next/link'
 import { parseGitHubRepository } from '../lib/github-repository'
 import type { HotItem } from '../lib/hot-feed'
@@ -51,17 +51,29 @@ export function GitHubRepositoryRow({
           ) : null}
           {repository.language || repository.stars !== null || repository.forks !== null ? (
             <span className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs text-muted-foreground">
-              {repository.language ? <span>{repository.language}</span> : null}
+              {repository.language ? (
+                <span className="inline-flex items-center gap-1" title="编程语言">
+                  <Code2
+                    aria-hidden="true"
+                    className="size-3.5 text-violet-500 dark:text-violet-300"
+                  />
+                  <span className="sr-only">编程语言：</span>
+                  {repository.language}
+                </span>
+              ) : null}
               {repository.stars !== null ? (
                 <span className="inline-flex items-center gap-1 tabular-nums" title="Stars">
-                  <Star aria-hidden="true" className="size-3.5" />
+                  <Star
+                    aria-hidden="true"
+                    className="size-3.5 text-amber-500 dark:text-amber-300"
+                  />
                   <span className="sr-only">Stars：</span>
                   {countFormatter.format(repository.stars)}
                 </span>
               ) : null}
               {repository.forks !== null ? (
                 <span className="inline-flex items-center gap-1 tabular-nums" title="Forks">
-                  <GitFork aria-hidden="true" className="size-3.5" />
+                  <GitFork aria-hidden="true" className="size-3.5 text-sky-500 dark:text-sky-300" />
                   <span className="sr-only">Forks：</span>
                   {countFormatter.format(repository.forks)}
                 </span>

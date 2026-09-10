@@ -14,7 +14,7 @@ vi.mock('next/navigation', () => ({ usePathname: () => route.pathname }))
 describe('section route layouts', () => {
   it.each([
     ['/ai/openai', 'OpenAI', AiLayout],
-    ['/technology/github', 'GitHub Trending', TechnologyLayout],
+    ['/technology/hacker-news', 'Hacker News', TechnologyLayout],
     ['/news/xinhua', '新华社', NewsLayout],
     ['/social/bilibili', '哔哩哔哩综合热门', SocialLayout],
     ['/finance/wallstreetcn', '华尔街见闻', FinanceLayout],

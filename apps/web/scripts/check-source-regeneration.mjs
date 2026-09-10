@@ -8,7 +8,7 @@ const origin = process.argv[2] ?? 'http://localhost:3107'
 assert.ok(['localhost', '127.0.0.1'].includes(new URL(origin).hostname))
 const paths = [
   '/ai/openai',
-  '/technology/github',
+  '/github',
   '/news/xinhua',
   '/social/bilibili',
   '/finance/wallstreetcn',
@@ -32,6 +32,7 @@ for (const path of paths) {
 assert.deepEqual(failures, [], 'Known sources must regenerate after a cache miss')
 for (const path of paths) {
   const section = path.split('/')[1]
+  if (section === 'github') continue
   const response = await fetch(new URL(`/${section}/unknown-source`, origin))
   await response.body?.cancel()
   assert.equal(response.status, 404, `${section} must reject unknown sources`)

@@ -16,7 +16,8 @@ export function indexNowKey(): string | undefined {
 function validatePaths(paths: string[]): void {
   if (!paths.length || paths.length > 105) throw new Error('Invalid publication path')
   for (const path of paths) {
-    if (path === '/' || path === '/sitemap.xml' || path === '/ai/events') continue
+    if (path === '/' || path === '/sitemap.xml' || path === '/ai/events' || path === '/github')
+      continue
     if (!/^\/[a-z0-9-]+(?:\/[a-z0-9-]+){0,2}$/.test(path))
       throw new Error('Invalid publication path')
     const [, section, source, slug] = path.split('/')

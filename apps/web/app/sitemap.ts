@@ -7,15 +7,19 @@ import {
   gameSources,
   newsSources,
   socialSources,
-  technologySources
+  technologyArticleSources
 } from '../lib/technology-sources'
 
 export const revalidate = 7200
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const entries: MetadataRoute.Sitemap = [{ url: siteUrl('/') }, { url: siteUrl('/ai/events') }]
+  const entries: MetadataRoute.Sitemap = [
+    { url: siteUrl('/') },
+    { url: siteUrl('/ai/events') },
+    { url: siteUrl('/github') }
+  ]
   const sections = [
     ['ai', aiSources],
-    ['technology', technologySources],
+    ['technology', technologyArticleSources],
     ['news', newsSources],
     ['social', socialSources],
     ['finance', financeSources],

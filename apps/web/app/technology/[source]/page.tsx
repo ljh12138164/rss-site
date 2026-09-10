@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import { notFound, permanentRedirect } from 'next/navigation'
 import { PaginatedArticleFeed } from '../../../components/paginated-article-feed'
 import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
@@ -23,6 +23,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { source: sourceId } = await params
   if (!isTechnologySourceId(sourceId)) notFound()
+  if (sourceId === 'github') permanentRedirect('/github')
 
   const source = getTechnologySource(sourceId)
   return {
@@ -45,6 +46,7 @@ export function TechnologySourceView({
 export default async function TechnologySourcePage({ params }: Props) {
   const { source: sourceId } = await params
   if (!isTechnologySourceId(sourceId)) notFound()
+  if (sourceId === 'github') permanentRedirect('/github')
 
   return <PaginatedArticleFeed section="/technology" source={sourceId} />
 }

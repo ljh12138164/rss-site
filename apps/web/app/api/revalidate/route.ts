@@ -69,13 +69,13 @@ export async function POST(request: Request) {
     const paths = [
       '/',
       '/sitemap.xml',
-      ...(section ? [section, `${section}/${source}`] : []),
+      ...(source === 'github' ? ['/github'] : section ? [section, `${section}/${source}`] : []),
       ...eventSlugs.map((slug) => `/ai/events/${slug}`)
     ]
     if (section === '/ai' || eventSlugs.length) paths.push('/ai/events')
     for (const path of paths) revalidatePath(path)
     if (section === '/ai' || eventSlugs.length) revalidatePath('/ai/events/[slug]', 'page')
-    if (section) revalidatePath(`${section}/${source}/[slug]`, 'page')
+    if (section && source !== 'github') revalidatePath(`${section}/${source}/[slug]`, 'page')
     after(async () => {
       try {
         await publishContent(paths, publicationId)

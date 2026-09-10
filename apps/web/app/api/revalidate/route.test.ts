@@ -38,6 +38,16 @@ it('schedules external publication only after authorized ISR invalidation', asyn
   )
 })
 
+it('publishes GitHub ingestion to the independent ranking route', async () => {
+  const response = await POST(request({ section: 'technology', source: 'github' }))
+  expect(response.status).toBe(200)
+  expect(paths).toHaveBeenCalledWith('/github')
+  expect(paths).not.toHaveBeenCalledWith('/technology/github')
+  expect(paths).not.toHaveBeenCalledWith('/technology/github/[slug]', 'page')
+  await callbacks[0]()
+  expect(publication).toHaveBeenCalledWith(['/', '/sitemap.xml', '/github'], expect.any(String))
+})
+
 it('rejects unauthenticated requests and path injection without invalidating or scheduling work', async () => {
   expect((await POST(request({ section: 'ai', source: 'openai' }, 'wrong'))).status).toBe(401)
   expect((await POST(request({ section: 'ai', source: '../news' }))).status).toBe(400)

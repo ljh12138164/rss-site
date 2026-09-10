@@ -50,6 +50,8 @@ export const technologySources = [
   }
 ] as const
 
+export const technologyArticleSources = technologySources.filter((source) => source.id !== 'github')
+
 export const newsSources = [
   {
     id: 'xinhua',
