@@ -89,6 +89,14 @@ describe('content publication', () => {
     expect(requests).toHaveLength(0)
   })
 
+  it('accepts the independent GitHub ranking path', async () => {
+    const result = await publishContent(['/github'], 'github-ranking')
+    expect(result.cloudflare.status).toBe('succeeded')
+    expect(JSON.parse(String(requests[0].init?.body))).toEqual({
+      files: ['https://news.example/github']
+    })
+  })
+
   it('does not warm or notify after a purge rejection and logs no credentials', async () => {
     vi.stubGlobal('fetch', async () => Response.json({ success: false }, { status: 200 }))
     const result = await publishContent(['/ai'], 'failed-purge')

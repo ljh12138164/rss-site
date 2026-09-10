@@ -3,7 +3,7 @@ import { expect, it } from 'vitest'
 import { SectionOverview } from '../components/section-overview'
 import { type FeedResult, getTechnologyFeed } from './hot-feed'
 import { buildRssSectionData } from './rss-feed'
-import { technologySources } from './technology-sources'
+import { technologyArticleSources, technologySources } from './technology-sources'
 
 const ranking: FeedResult = {
   state: 'ready',
@@ -21,7 +21,7 @@ const ranking: FeedResult = {
   status: { itemCount: 1, lastSuccessAt: new Date('2026-09-07T00:00:00Z') }
 }
 
-it('keeps Trending in a separate ranking instead of the article list', () => {
+it('keeps Trending out of the technology overview', () => {
   const feeds = Object.fromEntries(
     technologySources.map((source) => [
       source.id,
@@ -29,12 +29,10 @@ it('keeps Trending in a separate ranking instead of the article list', () => {
     ])
   ) as Record<string, FeedResult>
   const html = renderToStaticMarkup(
-    <SectionOverview basePath="/technology" sources={technologySources} feeds={feeds} />
+    <SectionOverview basePath="/technology" sources={technologyArticleSources} feeds={feeds} />
   )
-  expect(html).toContain('开源排行榜')
-  expect(html).toContain('>04</span>')
-  expect(html).toContain('owner')
-  expect(html).toContain('repository')
+  expect(html).not.toContain('开源排行榜')
+  expect(html).not.toContain('owner/repository')
 })
 
 it('preserves upstream rank even when a lower-ranked repository has a newer date', async () => {

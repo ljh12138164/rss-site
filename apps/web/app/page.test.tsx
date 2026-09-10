@@ -47,7 +47,7 @@ it('renders a single cross-section article list and continuation control', () =>
   expect(html).toContain('加载更多')
   expect(html).toContain('href="/news/xinhua/最新新闻--11111111-1111-4111-8111-111111111111"')
   expect(html).toContain('href="/ai/openai"')
-  expect(html).toContain('href="/technology/github"')
+  expect(html).toContain('href="/github"')
 })
 
 it('distinguishes an empty list from a failed initial request', () => {

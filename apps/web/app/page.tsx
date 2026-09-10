@@ -43,7 +43,7 @@ export function HomeView({
               ['/social', '社交热点'],
               ['/finance', '财经'],
               ['/games', '游戏'],
-              ['/technology/github', '开源榜']
+              ['/github', '开源排行']
             ] as const
           ).map(([href, title]) => (
             <Link

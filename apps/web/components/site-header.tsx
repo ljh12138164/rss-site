@@ -16,13 +16,13 @@ const sections = [
   ['/finance', '财经'],
   ['/games', '游戏'],
   ['/ai/events', 'AI 时间轴'],
-  ['/technology/github', '开源排行']
+  ['/github', '开源排行']
 ] as const
 
 export function SiteHeader() {
   const pathname = usePathname()
   const timeline = pathname?.startsWith('/ai/events')
-  const githubRanking = pathname?.startsWith('/technology/github')
+  const githubRanking = pathname?.startsWith('/github')
 
   return (
     <header className="sticky top-0 z-20 flex flex-wrap items-center gap-x-6 border-b border-border bg-background/95 pt-3 backdrop-blur-sm lg:flex-nowrap lg:py-3">
@@ -43,10 +43,9 @@ export function SiteHeader() {
               ? pathname === '/'
               : href === '/ai/events'
                 ? timeline
-                : href === '/technology/github'
+                : href === '/github'
                   ? githubRanking
                   : !(href === '/ai' && timeline) &&
-                    !(href === '/technology' && githubRanking) &&
                     (pathname === href || pathname?.startsWith(`${href}/`))
 
           return (
