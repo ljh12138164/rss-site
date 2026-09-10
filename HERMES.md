@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-09-10 GitHub 中文开源排行榜
+
+- 当前分支 `feat/github-ranking-ui` 从最新 `origin/master` 创建，修复 GitHub 仓库误入站内文章详情骨架，并把“开源排行”放到主导航“AI 时间轴”右侧。
+- 用户确认默认只显示中文描述项目；RSSHub 目标路由为 `/github/trending/weekly/any/zh`，编程语言仍为任意语言。
+- 榜单已显示排名、作者头像与名称、仓库名、简介、语言、Stars 和 Forks；点击经现有离站确认页进入 GitHub。
+- UI Skills registry 当前不可用，沿用仓库既有视觉系统与 UI quality 清单。开发记录：`docs/development/github-ranking-ui.md`。
+- API 61 项、Web 120 项测试、类型、修改范围 Biome、55/55 页面构建以及桌面/390px 手机明暗主题检查通过；全仓 lint 仍只有既有 CRLF 格式诊断。
+- 提交 `d99aaf2` 已推送到 `origin/feat/github-ranking-ui`。下一步由用户创建目标为 master 的 PR；合并并部署 API 后手动重新采集 GitHub，确认云端默认快照确为中文榜，再保持现有 Cron。
+
 ## 2026-09-09 来源列表缓存恢复
 
 - feat/fix-source-routes 修复六分区来源列表在缓存缺失后因 dynamicParams=false 抛 NoFallbackError 的问题，允许白名单来源重新生成。

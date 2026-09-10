@@ -33,7 +33,8 @@ it('keeps Trending in a separate ranking instead of the article list', () => {
   )
   expect(html).toContain('开源排行榜')
   expect(html).toContain('>04</span>')
-  expect(html.match(/owner\/repository/g)).toHaveLength(1)
+  expect(html).toContain('owner')
+  expect(html).toContain('repository')
 })
 
 it('preserves upstream rank even when a lower-ranked repository has a newer date', async () => {

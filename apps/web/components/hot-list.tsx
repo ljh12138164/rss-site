@@ -4,6 +4,7 @@ import { createArticlePath } from '../lib/article-route'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource } from '../lib/technology-sources'
+import { GitHubRepositoryRow } from './github-repository-row'
 import { SourceIcon } from './source-icon'
 
 const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
@@ -29,6 +30,15 @@ export function HotList({
     <ol className="divide-y divide-border border-y border-border">
       {items.map((item) => {
         const sourceId = item.platform?.id ?? source
+        if (sourceId === 'github') {
+          return (
+            <GitHubRepositoryRow
+              item={item}
+              key={`${sourceId}:${item.sourceKey}`}
+              returnTo={returnTo}
+            />
+          )
+        }
         const internalHref =
           sourceId && item.articleId
             ? createArticlePath(sourceId, item.title, item.articleId)

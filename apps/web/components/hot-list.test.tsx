@@ -58,4 +58,42 @@ describe('HotList', () => {
     expect(html).toContain('这是一段由上游提供的新闻摘要。')
     expect(html).not.toContain('href="/out?url=')
   })
+
+  it('renders GitHub metadata and routes repositories out of the site', () => {
+    const html = renderToStaticMarkup(
+      <HotList
+        items={[
+          {
+            articleId: '00000000-0000-0000-0000-000000000102',
+            sourceKey: 'https://github.com/sudheerj/reactjs-interview-questions',
+            title: 'sudheerj/reactjs-interview-questions',
+            url: 'https://github.com/sudheerj/reactjs-interview-questions',
+            summary:
+              'List of top 500 ReactJS Interview Questions & Answers. Language: JavaScript Stars: 44795 Forks: 10384',
+            author: 'sudheerj',
+            publishedAt: null,
+            position: 1
+          }
+        ]}
+        returnTo="/technology"
+        source="github"
+      />
+    )
+
+    expect(html).toContain('>01</span>')
+    expect(html).toContain('sudheerj')
+    expect(html).toContain('reactjs-interview-questions')
+    expect(html).toContain('List of top 500 ReactJS Interview Questions &amp; Answers.')
+    expect(html).toContain('JavaScript')
+    expect(html).toContain('44,795')
+    expect(html).toContain('10,384')
+    expect(html).toContain('https://github.com/sudheerj.png?size=80')
+    expect(html).toContain(
+      'href="/out?url=https%3A%2F%2Fgithub.com%2Fsudheerj%2Freactjs-interview-questions&amp;from=%2Ftechnology"'
+    )
+    expect(html).not.toContain('/technology/github/')
+    expect(html).not.toContain('Language:')
+    expect(html).not.toContain('Stars:')
+    expect(html).not.toContain('Forks:')
+  })
 })
