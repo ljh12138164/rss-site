@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { createArticlePath } from '../lib/article-route'
 import { siteUrl } from '../lib/site-url'
 import { getPublicSupabaseClient } from '../lib/supabase'
 import {
@@ -31,8 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entries.push({ url: siteUrl(`/${section}`) })
     for (const source of sources) entries.push({ url: siteUrl(`/${section}/${source.id}`) })
   }
-  // Thin third-party news summaries are noindex and deliberately omitted.
-  let after: string | null = null
+  let afterEventId: string | null = null
   for (;;) {
     let query = getPublicSupabaseClient()
       .from('ai_events')
@@ -40,15 +40,42 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .eq('status', 'published')
       .order('id')
       .limit(1000)
-    if (after) query = query.gt('id', after)
+    if (afterEventId) query = query.gt('id', afterEventId)
     const { data, error } = await query
     if (error) throw new Error('Unable to generate sitemap')
     for (const event of data)
       entries.push({ url: siteUrl(`/ai/events/${event.slug}`), lastModified: event.updated_at })
-    if (entries.length > 50000)
-      throw new Error('Sitemap requires splitting before publishing more URLs')
+    if (entries.length >= 50000) break
     if (data.length < 1000) break
-    after = data[data.length - 1].id
+    afterEventId = data[data.length - 1].id
   }
+
+  let afterArticleId: string | null = null
+  for (;;) {
+    if (entries.length >= 50000) break
+    let query = getPublicSupabaseClient()
+      .from('signal_articles')
+      .select('id,source,title,published_at,last_seen_at')
+      .order('id')
+      .limit(1000)
+    if (afterArticleId) query = query.gt('id', afterArticleId)
+    const { data, error } = await query
+    if (error) throw new Error('Unable to generate sitemap')
+    for (const article of data) {
+      try {
+        const path = createArticlePath(article.source, article.title, article.id)
+        entries.push({
+          url: siteUrl(path),
+          lastModified: article.published_at ?? article.last_seen_at
+        })
+      } catch {
+        continue
+      }
+      if (entries.length >= 50000) break
+    }
+    if (data.length < 1000) break
+    afterArticleId = data[data.length - 1].id
+  }
+
   return entries
 }

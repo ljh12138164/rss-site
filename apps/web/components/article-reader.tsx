@@ -35,7 +35,7 @@ export async function articleMetadata(props: ArticlePageProps, section: string):
   return {
     title: article.title,
     description: article.summary?.slice(0, 200) ?? undefined,
-    robots: { index: false, follow: true },
+    robots: { index: true, follow: true },
     alternates: { canonical },
     openGraph: {
       type: 'article',
