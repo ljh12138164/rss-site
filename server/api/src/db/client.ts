@@ -3,6 +3,10 @@ import postgres from 'postgres'
 import * as schema from './schema.js'
 
 export function createDatabase(databaseUrl: string) {
+  return createDatabaseConnection(databaseUrl).database
+}
+
+export function createDatabaseConnection(databaseUrl: string) {
   const client = postgres(databaseUrl, {
     prepare: false,
     max: 1,
@@ -10,7 +14,10 @@ export function createDatabase(databaseUrl: string) {
     idle_timeout: 20
   })
 
-  return drizzle({ client, schema })
+  return {
+    database: drizzle({ client, schema }),
+    close: () => client.end({ timeout: 5 })
+  }
 }
 
 export type Database = ReturnType<typeof createDatabase>

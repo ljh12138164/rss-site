@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "rss-site-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-11",
+  "vars": {
+    "RSSHUB_BASE_URL": "https://rss.ljhboard.cn",
+    "WEB_APP_URL": "https://news.ljhboard.cn"
+  },
+  "secrets": {
+    "required": ["CRON_SECRET", "REVALIDATE_SECRET"]
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "f63584eacae34dc08c9c99966a7509e3"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}
