@@ -6,7 +6,7 @@
 - 已定位六个栏目根级 `loading.tsx` 直接输出裸 `SectionLoading`；覆盖六路由的回归修复前 6/6 失败，现统一用既有 `SiteShell` 恢复唯一顶栏、受约束 main 和页脚。
 - UI 不改正常页面、配色或动效；开发记录：`docs/development/fix-fullscreen-section-skeletons.md`。
 - Web 141 项测试、类型、修改范围 Biome、diff 检查及 56/56 页面生产构建通过；1440px 桌面和 390px 手机加载预览均保留顶栏、主体边距及页脚，无横向溢出。
-- 其余 9 个 loading 已审计且原本均有外框；无阻断或 roadmap 后续项。下一步提交并推送分支，由用户创建目标为 `master` 的 PR。
+- 其余 9 个 loading 已审计且原本均有外框；无阻断或 roadmap 后续项。提交 `200c75f` 已推送到 `origin/feat/fix-fullscreen-section-skeletons`；下一步由用户创建目标为 `master` 的 PR，合并发布后复核真实慢导航。
 
 ## 2026-09-10 GitHub 中文开源排行榜
 
