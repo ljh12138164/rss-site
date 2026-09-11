@@ -14,6 +14,8 @@ export const revalidate = 7200
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [
     { url: siteUrl('/') },
+    { url: siteUrl('/about') },
+    { url: siteUrl('/privacy') },
     { url: siteUrl('/ai/events') },
     { url: siteUrl('/github') }
   ]
