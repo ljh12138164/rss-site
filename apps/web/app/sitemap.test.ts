@@ -2,7 +2,6 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { GET as getChildSitemap } from './sitemap/[id]/route'
 import { GET as getSitemapXml } from './sitemap.xml/route'
 
-
 let mockError = false
 let mockArticleCount = 1
 
