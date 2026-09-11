@@ -15,10 +15,10 @@
 ## 2026-09-11 栏目全屏骨架修复
 
 - 当前分支 `feat/fix-fullscreen-section-skeletons` 从最新 `origin/master` 创建；目标是修复骨架越过页面主体、吞掉全局顶栏的问题，并非加载卡死。
-- 已定位六个栏目根级 `loading.tsx` 直接输出裸 `SectionLoading`；覆盖六路由的回归修复前 6/6 失败，现统一用既有 `SiteShell` 恢复唯一顶栏、受约束 main 和页脚。
+- 第一次给六个栏目根 loading 增加 `SiteShell` 的修复会与来源页 `SectionLayout` 形成双顶栏，已撤销。最终方案删除六个栏目根 loading，把 `Suspense` 下沉到 `PaginatedArticleFeed` 的异步文章查询内部。
 - UI 不改正常页面、配色或动效；开发记录：`docs/development/fix-fullscreen-section-skeletons.md`。
-- Web 141 项测试、类型、修改范围 Biome、diff 检查及 56/56 页面生产构建通过；1440px 桌面和 390px 手机加载预览均保留顶栏、主体边距及页脚，无横向溢出。
-- 其余 9 个 loading 已审计且原本均有外框；无阻断或 roadmap 后续项。提交 `200c75f` 已推送到 `origin/feat/fix-fullscreen-section-skeletons`；下一步由用户创建目标为 `master` 的 PR，合并发布后复核真实慢导航。
+- 最终组合回归 16/16、Web 全量 136 项及类型检查通过；真实 `/technology/juejin` 延迟查询验收只有一个顶栏、main、来源导航和正文骨架，无嵌套或横向溢出。
+- 提交 `200c75f` 的错误实现已由 `e60d024` 覆盖并推送；最终代码编译、构建内类型检查通过，真实页面预渲染连续在不同 Supabase 来源超时，未伪报完整构建成功。下一步由用户重新发布验收。
 
 ## 2026-09-10 GitHub 中文开源排行榜
 
