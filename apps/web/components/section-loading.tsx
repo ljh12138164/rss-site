@@ -1,13 +1,4 @@
 import { SignalSkeleton } from './signal-skeleton'
-import { SiteShell } from './site-shell'
-
-export function SectionRouteLoading() {
-  return (
-    <SiteShell>
-      <SectionLoading />
-    </SiteShell>
-  )
-}
 
 export function SectionLoading() {
   return (

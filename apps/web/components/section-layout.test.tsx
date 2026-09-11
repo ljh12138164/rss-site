@@ -6,12 +6,29 @@ import GamesLayout from '../app/games/layout'
 import NewsLayout from '../app/news/layout'
 import SocialLayout from '../app/social/layout'
 import TechnologyLayout from '../app/technology/layout'
+import { PaginatedArticleFeed } from './paginated-article-feed'
 import { SectionLoading } from './section-loading'
 
 const route = vi.hoisted(() => ({ pathname: '/ai' }))
 vi.mock('next/navigation', () => ({ usePathname: () => route.pathname }))
+vi.mock('../lib/home-articles', () => ({
+  getHomeArticles: () => new Promise(() => undefined)
+}))
 
 describe('section route layouts', () => {
+  it('keeps one site shell when a source feed suspends', () => {
+    route.pathname = '/technology/juejin'
+    const html = renderToStaticMarkup(
+      <TechnologyLayout>
+        <PaginatedArticleFeed section="/technology" source="juejin" />
+      </TechnologyLayout>
+    )
+    expect(html.match(/今日热点/g)).toHaveLength(1)
+    expect(html.match(/<main /g)).toHaveLength(1)
+    expect(html.match(/aria-label="内容来源"/g)).toHaveLength(1)
+    expect(html).toContain('aria-label="正在加载文章"')
+  })
+
   it.each([
     ['/ai/openai', 'OpenAI', AiLayout],
     ['/technology/hacker-news', 'Hacker News', TechnologyLayout],
