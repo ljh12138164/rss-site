@@ -18,7 +18,7 @@
 - 第一次给六个栏目根 loading 增加 `SiteShell` 的修复会与来源页 `SectionLayout` 形成双顶栏，已撤销。最终方案删除六个栏目根 loading，把 `Suspense` 下沉到 `PaginatedArticleFeed` 的异步文章查询内部。
 - UI 不改正常页面、配色或动效；开发记录：`docs/development/fix-fullscreen-section-skeletons.md`。
 - 最终组合回归 16/16、Web 全量 136 项及类型检查通过；真实 `/technology/juejin` 延迟查询验收只有一个顶栏、main、来源导航和正文骨架，无嵌套或横向溢出。
-- 提交 `200c75f` 的错误实现将由后续修正提交覆盖；最终代码编译、构建内类型检查通过，真实页面预渲染连续在不同 Supabase 来源超时，未伪报完整构建成功。下一步提交并推送修正，由用户重新发布验收。
+- 提交 `200c75f` 的错误实现已由 `e60d024` 覆盖并推送；最终代码编译、构建内类型检查通过，真实页面预渲染连续在不同 Supabase 来源超时，未伪报完整构建成功。下一步由用户重新发布验收。
 
 ## 2026-09-10 GitHub 中文开源排行榜
 
