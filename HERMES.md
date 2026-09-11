@@ -1,5 +1,17 @@
 # HERMES
 
+## 2026-09-11 Cloudflare Worker API migration
+
+- Current objective: migrate only `server/api` from Vercel to Cloudflare Workers on the user-selected
+  `feat/fix-fullscreen-section-skeletons` branch; RSSHub, web, schema, sources, and Cron logic remain
+  unchanged.
+- Worker entrypoint, Hyperdrive lifecycle, Wrangler config, generated types, bounded feed reads, and
+  deployment guidance are implemented. Development record:
+  `docs/development/cloudflare-worker-api.md`.
+- Next action: complete changed-file checks and review. Production cutover remains gated on replacing
+  the placeholder Hyperdrive ID, installing Worker secrets, and verifying one real ingestion before
+  Vercel is disabled.
+
 ## 2026-09-11 栏目全屏骨架修复
 
 - 当前分支 `feat/fix-fullscreen-section-skeletons` 从最新 `origin/master` 创建；目标是修复骨架越过页面主体、吞掉全局顶栏的问题，并非加载卡死。

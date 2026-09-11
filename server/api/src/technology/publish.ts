@@ -2,11 +2,15 @@ import type { SignalSource } from './sources.js'
 
 export async function publishSourceUpdate(
   source: SignalSource,
-  change: { changed: boolean; events: string[]; batchId: string }
+  change: { changed: boolean; events: string[]; batchId: string },
+  environment: { webAppUrl?: string; revalidateSecret?: string } = {
+    webAppUrl: process.env.WEB_APP_URL,
+    revalidateSecret: process.env.REVALIDATE_SECRET
+  }
 ): Promise<'revalidated' | 'failed' | 'disabled' | 'unchanged'> {
   if (!change.changed) return 'unchanged'
-  const siteUrl = process.env.WEB_APP_URL
-  const secret = process.env.REVALIDATE_SECRET
+  const siteUrl = environment.webAppUrl
+  const secret = environment.revalidateSecret
   if (!siteUrl && !secret) return 'disabled'
   if (!siteUrl || !secret) return 'failed'
   try {
