@@ -15,6 +15,7 @@ export function GoogleScripts() {
           />
         </>
       )}
+      <meta name="msvalidate.01" content="1D97E9469470F8C3242E298438BF37AD" />
       <Script
         id="google-adsense"
         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7441827328189379"
