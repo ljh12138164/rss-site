@@ -62,6 +62,7 @@ jobs:
           grep -Fq 'news.ljhboard.cn' /tmp/news-home.html
           curl -fsS http://127.0.0.1:18101/icon.svg > /dev/null
           curl -fsS http://127.0.0.1:18101/ads.txt | grep -F 'pub-7441827328189379'
+          curl -fsI http://127.0.0.1:18101/ | grep -i '^link:.*rel=preload.*as=style'
       - name: Package verified image
         if: github.event_name != 'pull_request'
         run: |

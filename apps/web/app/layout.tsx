@@ -9,7 +9,12 @@ import './globals.css'
 export const metadata: Metadata = {
   title: { default: '今日热点', template: '%s · 今日热点' },
   description: 'AI 平台动态，以及科技、新闻、社交、财经和游戏热点。',
-  icons: { icon: '/icon.svg' }
+  icons: { icon: '/icon.svg' },
+  verification: {
+    other: {
+      'msvalidate.01': '1D97E9469470F8C3242E298438BF37AD'
+    }
+  }
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
