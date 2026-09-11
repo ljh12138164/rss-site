@@ -1,8 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest'
-import sitemap, { generateSitemaps } from './sitemap'
+import sitemap from './sitemap'
 
 let mockError = false
-let mockArticleCount = 1
 
 vi.mock('../lib/supabase', () => ({
   getPublicSupabaseClient: () => ({
@@ -40,30 +39,25 @@ vi.mock('../lib/supabase', () => ({
       }
       if (table === 'signal_articles') {
         return {
-          select: (_fields?: string, options?: { count?: string; head?: boolean }) => {
-            if (options?.head) {
-              return Promise.resolve({ count: mockArticleCount, error: null })
-            }
-            return {
+          select: () => ({
+            order: () => ({
               order: () => ({
-                order: () => ({
-                  range: () =>
-                    Promise.resolve({
-                      data: [
-                        {
-                          id: '550e8400-e29b-41d4-a716-446655440000',
-                          source: 'xinhua',
-                          title: '测试新闻标题',
-                          published_at: '2026-09-01T00:00:00Z',
-                          last_seen_at: '2026-09-01T01:00:00Z'
-                        }
-                      ],
-                      error: null
-                    })
-                })
+                range: () =>
+                  Promise.resolve({
+                    data: [
+                      {
+                        id: '550e8400-e29b-41d4-a716-446655440000',
+                        source: 'xinhua',
+                        title: '测试新闻标题',
+                        published_at: '2026-09-01T00:00:00Z',
+                        last_seen_at: '2026-09-01T01:00:00Z'
+                      }
+                    ],
+                    error: null
+                  })
               })
-            }
-          }
+            })
+          })
         }
       }
       return { select: () => ({}) }
@@ -73,11 +67,10 @@ vi.mock('../lib/supabase', () => ({
 
 afterEach(() => {
   mockError = false
-  mockArticleCount = 1
   vi.unstubAllEnvs()
 })
 
-it('includes core static routes, sections, sources, events, and platform articles in sitemap chunk 0', async () => {
+it('includes core static routes, sections, sources, events, and platform articles in sitemap', async () => {
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
   const entries = await sitemap()
   const urls = entries.map((e) => e.url)
@@ -97,25 +90,6 @@ it('includes core static routes, sections, sources, events, and platform article
   ).toBe(true)
 })
 
-it('generateSitemaps returns dynamic chunk slices based on article count', async () => {
-  mockArticleCount = 85000
-  const chunks = await generateSitemaps()
-  expect(chunks).toEqual([{ id: 0 }, { id: 1 }, { id: 2 }])
-})
-
-it('sitemap chunk 1 fetches articles without repeating static routes', async () => {
-  vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  const entries = await sitemap({ id: Promise.resolve('1') })
-  const urls = entries.map((e) => e.url)
-  expect(urls).not.toContain('https://news.ljhboard.cn/')
-  expect(urls).not.toContain('https://news.ljhboard.cn/about')
-  expect(
-    urls.some(
-      (u) => u.includes('news/xinhua/') && u.includes('550e8400-e29b-41d4-a716-446655440000')
-    )
-  ).toBe(true)
-})
-
 it('gracefully handles database errors without throwing exceptions', async () => {
   mockError = true
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
@@ -123,4 +97,5 @@ it('gracefully handles database errors without throwing exceptions', async () =>
   expect(entries.length).toBeGreaterThan(0)
   expect(entries.map((e) => e.url)).toContain('https://news.ljhboard.cn/')
 })
+
 
