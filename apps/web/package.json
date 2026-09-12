@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "translation:prepare": "bun scripts/prepare-translation.mjs",
     "dev": "next dev --turbopack",
     "build": "next build && node scripts/generate-early-hints.mjs",
     "lint": "biome check .",

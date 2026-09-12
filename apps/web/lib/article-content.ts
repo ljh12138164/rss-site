@@ -1,9 +1,10 @@
 import sanitizeHtml from 'sanitize-html'
+import { cleanOpenAiContent } from '../../../shared/openai-content'
 
 // This function must run before stored, untrusted Feed HTML reaches the document.
 export function renderArticleContent(html: string, originalUrl: string, section: string) {
   if (Buffer.byteLength(html, 'utf8') > 512 * 1024) return ''
-  return sanitizeHtml(html, {
+  return sanitizeHtml(cleanOpenAiContent(html, originalUrl), {
     allowedTags: [
       'p',
       'div',

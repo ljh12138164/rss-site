@@ -1,4 +1,5 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser'
+import { cleanOpenAiContent } from '../../../../shared/openai-content.js'
 
 export interface TechnologyFeedItem {
   sourceKey: string
@@ -173,7 +174,8 @@ export function parseTechnologyFeed(
 
     const rawGuid = textValue(item.guid)
     // Feed HTML is archived as untrusted content; the reader sanitizes it before rendering.
-    const html = textValue(content) ?? textValue(item.description)
+    const rawHtml = textValue(content) ?? textValue(item.description)
+    const html = rawHtml ? cleanOpenAiContent(rawHtml, url) : null
     const contentHtml = html && Buffer.byteLength(html, 'utf8') <= 512 * 1024 ? html : null
     return [
       {
@@ -181,7 +183,10 @@ export function parseTechnologyFeed(
         title,
         url,
         imageUrl: firstImageUrl(item.description, content),
-        summary: (plainText(item.description) ?? plainText(content))?.slice(0, 500) ?? null,
+        summary:
+          (
+            plainText(cleanOpenAiContent(textValue(item.description) ?? '', url)) ?? plainText(html)
+          )?.slice(0, 500) ?? null,
         contentHtml,
         author: textValue(item.author),
         publishedAt: publishedDate(item.pubDate)

@@ -25,7 +25,8 @@ RUN mkdir -p /app/data/mtran/config /app/data/mtran/models && chown -R bun:bun /
 COPY --from=builder --chown=bun:bun /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=bun:bun /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=bun:bun /app/apps/web/public ./apps/web/public
+COPY --from=builder --chown=bun:bun /app/apps/web/scripts/prepare-translation.mjs ./apps/web/scripts/prepare-translation.mjs
 USER bun
 EXPOSE 3000
 HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:3000/healthz || exit 1
-CMD ["bun", "apps/web/server.js"]
+CMD ["sh", "-c", "bun apps/web/scripts/prepare-translation.mjs && exec bun apps/web/server.js"]

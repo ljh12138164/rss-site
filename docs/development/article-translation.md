@@ -43,6 +43,10 @@ Hono 官方 Next.js 适配使用 `app/api/[[...route]]/route.ts` 和 `hono/verce
 
 ## Risks
 
+- 2026-09-12 实测 RSSHub `/openai/news?limit=1`：正文完整，Loading… 来自 `data-read-aloud-ui` 朗读组件。采集与阅读清洗共享该组件移除规则；未修改线上 RSSHub 或历史数据库摘要。
+- 新增 `pnpm --filter @rss-site/web translation:prepare`，使用 Bun 提前下载并执行翻译校验；容器在该步骤成功后启动 Next。本地下载完成，真实翻译校验通过，命令退出码 0。该独立准备进程只预下载磁盘文件，Next 进程仍需自行加载 WASM。
+- 本轮 API 64/64、Web 153/153 和双方类型检查通过，完整 build 53/53 通过。规范/需求审查确认修改限于已识别朗读控件和模型准备步骤。
+
 - 首次请求需要下载模型，耗时取决于服务器到模型源的网络；UI 必须明确提示。
 - 2 核/1 GiB 容器翻译长文时可能有 CPU/内存压力，因此不同文章最多同时执行两个任务，且 MTran 引擎内部仍会排队。
 - Bun 对 Next standalone 和 MTranServer 的 Node/WASM 兼容性必须以实际构建与启动测试为准；若失败，不能仅凭类型检查宣称可发布。

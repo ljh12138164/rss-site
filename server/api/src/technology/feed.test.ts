@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest'
 import { parseTechnologyFeed } from './feed.js'
 
 describe('parseTechnologyFeed', () => {
+  it('cleans OpenAI audio UI from both stored HTML and summary', () => {
+    const xml =
+      '<rss><channel><item><title>Example</title><link>https://openai.com/index/example</link><description><![CDATA[<div data-read-aloud-ui="true"><div>Loading…</div><audio></audio></div><p>Actual article.</p>]]></description></item></channel></rss>'
+    const [item] = parseTechnologyFeed(xml, 'OpenAI')
+    expect(item.contentHtml).toBe('<p>Actual article.</p>')
+    expect(item.summary).toBe('Actual article.')
+  })
   it('falls back to a bounded summary for oversized content', () => {
     const xml = `<rss><channel><item><title>文章</title><link>https://example.com/a</link><description><![CDATA[<p>${'中'.repeat(180000)}</p>]]></description></item></channel></rss>`
     const item = parseTechnologyFeed(xml, 'test')[0]

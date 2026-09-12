@@ -2,6 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { renderArticleContent } from './article-content'
 
 describe('article HTML', () => {
+  it('removes the OpenAI read-aloud placeholder while keeping article text', () => {
+    const html =
+      '<div data-read-aloud-ui="true"><div><span>Loading…</span></div><audio preload="none"></audio></div><p>Loading models is useful.</p>'
+    expect(renderArticleContent(html, 'https://openai.com/index/example', 'ai')).toBe(
+      '<p>Loading models is useful.</p>'
+    )
+    expect(renderArticleContent(html, 'https://example.com/article', 'ai')).toContain('Loading…')
+  })
   const render = (html: string) => renderArticleContent(html, 'https://example.com/posts/one', 'ai')
   it('preserves readable blocks and normalizes headings', () => {
     const html = render(
