@@ -9,6 +9,8 @@ import {
 export const revalidate = 7200
 
 export async function GET(_request: Request, props: { params: Promise<{ id: string }> }) {
+  if (!process.env.SITE_URL) return new NextResponse('Not Found', { status: 404 })
+
   const { id } = await props.params
   const cleanId = id.endsWith('.xml') ? id.slice(0, -4) : id
   const chunkIndex = Number.parseInt(cleanId, 10)

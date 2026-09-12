@@ -91,7 +91,7 @@ export function ArticleTranslation({
         </h1>
         {metadata}
         {canTranslate && (
-          <div className="mt-4 flex flex-wrap items-center gap-3">
+          <div className="mt-4">
             <ActionButton
               variant={translation ? 'outline' : 'primary'}
               onPress={requestTranslation}
@@ -103,16 +103,13 @@ export function ArticleTranslation({
                 <Languages className="size-4" aria-hidden="true" />
               )}
               {isLoading
-                ? '正在准备本地模型并翻译…'
+                ? '正在翻译中'
                 : showTranslation
                   ? '查看英文原文'
                   : translation
                     ? '查看中文译文'
                     : '翻译为中文'}
             </ActionButton>
-            {translation && showTranslation && (
-              <span className="text-xs text-muted-foreground">由本地 MTranServer 模型生成</span>
-            )}
           </div>
         )}
         {error && (

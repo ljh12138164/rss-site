@@ -1,5 +1,6 @@
 import path from 'node:path'
 import type { MTran } from 'mtranserver'
+import type { AiEvent } from './ai-events'
 import { renderArticleContent } from './article-content'
 import { looksLikeEnglish } from './article-language'
 import type { SignalArticle } from './signal-article'
@@ -10,10 +11,15 @@ export interface ArticleTranslation {
   summary: string | null
 }
 
+export interface EventTranslation {
+  title: string
+  summary: string
+}
+
 type Translate = (text: string, html?: boolean) => Promise<string>
 
 let enginePromise: Promise<MTran> | undefined
-const translationsInFlight = new Map<string, Promise<ArticleTranslation>>()
+const translationsInFlight = new Map<string, Promise<unknown>>()
 const maxDistinctTranslations = 2
 
 function modelPath(name: 'config' | 'models') {
@@ -79,14 +85,36 @@ export async function translateArticle(
 
 export class TranslationBusyError extends Error {}
 
-export function translateArticleOnce(article: SignalArticle, section: string) {
-  const existing = translationsInFlight.get(article.id)
-  if (existing) return existing
+function runTranslationOnce<T>(key: string, translate: () => Promise<T>) {
+  const existing = translationsInFlight.get(key)
+  if (existing) return existing as Promise<T>
   if (translationsInFlight.size >= maxDistinctTranslations) throw new TranslationBusyError()
 
-  const task = translateArticle(article, section).finally(() => {
-    translationsInFlight.delete(article.id)
+  const task = translate().finally(() => {
+    translationsInFlight.delete(key)
   })
-  translationsInFlight.set(article.id, task)
+  translationsInFlight.set(key, task)
   return task
+}
+
+export function translateArticleOnce(article: SignalArticle, section: string) {
+  return runTranslationOnce(`article:${article.id}`, () => translateArticle(article, section))
+}
+
+export async function translateEvent(
+  event: AiEvent,
+  translate: Translate = translateWithMTran
+): Promise<EventTranslation> {
+  if (!looksLikeEnglish(`${event.title}\n${event.summary}`)) throw new Error('EVENT_NOT_ENGLISH')
+
+  const title = (await translate(event.title)).trim()
+  const summary = (await translate(event.summary)).trim()
+  return {
+    title: title || event.title,
+    summary: summary || event.summary
+  }
+}
+
+export function translateEventOnce(event: AiEvent) {
+  return runTranslationOnce(`event:${event.id}`, () => translateEvent(event))
 }

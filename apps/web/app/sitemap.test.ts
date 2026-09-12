@@ -78,6 +78,18 @@ afterEach(() => {
   vi.unstubAllEnvs()
 })
 
+it('returns 404 for sitemap routes when SITE_URL is not configured', async () => {
+  vi.stubEnv('SITE_URL', '')
+
+  const root = await getSitemapXml()
+  const child = await getChildSitemap(new Request('http://localhost/sitemap/0.xml'), {
+    params: Promise.resolve({ id: '0.xml' })
+  })
+
+  expect(root.status).toBe(404)
+  expect(child.status).toBe(404)
+})
+
 it('within limit: /sitemap.xml returns full urlset XML with all platform articles', async () => {
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
   mockArticleCount = 6725

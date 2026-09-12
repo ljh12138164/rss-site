@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next'
-import { siteUrl } from '../lib/site-url'
+import { optionalCanonical } from '../lib/site-url'
 
 export default function robots(): MetadataRoute.Robots {
+  const sitemap = optionalCanonical('/sitemap.xml')
   return {
     rules: { userAgent: '*', allow: '/', disallow: ['/api/', '/cron/', '/out'] },
-    sitemap: siteUrl('/sitemap.xml')
+    ...(sitemap ? { sitemap } : {})
   }
 }

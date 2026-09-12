@@ -5,7 +5,8 @@
 - 当前分支 `feat/article-translation` 基于 `feat/source-content-quality`，在 Next Node.js Route Handler 内挂载 Hono，并通过 Hono RPC 向文章页提供类型安全的英译中接口。
 - 翻译引擎直接使用 `mtranserver` npm 包；单进程复用引擎与 `en_zh` 模型，不部署独立翻译服务，也不接受客户端任意文本。
 - 生产 standalone 镜像改由 Bun 运行，并通过 Compose volume 持久化模型。开发记录：`docs/development/article-translation.md`。
-- API 63/63、Web 143/143 与双方类型检查通过；MTranServer 在 Bun 1.3.14 完成真实 HTML 英译中，英文 OpenAI 文章经 Hono RPC 返回 200 并通过桌面交互检查。完整构建仍被既有 Supabase 预渲染超时阻断，Docker daemon 未运行；细节见开发记录。
+- 当前补充英文 AI 事件详情翻译；时间轴列表保持浏览密度，不增加逐项按钮。加载文案统一为“正在翻译中”，移除模型来源说明。
+- API 63/63、Web 152/152 与双方类型检查通过；英文文章和 AI 事件均经 Hono RPC 完成真实翻译与桌面交互检查。缺少 `SITE_URL` 时 robots/sitemap 安全降级，完整 Web 构建生成 53/53 个静态页面；Docker daemon 未运行，细节见开发记录。
 - 下一步：完成双轴评审并推送分支，由用户创建目标为 `feat/source-content-quality` 的 PR；CI 需验证 Linux 容器内 Bun standalone。
 
 ## 2026-09-12 来源内容质量修复

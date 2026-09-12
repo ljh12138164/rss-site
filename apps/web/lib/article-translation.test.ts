@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
+import type { AiEvent } from './ai-events'
 import { looksLikeEnglish } from './article-language'
-import { translateArticle } from './article-translation'
+import { translateArticle, translateEvent } from './article-translation'
 import type { SignalArticle } from './signal-article'
 
 const article: SignalArticle = {
@@ -15,6 +16,16 @@ const article: SignalArticle = {
   publishedAt: null,
   firstSeenAt: new Date('2026-01-01T00:00:00Z'),
   lastSeenAt: new Date('2026-01-01T00:00:00Z')
+}
+
+const event: AiEvent = {
+  id: '550e8400-e29b-41d4-a716-446655440001',
+  slug: 'openai-launches-gpt-5',
+  title: 'OpenAI launches a new flagship model',
+  summary: 'The company announced a faster model with stronger reasoning capabilities.',
+  occurred_at: '2026-01-01T00:00:00Z',
+  first_published_at: '2026-01-01T00:00:00Z',
+  updated_at: '2026-01-01T00:00:00Z'
 }
 
 describe('article translation', () => {
@@ -51,6 +62,29 @@ describe('article translation', () => {
         translate
       )
     ).rejects.toThrow('ARTICLE_NOT_ENGLISH')
+    expect(translate).not.toHaveBeenCalled()
+  })
+
+  it('translates an English event title and summary', async () => {
+    const translate = vi.fn(async (text: string) => `中文：${text}`)
+    const result = await translateEvent(event, translate)
+
+    expect(translate).toHaveBeenNthCalledWith(1, event.title)
+    expect(translate).toHaveBeenNthCalledWith(2, event.summary)
+    expect(result).toEqual({
+      title: `中文：${event.title}`,
+      summary: `中文：${event.summary}`
+    })
+  })
+
+  it('rejects non-English events before translation', async () => {
+    const translate = vi.fn()
+    await expect(
+      translateEvent(
+        { ...event, title: '中文事件标题', summary: '这是一段中文事件摘要。' },
+        translate
+      )
+    ).rejects.toThrow('EVENT_NOT_ENGLISH')
     expect(translate).not.toHaveBeenCalled()
   })
 })

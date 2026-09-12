@@ -10,6 +10,8 @@ import {
 export const revalidate = 7200
 
 export async function GET() {
+  if (!process.env.SITE_URL) return new NextResponse('Not Found', { status: 404 })
+
   const articleCount = await getSignalArticlesCount()
 
   // 未超出限制（<= 45,000 条）：直接在 /sitemap.xml 输出全量条目

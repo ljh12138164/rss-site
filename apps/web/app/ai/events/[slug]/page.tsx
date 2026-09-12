@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { EventTranslation } from '../../../../components/event-translation'
 import { SiteShell } from '../../../../components/site-shell'
 import { getEvent, getEventSources, getRelatedEvents } from '../../../../lib/ai-events'
+import { looksLikeEnglish } from '../../../../lib/article-language'
 import { optionalCanonical } from '../../../../lib/site-url'
 import { aiSources } from '../../../../lib/technology-sources'
 
@@ -60,13 +62,16 @@ export default async function EventPage({ params }: Props) {
         返回 AI 时间轴
       </Link>
       <article className="mt-6 max-w-3xl">
-        <time className="text-sm tabular-nums text-muted-foreground" dateTime={event.occurred_at}>
-          {new Date(event.occurred_at).toLocaleDateString('zh-CN', { timeZone: 'Asia/Shanghai' })}
-        </time>
-        <h1 className="mt-4 text-3xl font-semibold leading-tight text-balance sm:text-5xl">
-          {event.title}
-        </h1>
-        <p className="mt-8 whitespace-pre-line text-pretty text-base leading-8">{event.summary}</p>
+        <EventTranslation
+          slug={event.slug}
+          title={event.title}
+          summary={event.summary}
+          canTranslate={looksLikeEnglish(`${event.title}\n${event.summary}`)}
+          dateTime={event.occurred_at}
+          dateLabel={new Date(event.occurred_at).toLocaleDateString('zh-CN', {
+            timeZone: 'Asia/Shanghai'
+          })}
+        />
         <section className="mt-10 border-t border-border pt-7">
           <h2 className="text-lg font-semibold">相关来源</h2>
           {links.length ? (
