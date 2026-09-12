@@ -21,13 +21,6 @@ export const technologySources = [
     itemLimit: 30
   },
   {
-    id: 'v2ex',
-    name: 'V2EX',
-    rsshubPath: '/v2ex/topics/hot',
-    section: 'technology',
-    itemLimit: 30
-  },
-  {
     id: 'ithome',
     name: 'IT之家',
     rsshubPath: '/ithome/ranking/24h',
@@ -123,7 +116,8 @@ export const aiSources = [
     feedUrl: 'https://docs.bigmodel.cn/cn/update/new-releases/rss.xml',
     section: 'ai',
     itemLimit: 20,
-    titleFromFirstStrong: true
+    titleFromFirstStrong: true,
+    urlFromFirstAnchor: true
   },
   {
     id: 'google-ai',
@@ -221,13 +215,6 @@ export const financeSources = [
     rsshubPath: '/stcn/article/list/yw',
     section: 'finance',
     itemLimit: 30
-  },
-  {
-    id: '10jqka',
-    name: '同花顺财经',
-    rsshubPath: '/10jqka/realtimenews',
-    section: 'finance',
-    itemLimit: 30
   }
 ] as const
 
@@ -264,13 +251,6 @@ export const gameSources = [
     id: 'indienova',
     name: 'indienova',
     rsshubPath: '/indienova/article',
-    section: 'games',
-    itemLimit: 30
-  },
-  {
-    id: 'steam',
-    name: 'Steam 热销榜',
-    rsshubPath: '/steam/search/filter=topsellers',
     section: 'games',
     itemLimit: 30
   }

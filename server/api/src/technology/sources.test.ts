@@ -32,7 +32,6 @@ describe('technologySources', () => {
       ['github', '/github/trending/weekly/any/zh'],
       ['hacker-news', '/hackernews'],
       ['juejin', '/juejin/trending/all/weekly'],
-      ['v2ex', '/v2ex/topics/hot'],
       ['ithome', '/ithome/ranking/24h'],
       ['36kr', '/36kr/hot-list/24'],
       ['github-blog', 'https://github.blog/feed/']
@@ -65,7 +64,8 @@ describe('technologySources', () => {
     expect(aiSources.every((source) => source.section === 'ai')).toBe(true)
     expect(getAiSource('glm')).toMatchObject({
       feedUrl: 'https://docs.bigmodel.cn/cn/update/new-releases/rss.xml',
-      titleFromFirstStrong: true
+      titleFromFirstStrong: true,
+      urlFromFirstAnchor: true
     })
     expect(getAiSource('google-ai')).toMatchObject({
       feedUrl: 'https://blog.google/innovation-and-ai/technology/ai/rss/'
@@ -92,30 +92,28 @@ describe('technologySources', () => {
     expect(getSocialSource('bilibili').name).toBe('哔哩哔哩综合热门')
   })
 
-  it('registers six anonymous finance feeds with publication times', () => {
+  it('registers five anonymous finance feeds with publication times', () => {
     expect(financeSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
       ['wallstreetcn', '/wallstreetcn/hot/day'],
       ['cls', '/cls/hot?limit=20'],
       ['jin10', '/jin10/topic/343'],
       ['yicai', '/yicai/headline'],
-      ['stcn', '/stcn/article/list/yw'],
-      ['10jqka', '/10jqka/realtimenews']
+      ['stcn', '/stcn/article/list/yw']
     ])
     expect(financeSources.every((source) => source.section === 'finance')).toBe(true)
     expect(getFinanceSource('wallstreetcn').name).toBe('华尔街见闻')
   })
 
-  it('registers six anonymous game feeds while keeping Steam as a snapshot', () => {
+  it('registers five anonymous game feeds', () => {
     expect(gameSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
       ['3dmgame', '/3dmgame/news/game'],
       ['gcores', '/gcores/news?limit=20'],
       ['gamersky', '/gamersky/news'],
       ['ali213', '/ali213/news/new'],
-      ['indienova', '/indienova/article'],
-      ['steam', '/steam/search/filter=topsellers']
+      ['indienova', '/indienova/article']
     ])
     expect(gameSources.every((source) => source.section === 'games')).toBe(true)
-    expect(getGameSource('steam').name).toBe('Steam 热销榜')
+    expect(getGameSource('gcores').name).toBe('机核')
   })
 
   it('narrows and resolves only known sources', () => {
@@ -132,9 +130,9 @@ describe('technologySources', () => {
     expect(isSocialSourceId('weibo')).toBe(false)
     expect(isFinanceSourceId('jin10')).toBe(true)
     expect(isFinanceSourceId('github')).toBe(false)
-    expect(isGameSourceId('steam')).toBe(true)
+    expect(isGameSourceId('steam')).toBe(false)
     expect(isGameSourceId('github')).toBe(false)
-    expect(signalSources).toHaveLength(37)
+    expect(signalSources).toHaveLength(34)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

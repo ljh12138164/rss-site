@@ -184,7 +184,7 @@ describe('Hono ingestion API', () => {
       }
     })
 
-    for (const path of ['/cron/games/steam', '/cron/signals/steam']) {
+    for (const path of ['/cron/games/gcores', '/cron/signals/gcores']) {
       expect(
         (
           await app.request(path, {
@@ -195,12 +195,12 @@ describe('Hono ingestion API', () => {
       ).toBe(200)
     }
 
-    const wrongSection = await app.request('/cron/news/steam', {
+    const wrongSection = await app.request('/cron/news/gcores', {
       method: 'POST',
       headers: { Authorization: 'Bearer secret' }
     })
     expect(wrongSection.status).toBe(404)
-    expect(sources).toEqual(['steam', 'steam'])
+    expect(sources).toEqual(['gcores', 'gcores'])
   })
 
   it('keeps the legacy Juejin endpoint during the Cron transition', async () => {

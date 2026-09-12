@@ -87,7 +87,7 @@ export class PostgresCronRepository implements CronRepository {
       verification.ranked_item_count === itemCount &&
       verification.persisted_article_count === itemCount
     const requiresPublicationTime =
-      section === 'social' || section === 'finance' || (section === 'games' && source !== 'steam')
+      section === 'social' || section === 'finance' || section === 'games'
     const hasPlausiblePublicationTime =
       !requiresPublicationTime || (verification?.published_item_count ?? 0) > 0
 

@@ -123,15 +123,15 @@ select lives_ok(
      'https://i2.hdslb.com/bfs/archive/cover.jpg', now()),
     ('00000000-0000-0000-0000-000000000105', 'finance', 'wallstreetcn', 'finance-story',
      'finance story', 'https://wallstreetcn.com/articles/1', null, now()),
-    ('00000000-0000-0000-0000-000000000106', 'games', 'steam', 'steam-game',
-     'steam game', 'https://store.steampowered.com/app/1', null, null)$$,
+    ('00000000-0000-0000-0000-000000000106', 'games', 'gcores', 'gcores-game',
+     'gcores game', 'https://www.gcores.com/articles/1', null, now())$$,
   'confirmed sources can create persistent signal articles'
 );
 select throws_ok(
   $$insert into public.signal_articles
     (section, source, source_key, title, url)
-    values ('news', 'steam', 'wrong-game-article', 'wrong game article',
-            'https://store.steampowered.com/app/2')$$,
+    values ('news', 'gcores', 'wrong-game-article', 'wrong game article',
+            'https://www.gcores.com/articles/2')$$,
   '23514',
   null,
   'persistent articles reject a mismatched source and section'
@@ -246,26 +246,26 @@ select lives_ok(
   $$insert into public.ingestion_runs
     (id, source, status, item_count, started_at, finished_at)
     values
-    ('00000000-0000-0000-0000-000000000006', 'steam', 'succeeded', 1, now(), now())$$,
+    ('00000000-0000-0000-0000-000000000006', 'gcores', 'succeeded', 1, now(), now())$$,
   'a confirmed game source can create an ingestion run'
 );
 select lives_ok(
   $$insert into public.hot_items
     (section, source, source_key, article_id, title, url, position, batch_id)
     values
-    ('games', 'steam', 'steam-game',
-     '00000000-0000-0000-0000-000000000106', 'steam game',
-     'https://store.steampowered.com/app/1', 1,
+    ('games', 'gcores', 'gcores-game',
+     '00000000-0000-0000-0000-000000000106', 'gcores game',
+     'https://www.gcores.com/articles/1', 1,
      '00000000-0000-0000-0000-000000000006')$$,
-  'game snapshots accept a missing publication time'
+  'game articles accept a publication time'
 );
 select throws_ok(
   $$insert into public.hot_items
     (section, source, source_key, article_id, title, url, position, batch_id)
     values
-    ('news', 'steam', 'wrong-game-section',
+    ('news', 'gcores', 'wrong-game-section',
      '00000000-0000-0000-0000-000000000106', 'wrong game section',
-     'https://store.steampowered.com/app/2', 2,
+     'https://www.gcores.com/articles/2', 2,
      '00000000-0000-0000-0000-000000000006')$$,
   '23514',
   null,

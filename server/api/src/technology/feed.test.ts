@@ -131,6 +131,50 @@ describe('parseTechnologyFeed', () => {
     )
   })
 
+  it('uses the linked GLM model page instead of repeated release-page links', () => {
+    const xml = `
+      <rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel>
+        <item>
+          <title>2025-12-11</title>
+          <link>https://docs.bigmodel.cn/cn/update/new-releases#2025-12-11</link>
+          <guid isPermaLink="false">release-1</guid>
+          <content:encoded><![CDATA[
+            <p><a href="/cn/guide/models/vlm/autoglm-phone"><strong>AutoGLM-Phone</strong></a></p>
+          ]]></content:encoded>
+        </item>
+        <item>
+          <title>2025-12-11</title>
+          <link>https://docs.bigmodel.cn/cn/update/new-releases#2025-12-11</link>
+          <guid isPermaLink="false">release-2</guid>
+          <content:encoded><![CDATA[
+            <p><a href="/cn/guide/models/sound-and-video/glm-tts"><strong>GLM-TTS</strong></a></p>
+          ]]></content:encoded>
+        </item>
+      </channel></rss>`
+
+    const items = parseTechnologyFeed(xml, '智谱 GLM', { urlFromFirstAnchor: true })
+    expect(items.map(({ sourceKey, url }) => ({ sourceKey, url }))).toEqual([
+      {
+        sourceKey: 'release-1',
+        url: 'https://docs.bigmodel.cn/cn/guide/models/vlm/autoglm-phone'
+      },
+      {
+        sourceKey: 'release-2',
+        url: 'https://docs.bigmodel.cn/cn/guide/models/sound-and-video/glm-tts'
+      }
+    ])
+  })
+
+  it('decodes HTML entities that remain in parsed feed titles', () => {
+    const xml = `
+      <rss><channel><item>
+        <title>Don&amp;#39;t ship R&amp;amp;D regressions</title>
+        <link>https://example.com/release</link>
+      </item></channel></rss>`
+
+    expect(parseTechnologyFeed(xml, 'GitHub Blog')[0]?.title).toBe("Don't ship R&D regressions")
+  })
+
   it('extracts the first valid image without confusing an iframe for a preview', () => {
     const xml = `
       <rss><channel><item>

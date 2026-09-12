@@ -15,7 +15,7 @@ function readyFeed(source: string): FeedResult {
         url: `https://example.com/${source}/1`,
         summary: null,
         author: null,
-        publishedAt: source === 'steam' ? null : new Date('2026-09-05T08:00:00.000Z'),
+        publishedAt: new Date('2026-09-05T08:00:00.000Z'),
         position: 1
       }
     ],
@@ -25,7 +25,7 @@ function readyFeed(source: string): FeedResult {
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/games' }))
 
-it('renders six game sources while describing Steam as a snapshot', () => {
+it('renders five game sources', () => {
   const feeds = Object.fromEntries(
     gameSources.map((source) => [source.id, readyFeed(source.id)])
   ) as GameFeeds
@@ -39,8 +39,7 @@ it('renders six game sources while describing Steam as a snapshot', () => {
   )
 
   expect(html).toContain('aria-label="内容来源"')
-  expect(html).toContain('>Steam<')
-  expect(html).toContain('Steam 热销榜都放在这里')
+  expect(html).toContain('>机核<')
   expect(html).toContain('部分来源暂时无法加载，请稍后再试。')
   expect(html).not.toContain('暂无内容。')
   expect(html).not.toContain('查看全部')

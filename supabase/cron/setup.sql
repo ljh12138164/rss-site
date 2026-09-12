@@ -1,4 +1,4 @@
--- Manual fallback for `pnpm setup:cron`. Run only after all 36 production sources have passed
+-- Manual fallback for `pnpm setup:cron`. Run only after all 34 production sources have passed
 -- the API and cloud Supabase verification gate and these secrets are stored in Vault:
 -- select vault.create_secret('https://your-api.vercel.app/cron/signals', 'signal_ingest_base_url');
 -- select vault.create_secret('replace-with-a-random-secret', 'signal_cron_secret');
@@ -18,6 +18,7 @@ begin
     'hacker-news-hot-feed-every-five-hours',
     'juejin-hot-feed-every-five-hours',
     'v2ex-hot-feed-every-five-hours',
+    'signal-ingest-v2ex',
     'ithome-hot-feed-every-five-hours',
     '36kr-hot-feed-every-five-hours',
     'xinhua-news-feed-every-five-hours',
@@ -37,7 +38,9 @@ begin
     'coolapk-hot-feed-every-five-hours',
     'hupu-topic-feed-every-five-hours',
     'sspai-matrix-feed-every-five-hours',
-    'toutiao-hot-feed-every-five-hours'
+    'toutiao-hot-feed-every-five-hours',
+    'signal-ingest-10jqka',
+    'signal-ingest-steam'
   ]
   loop
     if exists (select 1 from cron.job where jobname = legacy_job_name) then
@@ -56,7 +59,6 @@ begin
       ('github', 'signal-ingest-github', '30 0,6,12,18 * * *'),
       ('hacker-news', 'signal-ingest-hacker-news', '35 0,6,12,18 * * *'),
       ('juejin', 'signal-ingest-juejin', '40 0,6,12,18 * * *'),
-      ('v2ex', 'signal-ingest-v2ex', '45 0,6,12,18 * * *'),
       ('ithome', 'signal-ingest-ithome', '50 0,6,12,18 * * *'),
       ('36kr', 'signal-ingest-36kr', '55 0,6,12,18 * * *'),
       ('xinhua', 'signal-ingest-xinhua', '0 1,7,13,19 * * *'),
@@ -76,13 +78,12 @@ begin
       ('jin10', 'signal-ingest-jin10', '40 2,8,14,20 * * *'),
       ('yicai', 'signal-ingest-yicai', '45 2,8,14,20 * * *'),
       ('stcn', 'signal-ingest-stcn', '50 2,8,14,20 * * *'),
-      ('10jqka', 'signal-ingest-10jqka', '55 2,8,14,20 * * *'),
       ('3dmgame', 'signal-ingest-3dmgame', '0 3,9,15,21 * * *'),
       ('gcores', 'signal-ingest-gcores', '5 3,9,15,21 * * *'),
       ('gamersky', 'signal-ingest-gamersky', '10 3,9,15,21 * * *'),
       ('ali213', 'signal-ingest-ali213', '15 3,9,15,21 * * *'),
       ('indienova', 'signal-ingest-indienova', '20 3,9,15,21 * * *'),
-      ('steam', 'signal-ingest-steam', '25 3,9,15,21 * * *')
+      ('github-blog', 'signal-ingest-github-blog', '30 3,9,15,21 * * *')
     ) as jobs(source_id, job_name, job_schedule)
   loop
     perform cron.schedule(

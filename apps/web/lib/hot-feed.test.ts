@@ -80,7 +80,7 @@ describe('technology feeds', () => {
       }
     })
     expect(feeds.juejin.state).toBe('ready')
-    expect(feeds.v2ex).toEqual({ state: 'empty' })
+    expect(feeds.ithome).toEqual({ state: 'empty' })
   })
 
   it('returns one complete source ranking for detail pages', async () => {
@@ -264,10 +264,10 @@ describe('game feeds', () => {
   const gameQuery: FeedCollectionQuery = async () => ({
     items: [
       {
-        source: 'steam',
-        source_key: 'steam-1',
+        source: 'gcores',
+        source_key: 'gcores-1',
         title: '当前热销游戏',
-        url: 'https://store.steampowered.com/app/1',
+        url: 'https://www.gcores.com/articles/1',
         image_url: null,
         summary: null,
         author: null,
@@ -275,15 +275,15 @@ describe('game feeds', () => {
         position: 1
       }
     ],
-    statuses: [{ source: 'steam', item_count: 1, last_success_at: '2026-09-05T09:05:00.000Z' }],
+    statuses: [{ source: 'gcores', item_count: 1, last_success_at: '2026-09-05T09:05:00.000Z' }],
     error: null
   })
 
-  it('builds game results without fabricating Steam publication times', async () => {
+  it('builds independent game collection and detail results', async () => {
     const feeds = await getGameFeeds(1, gameQuery)
-    const feed = await getGameFeed('steam', undefined, gameQuery)
+    const feed = await getGameFeed('gcores', undefined, gameQuery)
 
-    expect(feeds.gcores).toEqual({ state: 'empty' })
+    expect(feeds.indienova).toEqual({ state: 'empty' })
     expect(feed.state).toBe('ready')
     if (feed.state === 'ready') expect(feed.items[0]?.publishedAt).toBeNull()
   })

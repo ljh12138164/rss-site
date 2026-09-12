@@ -8,7 +8,7 @@ import {
 } from './rss-feed'
 import { technologySources } from './technology-sources'
 
-const github = technologySources[6]
+const github = technologySources[5]
 const hackerNews = technologySources[1]
 
 function item(overrides: Partial<HotItem> = {}): HotItem {
