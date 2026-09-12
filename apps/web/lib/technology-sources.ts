@@ -21,13 +21,6 @@ export const technologySources = [
     description: '本周热门文章'
   },
   {
-    id: 'v2ex',
-    code: 'V2',
-    name: 'V2EX',
-    shortName: 'V2EX',
-    description: '当前热门话题'
-  },
-  {
     id: 'ithome',
     code: 'IT',
     name: 'IT之家',
@@ -222,13 +215,6 @@ export const financeSources = [
     name: '证券时报',
     shortName: '证券时报',
     description: '证券市场要闻'
-  },
-  {
-    id: '10jqka',
-    code: 'TH',
-    name: '同花顺财经',
-    shortName: '同花顺',
-    description: '财经要闻'
   }
 ] as const
 
@@ -267,13 +253,6 @@ export const gameSources = [
     name: 'indienova',
     shortName: 'indienova',
     description: '独立游戏与开发者文章'
-  },
-  {
-    id: 'steam',
-    code: 'ST',
-    name: 'Steam 热销榜',
-    shortName: 'Steam',
-    description: 'Steam 商店热销榜'
   }
 ] as const
 

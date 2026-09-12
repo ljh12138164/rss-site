@@ -5,16 +5,16 @@ import { getGameSource } from '../../../lib/technology-sources'
 import Layout from '../layout'
 import { GameSourceView } from './page'
 
-vi.mock('next/navigation', () => ({ usePathname: () => '/games/steam' }))
+vi.mock('next/navigation', () => ({ usePathname: () => '/games/gcores' }))
 
-it('renders Steam as a collection snapshot without a fabricated publication time', () => {
+it('renders a game source article list', () => {
   const feed: FeedResult = {
     state: 'ready',
     items: [
       {
-        sourceKey: 'steam-1',
+        sourceKey: 'gcores-1',
         title: '当前热销游戏',
-        url: 'https://store.steampowered.com/app/1',
+        url: 'https://www.gcores.com/articles/1',
         summary: null,
         author: null,
         publishedAt: null,
@@ -26,14 +26,14 @@ it('renders Steam as a collection snapshot without a fabricated publication time
 
   const html = renderToStaticMarkup(
     <Layout>
-      <GameSourceView feed={feed} source={getGameSource('steam')} />
+      <GameSourceView feed={feed} source={getGameSource('gcores')} />
     </Layout>
   )
 
   expect(html).toContain('首页')
   expect(html).toContain('游戏')
-  expect(html).toContain('Steam 热销榜')
-  expect(html).toContain('Steam 商店热销榜')
+  expect(html).toContain('机核')
+  expect(html).toContain('游戏文化与编辑文章')
   expect(html).toContain('内容来源')
   expect(html).toContain('from=%2Fgames')
   expect(html).not.toContain('采集时间')

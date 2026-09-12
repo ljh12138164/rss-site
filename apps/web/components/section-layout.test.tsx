@@ -35,7 +35,7 @@ describe('section route layouts', () => {
     ['/news/xinhua', '新华社', NewsLayout],
     ['/social/bilibili', '哔哩哔哩综合热门', SocialLayout],
     ['/finance/wallstreetcn', '华尔街见闻', FinanceLayout],
-    ['/games/steam', 'Steam 热销榜', GamesLayout]
+    ['/games/gcores', '机核', GamesLayout]
   ] as const)('keeps the selected source visible while %s loads', (pathname, title, Layout) => {
     route.pathname = pathname
     const html = renderToStaticMarkup(

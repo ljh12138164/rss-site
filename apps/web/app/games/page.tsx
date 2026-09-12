@@ -10,7 +10,7 @@ export const revalidate = 21600
 export const metadata: Metadata = {
   alternates: { canonical: optionalCanonical('/games') },
   title: '游戏热点',
-  description: '3DM、机核、游民星空、游侠网、indienova 与 Steam 的游戏资讯和榜单。'
+  description: '3DM、机核、游民星空、游侠网与 indienova 的游戏资讯。'
 }
 
 export function GamesView({ feeds }: { feeds: GameFeeds }) {

@@ -28,8 +28,8 @@ describe('TechnologyView', () => {
     const feeds = Object.fromEntries(
       technologySources.map((source) => [source.id, readyFeed(source.id)])
     ) as TechnologyFeeds
-    feeds.v2ex = { state: 'error' }
-    feeds.ithome = { state: 'empty' }
+    feeds.ithome = { state: 'error' }
+    feeds['36kr'] = { state: 'empty' }
 
     const html = renderToStaticMarkup(
       <Layout>
@@ -42,7 +42,7 @@ describe('TechnologyView', () => {
     expect(html).toContain('部分来源暂时无法加载，请稍后再试。')
     expect(html).not.toContain('暂无内容。')
     expect(html).not.toContain('查看全部')
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)
+    expect(html.match(/href="\/out\?url=/g)).toHaveLength(9)
     expect(html).not.toContain('开源排行榜')
     expect(html).not.toContain('开源榜')
     for (const source of technologyArticleSources) expect(html).toContain(source.shortName)

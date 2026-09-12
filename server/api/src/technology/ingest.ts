@@ -41,7 +41,8 @@ export async function ingestSignal(
   try {
     const items = parseTechnologyFeed(await deps.fetchFeed(), source.name, {
       titleFromFirstStrong:
-        'titleFromFirstStrong' in source ? source.titleFromFirstStrong : undefined
+        'titleFromFirstStrong' in source ? source.titleFromFirstStrong : undefined,
+      urlFromFirstAnchor: 'urlFromFirstAnchor' in source ? source.urlFromFirstAnchor : undefined
     }).slice(0, source.itemLimit)
     const change = await deps.store.replaceRanking({
       batchId,

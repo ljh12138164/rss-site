@@ -14,7 +14,6 @@ export const SIGNAL_CRON_JOBS: ReadonlyArray<{
   { source: 'github', name: 'signal-ingest-github', schedule: '30 0,6,12,18 * * *' },
   { source: 'hacker-news', name: 'signal-ingest-hacker-news', schedule: '35 0,6,12,18 * * *' },
   { source: 'juejin', name: 'signal-ingest-juejin', schedule: '40 0,6,12,18 * * *' },
-  { source: 'v2ex', name: 'signal-ingest-v2ex', schedule: '45 0,6,12,18 * * *' },
   { source: 'ithome', name: 'signal-ingest-ithome', schedule: '50 0,6,12,18 * * *' },
   { source: '36kr', name: 'signal-ingest-36kr', schedule: '55 0,6,12,18 * * *' },
   { source: 'xinhua', name: 'signal-ingest-xinhua', schedule: '0 1,7,13,19 * * *' },
@@ -34,13 +33,11 @@ export const SIGNAL_CRON_JOBS: ReadonlyArray<{
   { source: 'jin10', name: 'signal-ingest-jin10', schedule: '40 2,8,14,20 * * *' },
   { source: 'yicai', name: 'signal-ingest-yicai', schedule: '45 2,8,14,20 * * *' },
   { source: 'stcn', name: 'signal-ingest-stcn', schedule: '50 2,8,14,20 * * *' },
-  { source: '10jqka', name: 'signal-ingest-10jqka', schedule: '55 2,8,14,20 * * *' },
   { source: '3dmgame', name: 'signal-ingest-3dmgame', schedule: '0 3,9,15,21 * * *' },
   { source: 'gcores', name: 'signal-ingest-gcores', schedule: '5 3,9,15,21 * * *' },
   { source: 'gamersky', name: 'signal-ingest-gamersky', schedule: '10 3,9,15,21 * * *' },
   { source: 'ali213', name: 'signal-ingest-ali213', schedule: '15 3,9,15,21 * * *' },
   { source: 'indienova', name: 'signal-ingest-indienova', schedule: '20 3,9,15,21 * * *' },
-  { source: 'steam', name: 'signal-ingest-steam', schedule: '25 3,9,15,21 * * *' },
   { source: 'github-blog', name: 'signal-ingest-github-blog', schedule: '30 3,9,15,21 * * *' }
 ]
 
@@ -49,6 +46,7 @@ export const LEGACY_SIGNAL_CRON_JOB_NAMES = [
   'hacker-news-hot-feed-every-five-hours',
   'juejin-hot-feed-every-five-hours',
   'v2ex-hot-feed-every-five-hours',
+  'signal-ingest-v2ex',
   'ithome-hot-feed-every-five-hours',
   '36kr-hot-feed-every-five-hours',
   'xinhua-news-feed-every-five-hours',
@@ -68,7 +66,9 @@ export const LEGACY_SIGNAL_CRON_JOB_NAMES = [
   'coolapk-hot-feed-every-five-hours',
   'hupu-topic-feed-every-five-hours',
   'sspai-matrix-feed-every-five-hours',
-  'toutiao-hot-feed-every-five-hours'
+  'toutiao-hot-feed-every-five-hours',
+  'signal-ingest-10jqka',
+  'signal-ingest-steam'
 ] as const
 
 export const RETENTION_JOB_NAME = 'ingestion-runs-retention-daily'

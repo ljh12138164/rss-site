@@ -24,6 +24,7 @@ interface ParsedItem {
 
 interface ParseFeedOptions {
   titleFromFirstStrong?: boolean
+  urlFromFirstAnchor?: boolean
 }
 
 interface ParsedRss {
@@ -104,6 +105,22 @@ function firstStrongText(value: unknown): string | null {
   return match ? plainText(match[1]) : null
 }
 
+function firstAnchorUrl(value: unknown, baseUrl: unknown): string | null {
+  const html = textValue(value)
+  const base = textValue(baseUrl)
+  if (!html || !base) return null
+
+  const href = html.match(/<a\b[^>]*\bhref\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/i)
+  const rawUrl = href?.[1] ?? href?.[2] ?? href?.[3]
+  if (!rawUrl) return null
+
+  try {
+    return canonicalWebUrl(new URL(decodeEntities(rawUrl), base).toString())
+  } catch {
+    return null
+  }
+}
+
 function firstImageUrl(...values: unknown[]): string | null {
   for (const value of values) {
     const html = textValue(value)
@@ -146,9 +163,12 @@ export function parseTechnologyFeed(
 
   const usableItems = items.flatMap((item) => {
     const content = item['content:encoded']
-    const title =
+    const rawTitle =
       (options.titleFromFirstStrong ? firstStrongText(content) : null) ?? textValue(item.title)
-    const url = canonicalWebUrl(item.link)
+    const title = rawTitle ? decodeEntities(rawTitle) : null
+    const url =
+      (options.urlFromFirstAnchor ? firstAnchorUrl(content, item.link) : null) ??
+      canonicalWebUrl(item.link)
     if (!title || !url) return []
 
     const rawGuid = textValue(item.guid)

@@ -7,7 +7,6 @@ const sourceIconPaths: Record<SignalSourceId, string> = {
   'github-blog': '/source-icons/github.svg',
   'hacker-news': '/source-icons/hacker-news.svg',
   juejin: '/source-icons/juejin.svg',
-  v2ex: '/source-icons/v2ex.svg',
   ithome: '/source-icons/ithome.png',
   '36kr': '/source-icons/36kr.svg',
   xinhua: '/source-icons/xinhua.png',
@@ -33,13 +32,11 @@ const sourceIconPaths: Record<SignalSourceId, string> = {
   jin10: '/source-icons/jin10.png',
   yicai: '/source-icons/yicai.png',
   stcn: '/source-icons/stcn.png',
-  '10jqka': '/source-icons/10jqka.svg',
   '3dmgame': '/source-icons/3dmgame.svg',
   gcores: '/source-icons/gcores.png',
   gamersky: '/source-icons/gamersky.png',
   ali213: '/source-icons/ali213.png',
-  indienova: '/source-icons/indienova.svg',
-  steam: '/source-icons/steam.svg'
+  indienova: '/source-icons/indienova.svg'
 }
 
 export function SourceIcon({
