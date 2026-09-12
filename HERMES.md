@@ -2,11 +2,11 @@
 
 ## 2026-09-12 来源内容质量修复
 
-- 当前分支 `feat/source-content-quality` 从 `origin/master` 创建；移除 V2EX、同花顺、Steam，修复 GLM fragment 链接折叠和标题 entity，并保留 GitHub Blog 官方 RSS。
+- 当前分支 `feat/source-content-quality` 从 `origin/master` 创建；移除 V2EX、同花顺、Steam，改用 GLM 各模型文档链接、解码标题 entity，并保留 GitHub Blog 官方 RSS。
 - 中新网视频正文修复在独立 RSSHub 分支 `codex/fix-chinanews-video-content` 完成，避免把上游路由改动混入本站仓库。
 - 所有 RSSHub 来源目前都未使用 `mode=fulltext`；本轮不全局开启，因为该模式逐篇抓详情页且已在 Steam 多条请求上出现明显超时。
 - 开发记录：`docs/development/source-content-quality.md`；调研证据：`docs/research/rsshub-vercel-content-quality.md`。
-- 下一步：补回归测试并完成两个仓库的实现、验证、审查、提交和推送。生产数据迁移必须等代码部署后再应用。
+- API 63/63、Web 136/136 测试与双方类型检查通过；RSSHub fixture、真实视频页、类型和 lint 验证通过。下一步由用户创建 PR；生产数据迁移必须等代码部署后再应用。
 
 ## 2026-09-11 Cloudflare Worker API migration
 
