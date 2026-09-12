@@ -29,6 +29,7 @@ describe('NewsArticleView', () => {
     expect(html).toContain('查看原文')
     expect(html).toContain('href="/out?url=https%3A%2F%2Fwww.news.cn%2Fstory&amp;from=%2Fnews"')
     expect(html).not.toContain('AI 总结')
+    expect(html).not.toContain('翻译为中文')
   })
 
   it('does not fabricate an introduction when the source has none', () => {
@@ -58,5 +59,19 @@ describe('NewsArticleView', () => {
     expect(html).toContain('<p>正文段落</p>')
     expect(html).not.toContain('alert(1)')
     expect(html).not.toContain(article.summary)
+  })
+
+  it('offers local translation for English articles', () => {
+    const html = renderToStaticMarkup(
+      <NewsArticleView
+        article={{
+          ...article,
+          title: 'A practical guide to building reliable software systems',
+          summary: 'This guide explains how to keep a service reliable in production.'
+        }}
+        source={getNewsSource('xinhua')}
+      />
+    )
+    expect(html).toContain('翻译为中文')
   })
 })

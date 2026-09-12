@@ -15,15 +15,17 @@ ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 RUN pnpm --filter @rss-site/web build
 
-FROM node:24-alpine AS runtime
+FROM oven/bun:1-alpine AS runtime
 WORKDIR /app
-RUN npm install --global pm2@6.0.14
-ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0
-COPY --from=builder --chown=node:node /app/apps/web/.next/standalone ./
-COPY --from=builder --chown=node:node /app/apps/web/.next/static ./apps/web/.next/static
-COPY --from=builder --chown=node:node /app/apps/web/public ./apps/web/public
-COPY deploy/ecosystem.config.cjs ./ecosystem.config.cjs
-USER node
+ENV NODE_ENV=production PORT=3000 HOSTNAME=0.0.0.0 \
+    NEXT_TELEMETRY_DISABLED=1 \
+    MT_CONFIG_DIR=/app/data/mtran/config \
+    MT_MODEL_DIR=/app/data/mtran/models
+RUN mkdir -p /app/data/mtran/config /app/data/mtran/models && chown -R bun:bun /app
+COPY --from=builder --chown=bun:bun /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=bun:bun /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=bun:bun /app/apps/web/public ./apps/web/public
+USER bun
 EXPOSE 3000
 HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:3000/healthz || exit 1
-CMD ["pm2-runtime", "ecosystem.config.cjs"]
+CMD ["bun", "apps/web/server.js"]

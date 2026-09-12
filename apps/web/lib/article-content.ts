@@ -64,13 +64,12 @@ export function renderArticleContent(html: string, originalUrl: string, section:
       h1: 'h2',
       a: (_tag, attributes): sanitizeHtml.Tag => {
         try {
-          const url = new URL(attributes.href ?? '', originalUrl)
-          if (
-            !attributes.href ||
-            !['https:', 'http:'].includes(url.protocol) ||
-            url.username ||
-            url.password
-          )
+          const href = attributes.href ?? ''
+          const existingOutbound = href.startsWith('/out?')
+            ? new URL(href, 'https://local.invalid').searchParams.get('url')
+            : null
+          const url = new URL(existingOutbound ?? href, originalUrl)
+          if (!href || !['https:', 'http:'].includes(url.protocol) || url.username || url.password)
             throw new Error('Unsafe link')
           return {
             tagName: 'a',

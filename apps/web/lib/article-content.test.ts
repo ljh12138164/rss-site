@@ -27,6 +27,7 @@ describe('article HTML', () => {
     )
     expect(html).not.toContain('target=')
     expect(html).not.toContain('ping=')
+    expect(render(html)).toBe(html)
   })
   it('rejects an oversized body rather than rendering a truncated HTML fragment', () => {
     expect(render('中'.repeat(180000))).toBe('')

@@ -4,6 +4,7 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  serverExternalPackages: ['mtranserver'],
   outputFileTracingRoot: path.join(process.cwd(), '../..'),
   async headers() {
     return [

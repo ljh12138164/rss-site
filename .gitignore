@@ -29,6 +29,7 @@ out/
 build
 dist
 *.tsbuildinfo
+.mtran/
 
 
 # Debug
