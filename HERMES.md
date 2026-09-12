@@ -1,6 +1,13 @@
 # HERMES
 
-<<<<<<< HEAD
+## 2026-09-12 文章本地翻译
+
+- 当前分支 `feat/article-translation` 基于 `feat/source-content-quality`，在 Next Node.js Route Handler 内挂载 Hono，并通过 Hono RPC 向文章页提供类型安全的英译中接口。
+- 翻译引擎直接使用 `mtranserver` npm 包；单进程复用引擎与 `en_zh` 模型，不部署独立翻译服务，也不接受客户端任意文本。
+- 生产 standalone 镜像改由 Bun 运行，并通过 Compose volume 持久化模型。开发记录：`docs/development/article-translation.md`。
+- API 63/63、Web 143/143 与双方类型检查通过；MTranServer 在 Bun 1.3.14 完成真实 HTML 英译中，英文 OpenAI 文章经 Hono RPC 返回 200 并通过桌面交互检查。完整构建仍被既有 Supabase 预渲染超时阻断，Docker daemon 未运行；细节见开发记录。
+- 下一步：完成双轴评审并推送分支，由用户创建目标为 `feat/source-content-quality` 的 PR；CI 需验证 Linux 容器内 Bun standalone。
+
 ## 2026-09-12 来源内容质量修复
 
 - 当前分支 `feat/source-content-quality` 从 `origin/master` 创建；移除 V2EX、同花顺、Steam，改用 GLM 各模型文档链接、解码标题 entity，并保留 GitHub Blog 官方 RSS。
@@ -8,13 +15,6 @@
 - 所有 RSSHub 来源目前都未使用 `mode=fulltext`；本轮不全局开启，因为该模式逐篇抓详情页且已在 Steam 多条请求上出现明显超时。
 - 开发记录：`docs/development/source-content-quality.md`；调研证据：`docs/research/rsshub-vercel-content-quality.md`。
 - API 63/63、Web 136/136 测试与双方类型检查通过；RSSHub fixture、真实视频页、类型和 lint 验证通过。下一步推送两个分支，由用户创建 PR；生产数据迁移必须等代码部署后再应用。
-=======
-## 2026-09-09 文章翻译功能调研与可行性评审
-
-- feat/article-translation 完成文章翻译功能的技术方案调研，以免费方案为主。
-- 综合评估大模型免费层（智谱 GLM-4-Flash 永久免费、Gemini 2.0 Flash 免费层）、传统机器翻译免费配额与端侧实验 API；分析 HTML 富文本标签保全、长文切片、并发限流和解耦存储等核心技术瓶颈。
-- 产出开发文档 docs/development/article-translation.md。下一步等待用户确认技术方案与架构选型后进入实施计划。
->>>>>>> b606aec (docs: research free article translation solutions and feasibility)
 
 ## 2026-09-11 Cloudflare Worker API migration
 
