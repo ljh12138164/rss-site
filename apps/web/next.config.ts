@@ -4,6 +4,11 @@ import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: 'standalone',
+  experimental: {
+    cpus: 2,
+    staticGenerationMaxConcurrency: 1,
+    staticGenerationRetryCount: 3
+  },
   serverExternalPackages: ['mtranserver'],
   outputFileTracingRoot: path.join(process.cwd(), '../..'),
   async headers() {
