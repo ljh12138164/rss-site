@@ -1,8 +1,8 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
-import { EventTimeline } from '../../../components/event-timeline'
-import { SiteShell } from '../../../components/site-shell'
-import { getEventPage } from '../../../lib/ai-events'
-import { optionalCanonical } from '../../../lib/site-url'
+import { EventTimeline } from '../../../../components/event-timeline'
+import { SiteShell } from '../../../../components/site-shell'
+import { getEventPage } from '../../../../lib/ai-events'
+import { optionalCanonical } from '../../../../lib/site-url'
 
 export const dynamic = 'force-static'
 export const revalidate = 7200
