@@ -14,6 +14,9 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 RUN pnpm --filter @rss-site/web build
+# The preparation script is outside Next's route tracing. Install its complete
+# dependency tree separately so it does not depend on standalone's pnpm links.
+RUN npm install --prefix /mtran-runtime --omit=dev --ignore-scripts --no-audit --no-fund mtranserver@4.0.33
 
 FROM oven/bun:1-alpine AS runtime
 WORKDIR /app
@@ -26,7 +29,12 @@ COPY --from=builder --chown=bun:bun /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=bun:bun /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=bun:bun /app/apps/web/public ./apps/web/public
 COPY --from=builder --chown=bun:bun /app/apps/web/scripts/prepare-translation.mjs ./apps/web/scripts/prepare-translation.mjs
+COPY --from=builder --chown=bun:bun /mtran-runtime/node_modules ./translation/node_modules
+RUN mkdir -p /app/apps/web/node_modules && \
+    ln -sfn /app/translation/node_modules/mtranserver /app/apps/web/node_modules/mtranserver
 USER bun
+# Fail image construction, rather than container startup, if Bun cannot resolve it.
+RUN cd /app/apps/web && bun -e "const { MTran } = await import('mtranserver'); if (typeof MTran !== 'function') throw new Error('Missing MTran export')"
 EXPOSE 3000
-HEALTHCHECK --interval=10s --timeout=3s --start-period=20s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:3000/healthz || exit 1
+HEALTHCHECK --interval=10s --timeout=3s --start-period=300s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:3000/healthz || exit 1
 CMD ["sh", "-c", "bun apps/web/scripts/prepare-translation.mjs && exec bun apps/web/server.js"]

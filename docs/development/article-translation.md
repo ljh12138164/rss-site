@@ -43,6 +43,8 @@ Hono 官方 Next.js 适配使用 `app/api/[[...route]]/route.ts` 和 `hono/verce
 
 ## Risks
 
+- CI 容器修复：准备脚本不属于 Next 路由追踪入口，镜像显式安装并复制 MTranServer 4.0.33 完整运行依赖，通过应用目录链接供脚本和路由解析；构建阶段以 bun 用户验证导入。首次模型下载的健康检查宽限和 CI 等待调整为 300 秒。本地 Docker daemon 不可连接，尚未完成 Linux 镜像实测，需 CI 验证。
+
 - 2026-09-12 实测 RSSHub `/openai/news?limit=1`：正文完整，Loading… 来自 `data-read-aloud-ui` 朗读组件。采集与阅读清洗共享该组件移除规则；未修改线上 RSSHub 或历史数据库摘要。
 - 新增 `pnpm --filter @rss-site/web translation:prepare`，使用 Bun 提前下载并执行翻译校验；容器在该步骤成功后启动 Next。本地下载完成，真实翻译校验通过，命令退出码 0。该独立准备进程只预下载磁盘文件，Next 进程仍需自行加载 WASM。
 - 本轮 API 64/64、Web 153/153 和双方类型检查通过，完整 build 53/53 通过。规范/需求审查确认修改限于已识别朗读控件和模型准备步骤。
