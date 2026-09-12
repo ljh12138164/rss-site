@@ -1,12 +1,20 @@
 # HERMES
 
+<<<<<<< HEAD
 ## 2026-09-12 来源内容质量修复
 
-- 当前分支 `feat/source-content-quality` 从 `origin/master` 创建；移除 V2EX、同花顺、Steam，修复 GLM fragment 链接折叠和标题 entity，并保留 GitHub Blog 官方 RSS。
+- 当前分支 `feat/source-content-quality` 从 `origin/master` 创建；移除 V2EX、同花顺、Steam，改用 GLM 各模型文档链接、解码标题 entity，并保留 GitHub Blog 官方 RSS。
 - 中新网视频正文修复在独立 RSSHub 分支 `codex/fix-chinanews-video-content` 完成，避免把上游路由改动混入本站仓库。
 - 所有 RSSHub 来源目前都未使用 `mode=fulltext`；本轮不全局开启，因为该模式逐篇抓详情页且已在 Steam 多条请求上出现明显超时。
 - 开发记录：`docs/development/source-content-quality.md`；调研证据：`docs/research/rsshub-vercel-content-quality.md`。
-- 下一步：补回归测试并完成两个仓库的实现、验证、审查、提交和推送。生产数据迁移必须等代码部署后再应用。
+- API 63/63、Web 136/136 测试与双方类型检查通过；RSSHub fixture、真实视频页、类型和 lint 验证通过。下一步推送两个分支，由用户创建 PR；生产数据迁移必须等代码部署后再应用。
+=======
+## 2026-09-09 文章翻译功能调研与可行性评审
+
+- feat/article-translation 完成文章翻译功能的技术方案调研，以免费方案为主。
+- 综合评估大模型免费层（智谱 GLM-4-Flash 永久免费、Gemini 2.0 Flash 免费层）、传统机器翻译免费配额与端侧实验 API；分析 HTML 富文本标签保全、长文切片、并发限流和解耦存储等核心技术瓶颈。
+- 产出开发文档 docs/development/article-translation.md。下一步等待用户确认技术方案与架构选型后进入实施计划。
+>>>>>>> b606aec (docs: research free article translation solutions and feasibility)
 
 ## 2026-09-11 Cloudflare Worker API migration
 
@@ -42,7 +50,6 @@
 - feat/fix-source-routes 修复六分区来源列表在缓存缺失后因 dynamicParams=false 抛 NoFallbackError 的问题，允许白名单来源重新生成。
 - 生产构建 55/55、Web 116 测试及六来源缓存缺失 HTTP 回归通过，无效来源仍为 404。
 - 记录：docs/development/fix-source-routes.md。下一步推送分支，由用户创建并合并到 master 的 PR，发布后复核线上来源页；本轮未修改生产服务。
-
 ## 2026-09-08 分区 RSS 订阅弹窗
 
 - feat/rss-subscription-dialog 为六个分区总览与平台列表增加 RSS 订阅按钮，弹窗包含完整地址、复制反馈和三步配置说明，沿用现有 React Aria 与样式。
