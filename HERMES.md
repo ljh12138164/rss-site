@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-09-12 AI 事件详情加载边界
+
+- 分支 `feat/fix-event-loading` 基于最新 `origin/master`，隔离时间轴列表 fallback，修复事件详情跳转出现列表骨架。
+- 列表 page/loading 移到 `(timeline)` 路由组，公开 URL 不变，复用既有 ArticleLoading。
+- Web 全量 154/154、最终定向 9/9、类型、修改文件 Biome 与 53/53 页面生产构建通过；开发记录：`docs/development/fix-event-loading.md`。下一步由用户创建 `feat/fix-event-loading` → `master` PR 并合并发布，线上慢网导航待验收。
+
 ## 2026-09-12 文章本地翻译
 
 - 当前分支 `feat/article-translation` 基于 `feat/source-content-quality`，在 Next Node.js Route Handler 内挂载 Hono，并通过 Hono RPC 向文章页提供类型安全的英译中接口。
