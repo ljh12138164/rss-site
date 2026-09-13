@@ -1,4 +1,4 @@
--- Manual fallback for `pnpm setup:cron`. Run only after all 34 production sources have passed
+-- Manual fallback for `pnpm setup:cron`. Run only after all 35 production sources have passed
 -- the API and cloud Supabase verification gate and these secrets are stored in Vault:
 -- select vault.create_secret('https://your-api.vercel.app/cron/signals', 'signal_ingest_base_url');
 -- select vault.create_secret('replace-with-a-random-secret', 'signal_cron_secret');
@@ -56,6 +56,7 @@ begin
       ('glm', 'signal-ingest-glm', '15 */2 * * *'),
       ('google-ai', 'signal-ingest-google-ai', '20 */2 * * *'),
       ('qwen', 'signal-ingest-qwen', '25 */2 * * *'),
+      ('chatgpt', 'signal-ingest-chatgpt', '45 */2 * * *'),
       ('github', 'signal-ingest-github', '30 0,6,12,18 * * *'),
       ('hacker-news', 'signal-ingest-hacker-news', '35 0,6,12,18 * * *'),
       ('juejin', 'signal-ingest-juejin', '40 0,6,12,18 * * *'),
@@ -76,8 +77,8 @@ begin
       ('wallstreetcn', 'signal-ingest-wallstreetcn', '30 2,8,14,20 * * *'),
       ('cls', 'signal-ingest-cls', '35 2,8,14,20 * * *'),
       ('jin10', 'signal-ingest-jin10', '40 2,8,14,20 * * *'),
-      ('yicai', 'signal-ingest-yicai', '45 2,8,14,20 * * *'),
-      ('stcn', 'signal-ingest-stcn', '50 2,8,14,20 * * *'),
+      ('yicai', 'signal-ingest-yicai', '50 2,8,14,20 * * *'),
+      ('stcn', 'signal-ingest-stcn', '55 2,8,14,20 * * *'),
       ('3dmgame', 'signal-ingest-3dmgame', '0 3,9,15,21 * * *'),
       ('gcores', 'signal-ingest-gcores', '5 3,9,15,21 * * *'),
       ('gamersky', 'signal-ingest-gamersky', '10 3,9,15,21 * * *'),

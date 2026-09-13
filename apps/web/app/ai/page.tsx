@@ -10,7 +10,7 @@ export const revalidate = 7200
 export const metadata: Metadata = {
   alternates: { canonical: optionalCanonical('/ai') },
   title: 'AI 最新动态',
-  description: '来自 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI 和 Qwen 的官方文章。'
+  description: '来自 OpenAI、ChatGPT、Anthropic、DeepSeek、智谱 GLM、Google AI 和 Qwen 的官方文章。'
 }
 
 export function AiView({ feeds }: { feeds: AiFeeds }) {

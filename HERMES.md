@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-09-13 ChatGPT AI 事件来源
+
+- 当前分支 `feat/chatgpt-ai-events` 基于最新 `origin/master`；新增 ChatGPT 更新日志来源，同时保留 OpenAI 综合新闻。
+- 用户确认 `/ai/events` 不再包含 OpenAI 综合新闻生成的自动事件；ChatGPT、其他 AI 来源和人工事件保持对应行为。
+- 真实 RSSHub Feed 已无凭据返回 HTTP 200；开发记录：`docs/development/chatgpt-ai-events.md`。
+- API/Web 测试、类型和生产构建已通过；按用户要求跳过后续 UI 检查。
+- SQL 与最终差异自审完成；本机 Docker 引擎不可用，pgTAP 与生产数据门禁留待部署环境执行。
+- 下一步提交并推送分支，由用户按仓库规则创建并合并 PR。
+
 ## 2026-09-12 AI 事件详情加载边界
 
 - 分支 `feat/fix-event-loading` 基于最新 `origin/master`，隔离时间轴列表 fallback，修复事件详情跳转出现列表骨架。

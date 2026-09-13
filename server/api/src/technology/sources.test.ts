@@ -52,9 +52,10 @@ describe('technologySources', () => {
     expect(newsSources.every((source) => source.itemLimit === 30)).toBe(true)
   })
 
-  it('registers six official AI platform feeds without accepting arbitrary URLs', () => {
+  it('registers seven official AI platform feeds without accepting arbitrary URLs', () => {
     expect(aiSources.map(({ id }) => id)).toEqual([
       'openai',
+      'chatgpt',
       'anthropic',
       'deepseek',
       'glm',
@@ -71,6 +72,10 @@ describe('technologySources', () => {
       feedUrl: 'https://blog.google/innovation-and-ai/technology/ai/rss/'
     })
     expect(getAiSource('openai')).toMatchObject({ rsshubPath: '/openai/news?limit=20' })
+    expect(getAiSource('chatgpt')).toMatchObject({
+      rsshubPath: '/openai/chatgpt/release-notes',
+      itemLimit: 20
+    })
     expect(resolveSignalFeedUrl(getAiSource('openai'), 'https://rss.example')).toBe(
       'https://rss.example/openai/news?limit=20'
     )
@@ -132,7 +137,7 @@ describe('technologySources', () => {
     expect(isFinanceSourceId('github')).toBe(false)
     expect(isGameSourceId('steam')).toBe(false)
     expect(isGameSourceId('github')).toBe(false)
-    expect(signalSources).toHaveLength(34)
+    expect(signalSources).toHaveLength(35)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

@@ -13,6 +13,8 @@ describe('SourceNavigation', () => {
     expect(html).toContain('>全部<')
     expect(html).toContain('>GLM<')
     expect(html).toContain('>Gemini<')
+    expect(html).toContain('>ChatGPT<')
+    expect(html).toContain('href="/ai/chatgpt"')
     expect(html).toContain('href="/ai/google-ai"')
     expect(html).toContain('aria-current="page"')
     expect(html).toContain('src="/source-icons/openai.svg"')

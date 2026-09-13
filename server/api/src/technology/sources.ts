@@ -97,6 +97,13 @@ export const aiSources = [
     itemLimit: 20
   },
   {
+    id: 'chatgpt',
+    name: 'ChatGPT',
+    rsshubPath: '/openai/chatgpt/release-notes',
+    section: 'ai',
+    itemLimit: 20
+  },
+  {
     id: 'anthropic',
     name: 'Anthropic',
     rsshubPath: '/anthropic/news?limit=20',

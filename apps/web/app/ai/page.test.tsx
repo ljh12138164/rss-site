@@ -24,7 +24,7 @@ function readyFeed(source: string): FeedResult {
 vi.mock('next/navigation', () => ({ usePathname: () => '/ai' }))
 
 describe('AiView', () => {
-  it('renders six independent official AI platform bands', () => {
+  it('renders seven independent official AI platform bands', () => {
     const feeds = Object.fromEntries(
       aiSources.map((source) => [source.id, readyFeed(source.id)])
     ) as AiFeeds
@@ -42,7 +42,7 @@ describe('AiView', () => {
     expect(html).toContain('部分来源暂时无法加载，请稍后再试。')
     expect(html).not.toContain('暂无内容。')
     expect(html).not.toContain('查看全部')
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(12)
+    expect(html.match(/href="\/out\?url=/g)).toHaveLength(15)
     expect(html).toContain('from=%2Fai')
     for (const source of aiSources) expect(html).toContain(source.shortName)
     expect(html).not.toContain('2H')

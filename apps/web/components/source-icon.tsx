@@ -16,6 +16,7 @@ const sourceIconPaths: Record<SignalSourceId, string> = {
   jiemian: '/source-icons/jiemian.png',
   baidu: '/source-icons/baidu.svg',
   openai: '/source-icons/openai.svg',
+  chatgpt: '/source-icons/openai.svg',
   anthropic: '/source-icons/anthropic.svg',
   deepseek: '/source-icons/deepseek.svg',
   glm: '/source-icons/glm.svg',
