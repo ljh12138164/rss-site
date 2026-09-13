@@ -43,13 +43,16 @@
 
 ## Verification
 
-- RSSHub 路由测试覆盖 `all-time`、`trending` 与 `hot`，其中本站映射为 All Time 与 Trending (24h)。修正后的生产 Feed 需等待 RSSHub MR 自动部署后验证。
+- RSSHub 路由测试覆盖 `all-time`、`trending` 与 `hot`，其中本站映射为 All Time 与 Trending (24h)；两个生产 Feed 均为 HTTP 200、各 100 条。
 - API 全量 66 项测试通过，包含长描述下保留 Skills 指标、两个来源注册及六小时错峰 Cron。
 - Web 全量 159 项测试通过，包含 Tab、元数据解析、导航、缓存失效和 sitemap。
 - API 与 Web 类型检查通过。
 - 使用联网权限完成生产构建，55/55 个静态页面生成成功，`/skills` 显示为 6 小时 ISR。
 - 修改文件 Biome 与 `git diff --check` 通过。全仓 Biome 仍报告 169 个既有 CRLF 格式错误和 165 个警告，未改动这些无关文件。
-- 先前错误接入的 `skills-hot` 已确认大量条目仅为 `1 / +1`，不再作为本站数据源。修正后的线上 API、迁移、采集、Cron 与最终视觉验证待 MR 自动部署后补充。
+- 先前错误接入的 `skills-hot` 已确认大量条目仅为 `1 / +1`，其线上数据和 Cron 均已移除。
+- 生产修正验证（2026-09-14）：Cloudflare Worker 版本 `ddf33ad8-c15c-4159-92c2-205a5860db68` 已发布，云端迁移 `replace_skills_hot_with_all_time` 已应用。
+- `skills-all-time` 批次 `77e2135a-138f-419c-9008-a79be76b66da` 与 `skills-trending` 批次 `1f354f84-1af1-4027-9003-958e4f78f677` 均成功写入 100 条、排名 1–100。
+- 两个新 Cron 均启用并使用 Vault，分别在每六小时的 40 分和 50 分错峰运行。线上 `/skills` 缓存刷新成功，HTTP 200、两个 Tab 有数据且无空状态。
 
 ## Risks
 
