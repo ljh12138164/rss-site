@@ -185,7 +185,7 @@ function buildFeed(
       position: row.position
     }))
     .sort((left, right) =>
-      source === 'github' || source === 'skills-trending' || source === 'skills-hot'
+      source === 'github' || source === 'skills-all-time' || source === 'skills-trending'
         ? left.position - right.position
         : compareHotItemsByPublishedAt(left, right) || left.position - right.position
     )

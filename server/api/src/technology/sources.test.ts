@@ -102,13 +102,13 @@ describe('technologySources', () => {
 
   it('registers the two skills.sh rankings as an independent section', () => {
     expect(skillSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
-      ['skills-trending', '/skills-sh/trending'],
-      ['skills-hot', '/skills-sh/hot']
+      ['skills-all-time', '/skills-sh/all-time'],
+      ['skills-trending', '/skills-sh/trending']
     ])
     expect(skillSources.every((source) => source.section === 'skills')).toBe(true)
     expect(skillSources.every((source) => source.itemLimit === 100)).toBe(true)
-    expect(isSkillSourceId('skills-hot')).toBe(true)
-    expect(getSkillSource('skills-trending').name).toBe('skills.sh 最热门')
+    expect(isSkillSourceId('skills-all-time')).toBe(true)
+    expect(getSkillSource('skills-trending').name).toBe('skills.sh 增长最快')
   })
 
   it('registers five anonymous finance feeds with publication times', () => {

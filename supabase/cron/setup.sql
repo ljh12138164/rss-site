@@ -85,8 +85,8 @@ begin
       ('ali213', 'signal-ingest-ali213', '15 3,9,15,21 * * *'),
       ('indienova', 'signal-ingest-indienova', '20 3,9,15,21 * * *'),
       ('github-blog', 'signal-ingest-github-blog', '30 3,9,15,21 * * *'),
-      ('skills-trending', 'signal-ingest-skills-trending', '40 3,9,15,21 * * *'),
-      ('skills-hot', 'signal-ingest-skills-hot', '50 3,9,15,21 * * *')
+      ('skills-all-time', 'signal-ingest-skills-all-time', '40 3,9,15,21 * * *'),
+      ('skills-trending', 'signal-ingest-skills-trending', '50 3,9,15,21 * * *')
     ) as jobs(source_id, job_name, job_schedule)
   loop
     perform cron.schedule(

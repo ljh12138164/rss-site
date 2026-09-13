@@ -2,10 +2,11 @@
 
 ## 2026-09-14 Skills 热门榜单
 
-- 当前分支 `feat/skills-leaderboards` 基于最新 `origin/master`，目标是在顶部增加 `/skills` 入口，并用 Tab 展示“最热门”和“增长最快”两个榜单。
+- 修正分支 `feat/skills-leaderboard-views` 基于最新 `origin/master`：原实现误把 `trending` 标为“最热门”、把小时级 `hot` 标为“增长最快”。
+- 正确映射为“最热门”=`all-time`、“增长最快”=`trending`（24h）；RSSHub 同步补充 `all-time` 视图，本站移除 `skills-hot`。
 - 用户确认两个来源每六小时更新；新增独立 `skills` section，避免混入科技文章列表。
 - 页面复用现有设计系统与 React Aria Tabs；开发记录：`docs/development/skills-leaderboards.md`。
-- 下一步：完成数据解析、页面与迁移测试；验证后按生产门禁部署 API、应用云端迁移、手动采集并最后启用 Cron。
+- RSSHub 与站点测试、类型检查通过；下一步推送两个分支，由现有 MR/CI 自动部署，再按生产门禁替换线上数据与 Cron。
 
 ## 2026-09-13 ChatGPT AI 事件来源
 

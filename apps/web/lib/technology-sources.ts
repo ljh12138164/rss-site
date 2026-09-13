@@ -45,18 +45,18 @@ export const technologySources = [
 
 export const skillSources = [
   {
-    id: 'skills-trending',
+    id: 'skills-all-time',
     code: 'TOP',
     name: '最热门',
     shortName: '最热门',
     description: '当前安装量领先的 Skills'
   },
   {
-    id: 'skills-hot',
+    id: 'skills-trending',
     code: 'UP',
     name: '增长最快',
     shortName: '增长最快',
-    description: '相比昨日同期增长最快的 Skills'
+    description: '过去 24 小时增长最快的 Skills'
   }
 ] as const
 

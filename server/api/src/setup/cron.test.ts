@@ -87,8 +87,8 @@ describe('setupSignalCron', () => {
     expect(scheduledJobs[28]?.command).toContain("'/stcn'")
     expect(scheduledJobs[29]?.command).toContain("'/3dmgame'")
     expect(scheduledJobs[34]?.command).toContain("'/github-blog'")
-    expect(scheduledJobs[35]?.command).toContain("'/skills-trending'")
-    expect(scheduledJobs[36]?.command).toContain("'/skills-hot'")
+    expect(scheduledJobs[35]?.command).toContain("'/skills-all-time'")
+    expect(scheduledJobs[36]?.command).toContain("'/skills-trending'")
     expect(scheduledJobs[37]).toMatchObject({
       name: 'ingestion-runs-retention-daily',
       schedule: '30 5 * * *'

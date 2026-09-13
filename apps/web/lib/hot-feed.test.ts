@@ -141,36 +141,36 @@ describe('skill feeds', () => {
     const feeds = await getSkillFeeds(async () => ({
       items: [
         {
-          source: 'skills-hot',
+          source: 'skills-trending',
           source_key: 'owner/repo/second',
           title: '#2 second',
           url: 'https://www.skills.sh/owner/repo/second',
-          summary: 'Second description · Installs: 20 · Hourly change: +4',
+          summary: 'Second description · Installs: 20',
           author: 'owner',
           published_at: null,
           position: 2
         },
         {
-          source: 'skills-hot',
+          source: 'skills-trending',
           source_key: 'owner/repo/first',
           title: '#1 first',
           url: 'https://www.skills.sh/owner/repo/first',
-          summary: 'First description · Installs: 30 · Hourly change: +5',
+          summary: 'First description · Installs: 30',
           author: 'owner',
           published_at: null,
           position: 1
         }
       ],
       statuses: [
-        { source: 'skills-hot', item_count: 2, last_success_at: '2026-09-14T01:00:00.000Z' }
+        { source: 'skills-trending', item_count: 2, last_success_at: '2026-09-14T01:00:00.000Z' }
       ],
       error: null
     }))
 
-    expect(feeds['skills-trending']).toEqual({ state: 'empty' })
-    expect(feeds['skills-hot'].state).toBe('ready')
-    if (feeds['skills-hot'].state === 'ready') {
-      expect(feeds['skills-hot'].items.map((item) => item.position)).toEqual([1, 2])
+    expect(feeds['skills-all-time']).toEqual({ state: 'empty' })
+    expect(feeds['skills-trending'].state).toBe('ready')
+    if (feeds['skills-trending'].state === 'ready') {
+      expect(feeds['skills-trending'].items.map((item) => item.position)).toEqual([1, 2])
     }
   })
 })
