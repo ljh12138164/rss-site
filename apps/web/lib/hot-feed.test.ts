@@ -9,6 +9,7 @@ import {
   getGameFeeds,
   getNewsFeed,
   getNewsFeeds,
+  getSkillFeeds,
   getSocialFeed,
   getSocialFeeds,
   getTechnologyFeed,
@@ -132,6 +133,45 @@ describe('technology feeds', () => {
     }))
 
     expect(Object.values(feeds).every((feed) => feed.state === 'error')).toBe(true)
+  })
+})
+
+describe('skill feeds', () => {
+  it('keeps both rankings in upstream position order', async () => {
+    const feeds = await getSkillFeeds(async () => ({
+      items: [
+        {
+          source: 'skills-hot',
+          source_key: 'owner/repo/second',
+          title: '#2 second',
+          url: 'https://www.skills.sh/owner/repo/second',
+          summary: 'Second description · Installs: 20 · Hourly change: +4',
+          author: 'owner',
+          published_at: null,
+          position: 2
+        },
+        {
+          source: 'skills-hot',
+          source_key: 'owner/repo/first',
+          title: '#1 first',
+          url: 'https://www.skills.sh/owner/repo/first',
+          summary: 'First description · Installs: 30 · Hourly change: +5',
+          author: 'owner',
+          published_at: null,
+          position: 1
+        }
+      ],
+      statuses: [
+        { source: 'skills-hot', item_count: 2, last_success_at: '2026-09-14T01:00:00.000Z' }
+      ],
+      error: null
+    }))
+
+    expect(feeds['skills-trending']).toEqual({ state: 'empty' })
+    expect(feeds['skills-hot'].state).toBe('ready')
+    if (feeds['skills-hot'].state === 'ready') {
+      expect(feeds['skills-hot'].items.map((item) => item.position)).toEqual([1, 2])
+    }
   })
 })
 

@@ -22,6 +22,24 @@ describe('parseTechnologyFeed', () => {
     expect(item.contentHtml).toBe(body)
     expect(item.summary).toBe('摘要')
   })
+
+  it('keeps skill metrics when a long description reaches the summary limit', () => {
+    const xml = `<rss><channel><item><title>#1 example-skill</title><link>https://www.skills.sh/example/repo/example-skill</link><description><![CDATA[
+      <p>${'Long description. '.repeat(50)}</p>
+      <p><strong>Rank:</strong> 1</p>
+      <p><strong>Installs:</strong> 1,234</p>
+      <p><strong>Source:</strong> example/repo</p>
+      <p><strong>Source type:</strong> github</p>
+      <p><strong>Hourly change:</strong> +42</p>
+      <p><strong>Same hour yesterday:</strong> 1,192</p>
+    ]]></description></item></channel></rss>`
+
+    const item = parseTechnologyFeed(xml, 'skills.sh', { skillMetadata: true })[0]
+    expect(item?.summary).toHaveLength(500)
+    expect(item?.summary).toContain(' · Installs: 1,234')
+    expect(item?.summary).toContain(' · Source: example/repo')
+    expect(item?.summary).toContain(' · Hourly change: +42')
+  })
   it('preserves RSS order and accepts external article hosts', () => {
     const xml = `
       <rss><channel>

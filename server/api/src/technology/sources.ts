@@ -43,6 +43,25 @@ export const technologySources = [
   }
 ] as const
 
+export const skillSources = [
+  {
+    id: 'skills-trending',
+    name: 'skills.sh 最热门',
+    rsshubPath: '/skills-sh/trending',
+    section: 'skills',
+    itemLimit: 100,
+    skillMetadata: true
+  },
+  {
+    id: 'skills-hot',
+    name: 'skills.sh 增长最快',
+    rsshubPath: '/skills-sh/hot',
+    section: 'skills',
+    itemLimit: 100,
+    skillMetadata: true
+  }
+] as const
+
 export const newsSources = [
   {
     id: 'xinhua',
@@ -265,6 +284,7 @@ export const gameSources = [
 
 export const signalSources = [
   ...technologySources,
+  ...skillSources,
   ...newsSources,
   ...aiSources,
   ...socialSources,
@@ -274,6 +294,8 @@ export const signalSources = [
 
 export type TechnologySource = (typeof technologySources)[number]
 export type TechnologySourceId = TechnologySource['id']
+export type SkillSource = (typeof skillSources)[number]
+export type SkillSourceId = SkillSource['id']
 export type NewsSource = (typeof newsSources)[number]
 export type NewsSourceId = NewsSource['id']
 export type AiSource = (typeof aiSources)[number]
@@ -290,6 +312,10 @@ export type SignalSection = SignalSource['section']
 
 export function isTechnologySourceId(value: string): value is TechnologySourceId {
   return technologySources.some((source) => source.id === value)
+}
+
+export function isSkillSourceId(value: string): value is SkillSourceId {
+  return skillSources.some((source) => source.id === value)
 }
 
 export function isNewsSourceId(value: string): value is NewsSourceId {
@@ -319,6 +345,12 @@ export function isSignalSourceId(value: string): value is SignalSourceId {
 export function getTechnologySource(id: TechnologySourceId): TechnologySource {
   const source = technologySources.find((candidate) => candidate.id === id)
   if (!source) throw new Error(`Unknown technology source: ${id}`)
+  return source
+}
+
+export function getSkillSource(id: SkillSourceId): SkillSource {
+  const source = skillSources.find((candidate) => candidate.id === id)
+  if (!source) throw new Error(`Unknown skill source: ${id}`)
   return source
 }
 

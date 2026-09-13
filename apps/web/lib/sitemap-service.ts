@@ -49,7 +49,8 @@ export function getBaseEntries(): SitemapEntry[] {
     { url: siteUrl('/about') },
     { url: siteUrl('/privacy') },
     { url: siteUrl('/ai/events') },
-    { url: siteUrl('/github') }
+    { url: siteUrl('/github') },
+    { url: siteUrl('/skills') }
   ]
 
   const sections = [

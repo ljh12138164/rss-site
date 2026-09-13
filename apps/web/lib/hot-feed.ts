@@ -9,7 +9,9 @@ import {
   type NewsSourceId,
   newsSources,
   type SignalSourceId,
+  type SkillSourceId,
   type SocialSourceId,
+  skillSources,
   socialSources,
   type TechnologySourceId,
   technologySources
@@ -82,6 +84,7 @@ export type FeedResult =
   | { state: 'error' }
 
 export type TechnologyFeeds = Record<TechnologySourceId, FeedResult>
+export type SkillFeeds = Record<SkillSourceId, FeedResult>
 export type NewsFeeds = Record<NewsSourceId, FeedResult>
 export type AiFeeds = Record<AiSourceId, FeedResult>
 export type SocialFeeds = Record<SocialSourceId, FeedResult>
@@ -89,7 +92,7 @@ export type FinanceFeeds = Record<FinanceSourceId, FeedResult>
 export type GameFeeds = Record<GameSourceId, FeedResult>
 
 async function querySectionFeeds(
-  section: 'technology' | 'news' | 'ai' | 'social' | 'finance' | 'games',
+  section: 'technology' | 'news' | 'ai' | 'social' | 'finance' | 'games' | 'skills',
   sourceIds: SignalSourceId[]
 ): Promise<FeedCollectionQueryResult> {
   try {
@@ -123,6 +126,12 @@ const queryTechnologyFeeds = () =>
   querySectionFeeds(
     'technology',
     technologySources.map((source) => source.id)
+  )
+
+const querySkillFeeds = () =>
+  querySectionFeeds(
+    'skills',
+    skillSources.map((source) => source.id)
   )
 
 const queryNewsFeeds = () =>
@@ -176,7 +185,7 @@ function buildFeed(
       position: row.position
     }))
     .sort((left, right) =>
-      source === 'github'
+      source === 'github' || source === 'skills-trending' || source === 'skills-hot'
         ? left.position - right.position
         : compareHotItemsByPublishedAt(left, right) || left.position - right.position
     )
@@ -206,6 +215,15 @@ export async function getTechnologyFeeds(
   return Object.fromEntries(
     technologySources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
   ) as TechnologyFeeds
+}
+
+export async function getSkillFeeds(
+  query: FeedCollectionQuery = querySkillFeeds
+): Promise<SkillFeeds> {
+  const result = await query()
+  return Object.fromEntries(
+    skillSources.map((source) => [source.id, buildFeed(source.id, result)])
+  ) as SkillFeeds
 }
 
 export async function getTechnologyFeed(

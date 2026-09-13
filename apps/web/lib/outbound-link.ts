@@ -20,6 +20,7 @@ export type OutboundReturnPath =
   | '/social'
   | '/finance'
   | '/games'
+  | '/skills'
 
 export function resolveOutboundReturnPath(value: string): OutboundReturnPath {
   return value === '/' ||
@@ -27,7 +28,8 @@ export function resolveOutboundReturnPath(value: string): OutboundReturnPath {
     value === '/ai' ||
     value === '/social' ||
     value === '/finance' ||
-    value === '/games'
+    value === '/games' ||
+    value === '/skills'
     ? value
     : '/technology'
 }

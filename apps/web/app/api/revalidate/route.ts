@@ -4,6 +4,7 @@ import { after } from 'next/server'
 import { validEventSlug } from '../../../lib/ai-events'
 import { publishContent } from '../../../lib/content-publication'
 import { parseArticleFilter } from '../../../lib/home-articles'
+import { isSkillSourceId } from '../../../lib/technology-sources'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -54,10 +55,15 @@ export async function POST(request: Request) {
     if (input.section !== undefined || input.source !== undefined) {
       if (!input || typeof input.section !== 'string' || typeof input.source !== 'string')
         throw new Error('Invalid scope')
-      const filter = parseArticleFilter(`/${input.section}`, input.source)
-      if (!filter.section || !filter.source) throw new Error('Invalid scope')
-      section = filter.section
-      source = filter.source
+      if (input.section === 'skills' && isSkillSourceId(input.source)) {
+        section = '/skills'
+        source = input.source
+      } else {
+        const filter = parseArticleFilter(`/${input.section}`, input.source)
+        if (!filter.section || !filter.source) throw new Error('Invalid scope')
+        section = filter.section
+        source = filter.source
+      }
     } else if (!eventSlugs.length) throw new Error('Invalid scope')
   } catch {
     return Response.json({ error: 'Invalid section or source' }, { status: 400 })
@@ -69,13 +75,20 @@ export async function POST(request: Request) {
     const paths = [
       '/',
       '/sitemap.xml',
-      ...(source === 'github' ? ['/github'] : section ? [section, `${section}/${source}`] : []),
+      ...(source === 'github'
+        ? ['/github']
+        : section === '/skills'
+          ? ['/skills']
+          : section
+            ? [section, `${section}/${source}`]
+            : []),
       ...eventSlugs.map((slug) => `/ai/events/${slug}`)
     ]
     if (section === '/ai' || eventSlugs.length) paths.push('/ai/events')
     for (const path of paths) revalidatePath(path)
     if (section === '/ai' || eventSlugs.length) revalidatePath('/ai/events/[slug]', 'page')
-    if (section && source !== 'github') revalidatePath(`${section}/${source}/[slug]`, 'page')
+    if (section && source !== 'github' && section !== '/skills')
+      revalidatePath(`${section}/${source}/[slug]`, 'page')
     after(async () => {
       try {
         await publishContent(paths, publicationId)

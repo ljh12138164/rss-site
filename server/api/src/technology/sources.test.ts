@@ -8,6 +8,7 @@ import {
   getGameSource,
   getNewsSource,
   getSignalSource,
+  getSkillSource,
   getSocialSource,
   getTechnologySource,
   isAiSourceId,
@@ -15,11 +16,13 @@ import {
   isGameSourceId,
   isNewsSourceId,
   isSignalSourceId,
+  isSkillSourceId,
   isSocialSourceId,
   isTechnologySourceId,
   newsSources,
   resolveSignalFeedUrl,
   signalSources,
+  skillSources,
   socialSources,
   technologySources
 } from './sources.js'
@@ -97,6 +100,17 @@ describe('technologySources', () => {
     expect(getSocialSource('bilibili').name).toBe('哔哩哔哩综合热门')
   })
 
+  it('registers the two skills.sh rankings as an independent section', () => {
+    expect(skillSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
+      ['skills-trending', '/skills-sh/trending'],
+      ['skills-hot', '/skills-sh/hot']
+    ])
+    expect(skillSources.every((source) => source.section === 'skills')).toBe(true)
+    expect(skillSources.every((source) => source.itemLimit === 100)).toBe(true)
+    expect(isSkillSourceId('skills-hot')).toBe(true)
+    expect(getSkillSource('skills-trending').name).toBe('skills.sh 最热门')
+  })
+
   it('registers five anonymous finance feeds with publication times', () => {
     expect(financeSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
       ['wallstreetcn', '/wallstreetcn/hot/day'],
@@ -137,7 +151,7 @@ describe('technologySources', () => {
     expect(isFinanceSourceId('github')).toBe(false)
     expect(isGameSourceId('steam')).toBe(false)
     expect(isGameSourceId('github')).toBe(false)
-    expect(signalSources).toHaveLength(35)
+    expect(signalSources).toHaveLength(37)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

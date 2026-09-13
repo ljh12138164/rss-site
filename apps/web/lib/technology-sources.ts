@@ -43,6 +43,23 @@ export const technologySources = [
   }
 ] as const
 
+export const skillSources = [
+  {
+    id: 'skills-trending',
+    code: 'TOP',
+    name: '最热门',
+    shortName: '最热门',
+    description: '当前安装量领先的 Skills'
+  },
+  {
+    id: 'skills-hot',
+    code: 'UP',
+    name: '增长最快',
+    shortName: '增长最快',
+    description: '相比昨日同期增长最快的 Skills'
+  }
+] as const
+
 export const technologyArticleSources = technologySources.filter((source) => source.id !== 'github')
 
 export const newsSources = [
@@ -265,6 +282,8 @@ export const gameSources = [
 
 export type TechnologySource = (typeof technologySources)[number]
 export type TechnologySourceId = TechnologySource['id']
+export type SkillSource = (typeof skillSources)[number]
+export type SkillSourceId = SkillSource['id']
 export type NewsSource = (typeof newsSources)[number]
 export type NewsSourceId = NewsSource['id']
 export type AiSource = (typeof aiSources)[number]
@@ -277,6 +296,7 @@ export type GameSource = (typeof gameSources)[number]
 export type GameSourceId = GameSource['id']
 export type SignalSource =
   | TechnologySource
+  | SkillSource
   | NewsSource
   | AiSource
   | SocialSource
@@ -286,6 +306,10 @@ export type SignalSourceId = SignalSource['id']
 
 export function isTechnologySourceId(value: string): value is TechnologySourceId {
   return technologySources.some((source) => source.id === value)
+}
+
+export function isSkillSourceId(value: string): value is SkillSourceId {
+  return skillSources.some((source) => source.id === value)
 }
 
 export function isNewsSourceId(value: string): value is NewsSourceId {

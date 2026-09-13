@@ -26,6 +26,7 @@ interface ParsedItem {
 interface ParseFeedOptions {
   titleFromFirstStrong?: boolean
   urlFromFirstAnchor?: boolean
+  skillMetadata?: boolean
 }
 
 interface ParsedRss {
@@ -106,6 +107,25 @@ function firstStrongText(value: unknown): string | null {
   return match ? plainText(match[1]) : null
 }
 
+function skillSummary(value: unknown): string | null {
+  const html = textValue(value)
+  if (!html) return null
+
+  const paragraphs = [...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/gi)]
+    .map((match) => plainText(match[1]))
+    .filter((paragraph): paragraph is string => Boolean(paragraph))
+  if (paragraphs.length === 0) return plainText(html)?.slice(0, 500) ?? null
+
+  const description = paragraphs[0] ?? ''
+  const metadata = paragraphs
+    .slice(1)
+    .filter((paragraph) =>
+      /^(?:Installs|Source|Source type|Hourly change|Same hour yesterday):/i.test(paragraph)
+    )
+  const suffix = metadata.length > 0 ? ` · ${metadata.join(' · ')}` : ''
+  return `${description.slice(0, Math.max(0, 500 - suffix.length))}${suffix}`
+}
+
 function firstAnchorUrl(value: unknown, baseUrl: unknown): string | null {
   const html = textValue(value)
   const base = textValue(baseUrl)
@@ -183,10 +203,12 @@ export function parseTechnologyFeed(
         title,
         url,
         imageUrl: firstImageUrl(item.description, content),
-        summary:
-          (
-            plainText(cleanOpenAiContent(textValue(item.description) ?? '', url)) ?? plainText(html)
-          )?.slice(0, 500) ?? null,
+        summary: options.skillMetadata
+          ? skillSummary(item.description)
+          : ((
+              plainText(cleanOpenAiContent(textValue(item.description) ?? '', url)) ??
+              plainText(html)
+            )?.slice(0, 500) ?? null),
         contentHtml,
         author: textValue(item.author),
         publishedAt: publishedDate(item.pubDate)

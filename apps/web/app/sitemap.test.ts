@@ -105,6 +105,7 @@ it('within limit: /sitemap.xml returns full urlset XML with all platform article
   expect(xml).toContain('<loc>https://news.ljhboard.cn/about</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/privacy</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/github</loc>')
+  expect(xml).toContain('<loc>https://news.ljhboard.cn/skills</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/ai</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/news/xinhua</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/ai/events/test-event</loc>')

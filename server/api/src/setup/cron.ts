@@ -39,7 +39,13 @@ export const SIGNAL_CRON_JOBS: ReadonlyArray<{
   { source: 'gamersky', name: 'signal-ingest-gamersky', schedule: '10 3,9,15,21 * * *' },
   { source: 'ali213', name: 'signal-ingest-ali213', schedule: '15 3,9,15,21 * * *' },
   { source: 'indienova', name: 'signal-ingest-indienova', schedule: '20 3,9,15,21 * * *' },
-  { source: 'github-blog', name: 'signal-ingest-github-blog', schedule: '30 3,9,15,21 * * *' }
+  { source: 'github-blog', name: 'signal-ingest-github-blog', schedule: '30 3,9,15,21 * * *' },
+  {
+    source: 'skills-trending',
+    name: 'signal-ingest-skills-trending',
+    schedule: '40 3,9,15,21 * * *'
+  },
+  { source: 'skills-hot', name: 'signal-ingest-skills-hot', schedule: '50 3,9,15,21 * * *' }
 ]
 
 export const LEGACY_SIGNAL_CRON_JOB_NAMES = [
