@@ -4,7 +4,7 @@ import type { SkillFeeds } from '../lib/hot-feed'
 import { parseSkillMetadata, SkillLeaderboard } from './skill-leaderboard'
 
 const feeds: SkillFeeds = {
-  'skills-trending': {
+  'skills-all-time': {
     state: 'ready',
     status: { itemCount: 1, lastSuccessAt: new Date('2026-09-14T01:00:00.000Z') },
     items: [
@@ -19,7 +19,7 @@ const feeds: SkillFeeds = {
       }
     ]
   },
-  'skills-hot': { state: 'empty' }
+  'skills-trending': { state: 'empty' }
 }
 
 describe('SkillLeaderboard', () => {
@@ -33,14 +33,15 @@ describe('SkillLeaderboard', () => {
     expect(html).toContain('from=%2Fskills')
   })
 
-  it('parses signed growth and tolerates missing metadata', () => {
-    expect(
-      parseSkillMetadata('Description · Installs: 20 · Hourly change: +4 · Source: owner/repo')
-    ).toEqual({ description: 'Description', installs: 20, change: 4, source: 'owner/repo' })
+  it('parses leaderboard metadata and tolerates missing values', () => {
+    expect(parseSkillMetadata('Description · Installs: 20 · Source: owner/repo')).toEqual({
+      description: 'Description',
+      installs: 20,
+      source: 'owner/repo'
+    })
     expect(parseSkillMetadata(null)).toEqual({
       description: null,
       installs: null,
-      change: null,
       source: null
     })
   })

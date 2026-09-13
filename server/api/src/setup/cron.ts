@@ -41,11 +41,15 @@ export const SIGNAL_CRON_JOBS: ReadonlyArray<{
   { source: 'indienova', name: 'signal-ingest-indienova', schedule: '20 3,9,15,21 * * *' },
   { source: 'github-blog', name: 'signal-ingest-github-blog', schedule: '30 3,9,15,21 * * *' },
   {
-    source: 'skills-trending',
-    name: 'signal-ingest-skills-trending',
+    source: 'skills-all-time',
+    name: 'signal-ingest-skills-all-time',
     schedule: '40 3,9,15,21 * * *'
   },
-  { source: 'skills-hot', name: 'signal-ingest-skills-hot', schedule: '50 3,9,15,21 * * *' }
+  {
+    source: 'skills-trending',
+    name: 'signal-ingest-skills-trending',
+    schedule: '50 3,9,15,21 * * *'
+  }
 ]
 
 export const LEGACY_SIGNAL_CRON_JOB_NAMES = [
@@ -75,7 +79,8 @@ export const LEGACY_SIGNAL_CRON_JOB_NAMES = [
   'sspai-matrix-feed-every-five-hours',
   'toutiao-hot-feed-every-five-hours',
   'signal-ingest-10jqka',
-  'signal-ingest-steam'
+  'signal-ingest-steam',
+  'signal-ingest-skills-hot'
 ] as const
 
 export const RETENTION_JOB_NAME = 'ingestion-runs-retention-daily'

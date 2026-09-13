@@ -45,17 +45,17 @@ export const technologySources = [
 
 export const skillSources = [
   {
-    id: 'skills-trending',
+    id: 'skills-all-time',
     name: 'skills.sh 最热门',
-    rsshubPath: '/skills-sh/trending',
+    rsshubPath: '/skills-sh/all-time',
     section: 'skills',
     itemLimit: 100,
     skillMetadata: true
   },
   {
-    id: 'skills-hot',
+    id: 'skills-trending',
     name: 'skills.sh 增长最快',
-    rsshubPath: '/skills-sh/hot',
+    rsshubPath: '/skills-sh/trending',
     section: 'skills',
     itemLimit: 100,
     skillMetadata: true

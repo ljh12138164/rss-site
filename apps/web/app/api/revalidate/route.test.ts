@@ -49,11 +49,11 @@ it('publishes GitHub ingestion to the independent ranking route', async () => {
 })
 
 it('publishes both skill sources only to the shared skills route', async () => {
-  const response = await POST(request({ section: 'skills', source: 'skills-hot' }))
+  const response = await POST(request({ section: 'skills', source: 'skills-all-time' }))
   expect(response.status).toBe(200)
   expect(paths).toHaveBeenCalledWith('/skills')
-  expect(paths).not.toHaveBeenCalledWith('/skills/skills-hot')
-  expect(paths).not.toHaveBeenCalledWith('/skills/skills-hot/[slug]', 'page')
+  expect(paths).not.toHaveBeenCalledWith('/skills/skills-all-time')
+  expect(paths).not.toHaveBeenCalledWith('/skills/skills-all-time/[slug]', 'page')
   await callbacks[0]()
   expect(publication).toHaveBeenCalledWith(['/', '/sitemap.xml', '/skills'], expect.any(String))
 })

@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowUpRight, Download, TrendingUp } from 'lucide-react'
+import { ArrowUpRight, Download } from 'lucide-react'
 import Link from 'next/link'
 import { Tab, TabList, TabPanel, Tabs } from 'react-aria-components'
 import type { FeedResult, SkillFeeds } from '../lib/hot-feed'
@@ -11,7 +11,6 @@ const countFormatter = new Intl.NumberFormat('en-US')
 interface SkillMetadata {
   description: string | null
   installs: number | null
-  change: number | null
   source: string | null
 }
 
@@ -22,7 +21,7 @@ function parseNumber(value: string | undefined): number | null {
 }
 
 export function parseSkillMetadata(summary: string | null): SkillMetadata {
-  if (!summary) return { description: null, installs: null, change: null, source: null }
+  if (!summary) return { description: null, installs: null, source: null }
   const parts = summary.split(' · ')
   const metadata = new Map(
     parts.slice(1).flatMap((part) => {
@@ -33,12 +32,11 @@ export function parseSkillMetadata(summary: string | null): SkillMetadata {
   return {
     description: parts[0] || null,
     installs: parseNumber(metadata.get('Installs')),
-    change: parseNumber(metadata.get('Hourly change')),
     source: metadata.get('Source') ?? null
   }
 }
 
-function SkillFeed({ feed, growing }: { feed: FeedResult; growing: boolean }) {
+function SkillFeed({ feed }: { feed: FeedResult }) {
   if (feed.state === 'empty') return <EmptyFeed />
   if (feed.state === 'error') return <FeedError />
 
@@ -77,13 +75,6 @@ function SkillFeed({ feed, growing }: { feed: FeedResult; growing: boolean }) {
                       {countFormatter.format(metadata.installs)}
                     </span>
                   ) : null}
-                  {growing && metadata.change !== null ? (
-                    <span className="inline-flex items-center gap-1 font-semibold tabular-nums text-emerald-700 dark:text-emerald-300">
-                      <TrendingUp aria-hidden="true" className="size-3.5" />
-                      {metadata.change >= 0 ? '+' : ''}
-                      {countFormatter.format(metadata.change)}
-                    </span>
-                  ) : null}
                   {metadata.source ? <span className="truncate">{metadata.source}</span> : null}
                 </span>
               </Link>
@@ -97,29 +88,29 @@ function SkillFeed({ feed, growing }: { feed: FeedResult; growing: boolean }) {
 
 export function SkillLeaderboard({ feeds }: { feeds: SkillFeeds }) {
   return (
-    <Tabs defaultSelectedKey="trending">
+    <Tabs defaultSelectedKey="all-time">
       <TabList
         aria-label="Skills 排行榜"
         className="mb-6 flex w-full border-b border-border sm:w-auto"
       >
         <Tab
-          id="trending"
+          id="all-time"
           className="-mb-px min-h-11 cursor-pointer border-b-2 border-transparent px-4 text-sm font-medium text-muted-foreground outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring data-[selected]:border-primary data-[selected]:text-primary"
         >
           最热门
         </Tab>
         <Tab
-          id="hot"
+          id="trending"
           className="-mb-px min-h-11 cursor-pointer border-b-2 border-transparent px-4 text-sm font-medium text-muted-foreground outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring data-[selected]:border-primary data-[selected]:text-primary"
         >
           增长最快
         </Tab>
       </TabList>
-      <TabPanel id="trending" className="outline-none">
-        <SkillFeed feed={feeds['skills-trending']} growing={false} />
+      <TabPanel id="all-time" className="outline-none">
+        <SkillFeed feed={feeds['skills-all-time']} />
       </TabPanel>
-      <TabPanel id="hot" className="outline-none">
-        <SkillFeed feed={feeds['skills-hot']} growing />
+      <TabPanel id="trending" className="outline-none">
+        <SkillFeed feed={feeds['skills-trending']} />
       </TabPanel>
     </Tabs>
   )
