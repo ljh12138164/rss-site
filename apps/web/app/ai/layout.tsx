@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <SectionLayout
       basePath="/ai"
       title="AI 最新动态"
-      description="看看 OpenAI、Anthropic、DeepSeek、智谱、Google 和 Qwen 最近发布了什么。"
+      description="看看 OpenAI、ChatGPT、Anthropic、DeepSeek、智谱、Google 和 Qwen 最近发布了什么。"
       sectionName="AI"
       sources={aiSources}
     >

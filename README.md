@@ -1,9 +1,9 @@
 # 热点更新
 
-一个通过 RSSHub 与官方 RSS 汇总热点的轻量阅读站。科技区包含 GitHub Trending、Hacker News、掘金、
-V2EX、IT之家和 36氪；国内新闻区包含新华社、央视国内、中新网、澎湃热榜、界面中国和百度热搜；AI
-平台区包含 OpenAI、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 和 Qwen；另有六路社交热点与
-六路财经、六路游戏信号。首页以 AI 为主展示三十六路摘要，各分区总览与 `[source]` 路由展示独立列表。
+一个通过 RSSHub 与官方 RSS 汇总热点的轻量阅读站。科技区包含 GitHub Trending、GitHub Blog、Hacker News、
+掘金、IT之家和 36氪；国内新闻区包含新华社、央视国内、中新网、澎湃热榜、界面中国和百度热搜；AI
+平台区包含 OpenAI、ChatGPT、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 和 Qwen；另有六路社交热点与
+五路财经、五路游戏信号。首页以 AI 为主展示三十五路摘要，各分区总览与 `[source]` 路由展示独立列表。
 AI 每 2 小时、其他分区每 6 小时由 Hono 服务错峰采集，并以 Supabase 作为前后端之间唯一的数据中转。
 
 ## Architecture
@@ -163,7 +163,7 @@ simple-git-hooks 的 pre-commit 钩子；提交前会格式化并校验暂存文
 [`docs/development/cloud-source-validation.md`](docs/development/cloud-source-validation.md)。
 
 该命令会幂等创建或更新 Supabase Vault 中的 API 地址和 Cron 密钥，启用 `pg_cron` 与
-`pg_net`，先逐一验证三十六路生产采集，再安装 AI 每 2 小时、其他来源每 6 小时且至少相隔 5 分钟的 UTC
+`pg_net`，先逐一验证三十五路生产采集，再安装 AI 每 2 小时、其他来源每 6 小时且至少相隔 5 分钟的 UTC
 任务，以及文章与运行记录清理。普通文章保留 90 天、AI 文章保留 180 天，当前热点、置顶文章和 AI 事件
 引用不会被清理；抓取运行记录保留 30 天。重复运行会更新稳定同名任务，并移除本项目已知的旧五小时任务。
 `supabase/cron/setup.sql` 保留为完成同等生产验证后的手动配置和审计备用方案。

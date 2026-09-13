@@ -96,7 +96,14 @@ export const aiSources = [
     code: 'OA',
     name: 'OpenAI',
     shortName: 'OpenAI',
-    description: '官方文章'
+    description: '综合新闻与官方文章'
+  },
+  {
+    id: 'chatgpt',
+    code: 'CG',
+    name: 'ChatGPT',
+    shortName: 'ChatGPT',
+    description: '产品更新日志'
   },
   {
     id: 'anthropic',

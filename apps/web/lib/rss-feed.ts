@@ -49,7 +49,7 @@ const rssSections = {
   ai: {
     id: 'ai',
     title: 'AI',
-    description: 'OpenAI、Anthropic、DeepSeek、GLM、Gemini 与 Qwen 的官方动态',
+    description: 'OpenAI、ChatGPT、Anthropic、DeepSeek、GLM、Gemini 与 Qwen 的官方动态',
     pagePath: '/ai',
     sources: aiSources
   },
