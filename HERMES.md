@@ -1,6 +1,11 @@
 # HERMES
 
-## 2026-09-14 Skills 热门榜单
+## 2026-09-15 隔离首页列表加载边界
+
+- 当前分支 `feat/fix-home-loading-boundary` 基于最新 `origin/master`；修复从首页或路由跳转进入文章详情页时显示首页“今日热点”列表骨架的问题。
+- 将首页 `page.tsx`、`loading.tsx` 及 `page.test.tsx` 移入 `(home)` 路由组，公开 URL 保持 `/` 不变，彻底消除根级 loading 对下层子路由（六栏目详情等）的祖先边界泄露。
+- Web 全量 160/160 测试、类型检查、修改范围 Biome 与 55/55 页面生产构建通过；开发记录：`docs/development/fix-home-loading-boundary.md`。
+- 下一步提交并推送分支，由用户创建并合并 PR。
 
 - 修正分支 `feat/skills-leaderboard-views` 基于最新 `origin/master`：原实现误把 `trending` 标为“最热门”、把小时级 `hot` 标为“增长最快”。
 - 正确映射为“最热门”=`all-time`、“增长最快”=`trending`（24h）；RSSHub 同步补充 `all-time` 视图，本站移除 `skills-hot`。
