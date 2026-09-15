@@ -109,7 +109,6 @@ url = "${MCP_ENDPOINT}"`,
 
 export function McpClientConfig() {
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
-  const [copiedEndpoint, setCopiedEndpoint] = useState(false)
 
   async function copyText(text: string, key: string) {
     try {
@@ -121,15 +120,7 @@ export function McpClientConfig() {
     }
   }
 
-  async function copyEndpoint() {
-    try {
-      await navigator.clipboard.writeText(MCP_ENDPOINT)
-      setCopiedEndpoint(true)
-      setTimeout(() => setCopiedEndpoint(false), 2000)
-    } catch {
-      // ignore
-    }
-  }
+  const isEndpointCopied = copiedKey === 'endpoint'
 
   return (
     <div className="space-y-6">
@@ -137,7 +128,7 @@ export function McpClientConfig() {
       <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="text-xs font-medium text-muted-foreground">
-            服务连接地址 (Streamable HTTP / SSE)
+            服务连接地址 (Streamable HTTP)
           </div>
           <div className="mt-1 font-mono text-sm font-semibold text-foreground break-all sm:text-base">
             {MCP_ENDPOINT}
@@ -145,12 +136,12 @@ export function McpClientConfig() {
         </div>
         <ActionButton
           variant="outline"
-          onPress={copyEndpoint}
+          onPress={() => copyText(MCP_ENDPOINT, 'endpoint')}
           className="min-h-9 px-3 text-xs shrink-0 self-start sm:self-auto"
           aria-label="复制 MCP 服务地址"
         >
-          {copiedEndpoint ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-          {copiedEndpoint ? '已复制地址' : '复制地址'}
+          {isEndpointCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+          {isEndpointCopied ? '已复制地址' : '复制地址'}
         </ActionButton>
       </div>
 

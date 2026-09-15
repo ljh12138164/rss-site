@@ -2,6 +2,7 @@ import { Bot, Cpu, Sparkles, Terminal, Wrench } from 'lucide-react'
 import type { Metadata } from 'next'
 import { McpClientConfig } from '../../components/mcp-client-config'
 import { SiteShell } from '../../components/site-shell'
+import { optionalCanonical } from '../../lib/site-url'
 import {
   aiSources,
   financeSources,
@@ -15,7 +16,10 @@ import {
 export const metadata: Metadata = {
   title: '接入 MCP 服务 - 今日热点',
   description:
-    '支持 Codex CLI、Claude Code、Cursor、Claude Desktop 等 AI 客户端一键命令行接入，支持平台级传参与分类筛选，默认返回全网最新 100 条热点。'
+    '支持 Codex CLI、Claude Code、Cursor、Claude Desktop 等 AI 客户端一键命令行接入，支持平台级传参与分类筛选，默认返回全网最新 100 条热点。',
+  alternates: {
+    canonical: optionalCanonical('/mcp')
+  }
 }
 
 const sectionsInfo = [
@@ -238,22 +242,6 @@ export default function McpPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* Section 5: Direct HTTP Verification */}
-        <section
-          aria-labelledby="rest-heading"
-          className="rounded-xl border border-border bg-muted/30 p-5 space-y-3"
-        >
-          <h2 id="rest-heading" className="text-sm font-semibold text-foreground">
-            REST 辅助接口与调试
-          </h2>
-          <p className="text-xs leading-5 text-muted-foreground">
-            除了标准 MCP 协议外，服务端还开放了同源只读 REST 端点，便于在浏览器或自动化脚本中测试：
-          </p>
-          <div className="font-mono text-xs text-foreground break-all rounded-md bg-background/90 p-3 border border-border">
-            GET https://rss-api.ljhboard.cn/api/news?limit=10&platform=github
           </div>
         </section>
       </div>

@@ -1,5 +1,6 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
 import type { Context, Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { handleMcpJsonRpc } from './mcp/handler.js'
 import type { McpNewsItem } from './mcp/service.js'
 import {
@@ -15,12 +16,6 @@ export interface AppDependencies {
   fetchNews?(options: { platform?: string; limit?: number }): Promise<McpNewsItem[]>
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-mcp-version'
-}
-
 function matchesSecret(actual: string | undefined, expected: string): boolean {
   if (!actual?.startsWith('Bearer ') || expected.length === 0) return false
 
@@ -32,37 +27,27 @@ function matchesSecret(actual: string | undefined, expected: string): boolean {
 export function configureApp(app: Hono, deps: AppDependencies) {
   app.get('/health', (context) => context.json({ status: 'ok' as const }))
 
-  // MCP CORS preflight
-  app.options('/mcp', () => new Response(null, { status: 204, headers: corsHeaders }))
-  app.options('/api/news', () => new Response(null, { status: 204, headers: corsHeaders }))
-
-  // MCP Streamable HTTP & SSE endpoints
-  app.get(
+  // Standard Hono CORS middleware for MCP endpoint
+  app.use(
     '/mcp',
-    () =>
-      new Response('event: endpoint\ndata: /mcp\n\n', {
-        headers: {
-          'Content-Type': 'text/event-stream; charset=utf-8',
-          'Cache-Control': 'no-cache',
-          Connection: 'keep-alive',
-          ...corsHeaders
-        }
-      })
+    cors({
+      origin: '*',
+      allowMethods: ['POST', 'GET', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization', 'x-mcp-version']
+    })
   )
 
-  app.get(
-    '/sse',
-    () =>
-      new Response('event: endpoint\ndata: /mcp\n\n', {
-        headers: {
-          'Content-Type': 'text/event-stream; charset=utf-8',
-          'Cache-Control': 'no-cache',
-          Connection: 'keep-alive',
-          ...corsHeaders
-        }
-      })
+  // MCP Streamable HTTP service status
+  app.get('/mcp', (context) =>
+    context.json({
+      name: 'rss-site-mcp',
+      version: '1.0.0',
+      status: 'ready',
+      protocol: 'mcp'
+    })
   )
 
+  // MCP Streamable HTTP JSON-RPC 2.0 endpoint
   app.post('/mcp', async (context) => {
     let body: unknown
     try {
@@ -70,8 +55,7 @@ export function configureApp(app: Hono, deps: AppDependencies) {
     } catch {
       return context.json(
         { jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } },
-        400,
-        corsHeaders
+        400
       )
     }
 
@@ -79,30 +63,10 @@ export function configureApp(app: Hono, deps: AppDependencies) {
     const response = await handleMcpJsonRpc(body, { fetchNews })
 
     if (!response) {
-      return new Response(null, { status: 204, headers: corsHeaders })
+      return new Response(null, { status: 204 })
     }
 
-    return context.json(response, 200, corsHeaders)
-  })
-
-  // REST helper endpoint for quick verification / curl
-  app.get('/api/news', async (context) => {
-    const platform = context.req.query('platform')
-    const limitQuery = context.req.query('limit')
-    const limit = limitQuery ? Number.parseInt(limitQuery, 10) : undefined
-
-    const fetchNews = deps.fetchNews ?? (async () => [])
-    const items = await fetchNews({ platform, limit })
-
-    return context.json(
-      {
-        items,
-        total: items.length,
-        platform: platform ?? null
-      },
-      200,
-      corsHeaders
-    )
+    return context.json(response, 200)
   })
 
   async function runIngestion(context: Context, source: string, section?: SignalSection) {

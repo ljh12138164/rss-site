@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm'
+import { desc, eq, sql } from 'drizzle-orm'
 import type { Database } from '../db/client.js'
 import { signalArticles } from '../db/schema.js'
 import { signalSources } from '../technology/sources.js'
@@ -25,15 +25,7 @@ const sourceNameMap = new Map<string, string>(
   signalSources.map((source) => [source.id, source.name])
 )
 
-const knownSections = new Set<string>([
-  'technology',
-  'ai',
-  'news',
-  'social',
-  'finance',
-  'games',
-  'skills'
-])
+const knownSections = new Set<string>(signalSources.map((source) => source.section))
 
 export async function fetchMcpNews(
   db: Database,
@@ -66,7 +58,7 @@ export async function fetchMcpNews(
   }
 
   const rows = await query
-    .orderBy(desc(signalArticles.publishedAt), desc(signalArticles.firstSeenAt))
+    .orderBy(sql`${signalArticles.publishedAt} DESC NULLS LAST`, desc(signalArticles.firstSeenAt))
     .limit(limit)
 
   return rows.map((row) => ({

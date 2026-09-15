@@ -42,30 +42,33 @@
 
 1. **服务端数据层与调度器**：
    - 在 `server/api/src/mcp/service.ts` 实现 `fetchMcpNews` 与 `formatMcpNewsResponse`：从 `signal_articles` 表中倒序查询最新新闻；针对 `platform` 参数智能支持平台 ID（如 `juejin`, `github`, `openai` 等）与一级分类（如 `technology`, `ai` 等）两种粒度；若不传参数，默认检索全平台最新的 100 条热点。
+   - 修复排序中 PostgreSQL 默认 `DESC NULLS FIRST` 问题：采用 `sql\`${signalArticles.publishedAt} DESC NULLS LAST\`, desc(signalArticles.firstSeenAt)`，确保有明确发布时间的新闻始终优先排列，无时间榜单（如百度热搜、Skills 排行）靠后排列并回退展示发现时间。
    - 在 `server/api/src/mcp/handler.ts` 实现 JSON-RPC 2.0 调度协议：支持 `initialize`（握手与版本声明）、`notifications/initialized`、`ping`、`tools/list`（暴露 `get_news` 工具）以及 `tools/call`（执行数据查询并生成标准 Markdown 格式）。
-   - 在 `server/api/src/http-app.ts` 和 `src/index.ts` 注册 `/mcp`（POST 处理 JSON-RPC，GET 提供 SSE 发现握手）、`/sse` 别名端点，以及 `/api/news` REST 辅助调试接口，全量开放 CORS 标头。
+   - 在 `server/api/src/http-app.ts` 和 `src/index.ts` 注册 `/mcp` 端点，采用 Hono 官方推荐的 `hono/cors` 中间件规范处理跨域（POST 处理 JSON-RPC，GET 提供服务状态就绪检测），不引入多余的伪 `/sse` 与 REST 接口。
    - 编写 `server/api/src/mcp/mcp.test.ts` 单元测试，覆盖 11 种核心交互协议。
 
 2. **前端 Web 接入页面与全局导航**：
    - 在 `apps/web/components/mcp-client-config.tsx` 创建客户端接入交互卡片：提供端点一键复制；优先提供**终端命令级一键安装**与配置文件双模式；重点支持 **Codex CLI** (`codex mcp add rss-board-news --url ...`)、**Claude Code** (`claude mcp add --transport http ...`)、**Cursor**、**Windsurf**、**Claude Desktop** 以及 **cURL** 直调，配备一键复制代码与状态提示。
-   - 在 `apps/web/app/mcp/page.tsx` 创建全新接入指南：展示端点、工具规范、无参默认 100 条特性说明、7 大分区 36 个平台字典清单、AI 对话 Prompt 范例以及 REST 调试端点。
+   - 在 `apps/web/app/mcp/page.tsx` 创建全新接入指南：规范声明 `alternates: { canonical: optionalCanonical('/mcp') }`；展示端点、工具规范、无参默认 100 条特性说明、7 大分区 36 个平台字典清单与 AI 对话 Prompt 范例。
    - 在 `apps/web/components/site-header.tsx` 主导航添加 `MCP` 入口，并在 `apps/web/components/site-shell.tsx` 页脚中添加 `MCP 服务` 链接。
    - 编写 `apps/web/app/mcp/page.test.tsx` 与更新 `site-header.test.tsx` 确保渲染与导航链路通过。
 
 ## Verification
 
 1. **自动化测试**：
-   - 运行 `pnpm --filter @rss-site/api test`：9 个测试文件、78 项测试全部通过（包含新增的 11 项 MCP 协议与工具测试）。
-   - 运行 `pnpm --filter @rss-site/web test`：47 个测试文件、162 项测试全部通过（包含新增的 `/mcp` 页面与导航测试）。
+   - 运行 `pnpm --filter @rss-site/api test`：9 个测试文件、78 项测试全部通过。
+   - 运行 `pnpm --filter @rss-site/web test`：47 个测试文件、162 项测试全部通过。
    - 运行 `pnpm turbo run test`：双包 240 项测试全部绿灯通过。
 2. **类型检查**：
    - 运行 `pnpm turbo run check-types`：双包 TypeScript 检查均以代码 0 退出，无任何类型错误。
 3. **代码规范与格式检查**：
-   - 运行 `pnpm exec biome check` 检查全部新增与修改的 11 个代码文件：0 error，0 warning。
+   - 运行 `pnpm exec biome check` 检查全部新增与修改的代码文件：0 error，0 warning。
 4. **生产构建验证**：
-   - 运行 `$env:SITE_URL="http://localhost:3000"; pnpm --filter @rss-site/web build`：成功编译并在 14.4s 内完成全部 56/56 个页面的静态预渲染，`/mcp` 作为独立 SSG 页面正常生成，Early Hints Link header 正确注入。
-5. **评审收口**：
-   - 确认无阻塞项；本任务功能自包含完整，无遗留缺陷，不建立额外 roadmap。
+   - 运行 `pnpm --filter @rss-site/web build`：成功编译完成全部 56/56 个页面的静态预渲染，`/mcp` 作为独立 SSG 页面正常生成。
+5. **数据库平台无发布时间排查**：
+   - 排查云端数据库：纯热榜类源 `baidu`（990 条）、`skills-trending`（138 条）、`skills-all-time`（100 条）、`github`（79 条）因上游无单项发布时间，`published_at` 全量为 NULL；历史归档类源 `chinanews`（78% 缺失）、`stcn`（97% 缺失）、`indienova`（15% 缺失）有部分缺失。其他 29 个新闻与博客源（36kr、OpenAI、ChatGPT、CCTV、Zhihu、Gamersky 等）发布时间完整度均为 100%。排序加入 `NULLS LAST` 后彻底解决了无时间文章抢占全网最新热点前排的问题。
+6. **评审收口**：
+   - 已根据 Review 意见完整修复元数据 canonical、Hono CORS 中间件规范、移除无用 `/sse` 与 REST 端点，并修复排序 NULLS LAST 问题。
 
 ## Risks
 

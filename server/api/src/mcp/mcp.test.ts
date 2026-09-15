@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 import { configureApp } from '../http-app.js'
-import type { McpNewsItem } from './service.js'
+import { formatMcpNewsResponse, type McpNewsItem } from './service.js'
 
 interface TestMcpResult {
   jsonrpc: string
@@ -18,12 +18,6 @@ interface TestMcpResult {
     code: number
     message: string
   }
-}
-
-interface TestNewsApiResult {
-  items: unknown[]
-  total: number
-  platform: string | null
 }
 
 function createSampleArticles(count: number): McpNewsItem[] {
@@ -259,7 +253,7 @@ describe('MCP News Service in Hono API', () => {
     expect(json.error?.code).toBe(-32601)
   })
 
-  it('serves SSE handshake on GET /mcp and GET /sse', async () => {
+  it('serves service info on GET /mcp', async () => {
     const app = configureApp(new Hono(), {
       cronSecret: 'secret',
       runIngestion: async () => ({ batchId: '1', itemCount: 0 })
@@ -267,49 +261,64 @@ describe('MCP News Service in Hono API', () => {
 
     const resMcp = await app.request('/mcp')
     expect(resMcp.status).toBe(200)
-    expect(resMcp.headers.get('Content-Type')).toContain('text/event-stream')
-    expect(await resMcp.text()).toBe('event: endpoint\ndata: /mcp\n\n')
-
-    const resSse = await app.request('/sse')
-    expect(resSse.status).toBe(200)
-    expect(resSse.headers.get('Content-Type')).toContain('text/event-stream')
-    expect(await resSse.text()).toBe('event: endpoint\ndata: /mcp\n\n')
-  })
-
-  it('handles GET /api/news REST queries with platform and limit', async () => {
-    let capturedOptions: { platform?: string; limit?: number } | undefined
-    const mockArticles = createSampleArticles(10)
-
-    const app = configureApp(new Hono(), {
-      cronSecret: 'secret',
-      runIngestion: async () => ({ batchId: '1', itemCount: 0 }),
-      fetchNews: async (options) => {
-        capturedOptions = options
-        return mockArticles
-      }
+    const json = await resMcp.json()
+    expect(json).toEqual({
+      name: 'rss-site-mcp',
+      version: '1.0.0',
+      status: 'ready',
+      protocol: 'mcp'
     })
-
-    const response = await app.request('/api/news?platform=openai&limit=10')
-    expect(response.status).toBe(200)
-    const json = (await response.json()) as TestNewsApiResult
-    expect(capturedOptions).toEqual({ platform: 'openai', limit: 10 })
-    expect(json.total).toBe(10)
-    expect(json.platform).toBe('openai')
-    expect(json.items).toHaveLength(10)
   })
 
-  it('handles CORS OPTIONS preflight for /mcp and /api/news', async () => {
+  it('handles CORS OPTIONS preflight for /mcp via Hono cors middleware', async () => {
     const app = configureApp(new Hono(), {
       cronSecret: 'secret',
       runIngestion: async () => ({ batchId: '1', itemCount: 0 })
     })
 
-    const mcpOptions = await app.request('/mcp', { method: 'OPTIONS' })
+    const mcpOptions = await app.request('/mcp', {
+      method: 'OPTIONS',
+      headers: {
+        Origin: 'https://example.com',
+        'Access-Control-Request-Method': 'POST'
+      }
+    })
     expect(mcpOptions.status).toBe(204)
     expect(mcpOptions.headers.get('Access-Control-Allow-Origin')).toBe('*')
+  })
 
-    const apiOptions = await app.request('/api/news', { method: 'OPTIONS' })
-    expect(apiOptions.status).toBe(204)
-    expect(apiOptions.headers.get('Access-Control-Allow-Origin')).toBe('*')
+  it('formats news items and falls back to firstSeenAt when publishedAt is null', () => {
+    const formatted = formatMcpNewsResponse([
+      {
+        id: 'article-with-date',
+        title: '有发布时间的新闻',
+        url: 'https://example.com/dated',
+        source: 'openai',
+        sourceName: 'OpenAI Blog',
+        section: 'ai',
+        summary: '这是有日期的内容。',
+        author: 'OpenAI',
+        publishedAt: new Date('2026-03-15T12:00:00Z'),
+        firstSeenAt: new Date('2026-03-15T12:05:00Z')
+      },
+      {
+        id: 'article-without-date',
+        title: '无发布时间的榜单项目',
+        url: 'https://example.com/undated',
+        source: 'baidu',
+        sourceName: '百度热搜',
+        section: 'social',
+        summary: null,
+        author: null,
+        publishedAt: null,
+        firstSeenAt: new Date('2026-03-15T10:00:00Z')
+      }
+    ])
+
+    expect(formatted).toContain('共获取到 2 条最新新闻')
+    expect(formatted).toContain('1. [有发布时间的新闻](https://example.com/dated)')
+    expect(formatted).toContain('平台: OpenAI Blog (openai) | 分类: ai | 时间: 2026-03-15 12:00')
+    expect(formatted).toContain('2. [无发布时间的榜单项目](https://example.com/undated)')
+    expect(formatted).toContain('平台: 百度热搜 (baidu) | 分类: social | 时间: 2026-03-15 10:00')
   })
 })
