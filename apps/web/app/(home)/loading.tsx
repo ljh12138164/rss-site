@@ -1,5 +1,5 @@
-import { SignalSkeleton } from '../components/signal-skeleton'
-import { SiteShell } from '../components/site-shell'
+import { SignalSkeleton } from '../../components/signal-skeleton'
+import { SiteShell } from '../../components/site-shell'
 
 export default function Loading() {
   return (

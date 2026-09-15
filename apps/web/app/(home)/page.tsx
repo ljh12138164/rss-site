@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { ArticleHydration } from '../components/article-hydration'
-import { HomeArticleList } from '../components/home-article-list'
-import { SiteShell } from '../components/site-shell'
-import { getHomeArticles, type HomeArticlePage } from '../lib/home-articles'
+import { ArticleHydration } from '../../components/article-hydration'
+import { HomeArticleList } from '../../components/home-article-list'
+import { SiteShell } from '../../components/site-shell'
+import { getHomeArticles, type HomeArticlePage } from '../../lib/home-articles'
+import { optionalCanonical } from '../../lib/site-url'
 
 export const dynamic = 'force-static'
 export const revalidate = 7200
@@ -67,5 +68,3 @@ export default async function HomePage() {
   const initialPage = await getHomeArticles()
   return <HomeView initialPage={initialPage} />
 }
-
-import { optionalCanonical } from '../lib/site-url'

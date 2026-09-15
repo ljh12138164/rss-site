@@ -67,8 +67,9 @@ AI 分区当前以 OpenAI 综合新闻作为来源之一，并把所有 `section
 - Supabase 官方文档确认触发器由 trigger function + row trigger 组成，并建议数据库函数使用
   `security invoker`；本迁移沿用该安全模式。2026-09-13 的官方变更记录中未发现影响本迁移或
   `cron.schedule` 用法的破坏性变更。
-- API 测试：64 项通过；Web 测试：154 项通过；API/Web 类型检查通过；Web 生产构建通过。
+- API 测试：67 项通过；Web 测试：160 项通过；API/Web 类型检查通过；Web 生产构建通过。
 - 变更文件 Biome 检查与 `git diff --check` 通过。
+- 2026-09-15 修复 `canonicalSourceKey`：修复前 `canonicalWebUrl` 抹除了 GUID 中的 URL Hash（`#时间戳`），导致 20 条 ChatGPT 日志 `sourceKey` 冲突，PostgreSQL 报 `ON CONFLICT DO UPDATE command cannot affect row a second time` 事务回滚；修复后保留 Hash 锚点，20 条日志生成 20 个唯一 `sourceKey`，测试已覆盖。
 - 本机 Docker Desktop 引擎不可用，因此新增 pgTAP 测试尚未在本地数据库执行；它将随迁移在
   可用的 Supabase 测试环境中运行。
 - 按用户要求不再执行额外 UI 检查。此前导航适配检查已通过，不作为本轮剩余门禁。

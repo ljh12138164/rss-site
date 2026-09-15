@@ -83,6 +83,32 @@ describe('parseTechnologyFeed', () => {
     ])
   })
 
+  it('preserves fragment identifiers in sourceKey when guid differentiates items by hash', () => {
+    const xml = `
+      <rss><channel>
+        <item>
+          <title>Release 1</title>
+          <link>https://help.openai.com/en/articles/6825453-chatgpt-release-notes</link>
+          <guid>https://help.openai.com/en/articles/6825453-chatgpt-release-notes#1789344000000</guid>
+        </item>
+        <item>
+          <title>Release 2</title>
+          <link>https://help.openai.com/en/articles/6825453-chatgpt-release-notes</link>
+          <guid>https://help.openai.com/en/articles/6825453-chatgpt-release-notes#1788998400000</guid>
+        </item>
+      </channel></rss>`
+
+    const items = parseTechnologyFeed(xml, 'ChatGPT')
+    expect(items).toHaveLength(2)
+    expect(items[0].sourceKey).toBe(
+      'https://help.openai.com/en/articles/6825453-chatgpt-release-notes#1789344000000'
+    )
+    expect(items[1].sourceKey).toBe(
+      'https://help.openai.com/en/articles/6825453-chatgpt-release-notes#1788998400000'
+    )
+    expect(items[0].sourceKey).not.toBe(items[1].sourceKey)
+  })
+
   it.each([
     ['malformed XML', '<rss><channel>'],
     ['an empty feed', '<rss><channel><title>empty</title></channel></rss>'],

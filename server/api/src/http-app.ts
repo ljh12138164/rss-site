@@ -1,5 +1,8 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
 import type { Context, Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { handleMcpJsonRpc } from './mcp/handler.js'
+import type { McpNewsItem } from './mcp/service.js'
 import {
   getSignalSource,
   isSignalSourceId,
@@ -7,9 +10,10 @@ import {
   type SignalSourceId
 } from './technology/sources.js'
 
-interface AppDependencies {
+export interface AppDependencies {
   cronSecret: string
   runIngestion(source: SignalSourceId): Promise<{ batchId: string; itemCount: number }>
+  fetchNews?(options: { platform?: string; limit?: number }): Promise<McpNewsItem[]>
 }
 
 function matchesSecret(actual: string | undefined, expected: string): boolean {
@@ -22,6 +26,48 @@ function matchesSecret(actual: string | undefined, expected: string): boolean {
 
 export function configureApp(app: Hono, deps: AppDependencies) {
   app.get('/health', (context) => context.json({ status: 'ok' as const }))
+
+  // Standard Hono CORS middleware for MCP endpoint
+  app.use(
+    '/mcp',
+    cors({
+      origin: '*',
+      allowMethods: ['POST', 'GET', 'OPTIONS'],
+      allowHeaders: ['Content-Type', 'Authorization', 'x-mcp-version']
+    })
+  )
+
+  // MCP Streamable HTTP service status
+  app.get('/mcp', (context) =>
+    context.json({
+      name: 'rss-site-mcp',
+      version: '1.0.0',
+      status: 'ready',
+      protocol: 'mcp'
+    })
+  )
+
+  // MCP Streamable HTTP JSON-RPC 2.0 endpoint
+  app.post('/mcp', async (context) => {
+    let body: unknown
+    try {
+      body = await context.req.json()
+    } catch {
+      return context.json(
+        { jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } },
+        400
+      )
+    }
+
+    const fetchNews = deps.fetchNews ?? (async () => [])
+    const response = await handleMcpJsonRpc(body, { fetchNews })
+
+    if (!response) {
+      return new Response(null, { status: 204 })
+    }
+
+    return context.json(response, 200)
+  })
 
   async function runIngestion(context: Context, source: string, section?: SignalSection) {
     if (!matchesSecret(context.req.header('Authorization'), deps.cronSecret)) {

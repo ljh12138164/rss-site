@@ -1,8 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { expect, it } from 'vitest'
-import { QueryProvider } from '../components/query-provider'
-import type { HomeArticlePage } from '../lib/home-articles'
-import { aiSources, newsSources } from '../lib/technology-sources'
+import { QueryProvider } from '../../components/query-provider'
+import type { HomeArticlePage } from '../../lib/home-articles'
+import { aiSources, newsSources } from '../../lib/technology-sources'
 import { HomeView } from './page'
 
 const initialPage: HomeArticlePage = {

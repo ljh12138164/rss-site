@@ -22,6 +22,26 @@ describe('standalone route loading boundaries', () => {
     }
   })
 
+  it('never exposes a homepage list fallback above article detail routes', async () => {
+    const boundaries = import.meta.glob('../app/**/loading.tsx')
+    const details = [
+      '../app/ai/[source]/[slug]/page.tsx',
+      '../app/ai/events/[slug]/page.tsx',
+      '../app/finance/[source]/[slug]/page.tsx',
+      '../app/games/[source]/[slug]/page.tsx',
+      '../app/news/[source]/[slug]/page.tsx',
+      '../app/social/[source]/[slug]/page.tsx',
+      '../app/technology/[source]/[slug]/page.tsx'
+    ]
+    for (const detail of details) {
+      for (const [path, boundary] of Object.entries(boundaries)) {
+        if (!detail.startsWith(path.replace(/loading\.tsx$/, ''))) continue
+        const { default: Loading } = (await boundary()) as { default: typeof Event }
+        expect(renderToStaticMarkup(<Loading />)).not.toContain('汇总各分区的全部文章')
+      }
+    }
+  })
+
   it.each([Ai, Event, Finance, Games, News, Social, Technology])(
     'keeps one site shell and a bounded article placeholder',
     (Loading) => {

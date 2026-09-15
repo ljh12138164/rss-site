@@ -17,7 +17,8 @@ const sections = [
   ['/games', '游戏'],
   ['/ai/events', 'AI 时间轴'],
   ['/github', '开源排行'],
-  ['/skills', '热门 Skills']
+  ['/skills', '热门 Skills'],
+  ['/mcp', 'MCP']
 ] as const
 
 export function SiteHeader() {

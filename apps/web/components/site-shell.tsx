@@ -18,6 +18,9 @@ export function SiteShell({
       <footer className="flex min-h-20 flex-wrap items-center justify-between gap-x-6 gap-y-2 py-5 text-xs text-muted-foreground">
         <p>点击标题在站内阅读，完整内容以来源原文为准。</p>
         <nav aria-label="站点信息" className="flex items-center gap-5">
+          <Link className="flex min-h-11 items-center hover:text-foreground" href="/mcp">
+            MCP 服务
+          </Link>
           <Link className="flex min-h-11 items-center hover:text-foreground" href="/about">
             关于本站
           </Link>

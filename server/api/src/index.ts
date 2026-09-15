@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { createDatabaseConnection } from './db/client.js'
 import { configureApp } from './http-app.js'
+import { fetchMcpNews } from './mcp/service.js'
 import { ingestSignal } from './technology/ingest.js'
 import { publishSourceUpdate } from './technology/publish.js'
 import { getSignalSource, resolveSignalFeedUrl } from './technology/sources.js'
@@ -51,6 +52,14 @@ export function createApp(runtime: ApiRuntime) {
   const rsshubBaseUrl = runtime.rsshubBaseUrl.replace(/\/$/, '')
   return configureApp(new Hono(), {
     cronSecret: runtime.cronSecret,
+    fetchNews: async (options) => {
+      const connection = createDatabaseConnection(runtime.databaseUrl)
+      try {
+        return await fetchMcpNews(connection.database, options)
+      } finally {
+        await connection.close()
+      }
+    },
     runIngestion: async (sourceId) => {
       const connection = createDatabaseConnection(runtime.databaseUrl)
       try {

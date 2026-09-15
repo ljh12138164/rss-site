@@ -69,6 +69,26 @@ function canonicalWebUrl(value: unknown): string | null {
   }
 }
 
+function canonicalSourceKey(rawGuid: string | null, url: string): string {
+  if (!rawGuid) return url
+
+  try {
+    const parsed = new URL(rawGuid)
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      for (const key of [...parsed.searchParams.keys()]) {
+        if (key.toLowerCase().startsWith('utm_')) parsed.searchParams.delete(key)
+      }
+      if (!parsed.hash) {
+        return parsed.toString().replace(/\/$/, '')
+      }
+      return parsed.toString()
+    }
+    return rawGuid
+  } catch {
+    return rawGuid
+  }
+}
+
 function decodeEntities(value: string): string {
   const named: Record<string, string> = {
     amp: '&',
@@ -199,7 +219,7 @@ export function parseTechnologyFeed(
     const contentHtml = html && Buffer.byteLength(html, 'utf8') <= 512 * 1024 ? html : null
     return [
       {
-        sourceKey: canonicalWebUrl(rawGuid) ?? rawGuid ?? url,
+        sourceKey: canonicalSourceKey(rawGuid, url),
         title,
         url,
         imageUrl: firstImageUrl(item.description, content),
