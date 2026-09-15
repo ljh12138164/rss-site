@@ -4,7 +4,7 @@
 
 - 当前分支 `feat/fix-home-loading-boundary`；在 Cloudflare Worker API (`server/api`) 中实现 MCP (Model Context Protocol) 规范接口。
 - 支持 `get_news` 工具，支持按 `platform` 平台/分类筛选，不传参数默认返回最新的 100 条全平台热点新闻。
-- 前端 (`apps/web`) 推出 `/mcp` 专属接入指南页面，包含端点一键复制、主流 AI 客户端（Cursor / Claude Desktop / Windsurf）配置卡片及平台列表。
+- 前端 (`apps/web`) 推出 `/mcp` 专属接入指南页面，包含端点一键复制、主流 AI 客户端（Codex CLI、Claude Code、Cursor、Windsurf、Claude Desktop）终端命令行一键安装与配置卡片及平台列表。
 - 开发记录：`docs/development/mcp-news-service.md`。
 
 ## 2026-09-15 隔离首页列表加载边界与修复 ChatGPT sourceKey 冲突

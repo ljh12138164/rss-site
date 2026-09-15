@@ -27,10 +27,14 @@ describe('MCP Page (/mcp)', () => {
     expect(html).toContain('100 条')
     expect(html).toContain('无（全平台）')
 
-    // Client tabs / tools
+    // Client tabs (all in TabList) & selected default tab command (Codex CLI)
+    expect(html).toContain('Codex CLI')
+    expect(html).toContain('codex mcp add')
+    expect(html).toContain('Claude Code')
     expect(html).toContain('Cursor')
     expect(html).toContain('Claude Desktop')
     expect(html).toContain('Windsurf')
+    expect(html).toContain('cURL / 终端直调')
 
     // Platform directory
     expect(html).toContain('juejin')

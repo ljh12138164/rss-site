@@ -15,7 +15,7 @@ import {
 export const metadata: Metadata = {
   title: '接入 MCP 服务 - 今日热点',
   description:
-    '将全网热点资讯直接接入 Cursor、Claude Desktop、Windsurf 等 AI 客户端，支持平台级传参与分类筛选，默认返回全网最新 100 条热点。'
+    '支持 Codex CLI、Claude Code、Cursor、Claude Desktop 等 AI 客户端一键命令行接入，支持平台级传参与分类筛选，默认返回全网最新 100 条热点。'
 }
 
 const sectionsInfo = [
@@ -90,8 +90,8 @@ export default function McpPage() {
           接入 MCP 新闻服务
         </h1>
         <p className="mt-3 text-pretty text-sm leading-7 text-muted-foreground sm:text-base">
-          为 Cursor、Claude Desktop、Windsurf
-          等客户端提供直接连接本站的工具。大模型可自主调用工具获取全网实时热点资讯。
+          支持 Codex CLI、Claude Code、Cursor、Windsurf 等 AI
+          客户端直接连接本站。支持终端命令行一键安装，大模型可自主调用工具获取全网实时热点资讯。
         </p>
       </header>
 
@@ -100,10 +100,10 @@ export default function McpPage() {
         <section aria-labelledby="client-config-heading" className="space-y-4">
           <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
             <Terminal size={20} className="text-primary" />
-            <h2 id="client-config-heading">客户端快速接入</h2>
+            <h2 id="client-config-heading">客户端快速接入（支持终端一键命令）</h2>
           </div>
           <p className="text-sm leading-6 text-muted-foreground">
-            选择你正在使用的 AI 开发工具或客户端，复制对应的配置代码并保存即可自动连接本站 MCP
+            选择你正在使用的 AI 开发工具或客户端，复制对应的终端命令或配置文件，即可自动接入本站 MCP
             服务：
           </p>
           <McpClientConfig />

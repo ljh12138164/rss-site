@@ -47,7 +47,7 @@
    - 编写 `server/api/src/mcp/mcp.test.ts` 单元测试，覆盖 11 种核心交互协议。
 
 2. **前端 Web 接入页面与全局导航**：
-   - 在 `apps/web/components/mcp-client-config.tsx` 创建客户端接入交互卡片：包含服务地址一键复制、Cursor / Claude Desktop / Windsurf / cURL 配置 Tab 切换与代码一键复制功能。
+   - 在 `apps/web/components/mcp-client-config.tsx` 创建客户端接入交互卡片：提供端点一键复制；优先提供**终端命令级一键安装**与配置文件双模式；重点支持 **Codex CLI** (`codex mcp add rss-board-news --url ...`)、**Claude Code** (`claude mcp add --transport http ...`)、**Cursor**、**Windsurf**、**Claude Desktop** 以及 **cURL** 直调，配备一键复制代码与状态提示。
    - 在 `apps/web/app/mcp/page.tsx` 创建全新接入指南：展示端点、工具规范、无参默认 100 条特性说明、7 大分区 36 个平台字典清单、AI 对话 Prompt 范例以及 REST 调试端点。
    - 在 `apps/web/components/site-header.tsx` 主导航添加 `MCP` 入口，并在 `apps/web/components/site-shell.tsx` 页脚中添加 `MCP 服务` 链接。
    - 编写 `apps/web/app/mcp/page.test.tsx` 与更新 `site-header.test.tsx` 确保渲染与导航链路通过。
