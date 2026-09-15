@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ['mtranserver'],
   outputFileTracingRoot: path.join(process.cwd(), '../..'),
+  async rewrites() {
+    return [
+      {
+        source: '/stats/:match*',
+        destination: 'https://analytics.ljhboard.cn/:match*'
+      }
+    ]
+  },
   async headers() {
     return [
       {
