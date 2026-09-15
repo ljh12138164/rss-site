@@ -1,5 +1,7 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
 import type { Context, Hono } from 'hono'
+import { handleMcpJsonRpc } from './mcp/handler.js'
+import type { McpNewsItem } from './mcp/service.js'
 import {
   getSignalSource,
   isSignalSourceId,
@@ -7,9 +9,16 @@ import {
   type SignalSourceId
 } from './technology/sources.js'
 
-interface AppDependencies {
+export interface AppDependencies {
   cronSecret: string
   runIngestion(source: SignalSourceId): Promise<{ batchId: string; itemCount: number }>
+  fetchNews?(options: { platform?: string; limit?: number }): Promise<McpNewsItem[]>
+}
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-mcp-version'
 }
 
 function matchesSecret(actual: string | undefined, expected: string): boolean {
@@ -22,6 +31,79 @@ function matchesSecret(actual: string | undefined, expected: string): boolean {
 
 export function configureApp(app: Hono, deps: AppDependencies) {
   app.get('/health', (context) => context.json({ status: 'ok' as const }))
+
+  // MCP CORS preflight
+  app.options('/mcp', () => new Response(null, { status: 204, headers: corsHeaders }))
+  app.options('/api/news', () => new Response(null, { status: 204, headers: corsHeaders }))
+
+  // MCP Streamable HTTP & SSE endpoints
+  app.get(
+    '/mcp',
+    () =>
+      new Response('event: endpoint\ndata: /mcp\n\n', {
+        headers: {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+          ...corsHeaders
+        }
+      })
+  )
+
+  app.get(
+    '/sse',
+    () =>
+      new Response('event: endpoint\ndata: /mcp\n\n', {
+        headers: {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+          ...corsHeaders
+        }
+      })
+  )
+
+  app.post('/mcp', async (context) => {
+    let body: unknown
+    try {
+      body = await context.req.json()
+    } catch {
+      return context.json(
+        { jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } },
+        400,
+        corsHeaders
+      )
+    }
+
+    const fetchNews = deps.fetchNews ?? (async () => [])
+    const response = await handleMcpJsonRpc(body, { fetchNews })
+
+    if (!response) {
+      return new Response(null, { status: 204, headers: corsHeaders })
+    }
+
+    return context.json(response, 200, corsHeaders)
+  })
+
+  // REST helper endpoint for quick verification / curl
+  app.get('/api/news', async (context) => {
+    const platform = context.req.query('platform')
+    const limitQuery = context.req.query('limit')
+    const limit = limitQuery ? Number.parseInt(limitQuery, 10) : undefined
+
+    const fetchNews = deps.fetchNews ?? (async () => [])
+    const items = await fetchNews({ platform, limit })
+
+    return context.json(
+      {
+        items,
+        total: items.length,
+        platform: platform ?? null
+      },
+      200,
+      corsHeaders
+    )
+  })
 
   async function runIngestion(context: Context, source: string, section?: SignalSection) {
     if (!matchesSecret(context.req.header('Authorization'), deps.cronSecret)) {

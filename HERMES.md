@@ -1,12 +1,18 @@
 # HERMES
 
+## 2026-09-15 Cloudflare Worker MCP 新闻服务与 Web 接入页面
+
+- 当前分支 `feat/fix-home-loading-boundary`；在 Cloudflare Worker API (`server/api`) 中实现 MCP (Model Context Protocol) 规范接口。
+- 支持 `get_news` 工具，支持按 `platform` 平台/分类筛选，不传参数默认返回最新的 100 条全平台热点新闻。
+- 前端 (`apps/web`) 推出 `/mcp` 专属接入指南页面，包含端点一键复制、主流 AI 客户端（Cursor / Claude Desktop / Windsurf）配置卡片及平台列表。
+- 开发记录：`docs/development/mcp-news-service.md`。
+
 ## 2026-09-15 隔离首页列表加载边界与修复 ChatGPT sourceKey 冲突
 
 - 当前分支 `feat/fix-home-loading-boundary` 基于最新 `origin/master`；修复从首页或路由跳转进入文章详情页时显示首页“今日热点”列表骨架的问题。
 - 将首页 `page.tsx`、`loading.tsx` 及 `page.test.tsx` 移入 `(home)` 路由组，公开 URL 保持 `/` 不变，彻底消除根级 loading 对下层子路由（六栏目详情等）的祖先边界泄露。
 - 排查并修复 ChatGPT 产品更新日志无数据问题：RSSHub 抓取正常（211 条）；根因是 `feed.ts` 中 `canonicalWebUrl` 抹除 GUID 哈希锚点导致 20 条日志生成相同 `sourceKey`，触发 PostgreSQL `ON CONFLICT DO UPDATE` 重复冲突回滚。新增 `canonicalSourceKey` 严格保留 Hash 锚点。
 - 全仓 API 67/67、Web 160/160 测试、双方类型检查、修改范围 Biome 与 55/55 页面生产构建通过；开发记录：`docs/development/fix-home-loading-boundary.md` 与 `docs/development/chatgpt-ai-events.md`。
-- 下一步提交并推送分支，由用户创建并合并 PR。
 
 - 修正分支 `feat/skills-leaderboard-views` 基于最新 `origin/master`：原实现误把 `trending` 标为“最热门”、把小时级 `hot` 标为“增长最快”。
 - 正确映射为“最热门”=`all-time`、“增长最快”=`trending`（24h）；RSSHub 同步补充 `all-time` 视图，本站移除 `skills-hot`。
