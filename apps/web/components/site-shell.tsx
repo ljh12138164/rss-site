@@ -17,7 +17,7 @@ export function SiteShell({
       <div aria-hidden="true" className="border-t border-border" />
       <footer className="flex min-h-20 flex-wrap items-center justify-between gap-x-6 gap-y-2 py-5 text-xs text-muted-foreground">
         <p>点击标题在站内阅读，完整内容以来源原文为准。</p>
-        <nav aria-label="站点信息" className="flex items-center gap-5">
+        <nav aria-label="站点信息" className="flex flex-wrap items-center gap-5">
           <Link className="flex min-h-11 items-center hover:text-foreground" href="/mcp">
             MCP 服务
           </Link>
@@ -27,6 +27,30 @@ export function SiteShell({
           <Link className="flex min-h-11 items-center hover:text-foreground" href="/privacy">
             隐私说明
           </Link>
+          <a
+            className="flex min-h-11 items-center hover:text-foreground"
+            href="https://blog.ljhboard.cn/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            ljh.notes
+          </a>
+          <a
+            className="flex min-h-11 items-center hover:text-foreground"
+            href="https://token.ljhboard.cn/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Token Paper
+          </a>
+          <a
+            className="flex min-h-11 items-center hover:text-foreground"
+            href="https://tools.ljhboard.cn/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            LJH Tools
+          </a>
         </nav>
       </footer>
     </div>
