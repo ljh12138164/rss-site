@@ -10,7 +10,7 @@ import {
   technologyArticleSources
 } from './technology-sources'
 
-export const SITEMAP_CHUNK_SIZE = 5000
+export const SITEMAP_CHUNK_SIZE = 1000
 export const SITEMAP_CACHE_CONTROL =
   'public, max-age=0, s-maxage=7200, stale-while-revalidate=86400'
 

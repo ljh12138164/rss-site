@@ -2,7 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { expect, it } from 'vitest'
 import type { HomeDigest } from '../../lib/home-articles'
 import { aiSources, newsSources, type socialSources } from '../../lib/technology-sources'
-import { HomeView } from './page'
+import { HomeView, metadata } from './page'
 
 type Platform =
   | (typeof aiSources)[number]
@@ -56,6 +56,12 @@ const digest: HomeDigest = {
     }
   ]
 }
+
+it('uses an absolute homepage title so the root template does not duplicate the brand', () => {
+  expect(metadata.title).toEqual({
+    absolute: '今日热点 - AI、科技、新闻、财经与游戏热榜'
+  })
+})
 
 it('renders top signals and a per-section directory without the article feed', () => {
   const html = renderToStaticMarkup(<HomeView digest={digest} />)

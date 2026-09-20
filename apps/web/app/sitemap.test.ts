@@ -93,7 +93,7 @@ it('returns 404 for sitemap routes when SITE_URL is not configured', async () =>
 
 it('within limit: /sitemap.xml returns full urlset XML with all platform articles', async () => {
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  mockArticleCount = 4999
+  mockArticleCount = 999
 
   const res = await getSitemapXml()
   expect(res.status).toBe(200)
@@ -118,7 +118,7 @@ it('within limit: /sitemap.xml returns full urlset XML with all platform article
 
 it('over limit: /sitemap.xml automatically upgrades to sitemapindex referencing child files', async () => {
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  mockArticleCount = 10001
+  mockArticleCount = 2001
 
   const res = await getSitemapXml()
   expect(res.status).toBe(200)
@@ -133,7 +133,7 @@ it('over limit: /sitemap.xml automatically upgrades to sitemapindex referencing 
 
 it('child sitemap /sitemap/[id].xml serves chunked urlset for valid chunk IDs', async () => {
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  mockArticleCount = 10001
+  mockArticleCount = 2001
 
   const res = await getChildSitemap(new Request('https://news.ljhboard.cn/sitemap/1.xml'), {
     params: Promise.resolve({ id: '1.xml' })
