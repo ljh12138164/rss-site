@@ -35,15 +35,15 @@ export function SectionLayout({
     <SiteShell>
       {source && (
         <nav aria-label="面包屑">
-          <ol className="mb-10 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground">
+          <ol className="mb-8 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground">
             <li>
-              <Link className="min-h-11 py-3 hover:text-primary" href="/">
+              <Link className="min-h-11 py-3 transition-colors hover:text-primary" href="/">
                 首页
               </Link>
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <Link className="min-h-11 py-3 hover:text-primary" href={basePath}>
+              <Link className="min-h-11 py-3 transition-colors hover:text-primary" href={basePath}>
                 {sectionName}
               </Link>
             </li>
@@ -55,7 +55,8 @@ export function SectionLayout({
         </nav>
       )}
       <header className="pb-8 sm:pb-10">
-        <h1 className="text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
+        <p className="eyebrow">{sectionName} · Section</p>
+        <h1 className="headline-display mt-3 text-4xl leading-[1.1] sm:text-5xl">
           {source?.name ?? title}
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground">

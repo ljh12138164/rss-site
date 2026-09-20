@@ -14,6 +14,7 @@ export interface SignalArticleRow {
   published_at: string | null
   first_seen_at: string
   last_seen_at: string
+  content_updated_at?: string | null
 }
 
 export interface SignalArticle {
@@ -28,6 +29,7 @@ export interface SignalArticle {
   publishedAt: Date | null
   firstSeenAt: Date
   lastSeenAt: Date
+  contentUpdatedAt?: Date
 }
 
 export type NewsArticleQuery = (
@@ -75,6 +77,7 @@ export async function getNewsArticle(
     author: result.data.author,
     publishedAt: result.data.published_at ? new Date(result.data.published_at) : null,
     firstSeenAt: new Date(result.data.first_seen_at),
-    lastSeenAt: new Date(result.data.last_seen_at)
+    lastSeenAt: new Date(result.data.last_seen_at),
+    contentUpdatedAt: new Date(result.data.content_updated_at ?? result.data.last_seen_at)
   }
 }

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { cn } from '../lib/utils'
+import { OutboundDialog } from './outbound-dialog'
 import { SiteHeader } from './site-header'
 
 export function SiteShell({
@@ -12,11 +13,10 @@ export function SiteShell({
 }) {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-5 sm:px-7">
+      <OutboundDialog />
       <SiteHeader />
-      <main className={cn('flex-1 py-12 sm:py-16', mainClassName)}>{children}</main>
-      <div aria-hidden="true" className="border-t border-border" />
-      <footer className="flex min-h-20 flex-wrap items-center justify-between gap-x-6 gap-y-2 py-5 text-xs text-muted-foreground">
-        <p>点击标题在站内阅读，完整内容以来源原文为准。</p>
+      <main className={cn('flex-1 py-10 sm:py-14', mainClassName)}>{children}</main>
+      <footer className="rule-stack flex min-h-20 flex-wrap items-center justify-end gap-x-6 gap-y-2 py-5 text-xs text-muted-foreground">
         <nav aria-label="站点信息" className="flex flex-wrap items-center gap-5">
           <Link className="flex min-h-11 items-center hover:text-foreground" href="/mcp">
             MCP 服务

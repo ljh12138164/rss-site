@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { SignalArticle } from '../../../../lib/signal-article'
 import { getNewsSource } from '../../../../lib/technology-sources'
 import { NewsArticleView } from './page'
@@ -15,8 +15,13 @@ describe('NewsArticleView', () => {
     author: '新华社记者',
     publishedAt: new Date('2026-09-06T01:00:00.000Z'),
     firstSeenAt: new Date('2026-09-06T01:05:00.000Z'),
-    lastSeenAt: new Date('2026-09-06T02:00:00.000Z')
+    lastSeenAt: new Date('2026-09-06T02:00:00.000Z'),
+    contentUpdatedAt: new Date('2026-09-06T01:30:00.000Z')
   }
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
 
   it('shows real article metadata and keeps the original article one action away', () => {
     const html = renderToStaticMarkup(
@@ -73,5 +78,34 @@ describe('NewsArticleView', () => {
       />
     )
     expect(html).toContain('翻译为中文')
+  })
+
+  it('renders source-provenance article and breadcrumb structured data', () => {
+    vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
+
+    const html = renderToStaticMarkup(
+      <NewsArticleView article={article} source={getNewsSource('xinhua')} />
+    )
+    const match = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)
+    expect(match?.[1]).toBeTruthy()
+
+    const structured = JSON.parse(match?.[1] ?? '{}')
+    expect(structured['@graph'][0]).toMatchObject({
+      '@type': 'NewsArticle',
+      headline: '新华社发布最新消息',
+      datePublished: '2026-09-06T01:00:00.000Z',
+      dateModified: '2026-09-06T01:30:00.000Z',
+      isBasedOn: 'https://www.news.cn/story',
+      provider: { '@type': 'Organization', name: '新华社' }
+    })
+    expect(structured['@graph'][1]).toMatchObject({
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { position: 1, name: '首页' },
+        { position: 2, name: '新闻' },
+        { position: 3, name: '新华社' },
+        { position: 4, name: '新华社发布最新消息' }
+      ]
+    })
   })
 })

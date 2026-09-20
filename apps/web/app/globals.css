@@ -25,6 +25,8 @@
   --color-skeleton: var(--skeleton);
   --color-search-highlight: var(--search-highlight);
   --color-search-highlight-foreground: var(--search-highlight-foreground);
+  --color-row-highlight: var(--row-highlight);
+  --color-strong: var(--strong);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -32,57 +34,65 @@
   --font-sans:
     ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC",
     "Microsoft YaHei", sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", "SimSun", Georgia, serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "SFMono-Regular", "Cascadia Mono", Consolas, "Liberation Mono", Menlo,
+    monospace;
 }
 
+/* Minimal teal: pure white, slate hairlines, teal accent */
 :root {
-  --radius: 0.375rem;
-  --background: #f7f9fc;
+  --radius: 0.125rem;
+  --background: #ffffff;
   --foreground: #1e293b;
   --card: #ffffff;
   --card-foreground: #1e293b;
   --popover: #ffffff;
   --popover-foreground: #1e293b;
-  --primary: #2563eb;
+  --primary: #0f766e;
   --primary-foreground: #ffffff;
-  --secondary: #eef2f7;
+  --secondary: #f1f5f9;
   --secondary-foreground: #1e293b;
-  --muted: #eef2f7;
+  --muted: #f1f5f9;
   --muted-foreground: #64748b;
-  --accent: #e8f0ff;
-  --accent-foreground: #1d4ed8;
-  --destructive: #c9362b;
-  --border: #d9e1ea;
-  --input: #d9e1ea;
-  --ring: #2563eb;
-  --skeleton: #d7e0eb;
-  --skeleton-highlight: rgb(255 255 255 / 68%);
-  --search-highlight: #1d4ed8;
+  --accent: #ccfbf1;
+  --accent-foreground: #115e59;
+  --destructive: #b91c1c;
+  --border: #e2e8f0;
+  --input: #cbd5e1;
+  --ring: #0f766e;
+  --strong: #1e293b;
+  --row-highlight: #f8fafc;
+  --skeleton: #e2e8f0;
+  --skeleton-highlight: rgb(255 255 255 / 70%);
+  --search-highlight: #0f766e;
   --search-highlight-foreground: #ffffff;
 }
 
 .dark {
-  --background: #111827;
-  --foreground: #e8edf5;
-  --card: #182235;
-  --card-foreground: #e8edf5;
-  --popover: #182235;
-  --popover-foreground: #e8edf5;
-  --primary: #7aa2ff;
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+  --card: #1e293b;
+  --card-foreground: #e2e8f0;
+  --popover: #1e293b;
+  --popover-foreground: #e2e8f0;
+  --primary: #2dd4bf;
   --primary-foreground: #0f172a;
-  --secondary: #1d293d;
-  --secondary-foreground: #e8edf5;
-  --muted: #1d293d;
+  --secondary: #1e293b;
+  --secondary-foreground: #e2e8f0;
+  --muted: #1e293b;
   --muted-foreground: #94a3b8;
-  --accent: #1d3157;
-  --accent-foreground: #c7d8ff;
-  --destructive: #ff6b61;
-  --border: #2a3546;
-  --input: #2a3546;
-  --ring: #7aa2ff;
-  --skeleton: #2d3b50;
-  --skeleton-highlight: rgb(148 163 184 / 20%);
-  --search-highlight: #1e40af;
+  --accent: #134e4a;
+  --accent-foreground: #99f6e4;
+  --destructive: #f87171;
+  --border: #334155;
+  --input: #475569;
+  --ring: #2dd4bf;
+  --strong: #e2e8f0;
+  --row-highlight: #1e293b;
+  --skeleton: #334155;
+  --skeleton-highlight: rgb(226 232 240 / 12%);
+  --search-highlight: #0f766e;
   --search-highlight-foreground: #ffffff;
 }
 
@@ -134,9 +144,64 @@
     @apply m-0 bg-background text-foreground;
     font-family: var(--font-sans);
   }
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Editorial display headline: condensed serif with tight Chinese tracking */
+  .headline-display {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  /* Eyebrow / kicker label in mono caps */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+  }
+
+  /* Broadsheet double rule: heavy line over hairline */
+  .rule-stack {
+    border-top: 2px solid var(--strong);
+    position: relative;
+    padding-top: 4px;
+  }
+  .rule-stack::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 2px;
+    border-top: 1px solid var(--strong);
+    pointer-events: none;
+  }
+
+  /* Rank numeral for leaderboards */
+  .rank-numeral {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--muted-foreground);
+  }
+  .rank-numeral[data-rank="1"],
+  .rank-numeral[data-rank="2"],
+  .rank-numeral[data-rank="3"] {
+    color: var(--primary);
+    font-size: 1.25rem;
   }
 }
 

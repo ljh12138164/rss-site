@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { PaginatedArticleFeed } from '../../../components/paginated-article-feed'
 import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
+import { createPageMetadata } from '../../../lib/seo'
 import {
   getSocialSource,
   isSocialSourceId,
@@ -25,11 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isSocialSourceId(sourceId)) notFound()
 
   const source = getSocialSource(sourceId)
-  return {
+  return createPageMetadata({
     title: source.name,
     description: source.description,
-    alternates: { canonical: optionalCanonical(`/social/${source.id}`) }
-  }
+    path: `/social/${source.id}`
+  })
 }
 
 export function SocialSourceView({ source, feed }: { source: SocialSource; feed: FeedResult }) {
@@ -42,5 +43,3 @@ export default async function SocialSourcePage({ params }: Props) {
 
   return <PaginatedArticleFeed section="/social" source={sourceId} />
 }
-
-import { optionalCanonical } from '../../../lib/site-url'

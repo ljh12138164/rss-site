@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { PaginatedArticleFeed } from '../../../components/paginated-article-feed'
 import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
+import { createPageMetadata } from '../../../lib/seo'
 import {
   type FinanceSource,
   financeSources,
@@ -25,11 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isFinanceSourceId(sourceId)) notFound()
 
   const source = getFinanceSource(sourceId)
-  return {
+  return createPageMetadata({
     title: source.name,
     description: source.description,
-    alternates: { canonical: optionalCanonical(`/finance/${source.id}`) }
-  }
+    path: `/finance/${source.id}`
+  })
 }
 
 export function FinanceSourceView({ source, feed }: { source: FinanceSource; feed: FeedResult }) {
@@ -42,5 +43,3 @@ export default async function FinanceSourcePage({ params }: Props) {
 
   return <PaginatedArticleFeed section="/finance" source={sourceId} />
 }
-
-import { optionalCanonical } from '../../../lib/site-url'

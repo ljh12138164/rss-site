@@ -56,7 +56,8 @@ vi.mock('../lib/supabase', () => ({
                           source: 'xinhua',
                           title: '测试新闻标题',
                           published_at: '2026-09-01T00:00:00Z',
-                          last_seen_at: '2026-09-01T01:00:00Z'
+                          last_seen_at: '2026-09-01T01:00:00Z',
+                          content_updated_at: '2026-09-02T03:00:00Z'
                         }
                       ],
                       error: null
@@ -92,11 +93,12 @@ it('returns 404 for sitemap routes when SITE_URL is not configured', async () =>
 
 it('within limit: /sitemap.xml returns full urlset XML with all platform articles', async () => {
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  mockArticleCount = 6725
+  mockArticleCount = 4999
 
   const res = await getSitemapXml()
   expect(res.status).toBe(200)
   expect(res.headers.get('content-type')).toContain('application/xml')
+  expect(res.headers.get('cache-control')).toContain('s-maxage=7200')
 
   const xml = await res.text()
   expect(xml).toContain('<urlset')
@@ -106,15 +108,17 @@ it('within limit: /sitemap.xml returns full urlset XML with all platform article
   expect(xml).toContain('<loc>https://news.ljhboard.cn/privacy</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/github</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/skills</loc>')
+  expect(xml).toContain('<loc>https://news.ljhboard.cn/mcp</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/ai</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/news/xinhua</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/ai/events/test-event</loc>')
   expect(xml).toContain('550e8400-e29b-41d4-a716-446655440000')
+  expect(xml).toContain('<lastmod>2026-09-02T03:00:00Z</lastmod>')
 })
 
 it('over limit: /sitemap.xml automatically upgrades to sitemapindex referencing child files', async () => {
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  mockArticleCount = 95000 // Exceeds SITEMAP_CHUNK_SIZE (45,000)
+  mockArticleCount = 10001
 
   const res = await getSitemapXml()
   expect(res.status).toBe(200)
@@ -124,11 +128,12 @@ it('over limit: /sitemap.xml automatically upgrades to sitemapindex referencing 
   expect(xml).toContain('<loc>https://news.ljhboard.cn/sitemap/0.xml</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/sitemap/1.xml</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/sitemap/2.xml</loc>')
+  expect(res.headers.get('cache-control')).toContain('stale-while-revalidate=86400')
 })
 
 it('child sitemap /sitemap/[id].xml serves chunked urlset for valid chunk IDs', async () => {
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  mockArticleCount = 95000
+  mockArticleCount = 10001
 
   const res = await getChildSitemap(new Request('https://news.ljhboard.cn/sitemap/1.xml'), {
     params: Promise.resolve({ id: '1.xml' })
@@ -138,6 +143,7 @@ it('child sitemap /sitemap/[id].xml serves chunked urlset for valid chunk IDs', 
   const xml = await res.text()
   expect(xml).toContain('<urlset')
   expect(xml).toContain('550e8400-e29b-41d4-a716-446655440000')
+  expect(res.headers.get('cache-control')).toContain('s-maxage=7200')
 })
 
 it('child sitemap returns 404 for out of range chunk IDs', async () => {

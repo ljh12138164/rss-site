@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { PaginatedArticleFeed } from '../../../components/paginated-article-feed'
 import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
+import { createPageMetadata } from '../../../lib/seo'
 import {
   type AiSource,
   aiSources,
@@ -25,11 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isAiSourceId(sourceId)) notFound()
 
   const source = getAiSource(sourceId)
-  return {
+  return createPageMetadata({
     title: source.name,
     description: source.description,
-    alternates: { canonical: optionalCanonical(`/ai/${source.id}`) }
-  }
+    path: `/ai/${source.id}`
+  })
 }
 
 export function AiSourceView({ source, feed }: { source: AiSource; feed: FeedResult }) {
@@ -42,5 +43,3 @@ export default async function AiSourcePage({ params }: Props) {
 
   return <PaginatedArticleFeed section="/ai" source={sourceId} />
 }
-
-import { optionalCanonical } from '../../../lib/site-url'
