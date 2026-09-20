@@ -10,7 +10,9 @@ import {
   technologyArticleSources
 } from './technology-sources'
 
-export const SITEMAP_CHUNK_SIZE = 45000
+export const SITEMAP_CHUNK_SIZE = 5000
+export const SITEMAP_CACHE_CONTROL =
+  'public, max-age=0, s-maxage=7200, stale-while-revalidate=86400'
 
 export type SitemapEntry = {
   url: string
@@ -50,7 +52,8 @@ export function getBaseEntries(): SitemapEntry[] {
     { url: siteUrl('/privacy') },
     { url: siteUrl('/ai/events') },
     { url: siteUrl('/github') },
-    { url: siteUrl('/skills') }
+    { url: siteUrl('/skills') },
+    { url: siteUrl('/mcp') }
   ]
 
   const sections = [
@@ -124,7 +127,7 @@ export async function getArticleEntries(offset: number, limit: number): Promise<
     try {
       const { data, error } = await getPublicSupabaseClient()
         .from('signal_articles')
-        .select('id,source,title,published_at,last_seen_at')
+        .select('id,source,title,published_at,last_seen_at,content_updated_at')
         .order('published_at', { ascending: false, nullsFirst: false })
         .order('id', { ascending: false })
         .range(currentOffset, currentOffset + batchLimit - 1)
@@ -140,7 +143,7 @@ export async function getArticleEntries(offset: number, limit: number): Promise<
           const path = createArticlePath(article.source, article.title, article.id)
           entries.push({
             url: siteUrl(path),
-            lastModified: article.published_at ?? article.last_seen_at
+            lastModified: article.content_updated_at ?? article.published_at ?? article.last_seen_at
           })
         } catch {}
       }

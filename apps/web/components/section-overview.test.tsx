@@ -33,7 +33,7 @@ it('merges platforms by publication date with summaries and continuous numbering
   expect(html).toContain('摘'.repeat(240))
   expect(html).not.toContain('摘'.repeat(241))
   expect(html.match(/<ol /g)).toHaveLength(1)
-  expect(html.match(/src="\/source-icons\//g)).toHaveLength(3)
+  expect(html.match(/ring-border\/60/g)).toHaveLength(3)
   expect(html).toContain('>03</span>')
   expect(html).not.toContain('查看全部')
 })

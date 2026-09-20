@@ -1,63 +1,48 @@
 import { SignalSkeleton } from '../../components/signal-skeleton'
 import { SiteShell } from '../../components/site-shell'
 
+/** Digest-shaped skeleton matching the editorial homepage layout. */
 export default function Loading() {
   return (
-    <SiteShell>
-      <header className="pb-8 sm:pb-10">
-        <h1 className="text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-          今日热点
-        </h1>
-        <p className="mt-4 max-w-2xl text-pretty text-sm leading-6 text-muted-foreground">
-          汇总各分区的全部文章，按发布时间从新到旧阅读。
-        </p>
+    <SiteShell mainClassName="pt-8 sm:pt-10">
+      <header className="border-b-2 border-strong pb-7 sm:pb-9">
+        <SignalSkeleton className="h-3 w-40" />
+        <SignalSkeleton className="mt-4 h-12 w-72 sm:h-14" />
+        <SignalSkeleton className="mt-4 h-4 w-full max-w-xl" />
       </header>
-      <nav aria-label="内容分区" className="mb-10 min-w-0 border-b border-border">
-        <p className="mb-1 text-xs font-medium text-muted-foreground">内容分区</p>
-        <div className="flex gap-5 overflow-x-auto sm:flex-wrap sm:gap-x-7">
-          <span className="flex min-h-11 shrink-0 items-center border-b-2 border-primary px-0.5 text-sm font-medium text-primary">
-            全部
-          </span>
-          {(
-            [
-              ['/ai', 'AI'],
-              ['/technology', '科技'],
-              ['/news', '国内新闻'],
-              ['/social', '社交热点'],
-              ['/finance', '财经'],
-              ['/games', '游戏'],
-              ['/github', '开源排行']
-            ] as const
-          ).map(([href, title]) => (
-            <span
-              key={href}
-              className="flex min-h-11 shrink-0 items-center whitespace-nowrap border-b-2 border-transparent px-0.5 text-sm text-muted-foreground"
-            >
-              {title}
-            </span>
-          ))}
-        </div>
-      </nav>
-      <div className="min-w-0" aria-busy="true">
-        <ol className="divide-y divide-border border-y border-border">
-          {['01', '02', '03', '04', '05', '06', '07', '08'].map((pos) => (
+      <section aria-busy="true" className="mt-10">
+        <SignalSkeleton className="h-3 w-44" />
+        <ol className="mt-4 border-y-2 border-strong">
+          {['01', '02', '03', '04', '05'].map((pos) => (
             <li
-              className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 py-5 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-5"
+              className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-3 border-b border-border px-2 py-4 last:border-b-0 sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5"
               key={pos}
             >
-              <span className="pt-0.5 font-mono text-sm font-semibold tabular-nums text-primary">
-                {pos}
-              </span>
+              <span className="rank-numeral">{pos}</span>
               <div className="min-w-0">
                 <SignalSkeleton className="h-6 w-3/4" />
-                <SignalSkeleton className="mt-2 h-4 w-full" />
-                <SignalSkeleton className="mt-1 h-4 w-2/3" />
-                <SignalSkeleton className="mt-3 h-3 w-28" />
+                <SignalSkeleton className="mt-2 h-3 w-28" />
               </div>
             </li>
           ))}
         </ol>
-      </div>
+      </section>
+      <section aria-busy="true" className="mt-12">
+        <SignalSkeleton className="h-3 w-44" />
+        <div className="mt-4 grid grid-cols-1 gap-px border-y-2 border-strong bg-border sm:grid-cols-2 lg:grid-cols-3">
+          {['technology', 'ai', 'social', 'news', 'finance', 'games'].map((section) => (
+            <div className="bg-background p-5" key={section}>
+              <SignalSkeleton className="h-6 w-24" />
+              <div className="mt-4 space-y-3 border-t border-border pt-4">
+                <SignalSkeleton className="h-4 w-full" />
+                <SignalSkeleton className="h-4 w-5/6" />
+                <SignalSkeleton className="h-4 w-2/3" />
+              </div>
+              <SignalSkeleton className="mt-4 h-4 w-20" />
+            </div>
+          ))}
+        </div>
+      </section>
     </SiteShell>
   )
 }

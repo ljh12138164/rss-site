@@ -1,10 +1,11 @@
-import type { Metadata } from 'next'
 import { InformationPage } from '../../components/information-page'
+import { createPageMetadata } from '../../lib/seo'
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: '隐私说明',
-  description: '了解浏览 AI 热榜时的主题偏好、搜索请求及第三方链接如何处理。'
-}
+  description: '了解浏览 AI 热榜时的主题偏好、搜索请求及第三方链接如何处理。',
+  path: '/privacy'
+})
 
 export default function PrivacyPage() {
   return (

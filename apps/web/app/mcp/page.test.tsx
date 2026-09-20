@@ -8,7 +8,7 @@ vi.mock('../../components/theme-toggle', () => ({ ThemeToggle: () => null }))
 
 describe('MCP Page (/mcp)', () => {
   it('exposes valid page metadata', () => {
-    expect(metadata.title).toBe('接入 MCP 服务 - 今日热点')
+    expect(metadata.title).toBe('接入 MCP 服务')
     expect(metadata.description).toContain('Cursor')
     expect(metadata.alternates).toHaveProperty('canonical')
   })

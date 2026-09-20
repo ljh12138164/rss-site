@@ -1,12 +1,13 @@
 import { ArrowDown, ArrowRight } from 'lucide-react'
-import type { Metadata } from 'next'
 import Link from 'next/link'
 import { InformationPage } from '../../components/information-page'
+import { createPageMetadata } from '../../lib/seo'
 
-export const metadata: Metadata = {
+export const metadata = createPageMetadata({
   title: '关于本站',
-  description: '了解 AI 热榜的内容来源、阅读方式与 RSS 订阅。'
-}
+  description: '了解 AI 热榜的内容来源、阅读方式与 RSS 订阅。',
+  path: '/about'
+})
 
 export default function AboutPage() {
   return (

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { PaginatedArticleFeed } from '../../../components/paginated-article-feed'
 import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
+import { createPageMetadata } from '../../../lib/seo'
 import {
   getNewsSource,
   isNewsSourceId,
@@ -25,11 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isNewsSourceId(sourceId)) notFound()
 
   const source = getNewsSource(sourceId)
-  return {
+  return createPageMetadata({
     title: source.name,
     description: source.description,
-    alternates: { canonical: optionalCanonical(`/news/${source.id}`) }
-  }
+    path: `/news/${source.id}`
+  })
 }
 
 export function NewsSourceView({ source, feed }: { source: NewsSource; feed: FeedResult }) {
@@ -42,5 +43,3 @@ export default async function NewsSourcePage({ params }: Props) {
 
   return <PaginatedArticleFeed section="/news" source={sourceId} />
 }
-
-import { optionalCanonical } from '../../../lib/site-url'

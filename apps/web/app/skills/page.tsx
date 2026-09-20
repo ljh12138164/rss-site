@@ -1,17 +1,16 @@
-import type { Metadata } from 'next'
 import { SiteShell } from '../../components/site-shell'
 import { SkillLeaderboard } from '../../components/skill-leaderboard'
 import { getSkillFeeds } from '../../lib/hot-feed'
-import { optionalCanonical } from '../../lib/site-url'
+import { createPageMetadata } from '../../lib/seo'
 
 export const dynamic = 'force-static'
 export const revalidate = 21600
 
-export const metadata: Metadata = {
-  alternates: { canonical: optionalCanonical('/skills') },
+export const metadata = createPageMetadata({
   title: '热门 Skills',
-  description: '查看 skills.sh 当前最热门和增长最快的 Agent Skills。'
-}
+  description: '查看 skills.sh 当前最热门和增长最快的 Agent Skills。',
+  path: '/skills'
+})
 
 export function SkillsHeader() {
   return (
