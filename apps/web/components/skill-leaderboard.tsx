@@ -41,14 +41,14 @@ function SkillFeed({ feed }: { feed: FeedResult }) {
   if (feed.state === 'error') return <FeedError />
 
   return (
-    <ol className="border-y border-strong/60">
+    <ol className="border-y border-border">
       {feed.items.map((item) => {
         const metadata = parseSkillMetadata(item.summary)
         const name = item.title.replace(/^#\d+\s+/, '')
         const href = `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent('/skills')}`
         return (
           <li
-            className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 border-b border-border px-2 py-5 transition-colors last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6"
+            className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-md border-b border-border/80 px-2.5 py-5 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6"
             key={item.sourceKey}
           >
             <span aria-hidden="true" className="rank-numeral pt-1" data-rank={item.position}>
@@ -60,7 +60,7 @@ function SkillFeed({ feed }: { feed: FeedResult }) {
                   <span className="min-w-0 wrap-anywhere">{name}</span>
                   <ArrowUpRight
                     aria-hidden="true"
-                    className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
+                    className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
                   />
                 </span>
                 {metadata.description ? (

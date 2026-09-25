@@ -220,21 +220,37 @@ function SearchPanel() {
 }
 
 export function ArticleSearch() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        setIsOpen((prev) => !prev)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   return (
-    <DialogTrigger>
+    <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
       <ActionButton
         variant="ghost"
         aria-label="搜索文章"
-        className="gap-2 text-muted-foreground focus-visible:outline-2 focus-visible:outline-primary"
+        className="gap-2 text-muted-foreground transition-all duration-150 hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
       >
-        <Search aria-hidden="true" />
+        <Search aria-hidden="true" className="size-4 shrink-0" />
         <span className="hidden sm:inline">搜索文章</span>
+        <kbd className="hidden sm:inline-flex items-center rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
+          ⌘K
+        </kbd>
       </ActionButton>
       <ModalOverlay
         isDismissable
-        className="fixed inset-0 z-50 flex items-start justify-center bg-foreground/30 px-3 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-20"
+        className="fixed inset-0 z-50 flex items-start justify-center bg-foreground/30 px-3 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xs sm:pt-20"
       >
-        <Modal className="w-full max-w-2xl overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-lg">
+        <Modal className="w-full max-w-2xl overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-2xl">
           <Dialog className="flex max-h-[calc(var(--visual-viewport-height,100dvh)-7rem)] flex-col outline-none [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-primary">
             <SearchPanel />
           </Dialog>

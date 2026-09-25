@@ -2,7 +2,7 @@ import { SignalSkeleton } from './signal-skeleton'
 
 export function SectionLoading() {
   return (
-    <div role="status" aria-label="正在加载文章" className="border-y border-strong/60">
+    <div role="status" aria-label="正在加载文章" className="border-y border-border">
       <span className="sr-only">正在加载文章…</span>
       {['one', 'two', 'three', 'four', 'five', 'six'].map((item, index) => (
         <div

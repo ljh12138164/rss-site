@@ -15,6 +15,7 @@ it('places the open source ranking after the AI timeline with one active section
   expect(ranking).toBeGreaterThan(timeline)
   expect(html.indexOf('href="/skills"')).toBeGreaterThan(ranking)
   expect(html.indexOf('href="/mcp"')).toBeGreaterThan(html.indexOf('href="/skills"'))
+  expect(html).toContain('href="/reading-list"')
   expect(html).toMatch(/aria-current="page"[^>]+href="\/github"/)
   expect(html).not.toMatch(/aria-current="page"[^>]+href="\/technology"/)
 })

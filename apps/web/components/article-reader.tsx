@@ -15,6 +15,8 @@ import {
 import { getNewsArticle, type SignalArticle } from '../lib/signal-article'
 import { optionalCanonical } from '../lib/site-url'
 import type { SignalSource } from '../lib/technology-sources'
+import { ArticleBookmarkButton } from './article-bookmark-button'
+import { ArticleHistoryTracker } from './article-history-tracker'
 import { ArticleTranslation } from './article-translation'
 import { SiteShell } from './site-shell'
 import { SourceIcon } from './source-icon'
@@ -100,24 +102,35 @@ export function ArticleReader({
 
   return (
     <SiteShell mainClassName="py-6 sm:py-10">
+      <ArticleHistoryTracker
+        id={article.id}
+        title={article.title}
+        url={article.url}
+        source={source.id}
+        sourceName={source.name}
+        section={section.id}
+      />
       <article className="mx-auto w-full max-w-[46rem] min-w-0">
         <nav
           aria-label="面包屑"
           className="mb-8 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground"
         >
-          <Link className="inline-flex min-h-11 items-center hover:text-primary" href="/">
+          <Link
+            className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
+            href="/"
+          >
             首页
           </Link>
           <span aria-hidden="true">/</span>
           <Link
-            className="inline-flex min-h-11 items-center hover:text-primary"
+            className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
             href={`/${section.id}`}
           >
             {section.title}
           </Link>
           <span aria-hidden="true">/</span>
           <Link
-            className="inline-flex min-h-11 items-center hover:text-primary"
+            className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
             href={`/${section.id}/${source.id}`}
           >
             {source.shortName}
@@ -146,25 +159,49 @@ export function ArticleReader({
               )}
               <a
                 href={outbound}
-                className="inline-flex min-h-11 items-center gap-1 hover:text-primary"
+                className="group inline-flex min-h-11 items-center gap-1 transition-colors hover:text-primary"
               >
                 查看原文
-                <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                <ArrowUpRight
+                  className="size-3.5 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  aria-hidden="true"
+                />
               </a>
+              <ArticleBookmarkButton
+                id={article.id}
+                title={article.title}
+                url={article.url}
+                source={source.id}
+                sourceName={source.name}
+                section={section.id}
+              />
             </div>
           }
         />
-        <footer className="rule-stack flex flex-wrap items-center justify-between gap-4 py-6">
+        <footer className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border py-6">
           <p className="max-w-md text-sm leading-6 text-muted-foreground">
             内容来自{source.name}，可能为节选。完整内容与后续更新以原文为准。
           </p>
-          <a
-            href={outbound}
-            className="inline-flex min-h-11 items-center gap-2 font-medium text-primary hover:underline"
-          >
-            阅读原文
-            <ArrowUpRight aria-hidden="true" className="size-4" />
-          </a>
+          <div className="flex flex-wrap items-center gap-3">
+            <ArticleBookmarkButton
+              id={article.id}
+              title={article.title}
+              url={article.url}
+              source={source.id}
+              sourceName={source.name}
+              section={section.id}
+            />
+            <a
+              href={outbound}
+              className="group inline-flex min-h-11 items-center gap-2 font-medium text-primary hover:underline"
+            >
+              阅读原文
+              <ArrowUpRight
+                aria-hidden="true"
+                className="size-4 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </a>
+          </div>
         </footer>
         {structuredJson && <script type="application/ld+json">{structuredJson}</script>}
       </article>
