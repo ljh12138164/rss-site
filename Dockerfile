@@ -2,6 +2,7 @@ FROM node:24-alpine AS builder
 WORKDIR /app
 RUN npm install --global pnpm@11.23.0
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/signals/package.json packages/signals/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY server/api/package.json server/api/package.json
 RUN pnpm install --frozen-lockfile --ignore-scripts
