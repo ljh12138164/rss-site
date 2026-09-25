@@ -50,7 +50,7 @@ export function SiteHeader() {
         </div>
       </div>
       <nav aria-label="主导航" className="-mx-5 overflow-x-auto px-5 sm:-mx-7 sm:px-7">
-        <div className="rule-stack flex min-w-max items-center lg:min-w-0">
+        <div className="flex min-w-max items-center border-t border-border lg:min-w-0">
           {sections.map(([href, label], index) => {
             const active =
               href === '/'

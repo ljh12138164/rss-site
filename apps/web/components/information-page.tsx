@@ -12,7 +12,7 @@ export function InformationPage({
 }) {
   return (
     <SiteShell mainClassName="mx-auto w-full max-w-3xl py-8 sm:py-12">
-      <header className="mb-8 border-b border-strong pb-7 sm:mb-10">
+      <header className="mb-8 border-b border-border pb-7 sm:mb-10">
         <h1 className="headline-display text-3xl sm:text-4xl">{title}</h1>
         <p className="mt-3 text-pretty text-sm leading-7 text-muted-foreground">{description}</p>
       </header>

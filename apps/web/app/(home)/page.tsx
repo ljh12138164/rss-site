@@ -25,7 +25,7 @@ export function HomeView({ digest }: { digest: HomeDigestData }) {
 
   return (
     <SiteShell mainClassName="pt-8 sm:pt-10">
-      <header className="border-b-2 border-strong pb-7 sm:pb-9">
+      <header className="border-b border-border pb-7 sm:pb-9">
         <p className="eyebrow">每日聚合 · RSS Digest</p>
         <h1 className="headline-display mt-3 text-[2.625rem] leading-[1.08] sm:text-6xl">
           今日热点

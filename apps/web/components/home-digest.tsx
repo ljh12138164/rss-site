@@ -35,7 +35,7 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
           <h2 id="top-signals" className="eyebrow">
             今日速览 · Top Signals
           </h2>
-          <ol className="mt-4 border-y-2 border-strong">
+          <ol className="mt-4 border-y border-border">
             {digest.top.map((item) => {
               const { href, isInternal } = getArticleHref(item, '/')
               return (
@@ -80,7 +80,7 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
         <h2 id="section-directory" className="eyebrow">
           分区导览 · Directory
         </h2>
-        <div className="mt-4 grid grid-cols-1 gap-px border-y-2 border-strong bg-border sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-px border-y border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
           {digest.sections.map((section) => (
             <div
               key={section.path}

@@ -84,7 +84,7 @@ export function ArticleTranslation({
 
   return (
     <>
-      <header className="border-b border-strong pb-7 sm:pb-9">
+      <header className="border-b border-border pb-7 sm:pb-9">
         {sourceLabel}
         <h1 className="headline-display text-pretty text-3xl leading-[1.25] sm:text-[2.5rem] sm:leading-[1.2]">
           {displayedTitle}

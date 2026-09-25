@@ -61,7 +61,7 @@
   --border: #e2e8f0;
   --input: #cbd5e1;
   --ring: #0f766e;
-  --strong: #0f172a;
+  --strong: var(--border);
   --row-highlight: #f8fafc;
   --skeleton: #e2e8f0;
   --skeleton-highlight: rgb(255 255 255 / 75%);
@@ -88,7 +88,7 @@
   --border: #1e293b;
   --input: #293548;
   --ring: #2dd4bf;
-  --strong: #f1f5f9;
+  --strong: var(--border);
   --row-highlight: #111a2e;
   --skeleton: #1e293b;
   --skeleton-highlight: rgb(226 232 240 / 12%);
@@ -172,20 +172,9 @@
     color: var(--muted-foreground);
   }
 
-  /* Broadsheet double rule: heavy line over hairline */
+  /* Clean hairline divider */
   .rule-stack {
-    border-top: 2px solid var(--strong);
-    position: relative;
-    padding-top: 4px;
-  }
-  .rule-stack::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 2px;
-    border-top: 1px solid var(--strong);
-    pointer-events: none;
+    border-top: 1px solid var(--border);
   }
 
   /* Rank numeral for leaderboards */

@@ -16,7 +16,7 @@ export function SiteShell({
       <OutboundDialog />
       <SiteHeader />
       <main className={cn('flex-1 py-10 sm:py-14', mainClassName)}>{children}</main>
-      <footer className="rule-stack mt-auto flex min-h-20 flex-wrap items-center justify-between gap-x-6 gap-y-3 py-6 text-xs text-muted-foreground">
+      <footer className="mt-auto flex min-h-20 flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-border py-6 text-xs text-muted-foreground">
         <p className="font-mono text-[0.6875rem] uppercase tracking-wider">Editorial RSS Digest</p>
         <nav aria-label="站点信息" className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <Link

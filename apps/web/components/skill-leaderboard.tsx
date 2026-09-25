@@ -41,7 +41,7 @@ function SkillFeed({ feed }: { feed: FeedResult }) {
   if (feed.state === 'error') return <FeedError />
 
   return (
-    <ol className="border-y border-strong/60">
+    <ol className="border-y border-border">
       {feed.items.map((item) => {
         const metadata = parseSkillMetadata(item.summary)
         const name = item.title.replace(/^#\d+\s+/, '')

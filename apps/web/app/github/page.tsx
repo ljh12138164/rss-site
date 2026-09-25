@@ -13,7 +13,7 @@ export const metadata = createPageMetadata({
 
 export function GithubRankingHeader() {
   return (
-    <header className="mb-8 border-b border-strong pb-7 sm:mb-10 sm:pb-9">
+    <header className="mb-8 border-b border-border pb-7 sm:mb-10 sm:pb-9">
       <p className="eyebrow">GitHub Trending · 中文周榜</p>
       <h1 className="headline-display mt-3 text-4xl leading-[1.1] sm:text-5xl">开源排行</h1>
       <p className="mt-4 max-w-2xl text-pretty text-sm leading-6 text-muted-foreground">

@@ -27,7 +27,7 @@ export function HotList({
   source?: string
 }) {
   return (
-    <ol className="border-y border-strong/60">
+    <ol className="border-y border-border">
       {items.map((item) => {
         const sourceId = item.platform?.id ?? source
         if (sourceId === 'github') {

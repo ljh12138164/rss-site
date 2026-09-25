@@ -160,7 +160,7 @@ export function ArticleReader({
             </div>
           }
         />
-        <footer className="rule-stack flex flex-wrap items-center justify-between gap-4 py-6">
+        <footer className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border py-6">
           <p className="max-w-md text-sm leading-6 text-muted-foreground">
             内容来自{source.name}，可能为节选。完整内容与后续更新以原文为准。
           </p>

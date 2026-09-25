@@ -19,7 +19,7 @@ export default async function EventsPage() {
   client.setQueryData(['ai-events'], { pages: [initialPage], pageParams: [null] })
   return (
     <SiteShell>
-      <header className="mb-8 border-b border-strong pb-7 sm:pb-9">
+      <header className="mb-8 border-b border-border pb-7 sm:pb-9">
         <p className="eyebrow">AI Events · 大事记</p>
         <h1 className="headline-display mt-3 text-4xl leading-[1.1] sm:text-5xl">AI 时间轴</h1>
         <p className="mt-4 text-sm leading-6 text-muted-foreground">
