@@ -1,5 +1,5 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser'
-import { cleanOpenAiContent } from '../../../../shared/openai-content.js'
+import { cleanCmsTemplateTags, cleanFeedArticleHtml } from '../../../../shared/openai-content.js'
 
 export interface SignalFeedItem {
   sourceKey: string
@@ -114,8 +114,9 @@ function plainText(value: unknown): string | null {
   const html = textValue(value)
   if (!html) return null
 
+  const cleaned = cleanCmsTemplateTags(html)
   const text = decodeEntities(
-    html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ')
+    cleaned.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ')
   )
     .replace(/\s+/g, ' ')
     .trim()
@@ -219,7 +220,7 @@ export function parseSignalFeed(
     const rawGuid = textValue(item.guid)
     // Feed HTML is archived as untrusted content; the reader sanitizes it before rendering.
     const rawHtml = textValue(content) ?? textValue(item.description)
-    const html = rawHtml ? cleanOpenAiContent(rawHtml, url) : null
+    const html = rawHtml ? cleanFeedArticleHtml(rawHtml, url) : null
     const contentHtml = html && Buffer.byteLength(html, 'utf8') <= 512 * 1024 ? html : null
     return [
       {
@@ -230,7 +231,7 @@ export function parseSignalFeed(
         summary: options.skillMetadata
           ? skillSummary(item.description)
           : ((
-              plainText(cleanOpenAiContent(textValue(item.description) ?? '', url)) ??
+              plainText(cleanFeedArticleHtml(textValue(item.description) ?? '', url)) ??
               plainText(html)
             )?.slice(0, 500) ?? null),
         contentHtml,
