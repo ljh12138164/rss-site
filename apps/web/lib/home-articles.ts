@@ -1,6 +1,3 @@
-import type { HotItem } from './hot-feed'
-import type { OutboundReturnPath } from './outbound-link'
-import { getPublicSupabaseClient } from './supabase'
 import {
   aiSources,
   financeSources,
@@ -11,7 +8,10 @@ import {
   socialSources,
   technologyArticleSources,
   technologySources
-} from './technology-sources'
+} from '@rss-site/signals'
+import type { HotItem } from './hot-feed'
+import type { OutboundReturnPath } from './outbound-link'
+import { getPublicSupabaseClient } from './supabase'
 
 const sections = [
   { path: '/ai', sources: aiSources },

@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@rss-site/signals": "workspace:*",
     "@supabase/supabase-js": "2.115.0",
     "@tanstack/react-query": "5.102.8",
     "clsx": "2.1.1",

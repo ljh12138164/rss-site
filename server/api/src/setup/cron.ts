@@ -1,56 +1,11 @@
-import { getSignalSource, type SignalSection, type SignalSourceId } from '../technology/sources.js'
+import {
+  getSignalSource,
+  SIGNAL_CRON_JOBS,
+  type SignalSection,
+  type SignalSourceId
+} from '../technology/sources.js'
 
-export const SIGNAL_CRON_JOBS: ReadonlyArray<{
-  source: SignalSourceId
-  name: string
-  schedule: string
-}> = [
-  { source: 'openai', name: 'signal-ingest-openai', schedule: '0 */2 * * *' },
-  { source: 'anthropic', name: 'signal-ingest-anthropic', schedule: '5 */2 * * *' },
-  { source: 'deepseek', name: 'signal-ingest-deepseek', schedule: '10 */2 * * *' },
-  { source: 'glm', name: 'signal-ingest-glm', schedule: '15 */2 * * *' },
-  { source: 'google-ai', name: 'signal-ingest-google-ai', schedule: '20 */2 * * *' },
-  { source: 'qwen', name: 'signal-ingest-qwen', schedule: '25 */2 * * *' },
-  { source: 'chatgpt', name: 'signal-ingest-chatgpt', schedule: '45 */2 * * *' },
-  { source: 'github', name: 'signal-ingest-github', schedule: '30 0,6,12,18 * * *' },
-  { source: 'hacker-news', name: 'signal-ingest-hacker-news', schedule: '35 0,6,12,18 * * *' },
-  { source: 'juejin', name: 'signal-ingest-juejin', schedule: '40 0,6,12,18 * * *' },
-  { source: 'ithome', name: 'signal-ingest-ithome', schedule: '50 0,6,12,18 * * *' },
-  { source: '36kr', name: 'signal-ingest-36kr', schedule: '55 0,6,12,18 * * *' },
-  { source: 'xinhua', name: 'signal-ingest-xinhua', schedule: '0 1,7,13,19 * * *' },
-  { source: 'cctv', name: 'signal-ingest-cctv', schedule: '5 1,7,13,19 * * *' },
-  { source: 'chinanews', name: 'signal-ingest-chinanews', schedule: '10 1,7,13,19 * * *' },
-  { source: 'thepaper', name: 'signal-ingest-thepaper', schedule: '15 1,7,13,19 * * *' },
-  { source: 'jiemian', name: 'signal-ingest-jiemian', schedule: '20 1,7,13,19 * * *' },
-  { source: 'baidu', name: 'signal-ingest-baidu', schedule: '25 1,7,13,19 * * *' },
-  { source: 'bilibili', name: 'signal-ingest-bilibili', schedule: '30 1,7,13,19 * * *' },
-  { source: 'zhihu', name: 'signal-ingest-zhihu', schedule: '35 1,7,13,19 * * *' },
-  { source: 'coolapk', name: 'signal-ingest-coolapk', schedule: '40 1,7,13,19 * * *' },
-  { source: 'hupu', name: 'signal-ingest-hupu', schedule: '45 1,7,13,19 * * *' },
-  { source: 'sspai', name: 'signal-ingest-sspai', schedule: '50 1,7,13,19 * * *' },
-  { source: 'toutiao', name: 'signal-ingest-toutiao', schedule: '55 1,7,13,19 * * *' },
-  { source: 'wallstreetcn', name: 'signal-ingest-wallstreetcn', schedule: '30 2,8,14,20 * * *' },
-  { source: 'cls', name: 'signal-ingest-cls', schedule: '35 2,8,14,20 * * *' },
-  { source: 'jin10', name: 'signal-ingest-jin10', schedule: '40 2,8,14,20 * * *' },
-  { source: 'yicai', name: 'signal-ingest-yicai', schedule: '50 2,8,14,20 * * *' },
-  { source: 'stcn', name: 'signal-ingest-stcn', schedule: '55 2,8,14,20 * * *' },
-  { source: '3dmgame', name: 'signal-ingest-3dmgame', schedule: '0 3,9,15,21 * * *' },
-  { source: 'gcores', name: 'signal-ingest-gcores', schedule: '5 3,9,15,21 * * *' },
-  { source: 'gamersky', name: 'signal-ingest-gamersky', schedule: '10 3,9,15,21 * * *' },
-  { source: 'ali213', name: 'signal-ingest-ali213', schedule: '15 3,9,15,21 * * *' },
-  { source: 'indienova', name: 'signal-ingest-indienova', schedule: '20 3,9,15,21 * * *' },
-  { source: 'github-blog', name: 'signal-ingest-github-blog', schedule: '30 3,9,15,21 * * *' },
-  {
-    source: 'skills-all-time',
-    name: 'signal-ingest-skills-all-time',
-    schedule: '40 3,9,15,21 * * *'
-  },
-  {
-    source: 'skills-trending',
-    name: 'signal-ingest-skills-trending',
-    schedule: '50 3,9,15,21 * * *'
-  }
-]
+export { SIGNAL_CRON_JOBS }
 
 export const LEGACY_SIGNAL_CRON_JOB_NAMES = [
   'github-hot-feed-every-five-hours',

@@ -1,3 +1,5 @@
+import { signalSections } from '@rss-site/signals'
+
 export function resolveOutboundDestination(url: string) {
   try {
     const destination = new URL(url)
@@ -12,24 +14,10 @@ export function resolveOutboundDestination(url: string) {
   }
 }
 
-export type OutboundReturnPath =
-  | '/'
-  | '/technology'
-  | '/news'
-  | '/ai'
-  | '/social'
-  | '/finance'
-  | '/games'
-  | '/skills'
+export type OutboundReturnPath = '/' | (typeof signalSections)[number]['path']
+
+const allowedReturnPaths = new Set<string>(['/', ...signalSections.map((s) => s.path)])
 
 export function resolveOutboundReturnPath(value: string): OutboundReturnPath {
-  return value === '/' ||
-    value === '/news' ||
-    value === '/ai' ||
-    value === '/social' ||
-    value === '/finance' ||
-    value === '/games' ||
-    value === '/skills'
-    ? value
-    : '/technology'
+  return allowedReturnPaths.has(value) ? (value as OutboundReturnPath) : '/technology'
 }

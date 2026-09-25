@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-09-25 统一信号源注册中心 (Unify Signal Source Registry)
+
+- 当前分支 `feat/unify-signal-registry` 从最新 `origin/master` 创建；已将分散在前后端 8 个浅模块中的 37 个信号源及 7 大专区元数据收拢为单一深模块 `@rss-site/signals`。
+- 全字段统一并置：基础标识、前端展示、采集配置、调度任务；提供紧凑查询接口并消除跨端配置漂移。
+- 保证 MCP 接口完全兼容，11 项 MCP 回归测试全部通过。
+- 全仓单测 260/260 项通过，3 个工作区子包类型检查通过，Web 端 57/57 静态页面生产构建成功。
+- 开发记录：`docs/development/unify-signal-registry.md`。
+- 下一步：推送 `feat/unify-signal-registry` 分支，由用户创建并合并指向 `master` 的 PR；随后推进架构优化第二项（收拢信号采集管线）。
+
 ## 2026-09-15 Cloudflare Worker MCP 新闻服务与 Web 接入页面
 
 - 当前分支 `feat/fix-home-loading-boundary`；在 Cloudflare Worker API (`server/api`) 中实现 MCP (Model Context Protocol) 规范接口。

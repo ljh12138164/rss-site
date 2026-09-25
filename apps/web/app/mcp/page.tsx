@@ -1,7 +1,3 @@
-import { Bot, Cpu, Sparkles, Terminal, Wrench } from 'lucide-react'
-import { McpClientConfig } from '../../components/mcp-client-config'
-import { SiteShell } from '../../components/site-shell'
-import { createPageMetadata } from '../../lib/seo'
 import {
   aiSources,
   financeSources,
@@ -10,7 +6,11 @@ import {
   skillSources,
   socialSources,
   technologySources
-} from '../../lib/technology-sources'
+} from '@rss-site/signals'
+import { Bot, Cpu, Sparkles, Terminal, Wrench } from 'lucide-react'
+import { McpClientConfig } from '../../components/mcp-client-config'
+import { SiteShell } from '../../components/site-shell'
+import { createPageMetadata } from '../../lib/seo'
 
 export const metadata = createPageMetadata({
   title: '接入 MCP 服务',

@@ -1,6 +1,3 @@
-import { createArticlePath } from './article-route'
-import { siteUrl } from './site-url'
-import { getPublicSupabaseClient } from './supabase'
 import {
   aiSources,
   financeSources,
@@ -8,7 +5,10 @@ import {
   newsSources,
   socialSources,
   technologyArticleSources
-} from './technology-sources'
+} from '@rss-site/signals'
+import { createArticlePath } from './article-route'
+import { siteUrl } from './site-url'
+import { getPublicSupabaseClient } from './supabase'
 
 export const SITEMAP_CHUNK_SIZE = 5000
 export const SITEMAP_CACHE_CONTROL =

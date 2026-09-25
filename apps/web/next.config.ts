@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     staticGenerationRetryCount: 3
   },
   serverExternalPackages: ['mtranserver'],
+  transpilePackages: ['@rss-site/signals'],
   outputFileTracingRoot: path.join(process.cwd(), '../..'),
   async rewrites() {
     return [
