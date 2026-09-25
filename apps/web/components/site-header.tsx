@@ -1,8 +1,10 @@
 'use client'
 
+import { Bookmark } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useReadingList } from '../lib/reading-list'
 import { cn } from '../lib/utils'
 import { ArticleSearch } from './article-search'
 import { ThemeToggle } from './theme-toggle'
@@ -23,6 +25,7 @@ const sections = [
 
 export function SiteHeader() {
   const pathname = usePathname()
+  const { savedCount } = useReadingList()
   const timeline = pathname?.startsWith('/ai/events')
   const githubRanking = pathname?.startsWith('/github')
   const skillRanking = pathname?.startsWith('/skills')
@@ -45,6 +48,19 @@ export function SiteHeader() {
           今日热点
         </Link>
         <div className="flex shrink-0 items-center gap-1.5">
+          <Link
+            href="/reading-list"
+            className="relative inline-flex size-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+            aria-label={savedCount > 0 ? `稍后读与足迹 (${savedCount})` : '稍后读与足迹'}
+            title="稍后读与足迹"
+          >
+            <Bookmark className="size-4" aria-hidden="true" />
+            {savedCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground leading-none">
+                {savedCount > 99 ? '99+' : savedCount}
+              </span>
+            )}
+          </Link>
           <ArticleSearch />
           <ThemeToggle />
         </div>

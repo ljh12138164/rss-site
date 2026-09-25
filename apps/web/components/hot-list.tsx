@@ -4,6 +4,7 @@ import { createArticlePath } from '../lib/article-route'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource } from '../lib/technology-sources'
+import { ArticleBookmarkButton } from './article-bookmark-button'
 import { GitHubRepositoryRow } from './github-repository-row'
 import { SourceIcon } from './source-icon'
 
@@ -90,16 +91,29 @@ export function HotList({
                   ) : null}
                 </span>
               </Link>
-              {item.platform && (
-                <Link
-                  href={`${item.section ?? returnTo}/${item.platform.id}`}
-                  aria-label={`浏览${item.platform.name}`}
-                  className="mt-2 inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full bg-muted/40 px-2.5 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary sm:min-h-7"
-                >
-                  <SourceIcon className="size-3.5 shrink-0" source={item.platform} />
-                  <span className="truncate">{item.platform.shortName}</span>
-                </Link>
-              )}
+              <div className="mt-2.5 flex items-center justify-between gap-2">
+                {item.platform ? (
+                  <Link
+                    href={`${item.section ?? returnTo}/${item.platform.id}`}
+                    aria-label={`浏览${item.platform.name}`}
+                    className="inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full bg-muted/40 px-2.5 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary sm:min-h-7"
+                  >
+                    <SourceIcon className="size-3.5 shrink-0" source={item.platform} />
+                    <span className="truncate">{item.platform.shortName}</span>
+                  </Link>
+                ) : (
+                  <span />
+                )}
+                <ArticleBookmarkButton
+                  id={item.articleId ?? item.sourceKey}
+                  title={item.title}
+                  url={internalHref ?? item.url}
+                  source={sourceId}
+                  sourceName={item.platform?.name}
+                  section={returnTo.replace(/^\//, '')}
+                  variant="icon"
+                />
+              </div>
             </article>
           </li>
         )

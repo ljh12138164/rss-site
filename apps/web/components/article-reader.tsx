@@ -15,6 +15,8 @@ import {
 import { getNewsArticle, type SignalArticle } from '../lib/signal-article'
 import { optionalCanonical } from '../lib/site-url'
 import type { SignalSource } from '../lib/technology-sources'
+import { ArticleBookmarkButton } from './article-bookmark-button'
+import { ArticleHistoryTracker } from './article-history-tracker'
 import { ArticleTranslation } from './article-translation'
 import { SiteShell } from './site-shell'
 import { SourceIcon } from './source-icon'
@@ -100,6 +102,14 @@ export function ArticleReader({
 
   return (
     <SiteShell mainClassName="py-6 sm:py-10">
+      <ArticleHistoryTracker
+        id={article.id}
+        title={article.title}
+        url={article.url}
+        source={source.id}
+        sourceName={source.name}
+        section={section.id}
+      />
       <article className="mx-auto w-full max-w-[46rem] min-w-0">
         <nav
           aria-label="面包屑"
@@ -157,6 +167,14 @@ export function ArticleReader({
                   aria-hidden="true"
                 />
               </a>
+              <ArticleBookmarkButton
+                id={article.id}
+                title={article.title}
+                url={article.url}
+                source={source.id}
+                sourceName={source.name}
+                section={section.id}
+              />
             </div>
           }
         />
@@ -164,16 +182,26 @@ export function ArticleReader({
           <p className="max-w-md text-sm leading-6 text-muted-foreground">
             内容来自{source.name}，可能为节选。完整内容与后续更新以原文为准。
           </p>
-          <a
-            href={outbound}
-            className="group inline-flex min-h-11 items-center gap-2 font-medium text-primary hover:underline"
-          >
-            阅读原文
-            <ArrowUpRight
-              aria-hidden="true"
-              className="size-4 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          <div className="flex flex-wrap items-center gap-3">
+            <ArticleBookmarkButton
+              id={article.id}
+              title={article.title}
+              url={article.url}
+              source={source.id}
+              sourceName={source.name}
+              section={section.id}
             />
-          </a>
+            <a
+              href={outbound}
+              className="group inline-flex min-h-11 items-center gap-2 font-medium text-primary hover:underline"
+            >
+              阅读原文
+              <ArrowUpRight
+                aria-hidden="true"
+                className="size-4 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </a>
+          </div>
         </footer>
         {structuredJson && <script type="application/ld+json">{structuredJson}</script>}
       </article>

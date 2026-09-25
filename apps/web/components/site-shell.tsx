@@ -21,6 +21,12 @@ export function SiteShell({
         <nav aria-label="站点信息" className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <Link
             className="flex min-h-11 items-center transition-colors hover:text-foreground"
+            href="/reading-list"
+          >
+            稍后读与足迹
+          </Link>
+          <Link
+            className="flex min-h-11 items-center transition-colors hover:text-foreground"
             href="/mcp"
           >
             MCP 服务

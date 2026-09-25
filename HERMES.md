@@ -1,5 +1,17 @@
 # HERMES
 
+## 2026-09-25 双语段落对照阅读与本地稍后读/历史足迹 (P1 实施)
+
+- 当前分支 `feat/bilingual-and-reading-list` 基于 `feat/ui-ux-pro-max-polish` 创建。
+- 目标：落实路线图 P1（双语段落穿插对照阅读模式、零后端负担的「稍后读」与「历史足迹」）。
+- 交付内容：
+  1. `ArticleTranslation` 与 `EventTranslation` 升级为「原文 / 双语对照 / 仅译文」三态切换，正文块级段落精准穿插排版。
+  2. 原生 `localStorage` 零后端负担存储与响应式 Hook（书签收藏、LRU 100 历史记录）。
+  3. 新增 `/reading-list` 专属管理页面及双标签视图。
+  4. 全局导航 `SiteHeader` 与详情页 `ArticleReader` 联动收藏状态与已读标记。
+- 路线图与开发记录：`docs/roadmaps/bilingual-and-reading-list.md` 与 `docs/development/bilingual-and-reading-list.md`。
+- 下一步：实现客户端存储模块、升级双语段落组件、新增阅读列表页面并补充完整测试。
+
 ## 2026-09-25 UI/UX Pro Max 视觉重构与体验优化 (Modern Swiss-Editorial UI Polish)
 
 - 当前分支 `feat/ui-ux-pro-max-polish` 从 `origin/master` 创建；采用 `ui-ux-pro-max-skill` 设计智能对全站核心 UI 进行现代极简报刊风（Modern Swiss-Editorial）重构。
