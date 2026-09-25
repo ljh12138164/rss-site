@@ -1,10 +1,11 @@
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
+import { getSignalSource, isSignalSourceId } from '@rss-site/signals'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { after } from 'next/server'
 import { validEventSlug } from '../../../lib/ai-events'
+import { CACHE_HEADERS } from '../../../lib/cache'
 import { publishContent } from '../../../lib/content-publication'
-import { parseArticleFilter } from '../../../lib/home-articles'
-import { isSkillSourceId } from '../../../lib/technology-sources'
+import { resolveRevalidation } from '../../../lib/revalidate-paths'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -55,40 +56,22 @@ export async function POST(request: Request) {
     if (input.section !== undefined || input.source !== undefined) {
       if (!input || typeof input.section !== 'string' || typeof input.source !== 'string')
         throw new Error('Invalid scope')
-      if (input.section === 'skills' && isSkillSourceId(input.source)) {
-        section = '/skills'
-        source = input.source
-      } else {
-        const filter = parseArticleFilter(`/${input.section}`, input.source)
-        if (!filter.section || !filter.source) throw new Error('Invalid scope')
-        section = filter.section
-        source = filter.source
-      }
+      if (!isSignalSourceId(input.source)) throw new Error('Invalid scope')
+      const signalSource = getSignalSource(input.source)
+      if (signalSource.section !== input.section) throw new Error('Invalid scope')
+      section = `/${signalSource.section}`
+      source = signalSource.id
     } else if (!eventSlugs.length) throw new Error('Invalid scope')
   } catch {
     return Response.json({ error: 'Invalid section or source' }, { status: 400 })
   }
 
   try {
-    if (section === '/ai' || eventSlugs.length) revalidateTag('event-status', { expire: 0 })
-    if (section) revalidateTag(`news-status:${source}`, { expire: 0 })
-    const paths = [
-      '/',
-      '/sitemap.xml',
-      ...(source === 'github'
-        ? ['/github']
-        : section === '/skills'
-          ? ['/skills']
-          : section
-            ? [section, `${section}/${source}`]
-            : []),
-      ...eventSlugs.map((slug) => `/ai/events/${slug}`)
-    ]
-    if (section === '/ai' || eventSlugs.length) paths.push('/ai/events')
+    const { paths, dynamicPages, tags } = resolveRevalidation({ section, source, eventSlugs })
+    for (const tag of tags) revalidateTag(tag, { expire: 0 })
     for (const path of paths) revalidatePath(path)
-    if (section === '/ai' || eventSlugs.length) revalidatePath('/ai/events/[slug]', 'page')
-    if (section && source !== 'github' && section !== '/skills')
-      revalidatePath(`${section}/${source}/[slug]`, 'page')
+    for (const dynamicPath of dynamicPages) revalidatePath(dynamicPath, 'page')
+
     after(async () => {
       try {
         await publishContent(paths, publicationId)
@@ -100,9 +83,9 @@ export async function POST(request: Request) {
     })
     return Response.json(
       { revalidated: true, paths, publicationId },
-      { headers: { 'Cache-Control': 'no-store' } }
+      { headers: CACHE_HEADERS.NO_STORE }
     )
   } catch {
-    return Response.json({ error: 'Revalidation failed' }, { status: 500 })
+    return Response.json({ error: 'Failed to revalidate' }, { status: 500 })
   }
 }

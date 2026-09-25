@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-09-25 统一全站缓存与边缘失效 (Unify Cache Policy & Edge Revalidation)
+
+- 当前分支 `feat/unify-cache-policy` 基于 `feat/unify-signal-readers` 创建；已将全站散落的 ISR revalidate 硬编码、HTTP 缓存头与边缘失效路径收拢至统一的配置与解析模块。
+- 引入 `apps/web/lib/cache.ts` 集中管理全站 TTL；抽取 `apps/web/lib/revalidate-paths.ts` 纯函数统一失效路径推导。
+- 在 `revalidate/route.ts` 中接入 `@rss-site/signals` 校验来源合法性，消除多重特例分支判断。
+- 全仓单测 270/270 项全部通过（新增 4 项路径解析纯函数单测），类型检查与 Web 57/57 静态生产构建成功。
+- 开发记录：`docs/development/unify-cache-policy.md`。
+- 下一步：推送 `feat/unify-cache-policy`，由用户创建并合并 PR；至此四项架构深化优化全部圆满完成。
+
 ## 2026-09-25 统一热点与文章读取器 (Unify Hot Items & Article Readers)
 
 - 当前分支 `feat/unify-signal-readers` 基于 `feat/unify-ingestion-pipeline` 创建；已将前端 `apps/web/lib/` 中重复的专区 Feed 查询与数据转换收拢为泛型读取器。
