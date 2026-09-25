@@ -21,6 +21,7 @@ const sections = [
   { path: '/finance', sources: financeSources },
   { path: '/games', sources: gameSources }
 ] as const
+
 const sources = sections.flatMap(({ path, sources }) => sources.map((source) => ({ source, path })))
 const PAGE_SIZE = 30
 

@@ -1,5 +1,15 @@
 # HERMES
 
+## 2026-09-25 统一热点与文章读取器 (Unify Hot Items & Article Readers)
+
+- 当前分支 `feat/unify-signal-readers` 基于 `feat/unify-ingestion-pipeline` 创建；已将前端 `apps/web/lib/` 中重复的专区 Feed 查询与数据转换收拢为泛型读取器。
+- 引入泛型 `getSectionFeeds` 与 `getSourceFeed`，消除 `hot-feed.ts` 中 150 余行机械重复的 7 组专区模板代码。
+- 在 `signal-article.ts` 中通用化为 `getSignalArticle`，并通过 `@rss-site/signals` 动态派生分区。
+- 保证全部既有命名函数与类型 100% 兼容。
+- 全仓单测 266/266 项全部通过，3 个工作区子包类型检查通过，Web 57/57 静态页面生产构建成功。
+- 开发记录：`docs/development/unify-signal-readers.md`。
+- 下一步：推送 `feat/unify-signal-readers`，由用户创建并合并 PR；随后继续推进 Candidate 4（统一全站缓存与边缘失效）。
+
 ## 2026-09-25 收拢信号采集管线 (Signal Ingestion Pipeline)
 
 - 当前分支 `feat/unify-ingestion-pipeline` 基于 `feat/unify-signal-registry` 创建；已将位于 `server/api/src/technology/` 下的历史浅模块重组为高内聚的深管道模块 `server/api/src/ingestion/`。
