@@ -16,16 +16,21 @@ export function SourceNavigation({
   sources: readonly SignalSource[]
 }) {
   const linkClassName =
-    'flex min-h-11 items-center gap-2 whitespace-nowrap border-b-2 border-transparent px-0.5 text-[0.8125rem] text-muted-foreground transition-colors hover:text-foreground'
+    'flex min-h-11 items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium transition-all duration-150 focus-visible:outline-2 focus-visible:outline-primary'
 
   return (
-    <nav aria-label={ariaLabel} className="min-w-0 border-b border-border">
-      <div className="-mx-5 overflow-x-auto px-5 sm:-mx-7 sm:px-7">
-        <ul className="flex min-w-max gap-6 sm:min-w-0 sm:flex-wrap sm:gap-x-7">
+    <nav aria-label={ariaLabel} className="min-w-0 border-b border-border/80 pb-3">
+      <div className="relative -mx-5 overflow-x-auto px-5 scroll-fade-mask sm:-mx-7 sm:px-7">
+        <ul className="flex min-w-max items-center gap-2 py-0.5 sm:min-w-0 sm:flex-wrap sm:gap-2">
           <li>
             <Link
               aria-current={active ? undefined : 'page'}
-              className={cn(linkClassName, !active && 'border-primary font-medium text-primary')}
+              className={cn(
+                linkClassName,
+                !active
+                  ? 'border-primary bg-primary/10 font-semibold text-primary shadow-2xs'
+                  : 'border-border/60 bg-muted/30 text-muted-foreground hover:border-border hover:bg-muted/80 hover:text-foreground'
+              )}
               href={basePath}
             >
               全部
@@ -37,11 +42,13 @@ export function SourceNavigation({
                 aria-current={active === source.id ? 'page' : undefined}
                 className={cn(
                   linkClassName,
-                  active === source.id && 'border-primary font-medium text-primary'
+                  active === source.id
+                    ? 'border-primary bg-primary/10 font-semibold text-primary shadow-2xs'
+                    : 'border-border/60 bg-muted/30 text-muted-foreground hover:border-border hover:bg-muted/80 hover:text-foreground'
                 )}
                 href={`${basePath}/${source.id}`}
               >
-                <SourceIcon source={source} />
+                <SourceIcon className="size-3.5 shrink-0" source={source} />
                 {source.shortName}
               </Link>
             </li>

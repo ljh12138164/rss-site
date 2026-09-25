@@ -17,7 +17,7 @@ export function GitHubRepositoryRow({
   const href = `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(returnTo)}`
 
   return (
-    <li className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 border-b border-border px-2 py-5 transition-colors last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6">
+    <li className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-md border-b border-border/80 px-2.5 py-5 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6">
       <span aria-hidden="true" className="rank-numeral pt-1" data-rank={item.position}>
         {String(item.position).padStart(2, '0')}
       </span>
@@ -41,7 +41,7 @@ export function GitHubRepositoryRow({
             <span className="min-w-0 wrap-anywhere">{repository.name}</span>
             <ArrowUpRight
               aria-hidden="true"
-              className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
+              className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
             />
           </span>
           {repository.description ? (

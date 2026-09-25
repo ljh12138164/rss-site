@@ -28,16 +28,23 @@ export function SiteHeader() {
   const skillRanking = pathname?.startsWith('/skills')
 
   return (
-    <header className="sticky top-0 z-20 bg-background/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-20 border-b border-border/40 bg-background/90 backdrop-blur-md transition-colors">
       <div className="flex items-center justify-between gap-x-6 py-2.5">
         <Link
           href="/"
-          className="headline-display flex min-h-11 shrink-0 items-center gap-2.5 text-[1.375rem] leading-none text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+          className="headline-display group flex min-h-11 shrink-0 items-center gap-2.5 text-[1.375rem] leading-none text-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
         >
-          <Image src="/icon.svg" alt="" width={26} height={26} className="shrink-0" unoptimized />
+          <Image
+            src="/icon.svg"
+            alt=""
+            width={26}
+            height={26}
+            className="shrink-0 transition-transform duration-200 group-hover:scale-105"
+            unoptimized
+          />
           今日热点
         </Link>
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1.5">
           <ArticleSearch />
           <ThemeToggle />
         </div>

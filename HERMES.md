@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-09-25 UI/UX Pro Max 视觉重构与体验优化 (Modern Swiss-Editorial UI Polish)
+
+- 当前分支 `feat/ui-ux-pro-max-polish` 从 `origin/master` 创建；采用 `ui-ux-pro-max-skill` 设计智能对全站核心 UI 进行现代极简报刊风（Modern Swiss-Editorial）重构。
+- 覆盖交付表面：全局框架（SiteHeader、SiteShell）、首页（HomeDigest）、列表榜单（HotList、SectionLayout、SourceNavigation）、文章阅读器（ArticleReader）及全局主题/微交互（globals.css）。
+- 开发记录：`docs/development/ui-ux-pro-max-polish.md`。
+- 下一步：逐一实施样式与组件升级，并通过完整测试与类型检查验证。
+
 ## 2026-09-25 统一全站缓存与边缘失效 (Unify Cache Policy & Edge Revalidation)
 
 - 当前分支 `feat/unify-cache-policy` 基于 `feat/unify-signal-readers` 创建；已将全站散落的 ISR revalidate 硬编码、HTTP 缓存头与边缘失效路径收拢至统一的配置与解析模块。

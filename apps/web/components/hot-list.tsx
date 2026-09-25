@@ -49,7 +49,7 @@ export function HotList({
 
         return (
           <li
-            className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 border-b border-border px-2 py-5 transition-colors last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6"
+            className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-md border-b border-border/80 px-2.5 py-5 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6"
             key={`${sourceId ?? ''}:${item.sourceKey}`}
           >
             <span aria-hidden="true" className="rank-numeral pt-1" data-rank={item.position}>
@@ -63,12 +63,12 @@ export function HotList({
                     {internalHref ? (
                       <ArrowRight
                         aria-hidden="true"
-                        className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary"
+                        className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-1 group-hover:text-primary"
                       />
                     ) : (
                       <ArrowUpRight
                         aria-hidden="true"
-                        className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
+                        className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
                       />
                     )}
                   </span>
@@ -94,9 +94,9 @@ export function HotList({
                 <Link
                   href={`${item.section ?? returnTo}/${item.platform.id}`}
                   aria-label={`浏览${item.platform.name}`}
-                  className="mt-1 inline-flex min-h-11 max-w-full items-center gap-2 font-mono text-xs text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:min-h-8"
+                  className="mt-2 inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full bg-muted/40 px-2.5 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary sm:min-h-7"
                 >
-                  <SourceIcon className="size-4" source={item.platform} />
+                  <SourceIcon className="size-3.5 shrink-0" source={item.platform} />
                   <span className="truncate">{item.platform.shortName}</span>
                 </Link>
               )}
