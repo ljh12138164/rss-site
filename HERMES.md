@@ -1,5 +1,15 @@
 # HERMES
 
+## 2026-09-25 收拢信号采集管线 (Signal Ingestion Pipeline)
+
+- 当前分支 `feat/unify-ingestion-pipeline` 基于 `feat/unify-signal-registry` 创建；已将位于 `server/api/src/technology/` 下的历史浅模块重组为高内聚的深管道模块 `server/api/src/ingestion/`。
+- 将网络截断防护、Feed 泛化解析、快照比对、事务入库和边缘失效广播收拢至 `runIngestionPipeline` 高阶协调器。
+- `server/api/src/index.ts` 胶水代码由 50 余行大幅削减，直接接入深模块。
+- 保持向后兼容导出与 MCP 协议接口不变。
+- 全仓单测 265/265 项全部通过（新增 5 项 pipeline 协调器与流式截断防护单测），类型检查与 Web 57/57 静态生产构建通过。
+- 开发记录：`docs/development/unify-ingestion-pipeline.md`。
+- 下一步：推送 `feat/unify-ingestion-pipeline`，由用户创建并合并 PR；随后继续推进 Candidate 3（统一热点与文章读取器）。
+
 ## 2026-09-25 统一信号源注册中心 (Unify Signal Source Registry)
 
 - 当前分支 `feat/unify-signal-registry` 从最新 `origin/master` 创建；已将分散在前后端 8 个浅模块中的 37 个信号源及 7 大专区元数据收拢为单一深模块 `@rss-site/signals`。

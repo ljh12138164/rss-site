@@ -3,7 +3,7 @@ import {
   SIGNAL_CRON_JOBS,
   type SignalSection,
   type SignalSourceId
-} from '../technology/sources.js'
+} from '@rss-site/signals'
 
 export { SIGNAL_CRON_JOBS }
 

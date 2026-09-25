@@ -1,7 +1,7 @@
+import { signalSources } from '@rss-site/signals'
 import { desc, eq, sql } from 'drizzle-orm'
 import type { Database } from '../db/client.js'
 import { signalArticles } from '../db/schema.js'
-import { signalSources } from '../technology/sources.js'
 
 export interface McpNewsItem {
   id: string

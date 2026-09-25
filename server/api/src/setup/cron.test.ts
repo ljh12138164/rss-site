@@ -1,5 +1,5 @@
+import { getSignalSource, signalSources } from '@rss-site/signals'
 import { describe, expect, it } from 'vitest'
-import { getSignalSource, signalSources } from '../technology/sources.js'
 import {
   type CronRepository,
   LEGACY_SIGNAL_CRON_JOB_NAMES,
