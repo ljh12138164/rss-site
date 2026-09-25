@@ -42,6 +42,7 @@ export function renderArticleContent(html: string, originalUrl: string, section:
     ],
     allowedAttributes: {
       a: ['href', 'rel'],
+      div: ['data-cctv-video', 'data-cctv-type', 'class'],
       th: ['colspan', 'rowspan', 'scope'],
       td: ['colspan', 'rowspan'],
       ol: ['start']

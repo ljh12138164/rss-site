@@ -8,6 +8,7 @@ import { pairBilingualBlocks } from '../lib/article-bilingual'
 import type { AppType } from '../lib/hono-app'
 import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
+import { ArticleHtmlBody } from './article-html-body'
 
 const api = hc<AppType>('/')
 
@@ -174,17 +175,15 @@ export function ArticleTranslation({
               {pairBilingualBlocks(contentHtml, translation.contentHtml ?? '').map((pair) => (
                 <div key={pair.id} className="bilingual-pair group">
                   {pair.original && (
-                    <div
+                    <ArticleHtmlBody
+                      html={pair.original}
                       className="article-content text-foreground font-serif leading-relaxed"
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: both original and translated HTML pass the server allowlist.
-                      dangerouslySetInnerHTML={{ __html: pair.original }}
                     />
                   )}
                   {pair.translated && (
-                    <div
+                    <ArticleHtmlBody
+                      html={pair.translated}
                       className="article-content mt-2.5 rounded-r-md border-l-2 border-primary/40 bg-accent/20 py-2 pl-3.5 pr-2 font-sans text-[0.95em] leading-relaxed text-muted-foreground transition-colors group-hover:border-primary group-hover:text-foreground"
-                      // biome-ignore lint/security/noDangerouslySetInnerHtml: both original and translated HTML pass the server allowlist.
-                      dangerouslySetInnerHTML={{ __html: pair.translated }}
                     />
                   )}
                 </div>
@@ -216,11 +215,7 @@ export function ArticleTranslation({
           )
         ) : isChinese && translation ? (
           translation.contentHtml ? (
-            <div
-              className="article-content"
-              // biome-ignore lint/security/noDangerouslySetInnerHtml: both original and translated HTML pass the server allowlist.
-              dangerouslySetInnerHTML={{ __html: translation.contentHtml }}
-            />
+            <ArticleHtmlBody html={translation.contentHtml} />
           ) : translation.summary ? (
             <div className="article-content">
               <p className="mb-5 text-sm text-muted-foreground">文章摘要</p>
@@ -232,8 +227,7 @@ export function ArticleTranslation({
             </p>
           )
         ) : hasBody && contentHtml ? (
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: both original and translated HTML pass the server allowlist.
-          <div className="article-content" dangerouslySetInnerHTML={{ __html: contentHtml }} />
+          <ArticleHtmlBody html={contentHtml} />
         ) : summary ? (
           <div className="article-content">
             <p className="mb-5 text-sm text-muted-foreground">文章摘要</p>

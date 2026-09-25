@@ -1,7 +1,20 @@
-// Strips legacy CMS template tags (e.g. CCTV / Imperial CMS video player placeholders).
+// Transforms CCTV / Imperial CMS video codes into playable mount elements.
+export function transformCctvVideoTags(text: string): string {
+  if (!text?.includes('[!--begin:htmlVideoCode--]')) return text
+  return text.replace(
+    /(?:<p\b[^>]*>\s*)?\[!--begin:htmlVideoCode--\]([a-f0-9]{32})(?:,(\d+))?.*?\[!--end:htmlVideoCode--\](?:\s*<\/p>)?/gi,
+    (_match, pid, type) => {
+      const videoType = type ?? '0'
+      return `<div data-cctv-video="${pid}" data-cctv-type="${videoType}" class="cctv-video-mount"></div>`
+    }
+  )
+}
+
+// Strips legacy CMS template tags while preserving playable video mounts.
 export function cleanCmsTemplateTags(text: string): string {
   if (!text?.includes('[!--')) return text
-  return text
+  const withVideos = transformCctvVideoTags(text)
+  return withVideos
     .replace(/\[!--begin:\w+--\][\s\S]*?\[!--end:\w+--\]/gi, '')
     .replace(/\[!--[\s\S]*?--\]/gi, '')
 }
