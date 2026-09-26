@@ -166,6 +166,19 @@ export const technologySources = [
     isArticle: true,
     cronSchedule: '30 3,9,15,21 * * *',
     cronJobName: 'signal-ingest-github-blog'
+  },
+  {
+    id: 'geekpark',
+    name: '极客公园',
+    code: 'GP',
+    shortName: '极客公园',
+    description: '前沿科技商业与大模型特稿',
+    section: 'technology',
+    itemLimit: 30,
+    feedUrl: 'http://www.geekpark.net/rss',
+    isArticle: true,
+    cronSchedule: '35 3,9,15,21 * * *',
+    cronJobName: 'signal-ingest-geekpark'
   }
 ] as const
 
@@ -377,6 +390,32 @@ export const aiSources = [
     isArticle: true,
     cronSchedule: '25 */2 * * *',
     cronJobName: 'signal-ingest-qwen'
+  },
+  {
+    id: 'lilian-weng',
+    name: "Lil'Log",
+    code: 'LW',
+    shortName: "Lil'Log",
+    description: '前 OpenAI 安全主管技术深度长文',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://lilianweng.github.io/index.xml',
+    isArticle: true,
+    cronSchedule: '45 3,9,15,21 * * *',
+    cronJobName: 'signal-ingest-lilian-weng'
+  },
+  {
+    id: 'simon-willison',
+    name: 'Simon Willison',
+    code: 'SW',
+    shortName: 'Simon W',
+    description: 'LLM 与 AI 开发者前沿专栏',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://simonwillison.net/atom/entries/',
+    isArticle: true,
+    cronSchedule: '55 3,9,15,21 * * *',
+    cronJobName: 'signal-ingest-simon-willison'
   }
 ] as const
 
@@ -597,6 +636,19 @@ export const gameSources = [
     isArticle: true,
     cronSchedule: '20 3,9,15,21 * * *',
     cronJobName: 'signal-ingest-indienova'
+  },
+  {
+    id: 'chuapp',
+    name: '触乐网',
+    code: 'CA',
+    shortName: '触乐',
+    description: '严肃游戏人文与产业深度特稿',
+    section: 'games',
+    itemLimit: 30,
+    feedUrl: 'http://www.chuapp.com/feed',
+    isArticle: true,
+    cronSchedule: '25 3,9,15,21 * * *',
+    cronJobName: 'signal-ingest-chuapp'
   }
 ] as const
 
@@ -671,7 +723,11 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'indienova',
   'github-blog',
   'skills-all-time',
-  'skills-trending'
+  'skills-trending',
+  'geekpark',
+  'chuapp',
+  'lilian-weng',
+  'simon-willison'
 ] as const
 
 // Cron jobs

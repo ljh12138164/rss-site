@@ -37,7 +37,8 @@ describe('technologySources', () => {
       ['juejin', '/juejin/trending/all/weekly'],
       ['ithome', '/ithome/ranking/24h'],
       ['36kr', '/36kr/hot-list/24'],
-      ['github-blog', 'https://github.blog/feed/']
+      ['github-blog', 'https://github.blog/feed/'],
+      ['geekpark', 'http://www.geekpark.net/rss']
     ])
     expect(technologySources.every((source) => source.section === 'technology')).toBe(true)
   })
@@ -55,7 +56,7 @@ describe('technologySources', () => {
     expect(newsSources.every((source) => source.itemLimit === 30)).toBe(true)
   })
 
-  it('registers seven official AI platform feeds without accepting arbitrary URLs', () => {
+  it('registers official AI platform and expert feeds without accepting arbitrary URLs', () => {
     expect(aiSources.map(({ id }) => id)).toEqual([
       'openai',
       'chatgpt',
@@ -63,7 +64,9 @@ describe('technologySources', () => {
       'deepseek',
       'glm',
       'google-ai',
-      'qwen'
+      'qwen',
+      'lilian-weng',
+      'simon-willison'
     ])
     expect(aiSources.every((source) => source.section === 'ai')).toBe(true)
     expect(getAiSource('glm')).toMatchObject({
@@ -123,35 +126,43 @@ describe('technologySources', () => {
     expect(getFinanceSource('wallstreetcn').name).toBe('华尔街见闻')
   })
 
-  it('registers five anonymous game feeds', () => {
-    expect(gameSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
+  it('registers confirmed game feeds', () => {
+    expect(
+      gameSources.map((source) => [source.id, resolveSignalFeedUrl(source, '')])
+    ).toEqual([
       ['3dmgame', '/3dmgame/news/game'],
       ['gcores', '/gcores/news?limit=20'],
       ['gamersky', '/gamersky/news'],
       ['ali213', '/ali213/news/new'],
-      ['indienova', '/indienova/article']
+      ['indienova', '/indienova/article'],
+      ['chuapp', 'http://www.chuapp.com/feed']
     ])
     expect(gameSources.every((source) => source.section === 'games')).toBe(true)
     expect(getGameSource('gcores').name).toBe('机核')
+    expect(getGameSource('chuapp').name).toBe('触乐网')
   })
 
   it('narrows and resolves only known sources', () => {
     expect(isTechnologySourceId('36kr')).toBe(true)
+    expect(isTechnologySourceId('geekpark')).toBe(true)
     expect(isTechnologySourceId('product-hunt')).toBe(false)
     expect(getTechnologySource('juejin').name).toBe('掘金')
     expect(isNewsSourceId('xinhua')).toBe(true)
     expect(isNewsSourceId('github')).toBe(false)
     expect(getNewsSource('thepaper').name).toBe('澎湃热榜')
     expect(isAiSourceId('deepseek')).toBe(true)
+    expect(isAiSourceId('lilian-weng')).toBe(true)
+    expect(isAiSourceId('simon-willison')).toBe(true)
     expect(isAiSourceId('github')).toBe(false)
     expect(isSignalSourceId('baidu')).toBe(true)
     expect(isSocialSourceId('bilibili')).toBe(true)
     expect(isSocialSourceId('weibo')).toBe(false)
     expect(isFinanceSourceId('jin10')).toBe(true)
     expect(isFinanceSourceId('github')).toBe(false)
+    expect(isGameSourceId('chuapp')).toBe(true)
     expect(isGameSourceId('steam')).toBe(false)
     expect(isGameSourceId('github')).toBe(false)
-    expect(signalSources).toHaveLength(37)
+    expect(signalSources).toHaveLength(41)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

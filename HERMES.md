@@ -1,5 +1,17 @@
 # HERMES
 
+## 2026-09-26 接入首批官方原生高信噪比信号源 (Native High-Signal Feeds)
+
+- 当前分支 `feat/native-high-signal-sources` 基于最新 `master` 创建。
+- 目标：接入首批 4 个官方原生直出 RSS/Atom 信号源（极客公园、Lil'Log、Simon Willison、触乐网），以 0 Vercel RSSHub 负载提供高品质图文全文与双语精读深度内容。
+- 交付内容：
+  1. `server/api/src/ingestion/feed.ts` 升级统一支持 RSS 2.0 与 Atom 1.0 标准。
+  2. `@rss-site/signals` 注册 4 个官方直连源及错峰定时策略。
+  3. 创建 Supabase 迁移更新四表 CHECK 约束。
+  4. 补充全套单测与类型声明，执行生产准入验证门。
+- 开发记录：`docs/development/native-high-signal-sources.md`。
+- 下一步：升级 Feed 解析器并补全 Atom 单测。
+
 ## 2026-09-25 双语段落对照阅读与本地稍后读/历史足迹 (P1 实施)
 
 - 当前分支 `feat/bilingual-and-reading-list` 基于 `feat/ui-ux-pro-max-polish` 创建。
