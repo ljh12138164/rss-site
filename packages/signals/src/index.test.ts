@@ -21,22 +21,22 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 37 sources', () => {
+  it('defines 7 sections and 41 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(37)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(37)
+    expect(signalSources).toHaveLength(41)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(41)
   })
 
   it('correctly maps all section counts', () => {
-    expect(technologySources).toHaveLength(6)
-    expect(technologyArticleSources).toHaveLength(5)
+    expect(technologySources).toHaveLength(7)
+    expect(technologyArticleSources).toHaveLength(6)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
-    expect(aiSources).toHaveLength(7)
+    expect(aiSources).toHaveLength(9)
     expect(socialSources).toHaveLength(6)
     expect(financeSources).toHaveLength(5)
-    expect(gameSources).toHaveLength(5)
+    expect(gameSources).toHaveLength(6)
   })
 
   it('retrieves source and section by id', () => {
@@ -55,6 +55,10 @@ describe('@rss-site/signals', () => {
 
   it('validates source and section ids', () => {
     expect(isSignalSourceId('openai')).toBe(true)
+    expect(isSignalSourceId('geekpark')).toBe(true)
+    expect(isSignalSourceId('lilian-weng')).toBe(true)
+    expect(isSignalSourceId('simon-willison')).toBe(true)
+    expect(isSignalSourceId('chuapp')).toBe(true)
     expect(isSignalSourceId('invalid')).toBe(false)
     expect(isSignalSectionId('ai')).toBe(true)
     expect(isSignalSectionId('invalid')).toBe(false)
@@ -62,7 +66,7 @@ describe('@rss-site/signals', () => {
 
   it('filters sources by section and isArticle', () => {
     const techArticles = listSignalSources({ section: 'technology', isArticle: true })
-    expect(techArticles).toHaveLength(5)
+    expect(techArticles).toHaveLength(6)
     expect(techArticles.some((s) => s.id === 'github')).toBe(false)
 
     const allSkills = listSignalSources({ section: 'skills' })

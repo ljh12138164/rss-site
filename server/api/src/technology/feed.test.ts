@@ -264,4 +264,31 @@ describe('parseTechnologyFeed', () => {
 
     expect(parseTechnologyFeed(xml, '测试来源')[0]?.imageUrl).toBeNull()
   })
+
+  it('parses Atom 1.0 feeds with full-text summary and alternate links', () => {
+    const xml = `<?xml version="1.0" encoding="utf-8"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+        <title>Tech Blog</title>
+        <entry>
+          <title>LLM Systems Architecture</title>
+          <link href="https://example.com/blog/llm-arch" rel="alternate"/>
+          <id>tag:example.com,2026:llm-arch</id>
+          <published>2026-09-22T23:46:41Z</published>
+          <author><name>Alice Engineer</name></author>
+          <summary type="html"><![CDATA[<p>Deep dive into modern LLM inference systems.</p>]]></summary>
+        </entry>
+      </feed>`
+
+    const [item] = parseTechnologyFeed(xml, 'Tech Blog')
+    expect(item).toMatchObject({
+      sourceKey: 'tag:example.com,2026:llm-arch',
+      title: 'LLM Systems Architecture',
+      url: 'https://example.com/blog/llm-arch',
+      author: 'Alice Engineer',
+      summary: 'Deep dive into modern LLM inference systems.',
+      contentHtml: '<p>Deep dive into modern LLM inference systems.</p>',
+      publishedAt: new Date('2026-09-22T23:46:41Z'),
+      position: 1
+    })
+  })
 })

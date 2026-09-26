@@ -19,10 +19,15 @@ interface ParsedItem {
   title?: unknown
   link?: unknown
   guid?: unknown
+  id?: unknown
   description?: unknown
+  summary?: unknown
+  content?: unknown
   'content:encoded'?: unknown
   author?: unknown
   pubDate?: unknown
+  published?: unknown
+  updated?: unknown
 }
 
 export interface ParseSignalFeedOptions {
@@ -33,11 +38,14 @@ export interface ParseSignalFeedOptions {
 
 export type ParseFeedOptions = ParseSignalFeedOptions
 
-interface ParsedRss {
+interface ParsedFeed {
   rss?: {
     channel?: {
       item?: ParsedItem[]
     }
+  }
+  feed?: {
+    entry?: ParsedItem[]
   }
 }
 
@@ -71,6 +79,35 @@ function canonicalWebUrl(value: unknown): string | null {
   } catch {
     return null
   }
+}
+
+function extractLinkUrl(value: unknown): string | null {
+  if (Array.isArray(value)) {
+    const alternate = value.find(
+      (item) =>
+        item &&
+        typeof item === 'object' &&
+        (item['@_rel'] === 'alternate' || !item['@_rel']) &&
+        item['@_href']
+    )
+    if (alternate) return canonicalWebUrl(alternate['@_href'])
+    const firstWithHref = value.find((item) => item && typeof item === 'object' && item['@_href'])
+    if (firstWithHref) return canonicalWebUrl(firstWithHref['@_href'])
+  }
+
+  if (value && typeof value === 'object' && '@_href' in value) {
+    return canonicalWebUrl((value as { '@_href': unknown })['@_href'])
+  }
+
+  return canonicalWebUrl(value)
+}
+
+function extractAuthor(value: unknown): string | null {
+  if (value && typeof value === 'object') {
+    if ('name' in value) return textValue((value as { name: unknown }).name)
+    if ('#text' in value) return textValue((value as { '#text': unknown })['#text'])
+  }
+  return textValue(value)
 }
 
 function canonicalSourceKey(rawGuid: string | null, url: string): string {
@@ -201,25 +238,26 @@ export function parseSignalFeed(
 
   const parser = new XMLParser({
     ignoreAttributes: false,
-    isArray: (_name, path) => path === 'rss.channel.item'
+    isArray: (_name, path) => path === 'rss.channel.item' || path === 'feed.entry'
   })
-  const parsed = parser.parse(xml) as ParsedRss
-  const items = parsed.rss?.channel?.item ?? []
-  if (items.length === 0) throw new Error(`RSSHub returned an empty ${sourceName} feed`)
+  const parsed = parser.parse(xml) as ParsedFeed
+  const items = parsed.rss?.channel?.item ?? parsed.feed?.entry ?? []
+  if (items.length === 0) throw new Error(`Feed parser returned an empty ${sourceName} feed`)
 
   const usableItems = items.flatMap((item) => {
-    const content = item['content:encoded']
+    const content = item['content:encoded'] ?? item.content
+    const rawDescription = item.description ?? item.summary
     const rawTitle =
       (options.titleFromFirstStrong ? firstStrongText(content) : null) ?? textValue(item.title)
     const title = rawTitle ? decodeEntities(rawTitle) : null
     const url =
       (options.urlFromFirstAnchor ? firstAnchorUrl(content, item.link) : null) ??
-      canonicalWebUrl(item.link)
+      extractLinkUrl(item.link)
     if (!title || !url) return []
 
-    const rawGuid = textValue(item.guid)
+    const rawGuid = textValue(item.id ?? item.guid)
     // Feed HTML is archived as untrusted content; the reader sanitizes it before rendering.
-    const rawHtml = textValue(content) ?? textValue(item.description)
+    const rawHtml = textValue(content) ?? textValue(rawDescription)
     const html = rawHtml ? cleanFeedArticleHtml(rawHtml, url) : null
     const contentHtml = html && Buffer.byteLength(html, 'utf8') <= 512 * 1024 ? html : null
     return [
@@ -227,16 +265,16 @@ export function parseSignalFeed(
         sourceKey: canonicalSourceKey(rawGuid, url),
         title,
         url,
-        imageUrl: firstImageUrl(item.description, content),
+        imageUrl: firstImageUrl(rawDescription, content),
         summary: options.skillMetadata
-          ? skillSummary(item.description)
+          ? skillSummary(rawDescription)
           : ((
-              plainText(cleanFeedArticleHtml(textValue(item.description) ?? '', url)) ??
+              plainText(cleanFeedArticleHtml(textValue(rawDescription) ?? '', url)) ??
               plainText(html)
             )?.slice(0, 500) ?? null),
         contentHtml,
-        author: textValue(item.author),
-        publishedAt: publishedDate(item.pubDate)
+        author: extractAuthor(item.author),
+        publishedAt: publishedDate(item.pubDate ?? item.published ?? item.updated)
       }
     ]
   })
