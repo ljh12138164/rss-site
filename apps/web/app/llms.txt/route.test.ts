@@ -20,6 +20,7 @@ describe('llms.txt', () => {
     expect(body).toContain('https://news.ljhboard.cn/about')
     expect(body).toContain('https://news.ljhboard.cn/feeds/ai.xml')
     expect(body).toContain('https://news.ljhboard.cn/feeds/news.xml')
+    expect(body).toContain('https://news.ljhboard.cn/llms-full.txt')
   })
 
   it('returns 404 instead of publishing incorrect local URLs without SITE_URL', async () => {
