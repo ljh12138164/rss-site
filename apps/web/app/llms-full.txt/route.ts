@@ -21,7 +21,10 @@ export async function GET() {
 
   const link = (path: string) => siteUrl(path)
 
-  const sectionSourcesMap: Record<string, readonly { id: string; name: string; description: string }[]> = {
+  const sectionSourcesMap: Record<
+    string,
+    readonly { id: string; name: string; description: string }[]
+  > = {
     ai: aiSources,
     technology: technologySources,
     news: newsSources,
