@@ -18,8 +18,9 @@ export default function AboutPage() {
       <section>
         <h2>在这里读什么</h2>
         <p>
-          AI 热榜汇集 AI、科技、新闻、社交、财经和游戏六个分区的公开内容。你可以浏览最新文章，
-          按来源查看动态，也可以搜索标题和摘要，找到感兴趣的话题。
+          今日热点（AI 热榜）是一个专注
+          AI、科技、国内新闻、社交、财经和游戏六大维度的轻量化热点聚合与 RSS 订阅平台。 平台汇总 35+
+          官方订阅与公开媒体源，你可以浏览最新文章，按来源查看动态，也可以搜索标题和摘要，找到感兴趣的话题。
         </p>
       </section>
       <section aria-labelledby="content-flow-heading">
@@ -82,6 +83,35 @@ export default function AboutPage() {
           六个分区都提供 RSS 订阅入口。进入你关心的分区，复制 RSS 地址到阅读器，
           就能用习惯的方式接收更新。
         </p>
+      </section>
+      <section aria-labelledby="faq-heading">
+        <h2 id="faq-heading">常见问题</h2>
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">什么是今日热点？</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              今日热点是一个去中心化信源的聚合阅读站，把分散在各大平台和官方博客的优质动态汇集在一起，
+              保留原始来源与发布时间，为读者提供干净、客观、实时的阅读与 RSS 订阅服务。
+            </p>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">内容更新频率是怎样的？</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              本站采用错峰采集机制：AI 平台专区（覆盖 OpenAI、Anthropic、DeepSeek、Google AI
+              等主流模型平台）每 2 小时自动同步最新动态；
+              科技、国内新闻、社交热点、财经与游戏各分区每 6
+              小时同步一次，既保证内容的时效性，又确保系统稳定可靠。
+            </p>
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">如何使用 RSS 订阅本站？</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              本站为 AI、科技、国内新闻、社交、财经、游戏六大分区均提供标准的 RSS 2.0 订阅链接（例如
+              /feeds/ai.xml）。 将目标分区的订阅链接复制到任意 RSS
+              阅读器中，即可在不打开网页的情况下接收实时资讯更新。
+            </p>
+          </div>
+        </div>
       </section>
       <section>
         <h2>访问与隐私</h2>
