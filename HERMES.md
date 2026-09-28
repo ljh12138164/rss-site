@@ -5,8 +5,8 @@
 - Branch `feat/article-admin` starts at `origin/master` commit `0245afd`.
 - Objective: Supabase Auth protected article editor at `/admin`; move all Next `/api/*` handlers under Hono with typed browser RPC; preserve edits through ingestion.
 - Development record: `docs/development/article-admin.md`.
-- Verification: 295 tests, all workspace type checks, changed-file Biome, and a 61-page production build passed. The cloud migration and trigger behavior were validated in rolled-back transactions. Root lint has pre-existing failures; authenticated and mobile browser flows await the owner's admin account and suitable viewport tooling.
-- Review: no blocking findings or accepted follow-ups. The branch is published on GitHub; next the owner creates a PR against `master`. Production order is migration, then web.
+- Verification: 295 tests, all workspace type checks, changed-file Biome, and a 61-page production build passed. Cloud trigger and RLS behavior were validated in rolled-back transactions, then migration `20260928120257_article_admin` was applied and verified. Root lint has pre-existing failures; authenticated and mobile browser flows await the owner's admin account and suitable viewport tooling.
+- Review: no blocking findings or accepted follow-ups. The branch is published on GitHub; next the owner creates a PR against `master` and merges after CI. The production migration is already applied; the web deploy follows the merge.
 
 ## 2026-09-26 接入首批官方原生高信噪比信号源 (Native High-Signal Feeds)
 

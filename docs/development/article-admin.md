@@ -42,9 +42,9 @@ set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb)
 where id = '<admin-user-uuid>'::uuid;
 ```
 
-Deployment order: apply the migration, then deploy the Next web app. The database triggers protect edited rows from the existing Worker. The migration does not require a new feed source or Cron job.
+Deployment order: apply the migration, then deploy the Next web app. The migration is now applied to the linked cloud project as `20260928120257_article_admin`; the database triggers protect edited rows from the existing Worker. The migration does not require a new feed source or Cron job.
 
-The local Supabase CLI was absent. A pinned `pnpm dlx supabase@2.79.0 migration new article_admin` attempt stalled while downloading the CLI release, so the versioned migration file was created with the same timestamp format and validated transactionally against the linked cloud schema.
+The local Supabase CLI was absent. A pinned `pnpm dlx supabase@2.79.0 migration new article_admin` attempt stalled while downloading the CLI release, so the migration file was created manually, validated transactionally, and then renamed to the version recorded by the Supabase migration tool.
 
 ## Verification
 
@@ -53,6 +53,7 @@ The local Supabase CLI was absent. A pinned `pnpm dlx supabase@2.79.0 migration 
 - Changed-file Biome check passed. Root `pnpm lint` remains blocked by pre-existing CRLF formatting and an unrelated `article-route.ts` suggestion; those files were not reformatted.
 - Real Supabase connection from the shell reset during prerender. With a local empty-response Supabase stub, `pnpm --filter @rss-site/web build` compiled, type-checked, and generated all 61 pages, including `/admin` and Hono `/api/[[...route]]`, after the final code changes.
 - The migration and data checks were executed against the linked cloud project inside transactions and rolled back: admin RLS update succeeded, non-admin update affected no rows, the current hot item and automatic AI event followed editorial titles, and subsequent direct database updates did not overwrite the edited article or hot item. A post-rollback schema query confirmed `editorial_locked` was absent.
+- The migration was then applied to the linked cloud project. The migration history records `20260928120257_article_admin`; a post-apply query found one `editorial_locked` column, one admin update policy, two article triggers, and one hot-item trigger. The security advisor result is unchanged: one existing informational `ingestion_runs` RLS-without-policy notice.
 - Desktop browser inspection: `/admin` login rendered without overflow at 1280px. Authenticated UI and mobile rendering remain unverified because the owner will provision the only admin account after delivery and the available in-app browser did not offer viewport resizing.
 - The newest 30 production articles total about 90 KB of body HTML, so returning bodies with the initial editor list is acceptable at the current data size.
 
@@ -63,5 +64,5 @@ The final diff was checked against repository standards and the acceptance crite
 ## Risks
 
 - The administrator must be provisioned separately in Supabase Auth and given server-controlled app metadata; public signup does not grant rights.
-- Production migration must precede the web app release. A migration alone does not expose privileged operations without the admin role.
+- The production migration is applied. The web app release and owner-provisioned administrator account remain outstanding; the migration alone does not expose privileged operations without the admin role.
 - An editorial edit locks all seven content fields for that article, including any fields whose value was unchanged in that edit. A future selective per-field override would require a different data model.
