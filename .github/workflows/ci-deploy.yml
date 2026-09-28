@@ -63,19 +63,6 @@ jobs:
           curl -fsS http://127.0.0.1:18101/icon.svg > /dev/null
           curl -fsS http://127.0.0.1:18101/ads.txt | grep -F 'pub-7441827328189379'
           curl -fsI http://127.0.0.1:18101/ | grep -i '^link:.*rel=preload.*as=style'
-      - name: Package verified image
-        if: github.event_name != 'pull_request'
-        run: |
-          docker save "rss-site-web:sha-${GITHUB_SHA}" -o image.tar
-          tar -czf release.tar.gz image.tar compose.yaml \
-            deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers
-      - uses: actions/upload-artifact@v4
-        if: github.event_name != 'pull_request'
-        with:
-          name: news-${{ github.sha }}
-          path: release.tar.gz
-          retention-days: 3
-
   deploy:
     needs: verify
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
@@ -84,10 +71,43 @@ jobs:
     concurrency:
       group: news-production
       cancel-in-progress: false
+    env:
+      SITE_URL: https://news.ljhboard.cn
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      NEXT_PUBLIC_GA_ID: ${{ vars.NEXT_PUBLIC_GA_ID }}
     steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: news-${{ github.sha }}
+      - uses: actions/checkout@v4
+      - name: Build release image
+        run: |
+          test -n "$NEXT_PUBLIC_SUPABASE_URL"
+          test -n "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
+          docker build --tag "rss-site-web:sha-${GITHUB_SHA}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL \
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
+            --build-arg NEXT_PUBLIC_GA_ID .
+      - name: Verify release image
+        run: |
+          cleanup() {
+            status=$?
+            if [ "$status" -ne 0 ]; then
+              docker logs --tail 100 news-deploy-verify || true
+            fi
+            docker rm -f news-deploy-verify >/dev/null 2>&1 || true
+            exit "$status"
+          }
+          trap cleanup EXIT
+          docker run -d --name news-deploy-verify -p 127.0.0.1:18101:3000 \
+            -e SITE_URL -e NEXT_PUBLIC_SUPABASE_URL -e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
+            "rss-site-web:sha-${GITHUB_SHA}"
+          curl --fail --silent --show-error --retry 150 --retry-all-errors --retry-delay 2 \
+            --connect-timeout 3 --max-time 5 --retry-max-time 300 http://127.0.0.1:18101/healthz
+          curl -fsS http://127.0.0.1:18101/admin | grep -Fq '文章管理'
+      - name: Package release image
+        run: |
+          docker save "rss-site-web:sha-${GITHUB_SHA}" -o image.tar
+          tar -czf release.tar.gz image.tar compose.yaml \
+            deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers
       - name: Install SSH credentials
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}

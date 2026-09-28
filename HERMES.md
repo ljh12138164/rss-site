@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-09-28 Deploy without GitHub Actions artifact storage
+
+- Branch `feat/deploy-without-artifact` starts at merged `origin/master` commit `e180430`.
+- Objective: restore automatic deployment after PR #31 failed at `actions/upload-artifact@v4` because the repository's artifact storage quota was exhausted.
+- Development record: `docs/development/deploy-without-artifact.md`.
+- Verification: YAML parsing and artifact-step check passed; local `/admin` and `/healthz` returned 200. Docker Desktop is unavailable locally, so CI will verify the image build and deploy runtime.
+- Review found no blocking issues or accepted follow-ups. Next: push the branch and ask the owner to create a PR against `master`.
+
 ## 2026-09-28 Article admin and Hono RPC
 
 - Branch `feat/article-admin` starts at `origin/master` commit `0245afd`.
