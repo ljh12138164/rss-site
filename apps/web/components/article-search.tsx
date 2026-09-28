@@ -1,6 +1,7 @@
 'use client'
 
 import { useInfiniteQuery } from '@tanstack/react-query'
+import { hc } from 'hono/client'
 import { ArrowRight, Search, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
@@ -15,6 +16,7 @@ import {
 } from 'react-aria-components'
 import { createArticlePath } from '../lib/article-route'
 import { type SearchArticle, searchValidation } from '../lib/article-search'
+import type { AppType } from '../lib/hono-app'
 import {
   aiSources,
   financeSources,
@@ -33,6 +35,7 @@ const sources = [
   ...socialSources,
   ...technologySources
 ]
+const api = hc<AppType>('/')
 
 export function Highlight({ text, query }: { text: string; query: string }) {
   const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -76,11 +79,11 @@ function SearchPanel() {
       pageParam,
       signal
     }): Promise<{ items: SearchArticle[]; hasMore: boolean }> => {
-      const response = await fetch(
-        `/api/search?q=${encodeURIComponent(debouncedQuery)}&page=${pageParam}`,
-        { signal, cache: 'no-store' }
+      const response = await api.api.search.$get(
+        { query: { q: debouncedQuery, page: String(pageParam) } },
+        { init: { signal, cache: 'no-store' } }
       )
-      if (!response.ok) throw new Error('Search unavailable')
+      if (response.status !== 200) throw new Error('Search unavailable')
       return response.json()
     },
     getNextPageParam: (lastPage, pages) => (lastPage.hasMore ? pages.length : undefined)

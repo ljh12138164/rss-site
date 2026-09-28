@@ -78,6 +78,16 @@ describe('content publication', () => {
     expect(requests).toHaveLength(0)
   })
 
+  it('publishes a concrete article URL after an editorial correction', async () => {
+    const path = '/news/xinhua/修正标题--550e8400-e29b-41d4-a716-446655440000'
+    await publishContent([path], 'editorial')
+    expect(JSON.parse(String(requests[0].init?.body))).toEqual({
+      files: [
+        'https://news.example/news/xinhua/%E4%BF%AE%E6%AD%A3%E6%A0%87%E9%A2%98--550e8400-e29b-41d4-a716-446655440000'
+      ]
+    })
+  })
+
   it('disables unconfigured integrations without affecting ISR or making requests', async () => {
     vi.stubEnv('CLOUDFLARE_API_TOKEN', '')
     vi.stubEnv('CLOUDFLARE_ZONE_ID', '')

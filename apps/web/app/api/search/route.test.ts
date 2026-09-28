@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { GET } from './route'
+import { app } from '../../../lib/hono-app'
 
 const { client, result } = vi.hoisted(() => {
   const result = { data: [] as { id: string; summary: string | null }[], error: null as unknown }
@@ -27,7 +27,9 @@ beforeEach(() => {
 describe('search endpoint', () => {
   it('rejects invalid requests before querying', async () => {
     for (const suffix of ['q=a', 'q=aa&page=-1', 'q=aa&page=1.5', 'q=aa&page=50']) {
-      expect((await GET(new Request(`http://localhost/api/search?${suffix}`))).status).toBe(400)
+      expect((await app.request(new Request(`http://localhost/api/search?${suffix}`))).status).toBe(
+        400
+      )
     }
     expect(client.from).not.toHaveBeenCalled()
   })
@@ -36,7 +38,7 @@ describe('search endpoint', () => {
       id: String(id),
       summary: `${'前'.repeat(400)}模型${'后'.repeat(400)}`
     }))
-    const response = await GET(new Request('http://localhost/api/search?q=模型&page=1'))
+    const response = await app.request(new Request('http://localhost/api/search?q=模型&page=1'))
     const body = await response.json()
     expect(client.range).toHaveBeenCalledWith(20, 40)
     expect(body.items).toHaveLength(20)
@@ -45,12 +47,14 @@ describe('search endpoint', () => {
     expect(body.items[0].summary.length).toBeLessThan(200)
   })
   it('returns empty results normally and hides database errors', async () => {
-    expect(await (await GET(new Request('http://localhost/api/search?q=模型'))).json()).toEqual({
+    expect(
+      await (await app.request(new Request('http://localhost/api/search?q=模型'))).json()
+    ).toEqual({
       items: [],
       hasMore: false
     })
     result.error = { message: 'private database details' }
-    const response = await GET(new Request('http://localhost/api/search?q=模型'))
+    const response = await app.request(new Request('http://localhost/api/search?q=模型'))
     expect(response.status).toBe(503)
     expect(await response.text()).not.toContain('private')
   })
