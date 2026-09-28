@@ -1,21 +1,25 @@
 'use client'
 
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import { hc } from 'hono/client'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import type { EventPage } from '../lib/ai-events'
+import type { AppType } from '../lib/hono-app'
 import { ActionButton } from './action-button'
+
+const api = hc<AppType>('/')
 
 function pageOptions(cursor: string | null) {
   return {
     queryKey: ['ai-events', 'page', cursor],
     staleTime: 300000,
     queryFn: async ({ signal }: { signal: AbortSignal }): Promise<EventPage> => {
-      const response = await fetch(
-        `/api/events${cursor ? `?cursor=${encodeURIComponent(cursor)}` : ''}`,
-        { signal, cache: 'no-store' }
+      const response = await api.api.events.$get(
+        { query: { cursor: cursor ?? undefined } },
+        { init: { signal, cache: 'no-store' } }
       )
-      if (!response.ok) throw new Error('Events unavailable')
+      if (response.status !== 200) throw new Error('Events unavailable')
       return response.json()
     }
   }

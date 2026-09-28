@@ -10,7 +10,7 @@ describe('robots metadata', () => {
     vi.stubEnv('SITE_URL', '')
 
     expect(robots()).toEqual({
-      rules: { userAgent: '*', allow: '/', disallow: ['/api/', '/cron/', '/out'] }
+      rules: { userAgent: '*', allow: '/', disallow: ['/api/', '/cron/', '/out', '/admin'] }
     })
   })
 
@@ -18,7 +18,7 @@ describe('robots metadata', () => {
     vi.stubEnv('SITE_URL', 'https://news.example')
 
     expect(robots()).toEqual({
-      rules: { userAgent: '*', allow: '/', disallow: ['/api/', '/cron/', '/out'] },
+      rules: { userAgent: '*', allow: '/', disallow: ['/api/', '/cron/', '/out', '/admin'] },
       sitemap: 'https://news.example/sitemap.xml'
     })
   })
