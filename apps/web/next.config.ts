@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     staticGenerationRetryCount: 3
   },
   serverExternalPackages: ['mtranserver'],
+  transpilePackages: ['@rss-site/signals'],
   outputFileTracingRoot: path.join(process.cwd(), '../..'),
   async rewrites() {
     return [
@@ -21,6 +22,15 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'X-Frame-Options', value: 'DENY' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' }
+        ]
+      },
       {
         source:
           '/((?!api|_next|favicon\\.ico|icon\\.svg|ads\\.txt|robots\\.txt|sitemap\\.xml|indexnow\\.txt).*)',

@@ -1,4 +1,13 @@
 import {
+  aiSources,
+  financeSources,
+  gameSources,
+  newsSources,
+  type SignalSource,
+  socialSources,
+  technologySources
+} from '@rss-site/signals'
+import {
   compareHotItemsByPublishedAt,
   type FeedResult,
   getAiFeeds,
@@ -9,15 +18,6 @@ import {
   getTechnologyFeeds,
   type HotItem
 } from './hot-feed'
-import {
-  aiSources,
-  financeSources,
-  gameSources,
-  newsSources,
-  type SignalSource,
-  socialSources,
-  technologySources
-} from './technology-sources'
 
 export const RSS_ITEMS_PER_SOURCE = 10
 

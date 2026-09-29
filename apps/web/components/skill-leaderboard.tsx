@@ -41,30 +41,30 @@ function SkillFeed({ feed }: { feed: FeedResult }) {
   if (feed.state === 'error') return <FeedError />
 
   return (
-    <ol className="divide-y divide-border border-y border-border">
+    <ol className="border-y border-border">
       {feed.items.map((item) => {
         const metadata = parseSkillMetadata(item.summary)
         const name = item.title.replace(/^#\d+\s+/, '')
         const href = `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent('/skills')}`
         return (
           <li
-            className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 py-5 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-5"
+            className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-md border-b border-border/80 px-2.5 py-5 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6"
             key={item.sourceKey}
           >
-            <span className="pt-0.5 font-mono text-sm font-semibold tabular-nums text-primary">
+            <span aria-hidden="true" className="rank-numeral pt-1" data-rank={item.position}>
               {String(item.position).padStart(2, '0')}
             </span>
             <article className="min-w-0">
               <Link className="group block text-foreground" href={href}>
-                <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-lg">
+                <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-[1.0625rem]">
                   <span className="min-w-0 wrap-anywhere">{name}</span>
                   <ArrowUpRight
                     aria-hidden="true"
-                    className="mt-1 size-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
+                    className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
                   />
                 </span>
                 {metadata.description ? (
-                  <span className="mt-2 line-clamp-3 text-sm font-normal leading-6 text-muted-foreground">
+                  <span className="mt-2 line-clamp-2 text-sm font-normal leading-6 text-muted-foreground">
                     {metadata.description}
                   </span>
                 ) : null}
@@ -91,17 +91,17 @@ export function SkillLeaderboard({ feeds }: { feeds: SkillFeeds }) {
     <Tabs defaultSelectedKey="all-time">
       <TabList
         aria-label="Skills 排行榜"
-        className="mb-6 flex w-full border-b border-border sm:w-auto"
+        className="mb-8 flex w-full border-b border-border sm:w-auto"
       >
         <Tab
           id="all-time"
-          className="-mb-px min-h-11 cursor-pointer border-b-2 border-transparent px-4 text-sm font-medium text-muted-foreground outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring data-[selected]:border-primary data-[selected]:text-primary"
+          className="-mb-px min-h-11 cursor-pointer border-b-2 border-transparent px-4 pl-0 font-mono text-[0.8125rem] text-muted-foreground outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring data-[selected]:border-primary data-[selected]:font-semibold data-[selected]:text-primary"
         >
           最热门
         </Tab>
         <Tab
           id="trending"
-          className="-mb-px min-h-11 cursor-pointer border-b-2 border-transparent px-4 text-sm font-medium text-muted-foreground outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring data-[selected]:border-primary data-[selected]:text-primary"
+          className="-mb-px min-h-11 cursor-pointer border-b-2 border-transparent px-4 font-mono text-[0.8125rem] text-muted-foreground outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring data-[selected]:border-primary data-[selected]:font-semibold data-[selected]:text-primary"
         >
           增长最快
         </Tab>

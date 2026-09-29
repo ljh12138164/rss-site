@@ -1,5 +1,90 @@
 # HERMES
 
+## 2026-09-28 Deploy without GitHub Actions artifact storage
+
+- Branch `feat/deploy-without-artifact` starts at merged `origin/master` commit `e180430`.
+- Objective: restore automatic deployment after PR #31 failed at `actions/upload-artifact@v4` because the repository's artifact storage quota was exhausted.
+- Development record: `docs/development/deploy-without-artifact.md`.
+- Verification: YAML parsing and artifact-step check passed; local `/admin` and `/healthz` returned 200. Docker Desktop is unavailable locally, so CI will verify the image build and deploy runtime.
+- Review found no blocking issues or accepted follow-ups. Next: push the branch and ask the owner to create a PR against `master`.
+
+## 2026-09-28 Article admin and Hono RPC
+
+- Branch `feat/article-admin` starts at `origin/master` commit `0245afd`.
+- Objective: Supabase Auth protected article editor at `/admin`; move all Next `/api/*` handlers under Hono with typed browser RPC; preserve edits through ingestion.
+- Development record: `docs/development/article-admin.md`.
+- Verification: 295 tests, all workspace type checks, changed-file Biome, and a 61-page production build passed. Cloud trigger and RLS behavior were validated in rolled-back transactions, then migration `20260928120257_article_admin` was applied and verified. Root lint has pre-existing failures; authenticated and mobile browser flows await the owner's admin account and suitable viewport tooling.
+- Review: no blocking findings or accepted follow-ups. The branch is published on GitHub; next the owner creates a PR against `master` and merges after CI. The production migration is already applied; the web deploy follows the merge.
+
+## 2026-09-26 接入首批官方原生高信噪比信号源 (Native High-Signal Feeds)
+
+- 当前分支 `feat/native-high-signal-sources` 基于最新 `master` 创建。
+- 目标：接入首批 4 个官方原生直出 RSS/Atom 信号源（极客公园、Lil'Log、Simon Willison、触乐网），以 0 Vercel RSSHub 负载提供高品质图文全文与双语精读深度内容。
+- 交付内容：
+  1. `server/api/src/ingestion/feed.ts` 升级统一支持 RSS 2.0 与 Atom 1.0 标准。
+  2. `@rss-site/signals` 注册 4 个官方直连源及错峰定时策略。
+  3. 创建 Supabase 迁移更新四表 CHECK 约束。
+  4. 补充全套单测与类型声明，执行生产准入验证门。
+- 开发记录：`docs/development/native-high-signal-sources.md`。
+- 下一步：升级 Feed 解析器并补全 Atom 单测。
+
+## 2026-09-25 双语段落对照阅读与本地稍后读/历史足迹 (P1 实施)
+
+- 当前分支 `feat/bilingual-and-reading-list` 基于 `feat/ui-ux-pro-max-polish` 创建。
+- 目标：落实路线图 P1（双语段落穿插对照阅读模式、零后端负担的「稍后读」与「历史足迹」）。
+- 交付内容：
+  1. `ArticleTranslation` 与 `EventTranslation` 升级为「原文 / 双语对照 / 仅译文」三态切换，正文块级段落精准穿插排版。
+  2. 原生 `localStorage` 零后端负担存储与响应式 Hook（书签收藏、LRU 100 历史记录）。
+  3. 新增 `/reading-list` 专属管理页面及双标签视图。
+  4. 全局导航 `SiteHeader` 与详情页 `ArticleReader` 联动收藏状态与已读标记。
+- 路线图与开发记录：`docs/roadmaps/bilingual-and-reading-list.md` 与 `docs/development/bilingual-and-reading-list.md`。
+- 下一步：实现客户端存储模块、升级双语段落组件、新增阅读列表页面并补充完整测试。
+
+## 2026-09-25 UI/UX Pro Max 视觉重构与体验优化 (Modern Swiss-Editorial UI Polish)
+
+- 当前分支 `feat/ui-ux-pro-max-polish` 从 `origin/master` 创建；采用 `ui-ux-pro-max-skill` 设计智能对全站核心 UI 进行现代极简报刊风（Modern Swiss-Editorial）重构。
+- 覆盖交付表面：全局框架（SiteHeader、SiteShell）、首页（HomeDigest）、列表榜单（HotList、SectionLayout、SourceNavigation）、文章阅读器（ArticleReader）及全局主题/微交互（globals.css）。
+- 开发记录：`docs/development/ui-ux-pro-max-polish.md`。
+- 下一步：逐一实施样式与组件升级，并通过完整测试与类型检查验证。
+
+## 2026-09-25 统一全站缓存与边缘失效 (Unify Cache Policy & Edge Revalidation)
+
+- 当前分支 `feat/unify-cache-policy` 基于 `feat/unify-signal-readers` 创建；已将全站散落的 ISR revalidate 硬编码、HTTP 缓存头与边缘失效路径收拢至统一的配置与解析模块。
+- 引入 `apps/web/lib/cache.ts` 集中管理全站 TTL；抽取 `apps/web/lib/revalidate-paths.ts` 纯函数统一失效路径推导。
+- 在 `revalidate/route.ts` 中接入 `@rss-site/signals` 校验来源合法性，消除多重特例分支判断。
+- 全仓单测 270/270 项全部通过（新增 4 项路径解析纯函数单测），类型检查与 Web 57/57 静态生产构建成功。
+- 开发记录：`docs/development/unify-cache-policy.md`。
+- 下一步：推送 `feat/unify-cache-policy`，由用户创建并合并 PR；至此四项架构深化优化全部圆满完成。
+
+## 2026-09-25 统一热点与文章读取器 (Unify Hot Items & Article Readers)
+
+- 当前分支 `feat/unify-signal-readers` 基于 `feat/unify-ingestion-pipeline` 创建；已将前端 `apps/web/lib/` 中重复的专区 Feed 查询与数据转换收拢为泛型读取器。
+- 引入泛型 `getSectionFeeds` 与 `getSourceFeed`，消除 `hot-feed.ts` 中 150 余行机械重复的 7 组专区模板代码。
+- 在 `signal-article.ts` 中通用化为 `getSignalArticle`，并通过 `@rss-site/signals` 动态派生分区。
+- 保证全部既有命名函数与类型 100% 兼容。
+- 全仓单测 266/266 项全部通过，3 个工作区子包类型检查通过，Web 57/57 静态页面生产构建成功。
+- 开发记录：`docs/development/unify-signal-readers.md`。
+- 下一步：推送 `feat/unify-signal-readers`，由用户创建并合并 PR；随后继续推进 Candidate 4（统一全站缓存与边缘失效）。
+
+## 2026-09-25 收拢信号采集管线 (Signal Ingestion Pipeline)
+
+- 当前分支 `feat/unify-ingestion-pipeline` 基于 `feat/unify-signal-registry` 创建；已将位于 `server/api/src/technology/` 下的历史浅模块重组为高内聚的深管道模块 `server/api/src/ingestion/`。
+- 将网络截断防护、Feed 泛化解析、快照比对、事务入库和边缘失效广播收拢至 `runIngestionPipeline` 高阶协调器。
+- `server/api/src/index.ts` 胶水代码由 50 余行大幅削减，直接接入深模块。
+- 保持向后兼容导出与 MCP 协议接口不变。
+- 全仓单测 265/265 项全部通过（新增 5 项 pipeline 协调器与流式截断防护单测），类型检查与 Web 57/57 静态生产构建通过。
+- 开发记录：`docs/development/unify-ingestion-pipeline.md`。
+- 下一步：推送 `feat/unify-ingestion-pipeline`，由用户创建并合并 PR；随后继续推进 Candidate 3（统一热点与文章读取器）。
+
+## 2026-09-25 统一信号源注册中心 (Unify Signal Source Registry)
+
+- 当前分支 `feat/unify-signal-registry` 从最新 `origin/master` 创建；已将分散在前后端 8 个浅模块中的 37 个信号源及 7 大专区元数据收拢为单一深模块 `@rss-site/signals`。
+- 全字段统一并置：基础标识、前端展示、采集配置、调度任务；提供紧凑查询接口并消除跨端配置漂移。
+- 保证 MCP 接口完全兼容，11 项 MCP 回归测试全部通过。
+- 全仓单测 260/260 项通过，3 个工作区子包类型检查通过，Web 端 57/57 静态页面生产构建成功。
+- 开发记录：`docs/development/unify-signal-registry.md`。
+- 下一步：推送 `feat/unify-signal-registry` 分支，由用户创建并合并指向 `master` 的 PR；随后推进架构优化第二项（收拢信号采集管线）。
+
 ## 2026-09-15 Cloudflare Worker MCP 新闻服务与 Web 接入页面
 
 - 当前分支 `feat/fix-home-loading-boundary`；在 Cloudflare Worker API (`server/api`) 中实现 MCP (Model Context Protocol) 规范接口。

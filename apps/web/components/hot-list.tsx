@@ -4,6 +4,7 @@ import { createArticlePath } from '../lib/article-route'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource } from '../lib/technology-sources'
+import { ArticleBookmarkButton } from './article-bookmark-button'
 import { GitHubRepositoryRow } from './github-repository-row'
 import { SourceIcon } from './source-icon'
 
@@ -27,7 +28,7 @@ export function HotList({
   source?: string
 }) {
   return (
-    <ol className="divide-y divide-border border-y border-border">
+    <ol className="border-y border-border">
       {items.map((item) => {
         const sourceId = item.platform?.id ?? source
         if (sourceId === 'github') {
@@ -49,36 +50,36 @@ export function HotList({
 
         return (
           <li
-            className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 py-5 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-5"
+            className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-md border-b border-border/80 px-2.5 py-5 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6"
             key={`${sourceId ?? ''}:${item.sourceKey}`}
           >
-            <span className="pt-0.5 font-mono text-sm font-semibold tabular-nums text-primary">
+            <span aria-hidden="true" className="rank-numeral pt-1" data-rank={item.position}>
               {String(item.position).padStart(2, '0')}
             </span>
             <article className="min-w-0">
               <Link className="group block max-w-full text-foreground" href={href}>
                 <span className="block min-w-0">
-                  <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-lg">
+                  <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-[1.0625rem]">
                     <span className="min-w-0 wrap-anywhere">{item.title}</span>
                     {internalHref ? (
                       <ArrowRight
                         aria-hidden="true"
-                        className="mt-1 size-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
+                        className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-1 group-hover:text-primary"
                       />
                     ) : (
                       <ArrowUpRight
                         aria-hidden="true"
-                        className="mt-1 size-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-primary"
+                        className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
                       />
                     )}
                   </span>
                   {item.summary ? (
-                    <span className="mt-2 line-clamp-3 text-sm font-normal leading-6 text-muted-foreground">
+                    <span className="mt-2 line-clamp-2 text-sm font-normal leading-6 text-muted-foreground">
                       {item.summary}
                     </span>
                   ) : null}
                   {item.author || item.publishedAt ? (
-                    <span className="mt-3 flex flex-wrap items-center gap-x-2 font-mono text-[0.6875rem] font-normal uppercase tracking-[0.08em] text-muted-foreground">
+                    <span className="mt-3 flex flex-wrap items-center gap-x-2 font-mono text-[0.6875rem] font-normal tracking-[0.06em] text-muted-foreground">
                       {item.author ? <span>{item.author}</span> : null}
                       {item.author && item.publishedAt ? <span aria-hidden="true">·</span> : null}
                       {item.publishedAt ? (
@@ -90,16 +91,29 @@ export function HotList({
                   ) : null}
                 </span>
               </Link>
-              {item.platform && (
-                <Link
-                  href={`${item.section ?? returnTo}/${item.platform.id}`}
-                  aria-label={`浏览${item.platform.name}`}
-                  className="inline-flex min-h-11 max-w-full items-center gap-2 text-xs font-medium text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-primary sm:min-h-8"
-                >
-                  <SourceIcon className="size-4" source={item.platform} />
-                  <span className="truncate">{item.platform.shortName}</span>
-                </Link>
-              )}
+              <div className="mt-2.5 flex items-center justify-between gap-2">
+                {item.platform ? (
+                  <Link
+                    href={`${item.section ?? returnTo}/${item.platform.id}`}
+                    aria-label={`浏览${item.platform.name}`}
+                    className="inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full bg-muted/40 px-2.5 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary sm:min-h-7"
+                  >
+                    <SourceIcon className="size-3.5 shrink-0" source={item.platform} />
+                    <span className="truncate">{item.platform.shortName}</span>
+                  </Link>
+                ) : (
+                  <span />
+                )}
+                <ArticleBookmarkButton
+                  id={item.articleId ?? item.sourceKey}
+                  title={item.title}
+                  url={internalHref ?? item.url}
+                  source={sourceId}
+                  sourceName={item.platform?.name}
+                  section={returnTo.replace(/^\//, '')}
+                  variant="icon"
+                />
+              </div>
             </article>
           </li>
         )

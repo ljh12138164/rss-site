@@ -1,14 +1,14 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
-import type { Context, Hono } from 'hono'
-import { cors } from 'hono/cors'
-import { handleMcpJsonRpc } from './mcp/handler.js'
-import type { McpNewsItem } from './mcp/service.js'
 import {
   getSignalSource,
   isSignalSourceId,
   type SignalSection,
   type SignalSourceId
-} from './technology/sources.js'
+} from '@rss-site/signals'
+import type { Context, Hono } from 'hono'
+import { cors } from 'hono/cors'
+import { handleMcpJsonRpc } from './mcp/handler.js'
+import type { McpNewsItem } from './mcp/service.js'
 
 export interface AppDependencies {
   cronSecret: string

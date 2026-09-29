@@ -9,9 +9,11 @@ import {
   getGameFeeds,
   getNewsFeed,
   getNewsFeeds,
+  getSectionFeeds,
   getSkillFeeds,
   getSocialFeed,
   getSocialFeeds,
+  getSourceFeed,
   getTechnologyFeed,
   getTechnologyFeeds
 } from './hot-feed'
@@ -326,5 +328,13 @@ describe('game feeds', () => {
     expect(feeds.indienova).toEqual({ state: 'empty' })
     expect(feed.state).toBe('ready')
     if (feed.state === 'ready') expect(feed.items[0]?.publishedAt).toBeNull()
+  })
+
+  it('supports generic getSectionFeeds and getSourceFeed readers', async () => {
+    const feeds = await getSectionFeeds('games', 1, gameQuery)
+    const feed = await getSourceFeed('gcores', undefined, gameQuery)
+
+    expect(feeds.indienova).toEqual({ state: 'empty' })
+    expect(feed.state).toBe('ready')
   })
 })

@@ -3,6 +3,7 @@ import {
   getChunkSitemapEntries,
   getSignalArticlesCount,
   renderUrlSetXml,
+  SITEMAP_CACHE_CONTROL,
   SITEMAP_CHUNK_SIZE
 } from '../../../lib/sitemap-service'
 
@@ -30,7 +31,7 @@ export async function GET(_request: Request, props: { params: Promise<{ id: stri
   return new NextResponse(renderUrlSetXml(entries), {
     headers: {
       'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=0, must-revalidate'
+      'Cache-Control': SITEMAP_CACHE_CONTROL
     }
   })
 }

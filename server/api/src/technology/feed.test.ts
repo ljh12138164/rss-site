@@ -9,6 +9,15 @@ describe('parseTechnologyFeed', () => {
     expect(item.contentHtml).toBe('<p>Actual article.</p>')
     expect(item.summary).toBe('Actual article.')
   })
+  it('cleans CCTV CMS template tags while preserving video mount divs in stored HTML and plain summary', () => {
+    const xml =
+      '<rss><channel><item><title>CCTV News</title><link>https://news.cctv.com/article</link><description><![CDATA[<p>[!--begin:htmlVideoCode--]fdec9a65d6a34784bec390395b9431f2,0,1,16:9,newPlayer[!--end:htmlVideoCode--]</p><p>央视快讯：秋粮喜获丰收。</p>]]></description></item></channel></rss>'
+    const [item] = parseTechnologyFeed(xml, 'CCTV')
+    expect(item.contentHtml).toBe(
+      '<div data-cctv-video="fdec9a65d6a34784bec390395b9431f2" data-cctv-type="0" class="cctv-video-mount"></div><p>央视快讯：秋粮喜获丰收。</p>'
+    )
+    expect(item.summary).toBe('央视快讯：秋粮喜获丰收。')
+  })
   it('falls back to a bounded summary for oversized content', () => {
     const xml = `<rss><channel><item><title>文章</title><link>https://example.com/a</link><description><![CDATA[<p>${'中'.repeat(180000)}</p>]]></description></item></channel></rss>`
     const item = parseTechnologyFeed(xml, 'test')[0]
@@ -254,5 +263,32 @@ describe('parseTechnologyFeed', () => {
       </item></channel></rss>`
 
     expect(parseTechnologyFeed(xml, '测试来源')[0]?.imageUrl).toBeNull()
+  })
+
+  it('parses Atom 1.0 feeds with full-text summary and alternate links', () => {
+    const xml = `<?xml version="1.0" encoding="utf-8"?>
+      <feed xmlns="http://www.w3.org/2005/Atom">
+        <title>Tech Blog</title>
+        <entry>
+          <title>LLM Systems Architecture</title>
+          <link href="https://example.com/blog/llm-arch" rel="alternate"/>
+          <id>tag:example.com,2026:llm-arch</id>
+          <published>2026-09-22T23:46:41Z</published>
+          <author><name>Alice Engineer</name></author>
+          <summary type="html"><![CDATA[<p>Deep dive into modern LLM inference systems.</p>]]></summary>
+        </entry>
+      </feed>`
+
+    const [item] = parseTechnologyFeed(xml, 'Tech Blog')
+    expect(item).toMatchObject({
+      sourceKey: 'tag:example.com,2026:llm-arch',
+      title: 'LLM Systems Architecture',
+      url: 'https://example.com/blog/llm-arch',
+      author: 'Alice Engineer',
+      summary: 'Deep dive into modern LLM inference systems.',
+      contentHtml: '<p>Deep dive into modern LLM inference systems.</p>',
+      publishedAt: new Date('2026-09-22T23:46:41Z'),
+      position: 1
+    })
   })
 })

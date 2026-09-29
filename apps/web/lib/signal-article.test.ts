@@ -16,7 +16,8 @@ describe('getNewsArticle', () => {
         author: null,
         published_at: '2026-09-06T01:00:00.000Z',
         first_seen_at: '2026-09-06T01:05:00.000Z',
-        last_seen_at: '2026-09-06T02:00:00.000Z'
+        last_seen_at: '2026-09-06T02:00:00.000Z',
+        content_updated_at: '2026-09-06T01:30:00.000Z'
       },
       error: null
     })
@@ -31,7 +32,8 @@ describe('getNewsArticle', () => {
       author: null,
       publishedAt: new Date('2026-09-06T01:00:00.000Z'),
       firstSeenAt: new Date('2026-09-06T01:05:00.000Z'),
-      lastSeenAt: new Date('2026-09-06T02:00:00.000Z')
+      lastSeenAt: new Date('2026-09-06T02:00:00.000Z'),
+      contentUpdatedAt: new Date('2026-09-06T01:30:00.000Z')
     })
   })
 

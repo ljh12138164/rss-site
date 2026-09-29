@@ -1,4 +1,5 @@
 import { validEventSlug } from './ai-events'
+import { articleSource, parseArticleIdFromSlug } from './article-route'
 import { parseArticleFilter } from './home-articles'
 
 type StepStatus = 'succeeded' | 'failed' | 'disabled' | 'skipped'
@@ -22,6 +23,15 @@ function validatePaths(paths: string[]): void {
       path === '/ai/events' ||
       path === '/github' ||
       path === '/skills'
+    )
+      continue
+    const articleParts = path.split('/')
+    if (
+      articleParts.length === 4 &&
+      /^[a-z0-9-]+$/.test(articleParts[2]) &&
+      /^[\p{L}\p{N}-]+$/u.test(articleParts[3]) &&
+      parseArticleIdFromSlug(articleParts[3]) &&
+      articleSource(articleParts[2])?.section.id === articleParts[1]
     )
       continue
     if (!/^\/[a-z0-9-]+(?:\/[a-z0-9-]+){0,2}$/.test(path))

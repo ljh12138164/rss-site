@@ -4,6 +4,12 @@ import { EventTranslation } from '../../../../components/event-translation'
 import { SiteShell } from '../../../../components/site-shell'
 import { getEvent, getEventSources, getRelatedEvents } from '../../../../lib/ai-events'
 import { looksLikeEnglish } from '../../../../lib/article-language'
+import {
+  createEventStructuredData,
+  createPageMetadata,
+  serializeStructuredData,
+  toMetaDescription
+} from '../../../../lib/seo'
 import { optionalCanonical } from '../../../../lib/site-url'
 import { aiSources } from '../../../../lib/technology-sources'
 
@@ -22,20 +28,14 @@ async function resolve(params: Props['params']) {
 }
 export async function generateMetadata({ params }: Props) {
   const event = await resolve(params)
-  const canonical = optionalCanonical(`/ai/events/${event.slug}`)
-  return {
+  return createPageMetadata({
     title: event.title,
-    description: event.summary,
-    alternates: { canonical },
-    openGraph: {
-      type: 'article' as const,
-      title: event.title,
-      description: event.summary,
-      url: canonical,
-      publishedTime: event.first_published_at,
-      modifiedTime: event.updated_at
-    }
-  }
+    description: toMetaDescription(event.summary) ?? event.title,
+    path: `/ai/events/${event.slug}`,
+    type: 'article',
+    publishedTime: event.first_published_at,
+    modifiedTime: event.updated_at
+  })
 }
 export default async function EventPage({ params }: Props) {
   const event = await resolve(params)
@@ -45,17 +45,20 @@ export default async function EventPage({ params }: Props) {
     links.map((link) => link.signal_articles.id)
   )
   const canonical = optionalCanonical(`/ai/events/${event.slug}`)
-  const structured = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: event.title,
-    description: event.summary,
-    datePublished: event.first_published_at,
-    dateModified: event.updated_at,
-    ...(canonical ? { mainEntityOfPage: canonical } : {}),
-    citation: links.map((link) => link.signal_articles.url)
-  }
-  const structuredJson = JSON.stringify(structured).replace(/</g, '\\u003c')
+  const language = looksLikeEnglish(`${event.title}\n${event.summary}`) ? 'en' : 'zh-CN'
+  const structuredJson = canonical
+    ? serializeStructuredData(
+        createEventStructuredData({
+          canonical,
+          title: event.title,
+          description: event.summary,
+          publishedAt: event.first_published_at,
+          modifiedAt: event.updated_at,
+          language,
+          citations: links.map((link) => link.signal_articles.url)
+        })
+      )
+    : undefined
   return (
     <SiteShell>
       <Link className="inline-flex min-h-11 items-center text-sm text-primary" href="/ai/events">
@@ -66,7 +69,7 @@ export default async function EventPage({ params }: Props) {
           slug={event.slug}
           title={event.title}
           summary={event.summary}
-          canTranslate={looksLikeEnglish(`${event.title}\n${event.summary}`)}
+          canTranslate={language === 'en'}
           dateTime={event.occurred_at}
           dateLabel={new Date(event.occurred_at).toLocaleDateString('zh-CN', {
             timeZone: 'Asia/Shanghai'
@@ -110,7 +113,7 @@ export default async function EventPage({ params }: Props) {
           </section>
         )}
       </article>
-      <script type="application/ld+json">{structuredJson}</script>
+      {structuredJson && <script type="application/ld+json">{structuredJson}</script>}
     </SiteShell>
   )
 }

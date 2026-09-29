@@ -1,29 +1,26 @@
+import {
+  findSignalSection,
+  findSignalSource,
+  listSignalSections,
+  listSignalSources
+} from '@rss-site/signals'
+
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-import {
-  aiSources,
-  financeSources,
-  gameSources,
-  newsSources,
-  socialSources,
-  technologySources
-} from './technology-sources'
-
-export const articleSections = [
-  { id: 'ai', title: 'AI', sources: aiSources },
-  { id: 'technology', title: '科技', sources: technologySources },
-  { id: 'news', title: '新闻', sources: newsSources },
-  { id: 'social', title: '社交', sources: socialSources },
-  { id: 'finance', title: '财经', sources: financeSources },
-  { id: 'games', title: '游戏', sources: gameSources }
-] as const
+export const articleSections = listSignalSections()
+  .filter((section) => section.hasArticles)
+  .map((section) => ({
+    id: section.id,
+    title: section.shortTitle,
+    sources: listSignalSources({ section: section.id })
+  }))
 
 export function articleSource(sourceId: string) {
-  for (const section of articleSections) {
-    const source = section.sources.find((entry) => entry.id === sourceId)
-    if (source) return { source, section }
-  }
-  return null
+  const source = findSignalSource(sourceId)
+  if (!source) return null
+  const section = findSignalSection(source.section)
+  if (!section || !section.hasArticles) return null
+  return { source, section: { id: section.id, title: section.shortTitle } }
 }
 
 function createReadableSlug(title: string) {

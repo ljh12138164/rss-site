@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { PaginatedArticleFeed } from '../../../components/paginated-article-feed'
 import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
+import { createPageMetadata } from '../../../lib/seo'
 import {
   type GameSource,
   gameSources,
@@ -25,11 +26,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isGameSourceId(sourceId)) notFound()
 
   const source = getGameSource(sourceId)
-  return {
+  return createPageMetadata({
     title: source.name,
     description: source.description,
-    alternates: { canonical: optionalCanonical(`/games/${source.id}`) }
-  }
+    path: `/games/${source.id}`
+  })
 }
 
 export function GameSourceView({ source, feed }: { source: GameSource; feed: FeedResult }) {
@@ -42,5 +43,3 @@ export default async function GameSourcePage({ params }: Props) {
 
   return <PaginatedArticleFeed section="/games" source={sourceId} />
 }
-
-import { optionalCanonical } from '../../../lib/site-url'

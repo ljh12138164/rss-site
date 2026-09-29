@@ -1,8 +1,3 @@
-import { Bot, Cpu, Sparkles, Terminal, Wrench } from 'lucide-react'
-import type { Metadata } from 'next'
-import { McpClientConfig } from '../../components/mcp-client-config'
-import { SiteShell } from '../../components/site-shell'
-import { optionalCanonical } from '../../lib/site-url'
 import {
   aiSources,
   financeSources,
@@ -11,16 +6,18 @@ import {
   skillSources,
   socialSources,
   technologySources
-} from '../../lib/technology-sources'
+} from '@rss-site/signals'
+import { Bot, Cpu, Sparkles, Terminal, Wrench } from 'lucide-react'
+import { McpClientConfig } from '../../components/mcp-client-config'
+import { SiteShell } from '../../components/site-shell'
+import { createPageMetadata } from '../../lib/seo'
 
-export const metadata: Metadata = {
-  title: '接入 MCP 服务 - 今日热点',
+export const metadata = createPageMetadata({
+  title: '接入 MCP 服务',
   description:
     '支持 Codex CLI、Claude Code、Cursor、Claude Desktop 等 AI 客户端一键命令行接入，支持平台级传参与分类筛选，默认返回全网最新 100 条热点。',
-  alternates: {
-    canonical: optionalCanonical('/mcp')
-  }
-}
+  path: '/mcp'
+})
 
 const sectionsInfo = [
   {

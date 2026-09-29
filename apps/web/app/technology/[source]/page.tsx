@@ -3,6 +3,7 @@ import { notFound, permanentRedirect } from 'next/navigation'
 import { PaginatedArticleFeed } from '../../../components/paginated-article-feed'
 import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
+import { createPageMetadata } from '../../../lib/seo'
 import {
   getTechnologySource,
   isTechnologySourceId,
@@ -26,11 +27,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (sourceId === 'github') permanentRedirect('/github')
 
   const source = getTechnologySource(sourceId)
-  return {
+  return createPageMetadata({
     title: source.id === 'github-blog' ? source.name : `${source.name} 热榜`,
     description: source.description,
-    alternates: { canonical: optionalCanonical(`/technology/${source.id}`) }
-  }
+    path: `/technology/${source.id}`
+  })
 }
 
 export function TechnologySourceView({
@@ -50,5 +51,3 @@ export default async function TechnologySourcePage({ params }: Props) {
 
   return <PaginatedArticleFeed section="/technology" source={sourceId} />
 }
-
-import { optionalCanonical } from '../../../lib/site-url'

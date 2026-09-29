@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { POST } from './route'
+import { app } from '../../../lib/hono-app'
 
 const { paths, tags, callbacks, publication } = vi.hoisted(() => ({
   paths: vi.fn(),
@@ -25,7 +25,7 @@ const request = (input: unknown, secret = 'test-secret') =>
   })
 
 it('schedules external publication only after authorized ISR invalidation', async () => {
-  const response = await POST(request({ section: 'ai', source: 'openai' }))
+  const response = await app.request(request({ section: 'ai', source: 'openai' }))
   expect(response.status).toBe(200)
   expect(paths).toHaveBeenCalledWith('/ai/openai')
   expect(tags).toHaveBeenCalledWith('news-status:openai', { expire: 0 })
@@ -39,7 +39,7 @@ it('schedules external publication only after authorized ISR invalidation', asyn
 })
 
 it('publishes GitHub ingestion to the independent ranking route', async () => {
-  const response = await POST(request({ section: 'technology', source: 'github' }))
+  const response = await app.request(request({ section: 'technology', source: 'github' }))
   expect(response.status).toBe(200)
   expect(paths).toHaveBeenCalledWith('/github')
   expect(paths).not.toHaveBeenCalledWith('/technology/github')
@@ -49,7 +49,7 @@ it('publishes GitHub ingestion to the independent ranking route', async () => {
 })
 
 it('publishes both skill sources only to the shared skills route', async () => {
-  const response = await POST(request({ section: 'skills', source: 'skills-all-time' }))
+  const response = await app.request(request({ section: 'skills', source: 'skills-all-time' }))
   expect(response.status).toBe(200)
   expect(paths).toHaveBeenCalledWith('/skills')
   expect(paths).not.toHaveBeenCalledWith('/skills/skills-all-time')
@@ -59,9 +59,11 @@ it('publishes both skill sources only to the shared skills route', async () => {
 })
 
 it('rejects unauthenticated requests and path injection without invalidating or scheduling work', async () => {
-  expect((await POST(request({ section: 'ai', source: 'openai' }, 'wrong'))).status).toBe(401)
-  expect((await POST(request({ section: 'ai', source: '../news' }))).status).toBe(400)
-  expect((await POST(request({ events: ['../../admin'] }))).status).toBe(400)
+  expect((await app.request(request({ section: 'ai', source: 'openai' }, 'wrong'))).status).toBe(
+    401
+  )
+  expect((await app.request(request({ section: 'ai', source: '../news' }))).status).toBe(400)
+  expect((await app.request(request({ events: ['../../admin'] }))).status).toBe(400)
   expect(paths).not.toHaveBeenCalled()
   expect(callbacks).toHaveLength(0)
 })
@@ -70,14 +72,14 @@ it('does not run external publication if Next invalidation fails', async () => {
   paths.mockImplementationOnce(() => {
     throw new Error('cache failure')
   })
-  expect((await POST(request({ events: ['release-12345678'] }))).status).toBe(500)
+  expect((await app.request(request({ events: ['release-12345678'] }))).status).toBe(500)
   expect(callbacks).toHaveLength(0)
 })
 
 it('isolates background integration failures from the successful response', async () => {
   const log = vi.spyOn(console, 'info').mockImplementation(() => {})
   publication.mockRejectedValueOnce(new Error('private-value'))
-  const response = await POST(request({ events: ['release-12345678'] }))
+  const response = await app.request(request({ events: ['release-12345678'] }))
   expect((await response.json()).revalidated).toBe(true)
   await expect(callbacks[0]()).resolves.toBeUndefined()
   expect(JSON.stringify(log.mock.calls)).not.toContain('private-value')
@@ -86,7 +88,7 @@ it('isolates background integration failures from the successful response', asyn
 
 it('invalidates concrete linked events and correlates publication to ingestion', async () => {
   const batchId = '11111111-1111-4111-8111-111111111111'
-  const response = await POST(
+  const response = await app.request(
     request({ section: 'ai', source: 'openai', events: ['release-12345678'], batchId })
   )
   expect(response.status).toBe(200)

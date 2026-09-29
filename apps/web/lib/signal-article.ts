@@ -1,6 +1,5 @@
-import { articleSource } from './article-route'
+import { getSignalSource, type SignalSourceId } from '@rss-site/signals'
 import { getPublicSupabaseClient } from './supabase'
-import type { SignalSourceId } from './technology-sources'
 
 export interface SignalArticleRow {
   id: string
@@ -14,6 +13,7 @@ export interface SignalArticleRow {
   published_at: string | null
   first_seen_at: string
   last_seen_at: string
+  content_updated_at?: string | null
 }
 
 export interface SignalArticle {
@@ -28,20 +28,24 @@ export interface SignalArticle {
   publishedAt: Date | null
   firstSeenAt: Date
   lastSeenAt: Date
+  contentUpdatedAt?: Date
 }
 
-export type NewsArticleQuery = (
+export type SignalArticleQuery = (
   id: string,
   source: SignalSourceId
 ) => Promise<{ data: SignalArticleRow | null; error: string | null }>
 
-const queryNewsArticle: NewsArticleQuery = async (id, source) => {
+export type NewsArticleQuery = SignalArticleQuery
+
+const querySignalArticle: SignalArticleQuery = async (id, source) => {
   try {
+    const signalSource = getSignalSource(source)
     const result = await getPublicSupabaseClient()
       .from('signal_articles')
       .select('*')
       .eq('id', id)
-      .eq('section', articleSource(source)?.section.id ?? '')
+      .eq('section', signalSource.section)
       .eq('source', source)
       .abortSignal(AbortSignal.timeout(10000))
       .maybeSingle()
@@ -55,10 +59,10 @@ const queryNewsArticle: NewsArticleQuery = async (id, source) => {
   }
 }
 
-export async function getNewsArticle(
+export async function getSignalArticle(
   id: string,
   source: SignalSourceId,
-  query: NewsArticleQuery = queryNewsArticle
+  query: SignalArticleQuery = querySignalArticle
 ): Promise<SignalArticle | null> {
   const result = await query(id, source)
   if (result.error) throw new Error('Unable to load news article')
@@ -75,6 +79,9 @@ export async function getNewsArticle(
     author: result.data.author,
     publishedAt: result.data.published_at ? new Date(result.data.published_at) : null,
     firstSeenAt: new Date(result.data.first_seen_at),
-    lastSeenAt: new Date(result.data.last_seen_at)
+    lastSeenAt: new Date(result.data.last_seen_at),
+    contentUpdatedAt: new Date(result.data.content_updated_at ?? result.data.last_seen_at)
   }
 }
+
+export const getNewsArticle = getSignalArticle

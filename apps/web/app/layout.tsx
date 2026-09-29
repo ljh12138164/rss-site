@@ -4,11 +4,21 @@ import { GoogleScripts } from '../components/google-scripts'
 import { QueryProvider } from '../components/query-provider'
 import { ReactAriaProvider } from '../components/react-aria-provider'
 import { ThemeProvider } from '../components/theme-provider'
+import { SITE_DESCRIPTION } from '../lib/seo'
+import { optionalCanonical } from '../lib/site-url'
 import './globals.css'
 
+const homepage = optionalCanonical('/')
+
 export const metadata: Metadata = {
-  title: { default: '今日热点', template: '%s · 今日热点' },
-  description: 'AI 平台动态，以及科技、新闻、社交、财经和游戏热点。',
+  ...(homepage ? { metadataBase: new URL(homepage) } : {}),
+  applicationName: '今日热点',
+  title: {
+    default: '今日热点 - AI、科技、新闻、财经与游戏热榜',
+    template: '%s · 今日热点'
+  },
+  description: SITE_DESCRIPTION,
+  category: 'news',
   icons: { icon: '/icon.svg' },
   verification: {
     other: {

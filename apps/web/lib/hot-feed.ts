@@ -1,20 +1,16 @@
 import { getPublicSupabaseClient } from './supabase'
 import {
   type AiSourceId,
-  aiSources,
   type FinanceSourceId,
-  financeSources,
   type GameSourceId,
-  gameSources,
+  getSignalSource,
+  listSignalSources,
   type NewsSourceId,
-  newsSources,
+  type SignalSectionId,
   type SignalSourceId,
   type SkillSourceId,
   type SocialSourceId,
-  skillSources,
-  socialSources,
-  type TechnologySourceId,
-  technologySources
+  type TechnologySourceId
 } from './technology-sources'
 
 export interface HotItemRow {
@@ -92,7 +88,7 @@ export type FinanceFeeds = Record<FinanceSourceId, FeedResult>
 export type GameFeeds = Record<GameSourceId, FeedResult>
 
 async function querySectionFeeds(
-  section: 'technology' | 'news' | 'ai' | 'social' | 'finance' | 'games' | 'skills',
+  section: SignalSectionId,
   sourceIds: SignalSourceId[]
 ): Promise<FeedCollectionQueryResult> {
   try {
@@ -121,48 +117,6 @@ async function querySectionFeeds(
     return { items: null, statuses: null, error: 'Supabase is unavailable' }
   }
 }
-
-const queryTechnologyFeeds = () =>
-  querySectionFeeds(
-    'technology',
-    technologySources.map((source) => source.id)
-  )
-
-const querySkillFeeds = () =>
-  querySectionFeeds(
-    'skills',
-    skillSources.map((source) => source.id)
-  )
-
-const queryNewsFeeds = () =>
-  querySectionFeeds(
-    'news',
-    newsSources.map((source) => source.id)
-  )
-
-const queryAiFeeds = () =>
-  querySectionFeeds(
-    'ai',
-    aiSources.map((source) => source.id)
-  )
-
-const querySocialFeeds = () =>
-  querySectionFeeds(
-    'social',
-    socialSources.map((source) => source.id)
-  )
-
-const queryFinanceFeeds = () =>
-  querySectionFeeds(
-    'finance',
-    financeSources.map((source) => source.id)
-  )
-
-const queryGameFeeds = () =>
-  querySectionFeeds(
-    'games',
-    gameSources.map((source) => source.id)
-  )
 
 function buildFeed(
   source: SignalSourceId,
@@ -206,125 +160,86 @@ function buildFeed(
   }
 }
 
-export async function getTechnologyFeeds(
+/**
+ * Generic reader to query all signal feeds for any section.
+ */
+export async function getSectionFeeds<T extends SignalSourceId = SignalSourceId>(
+  section: SignalSectionId,
   limitPerSource?: number,
-  query: FeedCollectionQuery = queryTechnologyFeeds
-): Promise<TechnologyFeeds> {
-  const result = await query()
+  query?: FeedCollectionQuery
+): Promise<Record<T, FeedResult>> {
+  const sources = listSignalSources({ section })
+  const defaultQuery = () =>
+    querySectionFeeds(
+      section,
+      sources.map((s) => s.id)
+    )
+  const result = await (query ?? defaultQuery)()
 
   return Object.fromEntries(
-    technologySources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
-  ) as TechnologyFeeds
+    sources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
+  ) as Record<T, FeedResult>
 }
 
-export async function getSkillFeeds(
-  query: FeedCollectionQuery = querySkillFeeds
-): Promise<SkillFeeds> {
-  const result = await query()
-  return Object.fromEntries(
-    skillSources.map((source) => [source.id, buildFeed(source.id, result)])
-  ) as SkillFeeds
+/**
+ * Generic reader to query a single signal feed by source ID.
+ */
+export async function getSourceFeed(
+  sourceId: SignalSourceId,
+  limit?: number,
+  query?: FeedCollectionQuery
+): Promise<FeedResult> {
+  const source = getSignalSource(sourceId)
+  const defaultQuery = () => querySectionFeeds(source.section, [source.id])
+  const result = await (query ?? defaultQuery)()
+  return buildFeed(source.id, result, limit)
 }
 
-export async function getTechnologyFeed(
+// Section-specific typed specializations (100% backward compatible)
+export const getTechnologyFeeds = (limitPerSource?: number, query?: FeedCollectionQuery) =>
+  getSectionFeeds<TechnologySourceId>('technology', limitPerSource, query)
+
+export const getTechnologyFeed = (
   source: TechnologySourceId,
   limit?: number,
-  query: FeedCollectionQuery = queryTechnologyFeeds
-): Promise<FeedResult> {
-  return buildFeed(source, await query(), limit)
-}
+  query?: FeedCollectionQuery
+) => getSourceFeed(source, limit, query)
 
-export async function getNewsFeeds(
-  limitPerSource?: number,
-  query: FeedCollectionQuery = queryNewsFeeds
-): Promise<NewsFeeds> {
-  const result = await query()
+export const getSkillFeeds = (query?: FeedCollectionQuery) =>
+  getSectionFeeds<SkillSourceId>('skills', undefined, query)
 
-  return Object.fromEntries(
-    newsSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
-  ) as NewsFeeds
-}
+export const getNewsFeeds = (limitPerSource?: number, query?: FeedCollectionQuery) =>
+  getSectionFeeds<NewsSourceId>('news', limitPerSource, query)
 
-export async function getNewsFeed(
-  source: NewsSourceId,
-  limit?: number,
-  query: FeedCollectionQuery = queryNewsFeeds
-): Promise<FeedResult> {
-  return buildFeed(source, await query(), limit)
-}
+export const getNewsFeed = (source: NewsSourceId, limit?: number, query?: FeedCollectionQuery) =>
+  getSourceFeed(source, limit, query)
 
-export async function getAiFeeds(
-  limitPerSource?: number,
-  query: FeedCollectionQuery = queryAiFeeds
-): Promise<AiFeeds> {
-  const result = await query()
+export const getAiFeeds = (limitPerSource?: number, query?: FeedCollectionQuery) =>
+  getSectionFeeds<AiSourceId>('ai', limitPerSource, query)
 
-  return Object.fromEntries(
-    aiSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
-  ) as AiFeeds
-}
+export const getAiFeed = (source: AiSourceId, limit?: number, query?: FeedCollectionQuery) =>
+  getSourceFeed(source, limit, query)
 
-export async function getAiFeed(
-  source: AiSourceId,
-  limit?: number,
-  query: FeedCollectionQuery = queryAiFeeds
-): Promise<FeedResult> {
-  return buildFeed(source, await query(), limit)
-}
+export const getSocialFeeds = (limitPerSource?: number, query?: FeedCollectionQuery) =>
+  getSectionFeeds<SocialSourceId>('social', limitPerSource, query)
 
-export async function getSocialFeeds(
-  limitPerSource?: number,
-  query: FeedCollectionQuery = querySocialFeeds
-): Promise<SocialFeeds> {
-  const result = await query()
-
-  return Object.fromEntries(
-    socialSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
-  ) as SocialFeeds
-}
-
-export async function getSocialFeed(
+export const getSocialFeed = (
   source: SocialSourceId,
   limit?: number,
-  query: FeedCollectionQuery = querySocialFeeds
-): Promise<FeedResult> {
-  return buildFeed(source, await query(), limit)
-}
+  query?: FeedCollectionQuery
+) => getSourceFeed(source, limit, query)
 
-export async function getFinanceFeeds(
-  limitPerSource?: number,
-  query: FeedCollectionQuery = queryFinanceFeeds
-): Promise<FinanceFeeds> {
-  const result = await query()
+export const getFinanceFeeds = (limitPerSource?: number, query?: FeedCollectionQuery) =>
+  getSectionFeeds<FinanceSourceId>('finance', limitPerSource, query)
 
-  return Object.fromEntries(
-    financeSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
-  ) as FinanceFeeds
-}
-
-export async function getFinanceFeed(
+export const getFinanceFeed = (
   source: FinanceSourceId,
   limit?: number,
-  query: FeedCollectionQuery = queryFinanceFeeds
-): Promise<FeedResult> {
-  return buildFeed(source, await query(), limit)
-}
+  query?: FeedCollectionQuery
+) => getSourceFeed(source, limit, query)
 
-export async function getGameFeeds(
-  limitPerSource?: number,
-  query: FeedCollectionQuery = queryGameFeeds
-): Promise<GameFeeds> {
-  const result = await query()
+export const getGameFeeds = (limitPerSource?: number, query?: FeedCollectionQuery) =>
+  getSectionFeeds<GameSourceId>('games', limitPerSource, query)
 
-  return Object.fromEntries(
-    gameSources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
-  ) as GameFeeds
-}
-
-export async function getGameFeed(
-  source: GameSourceId,
-  limit?: number,
-  query: FeedCollectionQuery = queryGameFeeds
-): Promise<FeedResult> {
-  return buildFeed(source, await query(), limit)
-}
+export const getGameFeed = (source: GameSourceId, limit?: number, query?: FeedCollectionQuery) =>
+  getSourceFeed(source, limit, query)

@@ -10,6 +10,15 @@ describe('article HTML', () => {
     )
     expect(renderArticleContent(html, 'https://example.com/article', 'ai')).toContain('Loading…')
   })
+  it('converts CCTV video codes into playable mount divs while stripping other template tags', () => {
+    const html =
+      '<p>[!--begin:htmlVideoCode--]fdec9a65d6a34784bec390395b9431f2,0,1,16:9,newPlayer[!--end:htmlVideoCode--]</p><p>央视快讯：秋粮喜获丰收。[!--page--]</p>'
+    expect(
+      renderArticleContent(html, 'https://news.cctv.com/2026/09/25/ARTIfdec9a65d6a3.shtml', 'news')
+    ).toBe(
+      '<div data-cctv-video="fdec9a65d6a34784bec390395b9431f2" data-cctv-type="0" class="cctv-video-mount"></div><p>央视快讯：秋粮喜获丰收。</p>'
+    )
+  })
   const render = (html: string) => renderArticleContent(html, 'https://example.com/posts/one', 'ai')
   it('preserves readable blocks and normalizes headings', () => {
     const html = render(
