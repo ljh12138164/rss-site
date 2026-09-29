@@ -1,7 +1,12 @@
 import type { ScriptProps } from 'next/script'
 import type { ReactElement } from 'react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { GoogleScripts } from './google-scripts'
+
+let mockPathname = '/'
+vi.mock('next/navigation', () => ({
+  usePathname: () => mockPathname
+}))
 
 describe('GoogleScripts', () => {
   it('renders Baidu Tongji analytics script element', () => {
@@ -53,5 +58,8 @@ describe('GoogleScripts', () => {
   it('does not render tracking scripts on /out pathname', () => {
     expect(GoogleScripts({ pathname: '/out' })).toBeNull()
     expect(GoogleScripts({ pathname: '/out/sub' })).toBeNull()
+    mockPathname = '/out'
+    expect(GoogleScripts()).toBeNull()
+    mockPathname = '/'
   })
 })

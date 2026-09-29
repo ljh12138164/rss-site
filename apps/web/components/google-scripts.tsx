@@ -1,7 +1,12 @@
+'use client'
+
+import { usePathname } from 'next/navigation'
 import Script from 'next/script'
 
-export function GoogleScripts({ pathname }: { pathname?: string } = {}) {
-  const isOutbound = pathname === '/out' || pathname?.startsWith('/out/')
+export function GoogleScripts({ pathname: propPathname }: { pathname?: string } = {}) {
+  const navPathname = usePathname()
+  const currentPath = propPathname ?? navPathname ?? ''
+  const isOutbound = currentPath === '/out' || currentPath.startsWith('/out/')
 
   if (isOutbound) {
     return null
