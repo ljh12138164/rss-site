@@ -28,6 +28,15 @@ export function GoogleScripts() {
         strategy="lazyOnload"
         crossOrigin="anonymous"
       />
+      <Script id="baidu-tongji" strategy="afterInteractive">
+        {`var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?d906269be472d4daeba2a571af55c48c";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();`}
+      </Script>
     </>
   )
 }
