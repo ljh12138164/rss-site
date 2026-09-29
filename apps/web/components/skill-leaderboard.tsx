@@ -1,7 +1,6 @@
 'use client'
 
 import { ArrowUpRight, Download } from 'lucide-react'
-import Link from 'next/link'
 import { Tab, TabList, TabPanel, Tabs } from 'react-aria-components'
 import type { FeedResult, SkillFeeds } from '../lib/hot-feed'
 import { EmptyFeed, FeedError } from './feed-state'
@@ -45,7 +44,7 @@ function SkillFeed({ feed }: { feed: FeedResult }) {
       {feed.items.map((item) => {
         const metadata = parseSkillMetadata(item.summary)
         const name = item.title.replace(/^#\d+\s+/, '')
-        const href = `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent('/skills')}`
+        const href = item.url
         return (
           <li
             className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-md border-b border-border/80 px-2.5 py-5 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6"
@@ -55,7 +54,13 @@ function SkillFeed({ feed }: { feed: FeedResult }) {
               {String(item.position).padStart(2, '0')}
             </span>
             <article className="min-w-0">
-              <Link className="group block text-foreground" href={href}>
+              <a
+                className="group block text-foreground"
+                href={href}
+                target="_blank"
+                rel="noreferrer noopener external"
+                data-outbound
+              >
                 <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-[1.0625rem]">
                   <span className="min-w-0 wrap-anywhere">{name}</span>
                   <ArrowUpRight
@@ -77,7 +82,7 @@ function SkillFeed({ feed }: { feed: FeedResult }) {
                   ) : null}
                   {metadata.source ? <span className="truncate">{metadata.source}</span> : null}
                 </span>
-              </Link>
+              </a>
             </article>
           </li>
         )

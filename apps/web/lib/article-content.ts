@@ -2,7 +2,7 @@ import sanitizeHtml from 'sanitize-html'
 import { cleanFeedArticleHtml } from '../../../shared/openai-content'
 
 // This function must run before stored, untrusted Feed HTML reaches the document.
-export function renderArticleContent(html: string, originalUrl: string, section: string) {
+export function renderArticleContent(html: string, originalUrl: string, _section?: string) {
   if (Buffer.byteLength(html, 'utf8') > 512 * 1024) return ''
   return sanitizeHtml(cleanFeedArticleHtml(html, originalUrl), {
     allowedTags: [
@@ -41,7 +41,7 @@ export function renderArticleContent(html: string, originalUrl: string, section:
       'a'
     ],
     allowedAttributes: {
-      a: ['href', 'rel'],
+      a: ['href', 'rel', 'target', 'data-outbound'],
       div: ['data-cctv-video', 'data-cctv-type', 'class'],
       th: ['colspan', 'rowspan', 'scope'],
       td: ['colspan', 'rowspan'],
@@ -76,8 +76,10 @@ export function renderArticleContent(html: string, originalUrl: string, section:
           return {
             tagName: 'a',
             attribs: {
-              href: `/out?url=${encodeURIComponent(url.href)}&from=${encodeURIComponent(`/${section}`)}`,
-              rel: 'nofollow noopener noreferrer'
+              href: url.href,
+              target: '_blank',
+              rel: 'nofollow noopener noreferrer',
+              'data-outbound': 'true'
             }
           }
         } catch {

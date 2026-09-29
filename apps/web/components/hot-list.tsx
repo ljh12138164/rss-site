@@ -44,9 +44,12 @@ export function HotList({
           sourceId && item.articleId
             ? createArticlePath(sourceId, item.title, item.articleId)
             : null
-        const href =
-          internalHref ??
-          `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(returnTo)}`
+        const isInternal = Boolean(internalHref)
+        const href = internalHref ?? item.url
+        const LinkComponent = isInternal ? Link : 'a'
+        const outboundProps = isInternal
+          ? {}
+          : { target: '_blank', rel: 'noreferrer noopener external', 'data-outbound': '' }
 
         return (
           <li
@@ -57,7 +60,11 @@ export function HotList({
               {String(item.position).padStart(2, '0')}
             </span>
             <article className="min-w-0">
-              <Link className="group block max-w-full text-foreground" href={href}>
+              <LinkComponent
+                className="group block max-w-full text-foreground"
+                href={href}
+                {...outboundProps}
+              >
                 <span className="block min-w-0">
                   <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-[1.0625rem]">
                     <span className="min-w-0 wrap-anywhere">{item.title}</span>
@@ -90,7 +97,7 @@ export function HotList({
                     </span>
                   ) : null}
                 </span>
-              </Link>
+              </LinkComponent>
               <div className="mt-2.5 flex items-center justify-between gap-2">
                 {item.platform ? (
                   <Link

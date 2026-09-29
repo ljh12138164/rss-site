@@ -1,9 +1,18 @@
 import Script from 'next/script'
 
-export function GoogleScripts() {
+export function GoogleScripts({ pathname }: { pathname?: string } = {}) {
+  const isOutbound = pathname === '/out' || pathname?.startsWith('/out/')
+
+  if (isOutbound) {
+    return null
+  }
+
   const ga = process.env.NEXT_PUBLIC_GA_ID
   return (
     <>
+      <Script id="umami-before-send" strategy="beforeInteractive">
+        {`window.umamiBeforeSend=function(type,payload){if(payload&&payload.url&&(payload.url==='/out'||payload.url.startsWith('/out?')||payload.url.startsWith('/out/')))return false;return payload;};`}
+      </Script>
       {ga && /^G-[A-Z0-9]+$/.test(ga) && (
         <>
           <Script id="google-analytics" strategy="afterInteractive">
@@ -20,6 +29,7 @@ export function GoogleScripts() {
         defer
         src="/stats/script.js"
         data-website-id="9347c606-1b27-41fb-94a2-c124d3054d85"
+        data-before-send="umamiBeforeSend"
         strategy="afterInteractive"
       />
       <Script
@@ -31,6 +41,7 @@ export function GoogleScripts() {
       <Script id="baidu-tongji" strategy="afterInteractive">
         {`var _hmt = _hmt || [];
 (function() {
+  if (window.location.pathname === '/out' || window.location.pathname.startsWith('/out/')) return;
   var hm = document.createElement("script");
   hm.src = "https://hm.baidu.com/hm.js?d906269be472d4daeba2a571af55c48c";
   var s = document.getElementsByTagName("script")[0]; 

@@ -25,11 +25,11 @@ describe('HotList', () => {
     expect(html).toContain('从边界状态和数据流开始设计。')
     expect(html).toContain('示例作者')
     expect(html.replace(/<[^>]*>/g, '')).toContain('2026/09/04 09:00')
-    expect(html).toContain(
-      'href="/out?url=https%3A%2F%2Fjuejin.cn%2Fpost%2F1&amp;from=%2Ftechnology"'
-    )
-    expect(html).not.toContain('href="https://juejin.cn/post/1"')
-    expect(html).not.toContain('target="_blank"')
+    expect(html).toContain('href="https://juejin.cn/post/1"')
+    expect(html).toContain('target="_blank"')
+    expect(html).toContain('data-outbound')
+    expect(html).toContain('rel="noreferrer noopener external"')
+    expect(html).not.toContain('href="/out?')
   })
 
   it('links persisted news items to their internal detail page', () => {
@@ -87,10 +87,10 @@ describe('HotList', () => {
     expect(html).toContain('JavaScript')
     expect(html).toContain('44,795')
     expect(html).toContain('10,384')
-    expect(html).toContain('https://github.com/sudheerj.png?size=80')
-    expect(html).toContain(
-      'href="/out?url=https%3A%2F%2Fgithub.com%2Fsudheerj%2Freactjs-interview-questions&amp;from=%2Ftechnology"'
-    )
+    expect(html).toContain('href="https://github.com/sudheerj/reactjs-interview-questions"')
+    expect(html).toContain('target="_blank"')
+    expect(html).toContain('data-outbound')
+    expect(html).not.toContain('href="/out?')
     expect(html).not.toContain('/technology/github/')
     expect(html).not.toContain('Language:')
     expect(html).not.toContain('Stars:')

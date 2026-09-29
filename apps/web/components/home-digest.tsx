@@ -15,9 +15,7 @@ function getArticleHref(item: HomeArticle, returnTo: OutboundReturnPath = '/') {
       : null
 
   return {
-    href:
-      internalHref ??
-      `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(returnTo)}`,
+    href: internalHref ?? item.url,
     isInternal: Boolean(internalHref)
   }
 }
@@ -47,22 +45,38 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
                     {String(item.position).padStart(2, '0')}
                   </span>
                   <div className="min-w-0">
-                    <Link href={href} className="group block text-foreground">
-                      <span className="inline-flex max-w-full items-start gap-1.5 font-serif text-base font-semibold leading-7 group-hover:text-primary sm:text-lg">
-                        <span className="min-w-0 wrap-anywhere">{item.title}</span>
-                        {isInternal ? (
-                          <ArrowRight
-                            aria-hidden="true"
-                            className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-1 group-hover:text-primary"
-                          />
-                        ) : (
-                          <ArrowUpRight
-                            aria-hidden="true"
-                            className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
-                          />
-                        )}
-                      </span>
-                    </Link>
+                    {(() => {
+                      const LinkComponent = isInternal ? Link : 'a'
+                      const outboundProps = isInternal
+                        ? {}
+                        : {
+                            target: '_blank',
+                            rel: 'noreferrer noopener external',
+                            'data-outbound': ''
+                          }
+                      return (
+                        <LinkComponent
+                          href={href}
+                          className="group block text-foreground"
+                          {...outboundProps}
+                        >
+                          <span className="inline-flex max-w-full items-start gap-1.5 font-serif text-base font-semibold leading-7 group-hover:text-primary sm:text-lg">
+                            <span className="min-w-0 wrap-anywhere">{item.title}</span>
+                            {isInternal ? (
+                              <ArrowRight
+                                aria-hidden="true"
+                                className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-1 group-hover:text-primary"
+                              />
+                            ) : (
+                              <ArrowUpRight
+                                aria-hidden="true"
+                                className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
+                              />
+                            )}
+                          </span>
+                        </LinkComponent>
+                      )
+                    })()}
                     <p className="mt-1.5 flex items-center gap-2 font-mono text-xs text-muted-foreground">
                       <SourceIcon className="size-4 shrink-0" source={item.platform} />
                       <span className="truncate">{item.platform.shortName}</span>
@@ -97,15 +111,24 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
                   <li className="text-sm text-muted-foreground">暂无内容</li>
                 )}
                 {section.items.map((item) => {
-                  const { href } = getArticleHref(item, section.path)
+                  const { href, isInternal } = getArticleHref(item, section.path)
+                  const LinkComponent = isInternal ? Link : 'a'
+                  const outboundProps = isInternal
+                    ? {}
+                    : {
+                        target: '_blank',
+                        rel: 'noreferrer noopener external',
+                        'data-outbound': ''
+                      }
                   return (
                     <li key={item.articleId} className="min-w-0">
-                      <Link
+                      <LinkComponent
                         href={href}
                         className="group block text-sm leading-6 text-foreground/90 transition-colors duration-150 hover:text-primary"
+                        {...outboundProps}
                       >
                         <span className="line-clamp-2 wrap-anywhere">{item.title}</span>
-                      </Link>
+                      </LinkComponent>
                     </li>
                   )
                 })}

@@ -98,7 +98,7 @@ export function ArticleReader({
         })
       )
     : undefined
-  const outbound = `/out?url=${encodeURIComponent(article.url)}&from=${encodeURIComponent(`/${section.id}`)}`
+  const outbound = article.url
 
   return (
     <SiteShell mainClassName="py-6 sm:py-10">
@@ -159,6 +159,9 @@ export function ArticleReader({
               )}
               <a
                 href={outbound}
+                target="_blank"
+                rel="noreferrer noopener external"
+                data-outbound
                 className="group inline-flex min-h-11 items-center gap-1 transition-colors hover:text-primary"
               >
                 查看原文

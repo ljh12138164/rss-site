@@ -87,7 +87,10 @@ export default async function EventPage({ params }: Props) {
                   </p>
                   <a
                     className="break-words text-primary hover:underline"
-                    href={`/out?url=${encodeURIComponent(article.url)}&from=%2Fai`}
+                    href={article.url}
+                    target="_blank"
+                    rel="noreferrer noopener external"
+                    data-outbound
                   >
                     {article.title}
                   </a>

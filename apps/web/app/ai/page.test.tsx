@@ -41,9 +41,8 @@ describe('AiView', () => {
     expect(html).toContain('>Gemini<')
     expect(html).toContain('部分来源暂时无法加载，请稍后再试。')
     expect(html).not.toContain('暂无内容。')
-    expect(html).not.toContain('查看全部')
-    expect(html.match(/href="\/out\?url=/g)).toHaveLength(21)
-    expect(html).toContain('from=%2Fai')
+    expect(html.match(/data-outbound/g)).toHaveLength(21)
+    expect(html).not.toContain('href="/out?')
     for (const source of aiSources) {
       expect(html).toContain(source.shortName.replaceAll("'", '&#x27;'))
     }

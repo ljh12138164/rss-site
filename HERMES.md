@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-09-29 外链直接直达源站与弹窗优化（保留 /out 兼容）
+ 
+- 分支 `feat/direct-outbound-links` 基于最新 `origin/master` 创建。
+- 目标：将全站外链底层 HTML 改造为真实源站 URL，消除爬虫对 `/out` 路径的刷量污染；保留 `/out` 页面以兼容老版本；升级 `OutboundDialog` 全局弹窗拦截站外链接并在确认后直接新开标签页跳转；在 `/out` 页面屏蔽统计脚本。
+- 开发记录：`docs/development/direct-outbound-links.md`。
+- 验证：全仓单测 208/208 项全部通过（62 个测试文件），Turborepo 跨 3 个子包类型检查全部通过，生产构建成功生成 61/61 个页面。
+- 下一步：完成代码 review 后合并或推送至远程分支。
+
 ## 2026-09-28 Deploy without GitHub Actions artifact storage
 
 - Branch `feat/deploy-without-artifact` starts at merged `origin/master` commit `e180430`.

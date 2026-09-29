@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import { OutboundDialog, OutboundDialogView } from './outbound-dialog'
+import { isExternalLink, OutboundDialog, OutboundDialogView } from './outbound-dialog'
 
 describe('OutboundDialog', () => {
   it('does not render an open dialog by default', () => {
@@ -43,5 +43,49 @@ describe('OutboundDialog', () => {
     expect(html).toContain('即将离开本站')
     expect(html).not.toContain('javascript:')
     expect(html).toContain('href="/"')
+  })
+
+  it('renders confirmation dialog when pending is a direct external URL', () => {
+    const directUrl = 'https://github.com/trending'
+    const html = renderToStaticMarkup(
+      <OutboundDialogView destination={directUrl} pending={directUrl} onClose={() => {}} />
+    )
+
+    expect(html).toContain('即将离开本站')
+    expect(html).toContain(directUrl)
+    expect(html).toContain(`href="${directUrl}"`)
+    expect(html).toContain('target="_blank"')
+  })
+})
+
+describe('isExternalLink', () => {
+  it('identifies /out? URLs as external', () => {
+    const el = { hasAttribute: () => false }
+    expect(isExternalLink(el, '/out?url=https%3A%2F%2Fexample.com')).toBe(true)
+  })
+
+  it('identifies data-outbound anchors as external', () => {
+    const el = { hasAttribute: (attr: string) => attr === 'data-outbound' }
+    expect(isExternalLink(el, 'https://example.com/article')).toBe(true)
+  })
+
+  it('identifies cross-origin absolute URLs as external', () => {
+    const el = { hasAttribute: () => false }
+    expect(isExternalLink(el, 'https://external-domain.com/path', 'https://news.ljhboard.cn')).toBe(
+      true
+    )
+  })
+
+  it('does not treat same-origin absolute URLs as external unless data-outbound is present', () => {
+    const el = { hasAttribute: () => false }
+    expect(isExternalLink(el, 'https://news.ljhboard.cn/finance', 'https://news.ljhboard.cn')).toBe(
+      false
+    )
+  })
+
+  it('does not treat relative URLs without data-outbound as external', () => {
+    const el = { hasAttribute: () => false }
+    expect(isExternalLink(el, '/technology/hacker-news', 'https://news.ljhboard.cn')).toBe(false)
+    expect(isExternalLink(el, '/', 'https://news.ljhboard.cn')).toBe(false)
   })
 })

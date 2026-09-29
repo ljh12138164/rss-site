@@ -8,6 +8,23 @@ import { actionStyles } from './action-styles'
 
 const OUT_HREF = /^\/out\?/
 
+export function isExternalLink(
+  anchor: { hasAttribute: (name: string) => boolean },
+  href: string,
+  currentOrigin = typeof window !== 'undefined' ? window.location?.origin : ''
+) {
+  if (OUT_HREF.test(href) || anchor.hasAttribute('data-outbound')) {
+    return true
+  }
+  try {
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+      const origin = new URL(href).origin
+      return !currentOrigin || origin !== currentOrigin
+    }
+  } catch {}
+  return false
+}
+
 export function OutboundDialogView({
   destination,
   onClose,
@@ -54,9 +71,9 @@ export function OutboundDialogView({
 }
 
 /**
- * Global outbound-link confirmation. Intercepts clicks on `/out?url=…` links
- * anywhere in the shell and asks before leaving. The `/out` page remains as
- * the no-JS / SEO fallback.
+ * Global outbound-link confirmation. Intercepts clicks on external/outbound links
+ * anywhere in the shell and asks before leaving. Also maintains backwards
+ * compatibility with `/out?url=…` links.
  */
 export function OutboundDialog() {
   const [pending, setPending] = useState<string | null>(null)
@@ -64,9 +81,9 @@ export function OutboundDialog() {
   const onDocumentClick = useCallback((event: MouseEvent) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey) return
     const anchor = (event.target as HTMLElement | null)?.closest('a')
-    if (!anchor) return
+    if (!anchor || anchor.closest('[role="alertdialog"]')) return
     const href = anchor.getAttribute('href')
-    if (!href || !OUT_HREF.test(href)) return
+    if (!href || !isExternalLink(anchor, href)) return
     event.preventDefault()
     setPending(href)
   }, [])
@@ -76,7 +93,11 @@ export function OutboundDialog() {
     return () => document.removeEventListener('click', onDocumentClick, true)
   }, [onDocumentClick])
 
-  const rawDestination = pending ? new URLSearchParams(pending.split('?')[1]).get('url') : null
+  const rawDestination = pending
+    ? OUT_HREF.test(pending)
+      ? new URLSearchParams(pending.split('?')[1]).get('url')
+      : pending
+    : null
   const destination = rawDestination ? resolveOutboundDestination(rawDestination) : null
 
   return (

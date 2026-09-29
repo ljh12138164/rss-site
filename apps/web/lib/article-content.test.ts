@@ -35,14 +35,13 @@ describe('article HTML', () => {
     )
     expect(html).toBe('<p>safe</p><span>bad</span>')
   })
-  it('resolves relative source links and preserves the outbound notice', () => {
+  it('resolves relative source links and preserves outbound attributes', () => {
     const html = render(
       '<a href="../two?q=1&amp;x=2" target="_top" ping="https://tracker.test">read</a>'
     )
-    expect(html).toContain(
-      '/out?url=https%3A%2F%2Fexample.com%2Ftwo%3Fq%3D1%26x%3D2&amp;from=%2Fai'
-    )
-    expect(html).not.toContain('target=')
+    expect(html).toContain('href="https://example.com/two?q=1&amp;x=2"')
+    expect(html).toContain('target="_blank"')
+    expect(html).toContain('data-outbound="true"')
     expect(html).not.toContain('ping=')
     expect(render(html)).toBe(html)
   })

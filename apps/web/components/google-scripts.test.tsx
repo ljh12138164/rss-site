@@ -6,6 +6,8 @@ import { GoogleScripts } from './google-scripts'
 describe('GoogleScripts', () => {
   it('renders Baidu Tongji analytics script element', () => {
     const element = GoogleScripts()
+    expect(element).not.toBeNull()
+    if (!element) throw new Error('Expected element')
     const children = (
       Array.isArray(element.props.children)
         ? element.props.children.flat()
@@ -23,6 +25,8 @@ describe('GoogleScripts', () => {
 
   it('renders Umami and Google AdSense script elements', () => {
     const element = GoogleScripts()
+    expect(element).not.toBeNull()
+    if (!element) throw new Error('Expected element')
     const children = (
       Array.isArray(element.props.children)
         ? element.props.children.flat()
@@ -31,10 +35,23 @@ describe('GoogleScripts', () => {
 
     const umamiScript = children.find((child) => child.props.id === 'umami-analytics')
     expect(umamiScript).toBeDefined()
-    expect(umamiScript?.props.src).toBe('/stats/script.js')
+    if (!umamiScript) throw new Error('Expected umamiScript')
+    expect(umamiScript.props.src).toBe('/stats/script.js')
+    expect((umamiScript.props as Record<string, unknown>)['data-before-send']).toBe(
+      'umamiBeforeSend'
+    )
+
+    const beforeSendScript = children.find((child) => child.props.id === 'umami-before-send')
+    expect(beforeSendScript).toBeDefined()
+    expect(beforeSendScript?.props.children).toContain('/out')
 
     const adsenseScript = children.find((child) => child.props.id === 'google-adsense')
     expect(adsenseScript).toBeDefined()
     expect(adsenseScript?.props.src).toContain('pagead2.googlesyndication.com')
+  })
+
+  it('does not render tracking scripts on /out pathname', () => {
+    expect(GoogleScripts({ pathname: '/out' })).toBeNull()
+    expect(GoogleScripts({ pathname: '/out/sub' })).toBeNull()
   })
 })

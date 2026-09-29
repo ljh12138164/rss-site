@@ -29,8 +29,10 @@ describe('SkillLeaderboard', () => {
     expect(html).toContain('增长最快')
     expect(html).toContain('example-skill')
     expect(html).toContain('Helps with examples.')
-    expect(html).toContain('1,234')
-    expect(html).toContain('from=%2Fskills')
+    expect(html).toContain('href="https://www.skills.sh/owner/repo/example-skill"')
+    expect(html).toContain('target="_blank"')
+    expect(html).toContain('data-outbound')
+    expect(html).not.toContain('href="/out?')
   })
 
   it('parses leaderboard metadata and tolerates missing values', () => {

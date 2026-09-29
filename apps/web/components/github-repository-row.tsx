@@ -1,5 +1,4 @@
 import { ArrowUpRight, GitFork, Star } from 'lucide-react'
-import Link from 'next/link'
 import { parseGitHubRepository } from '../lib/github-repository'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
@@ -8,13 +7,13 @@ const countFormatter = new Intl.NumberFormat('en-US')
 
 export function GitHubRepositoryRow({
   item,
-  returnTo
+  returnTo: _returnTo
 }: {
   item: HotItem
-  returnTo: OutboundReturnPath
+  returnTo?: OutboundReturnPath
 }) {
   const repository = parseGitHubRepository(item)
-  const href = `/out?url=${encodeURIComponent(item.url)}&from=${encodeURIComponent(returnTo)}`
+  const href = item.url
 
   return (
     <li className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-md border-b border-border/80 px-2.5 py-5 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6">
@@ -36,7 +35,13 @@ export function GitHubRepositoryRow({
             </span>
           </div>
         ) : null}
-        <Link className="group block max-w-full text-foreground" href={href}>
+        <a
+          className="group block max-w-full text-foreground"
+          href={href}
+          target="_blank"
+          rel="noreferrer noopener external"
+          data-outbound
+        >
           <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-[1.0625rem]">
             <span className="min-w-0 wrap-anywhere">{repository.name}</span>
             <ArrowUpRight
@@ -74,7 +79,7 @@ export function GitHubRepositoryRow({
               ) : null}
             </span>
           ) : null}
-        </Link>
+        </a>
       </article>
     </li>
   )
