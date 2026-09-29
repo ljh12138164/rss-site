@@ -12,7 +12,8 @@ export const metadata: Metadata = {
   icons: { icon: '/icon.svg' },
   verification: {
     other: {
-      'msvalidate.01': '1D97E9469470F8C3242E298438BF37AD'
+      'msvalidate.01': '1D97E9469470F8C3242E298438BF37AD',
+      'baidu-site-verification': 'codeva-DbvPspLmOE'
     }
   }
 }
