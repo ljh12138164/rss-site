@@ -1,8 +1,43 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AiEvent } from './ai-events'
 import { looksLikeEnglish } from './article-language'
-import { translateArticle, translateEvent } from './article-translation'
+import {
+  TranslationBusyError,
+  translateArticle,
+  translateArticleOnce,
+  translateEvent,
+  translateEventOnce
+} from './article-translation'
 import type { SignalArticle } from './signal-article'
+
+const cache = vi.hoisted(() => new Map<string, string>())
+vi.mock('./redis-cache', async (importOriginal) => {
+  const original = await importOriginal<typeof import('./redis-cache')>()
+  return {
+    ...original,
+    readResultCache: async (key: string, validate: (value: unknown) => boolean) => {
+      const value = JSON.parse(cache.get(key) ?? 'null')
+      return validate(value) ? value : null
+    },
+    writeResultCache: async (key: string, value: unknown) => {
+      cache.set(key, JSON.stringify(value))
+    }
+  }
+})
+
+const translateText = vi.hoisted(() => vi.fn(async (text: string) => `中文：${text}`))
+vi.mock('mtranserver', () => ({
+  MTran: class {
+    init = async () => undefined
+    downloadModel = async () => undefined
+    translate = (_from: string, _to: string, text: string) => translateText(text)
+  }
+}))
+
+beforeEach(() => {
+  cache.clear()
+  translateText.mockClear()
+})
 
 const article: SignalArticle = {
   id: '550e8400-e29b-41d4-a716-446655440000',
@@ -29,6 +64,82 @@ const event: AiEvent = {
 }
 
 describe('article translation', () => {
+  it('reuses article translation across sequential requests', async () => {
+    const first = await translateArticleOnce(article, 'technology')
+    translateText.mockClear()
+    expect(await translateArticleOnce(article, 'technology')).toEqual(first)
+    expect(translateText).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { title: 'An updated guide to building reliable software systems' },
+    { contentHtml: '<p>This is revised article content for readers.</p>' },
+    { summary: 'An updated summary of this article.' },
+    { url: 'https://example.com/posts/revised' }
+  ])('does not reuse stale translations after article input changes: %j', async (changes) => {
+    await translateArticleOnce(article, 'technology')
+    translateText.mockClear()
+    await translateArticleOnce({ ...article, ...changes }, 'technology')
+    expect(translateText).toHaveBeenCalledTimes(2)
+  })
+
+  it('returns cache hits while new translations are at capacity', async () => {
+    const cached = await translateEventOnce(event)
+    translateText.mockClear()
+    let releaseFirst!: (value: string) => void
+    let releaseSecond!: (value: string) => void
+    translateText
+      .mockImplementationOnce(
+        () =>
+          new Promise<string>((resolve) => {
+            releaseFirst = resolve
+          })
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<string>((resolve) => {
+            releaseSecond = resolve
+          })
+      )
+    const first = translateArticleOnce(article, 'technology')
+    const second = translateArticleOnce({ ...article, id: 'second' }, 'technology')
+    try {
+      await vi.waitFor(() => expect(translateText).toHaveBeenCalledTimes(2))
+      await expect(
+        translateArticleOnce({ ...article, id: 'third' }, 'technology')
+      ).rejects.toBeInstanceOf(TranslationBusyError)
+      expect(await translateEventOnce(event)).toEqual(cached)
+    } finally {
+      releaseFirst('第一篇译文')
+      releaseSecond('第二篇译文')
+      await Promise.all([first, second])
+    }
+  })
+
+  it('caches event translations separately from articles', async () => {
+    const first = await translateEventOnce({ ...event, id: article.id })
+    await translateArticleOnce(article, 'technology')
+    translateText.mockClear()
+    expect(await translateEventOnce({ ...event, id: article.id })).toEqual(first)
+    expect(translateText).not.toHaveBeenCalled()
+  })
+
+  it('shares concurrent requests for the same article', async () => {
+    const results = await Promise.all([
+      translateArticleOnce(article, 'technology'),
+      translateArticleOnce(article, 'technology')
+    ])
+    expect(results[0]).toEqual(results[1])
+    expect(translateText).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not cache failed translations and permits retry', async () => {
+    translateText.mockRejectedValueOnce(new Error('translation failed'))
+    await expect(translateArticleOnce(article, 'technology')).rejects.toThrow('translation failed')
+    expect(cache.size).toBe(0)
+    expect((await translateArticleOnce(article, 'technology')).title).toBe(`中文：${article.title}`)
+  })
+
   it('only classifies predominantly English content as English', () => {
     expect(looksLikeEnglish('A practical guide to building reliable software systems')).toBe(true)
     expect(looksLikeEnglish('这是一篇中文技术文章，介绍可靠的软件系统。')).toBe(false)

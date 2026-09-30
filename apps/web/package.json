@@ -19,6 +19,7 @@
     "clsx": "2.1.1",
     "hls.js": "^1.7.3",
     "hono": "4.13.5",
+    "ioredis": "6.0.0",
     "lucide-react": "1.40.0",
     "mtranserver": "4.0.33",
     "next": "16.3.4",

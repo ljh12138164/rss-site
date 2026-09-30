@@ -73,6 +73,7 @@ rollback() {
 trap rollback ERR
 install -m 644 "$TEMP/compose.yaml" "$STACK/compose.yaml"
 write_tag "$TAG"
+docker compose --project-directory "$STACK" pull redis
 docker compose --project-directory "$STACK" up -d --pull never web
 healthy
 install -m 755 "$TEMP/deploy/server/deploy-rss-site" /usr/local/sbin/deploy-rss-site

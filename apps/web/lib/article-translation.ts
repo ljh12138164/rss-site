@@ -3,6 +3,7 @@ import type { MTran } from 'mtranserver'
 import type { AiEvent } from './ai-events'
 import { renderArticleContent } from './article-content'
 import { looksLikeEnglish } from './article-language'
+import { createResultCacheKey, readResultCache, writeResultCache } from './redis-cache'
 import type { SignalArticle } from './signal-article'
 
 export interface ArticleTranslation {
@@ -97,8 +98,49 @@ function runTranslationOnce<T>(key: string, translate: () => Promise<T>) {
   return task
 }
 
-export function translateArticleOnce(article: SignalArticle, section: string) {
-  return runTranslationOnce(`article:${article.id}`, () => translateArticle(article, section))
+function isEventTranslation(value: unknown): value is EventTranslation {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'title' in value &&
+    typeof value.title === 'string' &&
+    'summary' in value &&
+    typeof value.summary === 'string'
+  )
+}
+
+function isArticleTranslation(value: unknown): value is ArticleTranslation {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'title' in value &&
+    typeof value.title === 'string' &&
+    'contentHtml' in value &&
+    (value.contentHtml === null || typeof value.contentHtml === 'string') &&
+    'summary' in value &&
+    (value.summary === null || typeof value.summary === 'string')
+  )
+}
+
+// Bump this version when the model or rendering/translation behavior changes.
+const translationCacheVersion = 'mtran-4.0.33-en-zh-v1'
+
+export async function translateArticleOnce(article: SignalArticle, section: string) {
+  const key = createResultCacheKey('translation:article', translationCacheVersion, [
+    article.id,
+    article.title,
+    article.contentHtml,
+    article.summary,
+    article.url,
+    section
+  ])
+  const cached = await readResultCache(key, isArticleTranslation)
+  if (cached) return cached
+  return runTranslationOnce(key, async () => {
+    const result = await translateArticle(article, section)
+    await writeResultCache(key, result)
+    return result
+  })
 }
 
 export async function translateEvent(
@@ -115,6 +157,17 @@ export async function translateEvent(
   }
 }
 
-export function translateEventOnce(event: AiEvent) {
-  return runTranslationOnce(`event:${event.id}`, () => translateEvent(event))
+export async function translateEventOnce(event: AiEvent) {
+  const key = createResultCacheKey('translation:event', translationCacheVersion, [
+    event.id,
+    event.title,
+    event.summary
+  ])
+  const cached = await readResultCache(key, isEventTranslation)
+  if (cached) return cached
+  return runTranslationOnce(key, async () => {
+    const result = await translateEvent(event)
+    await writeResultCache(key, result)
+    return result
+  })
 }

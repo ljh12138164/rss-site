@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-09-30 Redis translation result cache
+
+- Branch `feat/redis-ai-cache` starts at latest `origin/master` (`58b6d80`).
+- Objective: article/event translation results expire after seven days in Redis; share key/read/write helpers with future AI summaries.
+- Development record: `docs/development/redis-ai-cache.md`.
+- The existing GoogleScripts GTM test edit remains local and is excluded at the user's request.
+- Verification: 23 cache-focused tests, 228 Web tests excluding the unrelated GTM file, all workspace type checks, changed-file Biome and 61-page production build passed. Bun + real Redis smoke check verified TTL 604800, hit behavior, expiration and outage fallback. Independent review closed with no blocking findings.
+- Delivery: reviewable feature branch; owner creates and merges the PR against `master` after publication. CI and deployment still need to validate the full Linux container and production Redis rollout.
+
 ## 2026-09-29 外链直接直达源站与弹窗优化（保留 /out 兼容）
  
 - 分支 `feat/direct-outbound-links` 基于最新 `origin/master` 创建。

@@ -5,6 +5,11 @@ services:
     pull_policy: never
     restart: unless-stopped
     env_file: runtime.env
+    environment:
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "127.0.0.1:18104:3000"
     volumes:
@@ -16,5 +21,24 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redis-data:/data
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   mtran-data:
+  redis-data:
