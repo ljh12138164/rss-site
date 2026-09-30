@@ -8,6 +8,7 @@
 - The existing GoogleScripts GTM test edit remains local and is excluded at the user's request.
 - Verification: 23 cache-focused tests, 228 Web tests excluding the unrelated GTM file, all workspace type checks, changed-file Biome and 61-page production build passed. Bun + real Redis smoke check verified TTL 604800, hit behavior, expiration and outage fallback. Independent review closed with no blocking findings.
 - Delivery: reviewable feature branch; owner creates and merges the PR against `master` after publication. CI and deployment still need to validate the full Linux container and production Redis rollout.
+- Product commit: `c81ea4f`. Push is currently blocked by GitHub connection resets/TLS failures, including HTTP/1.1 and local proxy retries. Next action: retry `git push -u origin feat/redis-ai-cache`, then create and merge the PR against `master`.
 
 ## 2026-09-29 外链直接直达源站与弹窗优化（保留 /out 兼容）
  

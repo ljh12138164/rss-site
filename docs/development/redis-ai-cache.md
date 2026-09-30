@@ -42,6 +42,7 @@ Feasible: translation runs in the self-hosted Next Node-compatible/Bun runtime. 
 ## Review
 - Independent requesting-code-review review found the stalled connection retention issue; it was resolved and re-reviewed. No blocking findings remain, and there are no accepted follow-ups requiring a roadmap in this change.
 - [ioredis API documentation](https://redis.github.io/ioredis/) and [Redis SET documentation](https://redis.io/docs/latest/commands/set/) support the connection settings and atomic expiration used here.
+- Implementation committed locally as `c81ea4f`. Remote publication is blocked by GitHub connection resets/TLS errors after standard, HTTP/1.1 and proxy retries. Retry publication when connectivity recovers; no PR was created and no production deployment was performed.
 
 ## Risks
 - Redis can evict results before seven days under memory pressure; seven days is a maximum lifetime, not guaranteed retention.
