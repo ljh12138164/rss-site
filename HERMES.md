@@ -9,6 +9,8 @@
 - Verification: both packaging regression tests, YAML parse, Bash syntax, diff checks and all 323 workspace tests passed. Independent review confirmed compatibility with the old installed loader; no blocking findings remain. Actual image save/load and production rollout remain CI/deployment checks.
 - Next: commit/push, owner creates and merges PR to `master`, then deploy the fix commit.
 - Fix commit `f7091ea`; push attempts failed (GitHub direct connection and local proxy TLS handshake). Retry publication when connectivity recovers. Immediate owner workaround: pull `redis:7.4-alpine` on the server with an administrator account, then rerun the failed deployment; the incoming loader will be installed after that successful release.
+- Follow-up: CI fix published on `feat/fix-redis-release-bundle`, based on fetched `origin/master` `fb0965c`; unrelated local GTM commit excluded. Owner creates/merges PR against `master`. No production commands or workflow trigger in this follow-up.
+- Prior authorized Workbench recovery caused an unverified deployment followed by host-wide unavailability; user later confirmed services recovered. No reboot performed. Incident evidence and resource limits recorded in `docs/development/fix-redis-release-bundle.md`.
 
 ## 2026-09-30 Redis translation result cache
 

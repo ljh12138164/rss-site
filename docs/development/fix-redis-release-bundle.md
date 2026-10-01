@@ -35,9 +35,15 @@ The prior cache design remains accepted. This fixes its delivery path without ch
 ## Review
 - Independent review checked the actual `58b6d80` loader and confirmed it loads the shared `image.tar` before Compose startup. Both images in that archive fix the first upgrade while preserving the existing allowlist and rollback path.
 - No blocking findings remain and no accepted follow-ups require a roadmap.
-- Local fix commit: `f7091ea`. Direct/proxy pushes failed due connection/TLS errors; no production operation was performed. Immediate owner workaround is `docker pull redis:7.4-alpine` from the server administrator terminal, then rerun the failed deployment. The permanent fix requires publishing and deploying the updated bundle packaging commit.
+- The fix branch is now published as `feat/fix-redis-release-bundle`, based on fetched `origin/master` (`fb0965c`). The local-only GTM commit remains on local `master` and is excluded from this branch. PR creation and merge remain owner actions under repository rules.
+- Git transport recovered using `rtk proxy git` with per-command Schannel and DNS resolution options. No global Git settings were changed.
+
+## Production incident and current delivery boundary
+- At the user's explicit Workbench authorization, Redis was pulled on ECS and an 87 MB Web + Redis bundle was reconstructed on the production host. The original deployment script was dispatched for Web `fb0965c` with the reviewed incoming script. Subsequent Workbench and SSH access timed out; deployment success and rollback could not be verified.
+- The user reported all services on that shared host were down, then confirmed they recovered. The instance has 2 CPU cores and 2048 MB RAM. Resource pressure is a hypothesis; host logs/metrics were not retrieved to establish the root cause.
+- No reboot was performed. The current follow-up only publishes the CI fix branch; it does not run production commands or trigger a production workflow. Deployment completion and server resource safety are not claimed.
 
 ## Risks
 - Bundle size increases by the Redis image layers. CI needs registry access, as it already does for Docker base images.
 - Production deployment must be rerun for the fix commit; rerunning the old `fb0965c` workflow still uses its old packaging code.
-- No direct production operations were performed.
+- Production service recovery is user-confirmed; the Redis rollout state remains unverified. Further production operations need to account for the shared host's limited resources.
