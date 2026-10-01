@@ -35,6 +35,7 @@ The prior cache design remains accepted. This fixes its delivery path without ch
 ## Review
 - Independent review checked the actual `58b6d80` loader and confirmed it loads the shared `image.tar` before Compose startup. Both images in that archive fix the first upgrade while preserving the existing allowlist and rollback path.
 - No blocking findings remain and no accepted follow-ups require a roadmap.
+- Local fix commit: `f7091ea`. Direct/proxy pushes failed due connection/TLS errors; no production operation was performed. Immediate owner workaround is `docker pull redis:7.4-alpine` from the server administrator terminal, then rerun the failed deployment. The permanent fix requires publishing and deploying the updated bundle packaging commit.
 
 ## Risks
 - Bundle size increases by the Redis image layers. CI needs registry access, as it already does for Docker base images.
