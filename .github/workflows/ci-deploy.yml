@@ -30,6 +30,7 @@ jobs:
       - run: pnpm check-types
       - name: Check deployment shell scripts
         run: |
+          python3 deploy/server/test-release-packaging.py
           bash -n deploy/server/deploy-rss-site
           sh -n deploy/server/rss-site-deploy-gate
           bash -n deploy/server/bootstrap-rss-site
@@ -105,7 +106,8 @@ jobs:
           curl -fsS http://127.0.0.1:18101/admin | grep -Fq '文章管理'
       - name: Package release image
         run: |
-          docker save "rss-site-web:sha-${GITHUB_SHA}" -o image.tar
+          docker pull redis:7.4-alpine
+          docker save "rss-site-web:sha-${GITHUB_SHA}" redis:7.4-alpine -o image.tar
           tar -czf release.tar.gz image.tar compose.yaml \
             deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers
       - name: Install SSH credentials
