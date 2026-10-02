@@ -4,8 +4,8 @@ import type { AppType } from './hono-app'
 
 const api = hc<AppType>('/')
 
-export const articleQueryKey = ({ section, source }: ArticleFilter) =>
-  ['articles', section ?? '/', source ?? 'all'] as const
+export const articleQueryKey = ({ section, source, sources }: ArticleFilter) =>
+  ['articles', section ?? '/', sources ? [...sources].sort().join(',') : (source ?? 'all')] as const
 
 export function articlePageOptions(filter: ArticleFilter, cursor: string | null) {
   return {
@@ -15,7 +15,14 @@ export function articlePageOptions(filter: ArticleFilter, cursor: string | null)
     retry: 1,
     queryFn: async ({ signal }: { signal: AbortSignal }): Promise<HomeArticlePage> => {
       const response = await api.api.articles.$get(
-        { query: { cursor: cursor ?? undefined, section: filter.section, source: filter.source } },
+        {
+          query: {
+            cursor: cursor ?? undefined,
+            section: filter.section,
+            source: filter.source,
+            sources: filter.sources?.join(',')
+          }
+        },
         { init: { signal, cache: 'no-store' } }
       )
       if (response.status !== 200) throw new Error('Articles unavailable')

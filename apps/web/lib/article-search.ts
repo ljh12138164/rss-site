@@ -1,4 +1,32 @@
+import { getSignalSource } from '@rss-site/signals'
+import { parseArticleFilter } from './home-articles'
+
 export const SEARCH_PAGE_SIZE = 20
+
+export type SearchRange = 'all' | 'day' | 'week'
+
+export function parseSearchScope(
+  section: string | null,
+  source: string | null,
+  range = 'all',
+  at?: string,
+  now = Date.now()
+) {
+  const filter = parseArticleFilter(section, source)
+  if (filter.source && !getSignalSource(filter.source).isArticle) throw new Error('Invalid source')
+  if (!['all', 'day', 'week'].includes(range)) throw new Error('Invalid range')
+  const timestamp = at === undefined ? now : Date.parse(at)
+  if (!Number.isFinite(timestamp) || timestamp > now + 60000 || timestamp < 0)
+    throw new Error('Invalid snapshot')
+  return {
+    ...filter,
+    at: new Date(timestamp).toISOString(),
+    since:
+      range === 'all'
+        ? undefined
+        : new Date(timestamp - (range === 'day' ? 1 : 7) * 86400000).toISOString()
+  }
+}
 
 export interface SearchArticle {
   id: string

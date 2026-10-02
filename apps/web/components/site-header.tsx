@@ -11,6 +11,7 @@ import { ThemeToggle } from './theme-toggle'
 
 const sections = [
   ['/', '全部'],
+  ['/following', '我的关注'],
   ['/ai', 'AI'],
   ['/technology', '科技'],
   ['/news', '新闻'],

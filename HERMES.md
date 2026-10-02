@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-10-02 阅读效率与采集管理
+
+- 分支 `feat/reading-productivity` 基于最新 `origin/master`（`8cca2f9`）。
+- 目标：按 roadmap 依次实现并验证个人关注页、搜索筛选、长文目录/时间/进度、管理员采集看板、组合 RSS。
+- 记录：`docs/development/reading-productivity.md`；路线图：`docs/roadmaps/reading-productivity.md`。
+- 五阶段代码、338 项全仓测试、浏览器操作和云端采集统计/RLS 验证已完成。云端迁移版本 `20261002053650` 已应用；无来源或 Cron 变更。
+- 本机云端 REST 连接重置导致真实环境预渲染失败；公开数据快照用于本地 UI/构建验证，真实登录及部署后的连接验收仍需发布后完成。
+- 下一步：完成最终构建/格式检查，提交并推送；用户创建、合并到 `master` 的 PR，CI 与发布验收结果更新到开发记录。
+
 ## 2026-10-01 Redis first-deployment fix
 
 - Branch `feat/fix-redis-release-bundle`, based on `origin/master` `fb0965c`, matching the failed production release supplied by the user. Remote fetch failed with a connection reset.

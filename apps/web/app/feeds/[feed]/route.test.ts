@@ -70,4 +70,56 @@ describe('RSS route', () => {
 
     expect(response.status).toBe(503)
   })
+  it('loads a single platform and a cross-section selection using validated source IDs', async () => {
+    const load = vi.fn(async () => sectionData())
+    const selected = vi.fn(async () => sectionData())
+    expect(
+      (
+        await createRssResponse(
+          new Request('https://hot.example/feeds/openai.xml'),
+          'openai.xml',
+          load,
+          selected
+        )
+      ).status
+    ).toBe(200)
+    expect(selected).toHaveBeenLastCalledWith(['openai'])
+    expect(
+      (
+        await createRssResponse(
+          new Request('https://hot.example/feeds/custom.xml?sources=openai,juejin,openai'),
+          'custom.xml',
+          load,
+          selected
+        )
+      ).status
+    ).toBe(200)
+    expect(selected).toHaveBeenLastCalledWith(['juejin', 'openai'])
+    expect(load).not.toHaveBeenCalled()
+  })
+  it('rejects empty or unsafe custom subscriptions without querying and does not cache outages', async () => {
+    const load = vi.fn(async () => sectionData())
+    const selected = vi.fn(async () => sectionData({ unavailable: true }))
+    for (const ids of ['', 'invalid', 'github', 'openai,https://attacker.example']) {
+      expect(
+        (
+          await createRssResponse(
+            new Request(`https://hot.example/feeds/custom.xml?sources=${ids}`),
+            'custom.xml',
+            load,
+            selected
+          )
+        ).status
+      ).toBe(400)
+    }
+    expect(selected).not.toHaveBeenCalled()
+    const unavailable = await createRssResponse(
+      new Request('https://hot.example/feeds/openai.xml'),
+      'openai.xml',
+      load,
+      selected
+    )
+    expect(unavailable.status).toBe(503)
+    expect(unavailable.headers.get('Cache-Control')).toBe('no-store')
+  })
 })

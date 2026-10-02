@@ -94,3 +94,32 @@ it('saves only editorial fields, locks them against ingestion, and invalidates p
   expect(revalidatePath).toHaveBeenCalledWith('/news/xinhua')
   expect((await response.json()).article.id).toBe(id)
 })
+
+it('denies ingestion stats before calling the database and keeps the response private', async () => {
+  getAdminDataClient.mockResolvedValueOnce(null)
+  const response = await app.request('/api/admin/ingestion')
+  expect(response.status).toBe(401)
+  expect(response.headers.get('Cache-Control')).toBe('no-store')
+})
+
+it('reads aggregated metrics with the administrator token and hides database errors', async () => {
+  const abortSignal = vi.fn().mockResolvedValue({
+    data: [{ source: 'openai', sample_count: 100, body_count: 80 }],
+    error: null
+  })
+  const rpc = vi.fn(() => ({ abortSignal }))
+  getAdminDataClient.mockResolvedValue({ rpc })
+  const response = await app.request('/api/admin/ingestion', {
+    headers: { Authorization: 'Bearer admin-token' }
+  })
+  expect(response.status).toBe(200)
+  expect(getAdminDataClient).toHaveBeenCalledWith('Bearer admin-token')
+  expect(rpc).toHaveBeenCalledWith('get_ingestion_health')
+  expect(await response.json()).toEqual({
+    items: [{ source: 'openai', sample_count: 100, body_count: 80 }]
+  })
+  abortSignal.mockResolvedValueOnce({ data: null, error: { message: 'private secret' } })
+  const failure = await app.request('/api/admin/ingestion')
+  expect(failure.status).toBe(503)
+  expect(await failure.text()).not.toContain('secret')
+})

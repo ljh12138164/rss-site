@@ -1,9 +1,11 @@
 import {
   aiSources,
   financeSources,
+  findSignalSource,
   gameSources,
   newsSources,
   type SignalSource,
+  type SignalSourceId,
   socialSources,
   technologySources
 } from '@rss-site/signals'
@@ -14,10 +16,12 @@ import {
   getFinanceFeeds,
   getGameFeeds,
   getNewsFeeds,
+  getSectionFeeds,
   getSocialFeeds,
   getTechnologyFeeds,
   type HotItem
 } from './hot-feed'
+import { parseRssSources, rssSourcesPath } from './rss-selection'
 
 export const RSS_ITEMS_PER_SOURCE = 10
 
@@ -26,11 +30,12 @@ export const rssSectionIds = ['ai', 'technology', 'news', 'social', 'finance', '
 export type RssSectionId = (typeof rssSectionIds)[number]
 
 export interface RssSectionConfig {
-  id: RssSectionId
+  id: RssSectionId | 'custom'
   title: string
   description: string
   pagePath: string
   sources: readonly SignalSource[]
+  feedPath?: string
 }
 
 export interface RssEntry {
@@ -90,6 +95,33 @@ const rssSections = {
   }
 } as const satisfies Record<RssSectionId, RssSectionConfig>
 
+export function buildRssSourcesData(
+  ids: SignalSourceId[],
+  feeds: Record<string, FeedResult>
+): RssSectionData {
+  const sources = parseRssSources(ids.join(',')).map((id) => findSignalSource(id) as SignalSource)
+  return buildRssSectionData(
+    {
+      id: 'custom',
+      title: sources.length === 1 ? sources[0].name : '自选来源',
+      description: sources.map((source) => source.name).join('、'),
+      pagePath: sources.length === 1 ? `/${sources[0].section}/${sources[0].id}` : '/following',
+      feedPath: rssSourcesPath(ids),
+      sources
+    },
+    Object.fromEntries(sources.map((source) => [source.id, feeds[source.id] ?? { state: 'error' }]))
+  )
+}
+
+export async function loadRssSources(ids: SignalSourceId[]): Promise<RssSectionData> {
+  const sources = parseRssSources(ids.join(',')).map((id) => findSignalSource(id) as SignalSource)
+  const sections = [...new Set(sources.map((source) => source.section))]
+  const feeds = await Promise.all(
+    sections.map((section) => getSectionFeeds(section, RSS_ITEMS_PER_SOURCE))
+  )
+  return buildRssSourcesData(ids, Object.assign({}, ...feeds))
+}
+
 export function parseRssFeedName(feedName: string): RssSectionId | null {
   const match = /^(ai|technology|news|social|finance|games)\.xml$/.exec(feedName)
   return match ? (match[1] as RssSectionId) : null
@@ -100,7 +132,7 @@ export function buildRssSectionData<
   Source extends SignalSource & { id: SourceId }
 >(
   config: Omit<RssSectionConfig, 'sources'> & { sources: readonly Source[] },
-  feeds: Record<SourceId, FeedResult>
+  feeds: Partial<Record<SourceId, FeedResult>>
 ): RssSectionData {
   const entries: RssEntry[] = []
   const successfulDates: Date[] = []
@@ -108,7 +140,7 @@ export function buildRssSectionData<
   const articleSources = config.sources.filter((source) => source.id !== 'github')
 
   for (const source of articleSources) {
-    const feed = feeds[source.id]
+    const feed = feeds[source.id] ?? { state: 'error' }
 
     if (feed.state === 'error') {
       errorCount += 1
@@ -196,7 +228,7 @@ function validRssDate(date: Date | null): string | null {
 
 export function renderRssSectionXml(data: RssSectionData, origin: string): string {
   const pageUrl = new URL(data.config.pagePath, origin).toString()
-  const feedUrl = new URL(`/feeds/${data.config.id}.xml`, origin).toString()
+  const feedUrl = new URL(data.config.feedPath ?? `/feeds/${data.config.id}.xml`, origin).toString()
   const lastBuildDate = validRssDate(data.lastBuildDate)
   const lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -222,7 +254,7 @@ export function renderRssSectionXml(data: RssSectionData, origin: string): strin
       '    <item>',
       `      <title>${escapeXml(item.title)}</title>`,
       `      <link>${escapeXml(item.url)}</link>`,
-      `      <guid isPermaLink="false">${escapeXml(`${data.config.id}:${source.id}:${item.sourceKey}`)}</guid>`,
+      `      <guid isPermaLink="false">${escapeXml(`${source.section}:${source.id}:${item.sourceKey}`)}</guid>`,
       `      <category>${escapeXml(source.name)}</category>`,
       ...optionalElement('description', item.summary)
     )
