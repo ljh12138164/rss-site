@@ -6,9 +6,11 @@ import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { pairBilingualBlocks } from '../lib/article-bilingual'
 import type { AppType } from '../lib/hono-app'
+import { estimateReadingMinutes } from '../lib/reading-progress'
 import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
 import { ArticleHtmlBody } from './article-html-body'
+import { ArticleReadingTools } from './article-reading-tools'
 
 const api = hc<AppType>('/')
 
@@ -168,77 +170,83 @@ export function ArticleTranslation({
           </p>
         )}
       </header>
-      <section aria-label={hasBody ? '文章内容' : '文章摘要'} className="py-8 sm:py-10">
-        {isBilingual && translation ? (
-          hasBody ? (
-            <div className="bilingual-article space-y-6">
-              {pairBilingualBlocks(contentHtml, translation.contentHtml ?? '').map((pair) => (
-                <div key={pair.id} className="bilingual-pair group">
-                  {pair.original && (
-                    <ArticleHtmlBody
-                      html={pair.original}
-                      className="article-content text-foreground font-serif leading-relaxed"
-                    />
-                  )}
-                  {pair.translated && (
-                    <ArticleHtmlBody
-                      html={pair.translated}
-                      className="article-content mt-2.5 rounded-r-md border-l-2 border-primary/40 bg-accent/20 py-2 pl-3.5 pr-2 font-sans text-[0.95em] leading-relaxed text-muted-foreground transition-colors group-hover:border-primary group-hover:text-foreground"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bilingual-summary space-y-4">
-              {summary && (
-                <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Original Summary
-                  </p>
-                  <p className="whitespace-pre-line text-sm leading-7 text-foreground/90">
-                    {summary}
-                  </p>
-                </div>
-              )}
-              {translation.summary && (
-                <div className="rounded-lg border border-primary/30 bg-accent/20 p-4 sm:p-5">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
-                    中文摘要
-                  </p>
-                  <p className="whitespace-pre-line text-sm leading-7 text-foreground">
-                    {translation.summary}
-                  </p>
-                </div>
-              )}
-            </div>
-          )
-        ) : isChinese && translation ? (
-          translation.contentHtml ? (
-            <ArticleHtmlBody html={translation.contentHtml} />
-          ) : translation.summary ? (
+      <ArticleReadingTools
+        articleId={articleId}
+        contentKey={mode}
+        minutes={estimateReadingMinutes(contentHtml || summary || '')}
+      >
+        <section aria-label={hasBody ? '文章内容' : '文章摘要'} className="py-8 sm:py-10">
+          {isBilingual && translation ? (
+            hasBody ? (
+              <div className="bilingual-article space-y-6">
+                {pairBilingualBlocks(contentHtml, translation.contentHtml ?? '').map((pair) => (
+                  <div key={pair.id} className="bilingual-pair group">
+                    {pair.original && (
+                      <ArticleHtmlBody
+                        html={pair.original}
+                        className="article-content text-foreground font-serif leading-relaxed"
+                      />
+                    )}
+                    {pair.translated && (
+                      <ArticleHtmlBody
+                        html={pair.translated}
+                        className="article-content mt-2.5 rounded-r-md border-l-2 border-primary/40 bg-accent/20 py-2 pl-3.5 pr-2 font-sans text-[0.95em] leading-relaxed text-muted-foreground transition-colors group-hover:border-primary group-hover:text-foreground"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bilingual-summary space-y-4">
+                {summary && (
+                  <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Original Summary
+                    </p>
+                    <p className="whitespace-pre-line text-sm leading-7 text-foreground/90">
+                      {summary}
+                    </p>
+                  </div>
+                )}
+                {translation.summary && (
+                  <div className="rounded-lg border border-primary/30 bg-accent/20 p-4 sm:p-5">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
+                      中文摘要
+                    </p>
+                    <p className="whitespace-pre-line text-sm leading-7 text-foreground">
+                      {translation.summary}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )
+          ) : isChinese && translation ? (
+            translation.contentHtml ? (
+              <ArticleHtmlBody html={translation.contentHtml} />
+            ) : translation.summary ? (
+              <div className="article-content">
+                <p className="mb-5 text-sm text-muted-foreground">文章摘要</p>
+                <p className="whitespace-pre-line">{translation.summary}</p>
+              </div>
+            ) : (
+              <p className="text-base leading-8 text-muted-foreground">
+                来源暂未提供可在站内阅读的内容，可以前往原文查看。
+              </p>
+            )
+          ) : hasBody && contentHtml ? (
+            <ArticleHtmlBody html={contentHtml} />
+          ) : summary ? (
             <div className="article-content">
               <p className="mb-5 text-sm text-muted-foreground">文章摘要</p>
-              <p className="whitespace-pre-line">{translation.summary}</p>
+              <p className="whitespace-pre-line">{summary}</p>
             </div>
           ) : (
             <p className="text-base leading-8 text-muted-foreground">
               来源暂未提供可在站内阅读的内容，可以前往原文查看。
             </p>
-          )
-        ) : hasBody && contentHtml ? (
-          <ArticleHtmlBody html={contentHtml} />
-        ) : summary ? (
-          <div className="article-content">
-            <p className="mb-5 text-sm text-muted-foreground">文章摘要</p>
-            <p className="whitespace-pre-line">{summary}</p>
-          </div>
-        ) : (
-          <p className="text-base leading-8 text-muted-foreground">
-            来源暂未提供可在站内阅读的内容，可以前往原文查看。
-          </p>
-        )}
-      </section>
+          )}
+        </section>
+      </ArticleReadingTools>
     </>
   )
 }

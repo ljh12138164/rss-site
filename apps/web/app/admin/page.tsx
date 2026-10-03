@@ -5,6 +5,7 @@ import { hc, type InferResponseType } from 'hono/client'
 import { ArrowLeft, ArrowUpRight, Save } from 'lucide-react'
 import Link from 'next/link'
 import { type FormEvent, useEffect, useState } from 'react'
+import { IngestionDashboard } from '../../components/ingestion-dashboard'
 import { createAdminBrowserClient } from '../../lib/admin-supabase'
 import type { AppType } from '../../lib/hono-app'
 
@@ -201,6 +202,7 @@ export default function AdminPage() {
           {message}
         </p>
       )}
+      {session && <IngestionDashboard key={session.user.id} token={session.access_token} />}
       {session && (
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <section aria-label="文章列表" className="min-w-0">

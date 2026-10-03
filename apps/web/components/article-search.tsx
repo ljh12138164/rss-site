@@ -1,5 +1,6 @@
 'use client'
 
+import { listSignalSections } from '@rss-site/signals'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { hc } from 'hono/client'
 import { ArrowRight, Search, X } from 'lucide-react'
@@ -15,7 +16,7 @@ import {
   TextField
 } from 'react-aria-components'
 import { createArticlePath } from '../lib/article-route'
-import { type SearchArticle, searchValidation } from '../lib/article-search'
+import { type SearchArticle, type SearchRange, searchValidation } from '../lib/article-search'
 import type { AppType } from '../lib/hono-app'
 import {
   aiSources,
@@ -34,7 +35,7 @@ const sources = [
   ...newsSources,
   ...socialSources,
   ...technologySources
-]
+].filter((source) => source.isArticle)
 const api = hc<AppType>('/')
 
 export function Highlight({ text, query }: { text: string; query: string }) {
@@ -60,17 +61,37 @@ export function Highlight({ text, query }: { text: string; query: string }) {
 function SearchPanel() {
   const [value, setValue] = useState('')
   const [composing, setComposing] = useState(false)
-  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [section, setSection] = useState('')
+  const [source, setSource] = useState('')
+  const [range, setRange] = useState<SearchRange>('all')
+  const [snapshotAt] = useState(() => new Date().toISOString())
+  const [request, setRequest] = useState({
+    q: '',
+    section: '',
+    source: '',
+    range: 'all' as SearchRange,
+    at: ''
+  })
+  const debouncedQuery = request.q
   const query = value.trim()
   const validation = searchValidation(query)
   useEffect(() => {
     if (validation || composing) return
-    const timer = setTimeout(() => setDebouncedQuery(query), 300)
+    const timer = setTimeout(
+      () => setRequest({ q: query, section, source, range, at: snapshotAt }),
+      300
+    )
     return () => clearTimeout(timer)
-  }, [query, validation, composing])
-  const ready = !validation && !composing && debouncedQuery === query
+  }, [query, validation, composing, section, source, range, snapshotAt])
+  const ready =
+    !validation &&
+    !composing &&
+    debouncedQuery === query &&
+    request.section === section &&
+    request.source === source &&
+    request.range === range
   const { data, isFetching, isError, hasNextPage, fetchNextPage, refetch } = useInfiniteQuery({
-    queryKey: ['article-search', debouncedQuery],
+    queryKey: ['article-search', request],
     initialPageParam: 0,
     enabled: ready && !!debouncedQuery,
     staleTime: 300000,
@@ -80,7 +101,14 @@ function SearchPanel() {
       signal
     }): Promise<{ items: SearchArticle[]; hasMore: boolean }> => {
       const response = await api.api.search.$get(
-        { query: { q: debouncedQuery, page: String(pageParam) } },
+        {
+          query: {
+            ...request,
+            section: request.section || undefined,
+            source: request.source || undefined,
+            page: String(pageParam)
+          }
+        },
         { init: { signal, cache: 'no-store' } }
       )
       if (response.status !== 200) throw new Error('Search unavailable')
@@ -136,6 +164,57 @@ function SearchPanel() {
           </ActionButton>
         )}
       </TextField>
+      <div className="mx-5 mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <label className="min-w-0 text-xs text-muted-foreground">
+          分区
+          <select
+            value={section}
+            onChange={(event) => {
+              setSection(event.target.value)
+              setSource('')
+            }}
+            className="mt-1 min-h-11 w-full rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            <option value="">全部分区</option>
+            {listSignalSections()
+              .filter((entry) => sources.some((item) => item.section === entry.id))
+              .map((entry) => (
+                <option key={entry.id} value={entry.path}>
+                  {entry.title}
+                </option>
+              ))}
+          </select>
+        </label>
+        <label className="min-w-0 text-xs text-muted-foreground">
+          来源
+          <select
+            value={source}
+            onChange={(event) => setSource(event.target.value)}
+            className="mt-1 min-h-11 w-full rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            <option value="">全部来源</option>
+            {sources
+              .filter((item) => !section || `/${item.section}` === section)
+              .map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+          </select>
+        </label>
+        <label className="min-w-0 text-xs text-muted-foreground">
+          发布时间
+          <select
+            value={range}
+            onChange={(event) => setRange(event.target.value as SearchRange)}
+            className="mt-1 min-h-11 w-full rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            <option value="all">全部时间</option>
+            <option value="day">最近一天</option>
+            <option value="week">最近一周</option>
+          </select>
+        </label>
+      </div>
       <div className="px-5 py-4 text-sm text-muted-foreground" role="status" aria-live="polite">
         {!query
           ? '输入关键词，查找标题和摘要'

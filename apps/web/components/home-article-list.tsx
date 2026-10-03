@@ -4,6 +4,7 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useRef } from 'react'
 import { articlePageOptions, articleQueryKey } from '../lib/article-query'
 import type { ArticleFilter, HomeArticlePage } from '../lib/home-articles'
+import { useReadingList } from '../lib/reading-list'
 import { ActionButton } from './action-button'
 import { HotList } from './hot-list'
 
@@ -11,17 +12,26 @@ export function HomeArticleList({
   initialPage,
   initialError = false,
   section,
-  source
-}: { initialPage: HomeArticlePage; initialError?: boolean } & ArticleFilter) {
+  source,
+  sources,
+  unreadOnly = false
+}: {
+  initialPage?: HomeArticlePage
+  initialError?: boolean
+  unreadOnly?: boolean
+} & ArticleFilter) {
   const client = useQueryClient()
+  const { readingHistory } = useReadingList()
+  const readIds = new Set(readingHistory.map((item) => item.id))
   const sentinel = useRef<HTMLDivElement>(null)
   const { data, fetchNextPage, hasNextPage, isFetching, isError, refetch } = useInfiniteQuery({
-    queryKey: articleQueryKey({ section, source }),
+    queryKey: articleQueryKey({ section, source, sources }),
     initialPageParam: null as string | null,
     queryFn: ({ pageParam }) =>
-      client.fetchQuery(articlePageOptions({ section, source }, pageParam)),
+      client.fetchQuery(articlePageOptions({ section, source, sources }, pageParam)),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-    initialData: initialError ? undefined : { pages: [initialPage], pageParams: [null] },
+    initialData:
+      initialError || !initialPage ? undefined : { pages: [initialPage], pageParams: [null] },
     enabled: !initialError,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
@@ -37,15 +47,15 @@ export function HomeArticleList({
     .filter((item) => {
       if (seen.has(item.articleId)) return false
       seen.add(item.articleId)
-      return true
+      return !unreadOnly || !readIds.has(item.articleId)
     })
   const nextCursor = pages.at(-1)?.nextCursor ?? null
   const error = isError || (initialError && !data)
 
   useEffect(() => {
     if (nextCursor && !error)
-      void client.prefetchQuery(articlePageOptions({ section, source }, nextCursor))
-  }, [client, nextCursor, section, source, error])
+      void client.prefetchQuery(articlePageOptions({ section, source, sources }, nextCursor))
+  }, [client, nextCursor, section, source, sources, error])
 
   const loadMore = useCallback(async () => {
     if (isFetching) return
@@ -98,7 +108,9 @@ export function HomeArticleList({
                   : '继续向下滚动，加载更多文章'
                 : items.length
                   ? '已显示全部内容。'
-                  : '暂无内容。'}
+                  : unreadOnly
+                    ? '没有未读文章。'
+                    : '暂无内容。'}
         </p>
         {(hasNextPage || error) && (
           <ActionButton variant="outline" isDisabled={isFetching} onPress={() => void loadMore()}>

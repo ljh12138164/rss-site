@@ -1,5 +1,5 @@
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
-import { getSignalSource, isSignalSourceId } from '@rss-site/signals'
+import { getSignalSource, isSignalSourceId, listSignalSources } from '@rss-site/signals'
 import { Hono } from 'hono'
 import { validator } from 'hono/validator'
 import { revalidatePath, revalidateTag } from 'next/cache'
@@ -7,7 +7,13 @@ import { after } from 'next/server'
 import { getAdminDataClient } from './admin-supabase'
 import { getEvent, getEventPage, parseEventCursor, validEventSlug } from './ai-events'
 import { articleSource, createArticlePath } from './article-route'
-import { SEARCH_PAGE_SIZE, searchExcerpt, searchFilter, searchValidation } from './article-search'
+import {
+  parseSearchScope,
+  SEARCH_PAGE_SIZE,
+  searchExcerpt,
+  searchFilter,
+  searchValidation
+} from './article-search'
 import {
   TranslationBusyError,
   translateArticleOnce,
@@ -21,6 +27,7 @@ import {
   parseArticleFilter,
   parseHomeCursor
 } from './home-articles'
+import type { IngestionHealth } from './ingestion-health'
 import { resolveRevalidation } from './revalidate-paths'
 import { getNewsArticle } from './signal-article'
 import { getPublicSupabaseClient } from './supabase'
@@ -134,7 +141,11 @@ export const app = new Hono()
     try {
       const value = c.req.query('cursor')
       cursor = value === undefined ? null : parseHomeCursor(value)
-      filter = parseArticleFilter(c.req.query('section') ?? null, c.req.query('source') ?? null)
+      filter = parseArticleFilter(
+        c.req.query('section') ?? null,
+        c.req.query('source') ?? null,
+        c.req.query('sources') ?? null
+      )
     } catch {
       return c.json({ error: '分页位置无效，请刷新页面。' }, 400)
     }
@@ -165,11 +176,32 @@ export const app = new Hono()
     const validation = searchValidation(query)
     if (validation || !Number.isInteger(page) || page < 0 || page > 49)
       return c.json({ error: validation ?? '页码无效' }, 400)
+    let scope: ReturnType<typeof parseSearchScope>
     try {
-      const { data, error } = await getPublicSupabaseClient()
+      scope = parseSearchScope(
+        c.req.query('section') ?? null,
+        c.req.query('source') ?? null,
+        c.req.query('range'),
+        c.req.query('at')
+      )
+    } catch {
+      return c.json({ error: '搜索筛选条件无效' }, 400)
+    }
+    try {
+      let request = getPublicSupabaseClient()
         .from('signal_articles')
         .select('id,title,summary,source,section,url,published_at')
+        .in(
+          'source',
+          listSignalSources({ isArticle: true }).map((source) => source.id)
+        )
         .or(searchFilter(query))
+      if (scope.section) request = request.eq('section', scope.section.slice(1))
+      if (scope.source) request = request.eq('source', scope.source)
+      if (c.req.query('at')) request = request.lte('first_seen_at', scope.at)
+      if (scope.since)
+        request = request.gte('published_at', scope.since).lte('published_at', scope.at)
+      const { data, error } = await request
         .order('published_at', { ascending: false, nullsFirst: false })
         .order('id')
         .range(page * SEARCH_PAGE_SIZE, (page + 1) * SEARCH_PAGE_SIZE)
@@ -262,6 +294,20 @@ export const app = new Hono()
       return c.json({ revalidated: true, paths, publicationId })
     } catch {
       return c.json({ error: 'Failed to revalidate' }, 500)
+    }
+  })
+  .get('/admin/ingestion', async (c) => {
+    c.header('Cache-Control', 'no-store')
+    try {
+      const client = await getAdminDataClient(c.req.header('authorization'))
+      if (!client) return c.json({ error: 'Unauthorized' }, 401)
+      const { data, error } = await client
+        .rpc('get_ingestion_health')
+        .abortSignal(AbortSignal.any([c.req.raw.signal, AbortSignal.timeout(10000)]))
+      if (error) return c.json({ error: '采集统计读取失败，请重试' }, 503)
+      return c.json({ items: (data ?? []) as IngestionHealth[] })
+    } catch {
+      return c.json({ error: '采集统计读取失败，请重试' }, 503)
     }
   })
   .get('/admin/articles', async (c) => {

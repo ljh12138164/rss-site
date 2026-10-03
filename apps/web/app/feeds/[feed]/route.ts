@@ -1,10 +1,13 @@
+import { findSignalSource, type SignalSourceId } from '@rss-site/signals'
 import {
   loadRssSection,
+  loadRssSources,
   parseRssFeedName,
   type RssSectionData,
   type RssSectionId,
   renderRssSectionXml
 } from '@/lib/rss-feed'
+import { parseRssSources } from '@/lib/rss-selection'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,11 +22,26 @@ const successHeaders = {
 export async function createRssResponse(
   request: Request,
   feedName: string,
-  load: RssSectionLoader = loadRssSection
+  load: RssSectionLoader = loadRssSection,
+  loadSources: (sources: SignalSourceId[]) => Promise<RssSectionData> = loadRssSources
 ): Promise<Response> {
   const section = parseRssFeedName(feedName)
+  let selected: SignalSourceId[] | undefined
+  if (feedName === 'custom.xml') {
+    try {
+      selected = parseRssSources(new URL(request.url).searchParams.get('sources'))
+    } catch {
+      return new Response('Invalid RSS sources', {
+        status: 400,
+        headers: { 'Cache-Control': 'no-store', 'Content-Type': 'text/plain; charset=utf-8' }
+      })
+    }
+  } else if (!section && feedName.endsWith('.xml')) {
+    const source = findSignalSource(feedName.slice(0, -4))
+    if (source?.isArticle) selected = [source.id]
+  }
 
-  if (!section) {
+  if (!section && !selected) {
     return new Response('RSS feed not found', {
       status: 404,
       headers: { 'Cache-Control': 'no-store', 'Content-Type': 'text/plain; charset=utf-8' }
@@ -31,7 +49,7 @@ export async function createRssResponse(
   }
 
   try {
-    const data = await load(section)
+    const data = selected ? await loadSources(selected) : await load(section as RssSectionId)
 
     if (data.unavailable) {
       return new Response('RSS feed is temporarily unavailable', {

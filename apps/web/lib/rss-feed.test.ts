@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest'
 import type { FeedResult, HotItem } from './hot-feed'
 import {
   buildRssSectionData,
+  buildRssSourcesData,
   parseRssFeedName,
   type RssSectionConfig,
   renderRssSectionXml
 } from './rss-feed'
+import { parseRssSources, rssSourcesPath } from './rss-selection'
 import { technologySources } from './technology-sources'
 
 const github = technologySources[5]
@@ -41,6 +43,34 @@ const config = {
 } as const satisfies RssSectionConfig
 
 describe('section RSS feeds', () => {
+  it('validates selections, deduplicates and canonicalizes subscription addresses', () => {
+    expect(parseRssSources('openai,juejin,openai')).toEqual(['juejin', 'openai'])
+    expect(rssSourcesPath(['openai'])).toBe('/feeds/openai.xml')
+    expect(rssSourcesPath(['openai', 'juejin'])).toBe('/feeds/custom.xml?sources=juejin,openai')
+    for (const ids of [
+      null,
+      '',
+      'github',
+      'skills-trending',
+      'openai,',
+      'https://attacker.example/rss',
+      'invalid'
+    ])
+      expect(() => parseRssSources(ids)).toThrow()
+  })
+  it('combines only selected sources across sections and preserves original GUIDs', () => {
+    const data = buildRssSourcesData(['openai', 'juejin'], {
+      openai: ready([item({ title: 'AI article' })], '2026-10-02T00:00:00Z'),
+      juejin: ready([item({ title: 'Tech article' })], '2026-10-01T00:00:00Z'),
+      xinhua: ready([item({ title: 'Excluded' })], '2026-10-02T00:00:00Z')
+    })
+    expect(data.entries).toHaveLength(2)
+    const xml = renderRssSectionXml(data, 'https://hot.example')
+    expect(xml).not.toContain('Excluded')
+    expect(xml).toContain('ai:openai:item-1')
+    expect(xml).toContain('technology:juejin:item-1')
+    expect(xml).toContain('/feeds/custom.xml?sources=juejin,openai')
+  })
   it('accepts only the six stable XML feed names', () => {
     expect(parseRssFeedName('ai.xml')).toBe('ai')
     expect(parseRssFeedName('games.xml')).toBe('games')

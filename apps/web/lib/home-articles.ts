@@ -28,9 +28,14 @@ const PAGE_SIZE = 30
 export interface ArticleFilter {
   section?: Exclude<OutboundReturnPath, '/'>
   source?: SignalSourceId
+  sources?: SignalSourceId[]
 }
 
-export function parseArticleFilter(section: string | null, source: string | null): ArticleFilter {
+export function parseArticleFilter(
+  section: string | null,
+  source: string | null,
+  selected: string | null = null
+): ArticleFilter {
   if (section !== null && !sections.some((entry) => entry.path === section))
     throw new Error('Invalid section')
   if (
@@ -38,9 +43,23 @@ export function parseArticleFilter(section: string | null, source: string | null
     !sources.some((entry) => entry.source.id === source && (!section || entry.path === section))
   )
     throw new Error('Invalid source')
+  const sourceIds = selected === null ? undefined : [...new Set(selected.split(','))].sort()
+  if (
+    sourceIds &&
+    (source !== null ||
+      sourceIds.length > sources.length ||
+      !sourceIds.every((id) =>
+        sources.some(
+          (entry) =>
+            entry.source.id === id && entry.source.isArticle && (!section || entry.path === section)
+        )
+      ))
+  )
+    throw new Error('Invalid sources')
   return {
     section: (section ?? undefined) as ArticleFilter['section'],
-    source: (source ?? undefined) as ArticleFilter['source']
+    source: (source ?? undefined) as ArticleFilter['source'],
+    ...(sourceIds ? { sources: sourceIds as SignalSourceId[] } : {})
   }
 }
 
@@ -97,8 +116,10 @@ export async function getHomeArticles(
   const selectedSources = sources.filter(
     ({ source, path }) =>
       (!filter.section || path === filter.section) &&
-      (!filter.source || source.id === filter.source)
+      (!filter.source || source.id === filter.source) &&
+      (!filter.sources || filter.sources.includes(source.id))
   )
+  if (!selectedSources.length) return { items: [], nextCursor: null }
   if (filter.source === 'github') {
     if (cursor && cursor.position === undefined) throw new Error('Invalid ranking cursor')
     let ranking = getPublicSupabaseClient()
