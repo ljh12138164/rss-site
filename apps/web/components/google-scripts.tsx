@@ -37,12 +37,12 @@ export function GoogleScripts({ pathname: propPathname }: { pathname?: string } 
         data-before-send="umamiBeforeSend"
         strategy="afterInteractive"
       />
-      <Script
+      {/* <Script
         id="google-adsense"
         src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7441827328189379"
         strategy="lazyOnload"
         crossOrigin="anonymous"
-      />
+      /> */}
       <Script id="baidu-tongji" strategy="afterInteractive">
         {`var _hmt = _hmt || [];
 (function() {

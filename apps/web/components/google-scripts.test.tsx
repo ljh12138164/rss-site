@@ -50,9 +50,9 @@ describe('GoogleScripts', () => {
     expect(beforeSendScript).toBeDefined()
     expect(beforeSendScript?.props.children).toContain('/out')
 
-    const adsenseScript = children.find((child) => child.props.id === 'google-adsense')
-    expect(adsenseScript).toBeDefined()
-    expect(adsenseScript?.props.src).toContain('pagead2.googlesyndication.com')
+    // const adsenseScript = children.find((child) => child.props.id === 'google-adsense')
+    // expect(adsenseScript).toBeDefined()
+    // expect(adsenseScript?.props.src).toContain('pagead2.googlesyndication.com')
   })
 
   it('does not render tracking scripts on /out pathname', () => {
