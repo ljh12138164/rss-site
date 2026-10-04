@@ -6,7 +6,7 @@
   "scripts": {
     "translation:prepare": "bun scripts/prepare-translation.mjs",
     "dev": "next dev --turbopack",
-    "build": "next build && node scripts/generate-early-hints.mjs",
+    "build": "next build && node scripts/generate-early-hints.mjs && node scripts/generate-service-worker.mjs",
     "lint": "biome check .",
     "check-types": "tsc --noEmit",
     "test": "vitest run"
@@ -40,6 +40,7 @@
     "@types/sanitize-html": "2.16.1",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
-    "vitest": "5.0.0"
+    "vitest": "5.0.0",
+    "workbox-build": "7.4.1"
   }
 }

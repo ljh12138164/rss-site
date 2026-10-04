@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="color-scheme" content="light dark" />
+    <title>暂时离线 · 今日热点</title>
+    <style>
+      :root { --background: #ffffff; --foreground: #0f172a; --primary: #0f766e; }
+      @media (prefers-color-scheme: dark) {
+        :root { --background: #090d16; --foreground: #f8fafc; --primary: #2dd4bf; }
+      }
+      body { margin: 0; padding: 48px 24px; background: var(--background); color: var(--foreground); font-family: system-ui, sans-serif; line-height: 1.6; }
+      main { max-width: 640px; margin: 48px auto; }
+      h1 { font-family: Georgia, "Songti SC", serif; font-size: 32px; text-wrap: balance; }
+      p { text-wrap: pretty; }
+      button { color: var(--primary); background: transparent; border: 0; font: inherit; cursor: pointer; padding: 12px 0; text-decoration: underline; text-underline-offset: 4px; }
+      button:hover { text-decoration-thickness: 2px; }
+      button:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>今日热点</p>
+      <h1>暂时无法连接网络</h1>
+      <p>这个页面还没有离线缓存。你可以返回之前访问过的页面，或连接网络后重试。</p>
+      <button type="button" onclick="window.location.reload()">重新加载当前页面</button>
+    </main>
+  </body>
+</html>

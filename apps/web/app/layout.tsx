@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { GoogleScripts } from '../components/google-scripts'
 import { QueryProvider } from '../components/query-provider'
 import { ReactAriaProvider } from '../components/react-aria-provider'
+import { ServiceWorker } from '../components/service-worker'
 import { ThemeProvider } from '../components/theme-provider'
 import { SITE_DESCRIPTION } from '../lib/seo'
 import { optionalCanonical } from '../lib/site-url'
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="zh-CN" suppressHydrationWarning>
       <body>
         <GoogleScripts />
+        <ServiceWorker />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

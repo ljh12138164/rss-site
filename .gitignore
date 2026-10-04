@@ -23,6 +23,7 @@ coverage
 
 # Build Outputs
 .next/
+apps/web/public/sw.js
 out/
 !apps/web/app/out/
 !apps/web/app/out/**
