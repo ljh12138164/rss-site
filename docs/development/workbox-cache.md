@@ -104,3 +104,8 @@ SW 是浏览器为站点运行的独立脚本，可以在页面发出请求时�
 浏览器开发者工具 Application → Service Workers 查看状态，Cache Storage 查看条目；
 在线刷新暖缓存后，在 Network 切换 Offline，再直接刷新已访问的公开 URL 或访问一个未缓存公开 URL。
 若同一 localhost 端口以前安装过生产 SW，调试 dev 前在开发者工具注销旧 SW，避免它继续控制开发页面。
+
+## Delivery
+
+功能提交 `41e855b` 已推送至 `origin/feat/workbox-cache`，基线/PR 目标为 `master`。
+仓库规则要求由用户创建和合并 PR；本任务没有创建 PR、修改生产环境或发布站点。

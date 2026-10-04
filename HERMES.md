@@ -450,4 +450,5 @@
 - Verification: 342 tests, Web types/Biome, 62-page real-data production build, generated SW and real Chrome offline/update checks passed.
 - Local Next production homepage registers SW and reloads offline; 13 static assets cached. Linux standalone launch remains CI/deployment validation (Windows generated links returned EPERM).
 - Review complete; no accepted implementation follow-ups. No production deployment.
-- Next: push reviewed feature branch; owner creates and merges PR against master, then verifies deployment.
+- Feature commit 41e855b published to origin/feat/workbox-cache.
+- Next: owner creates and merges PR against master, then verifies deployment.
