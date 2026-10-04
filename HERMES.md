@@ -451,4 +451,7 @@
 - Local Next production homepage registers SW and reloads offline; 13 static assets cached. Linux standalone launch remains CI/deployment validation (Windows generated links returned EPERM).
 - Review complete; no accepted implementation follow-ups. No production deployment.
 - Feature commit 41e855b published to origin/feat/workbox-cache.
-- Next: owner creates and merges PR against master, then verifies deployment.
+- User explicitly requested direct master integration on 2026-10-04, overriding the usual owner-created PR workflow.
+- Local master fast-forwarded to 638c8fd; merged-version regression passed (342 tests and real Chrome SW/offline/update smoke).
+- Main checkout dependencies installed from verified offline cache; Web types, changed-file Biome and SW generation passed.
+- Next: push master when GitHub TLS connectivity recovers, then verify the remote head. No production deployment requested.
