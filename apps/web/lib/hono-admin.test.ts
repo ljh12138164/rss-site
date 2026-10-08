@@ -1,14 +1,19 @@
-import { beforeEach, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { app } from './hono-app'
 
-const { getAdminDataClient, update, revalidatePath } = vi.hoisted(() => ({
+const { getAdminDataClient, update, revalidatePath, publication, callbacks } = vi.hoisted(() => ({
   getAdminDataClient: vi.fn(),
   update: vi.fn(),
-  revalidatePath: vi.fn()
+  revalidatePath: vi.fn(),
+  publication: vi.fn(),
+  callbacks: [] as (() => Promise<void>)[]
 }))
 vi.mock('./admin-supabase', () => ({ getAdminDataClient }))
 vi.mock('next/cache', () => ({ revalidatePath, revalidateTag: vi.fn() }))
-vi.mock('next/server', () => ({ after: vi.fn() }))
+vi.mock('next/server', () => ({
+  after: (callback: () => Promise<void>) => callbacks.push(callback)
+}))
+vi.mock('./content-publication', () => ({ publishContent: publication }))
 
 const id = '550e8400-e29b-41d4-a716-446655440000'
 const article = {
@@ -35,12 +40,14 @@ const query = {
 
 beforeEach(() => {
   vi.clearAllMocks()
+  callbacks.length = 0
   getAdminDataClient.mockResolvedValue({ from: () => query })
   update.mockReturnValue(query)
   query.eq.mockReturnValue(query)
   query.select.mockReturnValue(query)
   query.single.mockResolvedValue({ data: article, error: null })
 })
+afterEach(() => vi.restoreAllMocks())
 
 const request = (body: unknown, token = 'valid') =>
   app.request(`/api/admin/articles/${id}`, {
@@ -93,6 +100,56 @@ it('saves only editorial fields, locks them against ingestion, and invalidates p
   })
   expect(revalidatePath).toHaveBeenCalledWith('/news/xinhua')
   expect((await response.json()).article.id).toBe(id)
+})
+
+const edit = {
+  title: 'New title',
+  summary: null,
+  contentHtml: null,
+  imageUrl: null,
+  author: null,
+  publishedAt: null,
+  isPinned: false
+}
+
+it('invalidates and publishes old and new URLs after saving a title edit', async () => {
+  query.single.mockResolvedValueOnce({ data: { title: 'Old title' }, error: null })
+  query.single.mockResolvedValueOnce({ data: { ...article, title: 'New title' }, error: null })
+  const response = await request(edit)
+  expect(response.status).toBe(200)
+  const oldPath = `/news/xinhua/old-title--${id}`
+  const newPath = `/news/xinhua/new-title--${id}`
+  expect(revalidatePath).toHaveBeenCalledWith(oldPath)
+  expect(revalidatePath).toHaveBeenCalledWith(newPath)
+  expect(publication).not.toHaveBeenCalled()
+  await callbacks[0]()
+  expect(publication).toHaveBeenCalledWith(
+    ['/', '/sitemap.xml', '/news', '/news/xinhua', oldPath, newPath],
+    expect.any(String)
+  )
+})
+
+it('keeps the saved edit successful when invalidation fails and logs safe evidence', async () => {
+  const log = vi.spyOn(console, 'info').mockImplementation(() => {})
+  revalidatePath.mockImplementationOnce(() => {
+    throw new Error('private-value')
+  })
+  const response = await request(edit)
+  expect(response.status).toBe(200)
+  expect((await response.json()).article.id).toBe(id)
+  expect(callbacks).toHaveLength(0)
+  expect(JSON.stringify(log.mock.calls)).not.toContain('private-value')
+  expect(log).toHaveBeenCalledWith(expect.stringContaining('"publicationId":'))
+})
+
+it('isolates background publication failures from a saved edit and logs safe evidence', async () => {
+  const log = vi.spyOn(console, 'info').mockImplementation(() => {})
+  publication.mockRejectedValueOnce(new Error('private-value'))
+  const response = await request(edit)
+  expect(response.status).toBe(200)
+  await expect(callbacks[0]()).resolves.toBeUndefined()
+  expect(JSON.stringify(log.mock.calls)).not.toContain('private-value')
+  expect(log).toHaveBeenCalledWith(expect.stringContaining('"publicationId":'))
 })
 
 it('denies ingestion stats before calling the database and keeps the response private', async () => {

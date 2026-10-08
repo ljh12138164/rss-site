@@ -2,11 +2,9 @@ import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
 import { getSignalSource, isSignalSourceId, listSignalSources } from '@rss-site/signals'
 import { Hono } from 'hono'
 import { validator } from 'hono/validator'
-import { revalidatePath, revalidateTag } from 'next/cache'
-import { after } from 'next/server'
 import { getAdminDataClient } from './admin-supabase'
 import { getEvent, getEventPage, parseEventCursor, validEventSlug } from './ai-events'
-import { articleSource, createArticlePath } from './article-route'
+import { articleSource } from './article-route'
 import {
   parseSearchScope,
   SEARCH_PAGE_SIZE,
@@ -20,7 +18,7 @@ import {
   translateEventOnce
 } from './article-translation'
 import { CACHE_HEADERS } from './cache'
-import { publishContent } from './content-publication'
+import { updateContent } from './content-update'
 import {
   type ArticleFilter,
   getHomeArticles,
@@ -28,7 +26,6 @@ import {
   parseHomeCursor
 } from './home-articles'
 import type { IngestionHealth } from './ingestion-health'
-import { resolveRevalidation } from './revalidate-paths'
 import { getNewsArticle } from './signal-article'
 import { getPublicSupabaseClient } from './supabase'
 
@@ -276,20 +273,7 @@ export const app = new Hono()
     }
 
     try {
-      const { paths, dynamicPages, tags } = resolveRevalidation({ section, source, eventSlugs })
-      for (const tag of tags) revalidateTag(tag, { expire: 0 })
-      for (const path of paths) revalidatePath(path)
-      for (const dynamicPath of dynamicPages) revalidatePath(dynamicPath, 'page')
-
-      after(async () => {
-        try {
-          await publishContent(paths, publicationId)
-        } catch {
-          console.info(
-            JSON.stringify({ publicationId, publication: 'failed', at: new Date().toISOString() })
-          )
-        }
-      })
+      const { paths } = updateContent({ section, source, eventSlugs, publicationId })
       c.header('Cache-Control', CACHE_HEADERS.NO_STORE['Cache-Control'])
       return c.json({ revalidated: true, paths, publicationId })
     } catch {
@@ -361,32 +345,14 @@ export const app = new Hono()
       )
       .single()
     if (error) return c.json({ error: '保存失败，请检查字段和管理员权限' }, 503)
-    const { paths, dynamicPages, tags } = resolveRevalidation({
-      section: `/${data.section}`,
-      source: data.source
-    })
-    const articlePaths =
-      !articleSource(data.source) || data.source === 'github' || data.section === 'skills'
-        ? []
-        : [
-            ...new Set(
-              [previous.title, data.title].map((title) => createArticlePath(data.source, title, id))
-            )
-          ]
     try {
-      for (const tag of tags) revalidateTag(tag, { expire: 0 })
-      for (const path of paths) revalidatePath(path)
-      for (const path of articlePaths) revalidatePath(path)
-      for (const path of dynamicPages) revalidatePath(path, 'page')
-      after(async () => {
-        try {
-          await publishContent([...paths, ...articlePaths], randomUUID())
-        } catch {
-          console.info(JSON.stringify({ articleId: id, publication: 'failed' }))
-        }
+      updateContent({
+        section: `/${data.section}`,
+        source: data.source,
+        article: { id, previousTitle: previous.title, title: data.title }
       })
     } catch {
-      console.info(JSON.stringify({ articleId: id, revalidation: 'failed' }))
+      // The edit is already saved; invalidation failure must not invite a duplicate save.
     }
     c.header('Cache-Control', 'no-store')
     return c.json({ article: data })
