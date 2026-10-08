@@ -130,6 +130,7 @@ Azure 使用英译简体中文和 HTML 模式；超时、限流、配额耗尽�
 在 Azure 门户选择 **Translator 单服务资源的 F0 层级**；填写密钥不会自动把收费资源改成 F0。
 配置密钥后，容器跳过本地模型启动预热，首次回退可能下载模型。模型卷仍会保留。
 生产变量填写在服务器已有的 `runtime.env`，不需要将密钥写入构建参数或 `NEXT_PUBLIC_*`。
+从创建 F0 资源到配置、容器生效和验证的完整步骤见 [Azure Translator F0 配置指南](docs/azure-translator-setup.md)。
 接入与验证记录见 [Azure 优先翻译与本地回退](docs/development/azure-translation-fallback.md)。
 
 `server/api`：

@@ -32,6 +32,8 @@ Azure [认证文档](https://learn.microsoft.com/en-us/azure/ai-services/transla
 
 ## Implementation
 
+操作步骤见 [Azure Translator F0 配置指南](../azure-translator-setup.md)，包括门户创建资源、服务器实际配置路径、容器重新创建、直接接口验证、本地配置与排查。
+
 - `apps/web/lib/azure-translation.ts` 使用原生 fetch、固定官方全球 endpoint、20 秒超时，校验目标语言、非空译文及 HTML 包裹。失败仅输出固定日志，不输出上游正文、错误对象或凭据；60 秒进程内冷却后恢复尝试。
 - `article-translation.ts` 的共享翻译函数优先 Azure，返回不可用时才调用动态加载的 MTran；文章和事件复用同一策略。更新缓存版本为 `azure-v3-mtran-4.0.33-en-zh-v1`，保留缓存、去重、两任务并发限制和清洗。
 - 准备脚本在配置 Azure 密钥时跳过 MTran 动态导入及预热，未配置时继续下载/校验模型并关闭引擎。要主动预热回退模型，可只在准备命令进程中清空 `AZURE_TRANSLATOR_KEY` 再执行 `translation:prepare`；不需要修改持久配置。
