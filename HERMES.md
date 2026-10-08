@@ -1,5 +1,15 @@
 # HERMES
 
+## 2026-10-08 管理后台与内容发布
+
+- 分支 `feat/admin-dashboard-publication` 基于最新 `origin/master` `2108484`。
+- 目标：收拢内容发布步骤；优化 `/admin` 标准 dashboard；授予用户指定现有账号文章管理与采集看板角色。
+- 记录：`docs/development/admin-dashboard-publication.md`。
+- 账号服务器角色已更新为 `article_admin` 并复查；回滚事务验证角色可读采集记录。用户需退出并重新登录刷新凭据。
+- 实现完成：标准后台布局、真实分区统计、权限刷新及文章编辑状态；采集和人工编辑共用内容发布流程。356 项测试、类型、变更文件 Biome、62 页生产构建及本地浏览器验证通过；独立审查无阻塞项。
+- 代码提交 `30d63a3` 已推送到 `origin/feat/admin-dashboard-publication`。下一步由用户创建并合并到 `master` 的 PR，再发布 Web；尚未生产部署。真实账号需刷新登录会话后验收。
+- 富文本增补：用户批准 Tiptap，正文支持可视化排版与源码切换；视频嵌入保留源码模式。267 项 Web 测试、类型、Biome、完整 Web 构建和手机/桌面浏览器验证通过；独立审查发现的自动改写问题已修复并复审。同一分支交付，需合并并发布后上线。
+
 ## 2026-10-02 阅读效率与采集管理
 
 - 分支 `feat/reading-productivity` 基于最新 `origin/master`（`8cca2f9`）。
