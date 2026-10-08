@@ -122,6 +122,15 @@ simple-git-hooks 的 pre-commit 钩子；提交前会格式化并校验暂存文
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 项目 URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | 只受 RLS 授权的公开客户端密钥 |
+| `AZURE_TRANSLATOR_KEY` | 可选、服务端专用；Azure Translator F0 优先，未配置或请求失败时回退本地 MTran |
+| `AZURE_TRANSLATOR_REGION` | regional Translator 资源所在区域，例如 `eastasia`；global 资源可省略 |
+
+Azure 使用英译简体中文和 HTML 模式；超时、限流、配额耗尽或异常响应时回退本地，当前进程暂停尝试 Azure 60 秒。
+超过单次 50,000 字符限制的正文直接走本地。成功译文继续缓存 7 天，包括本地回退译文。
+在 Azure 门户选择 **Translator 单服务资源的 F0 层级**；填写密钥不会自动把收费资源改成 F0。
+配置密钥后，容器跳过本地模型启动预热，首次回退可能下载模型。模型卷仍会保留。
+生产变量填写在服务器已有的 `runtime.env`，不需要将密钥写入构建参数或 `NEXT_PUBLIC_*`。
+接入与验证记录见 [Azure 优先翻译与本地回退](docs/development/azure-translation-fallback.md)。
 
 `server/api`：
 

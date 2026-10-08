@@ -3,6 +3,7 @@ import type { MTran } from 'mtranserver'
 import type { AiEvent } from './ai-events'
 import { renderArticleContent } from './article-content'
 import { looksLikeEnglish } from './article-language'
+import { translateWithAzure } from './azure-translation'
 import { createResultCacheKey, readResultCache, writeResultCache } from './redis-cache'
 import type { SignalArticle } from './signal-article'
 
@@ -61,10 +62,14 @@ async function translateWithMTran(text: string, html = false) {
   return engine.translate('en', 'zh', text, html)
 }
 
+async function translateWithFallback(text: string, html = false) {
+  return (await translateWithAzure(text, html)) ?? translateWithMTran(text, html)
+}
+
 export async function translateArticle(
   article: SignalArticle,
   section: string,
-  translate: Translate = translateWithMTran
+  translate: Translate = translateWithFallback
 ): Promise<ArticleTranslation> {
   const contentHtml = article.contentHtml
     ? renderArticleContent(article.contentHtml, article.url, section)
@@ -123,7 +128,7 @@ function isArticleTranslation(value: unknown): value is ArticleTranslation {
 }
 
 // Bump this version when the model or rendering/translation behavior changes.
-const translationCacheVersion = 'mtran-4.0.33-en-zh-v1'
+const translationCacheVersion = 'azure-v3-mtran-4.0.33-en-zh-v1'
 
 export async function translateArticleOnce(article: SignalArticle, section: string) {
   const key = createResultCacheKey('translation:article', translationCacheVersion, [
@@ -145,7 +150,7 @@ export async function translateArticleOnce(article: SignalArticle, section: stri
 
 export async function translateEvent(
   event: AiEvent,
-  translate: Translate = translateWithMTran
+  translate: Translate = translateWithFallback
 ): Promise<EventTranslation> {
   if (!looksLikeEnglish(`${event.title}\n${event.summary}`)) throw new Error('EVENT_NOT_ENGLISH')
 

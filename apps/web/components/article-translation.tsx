@@ -76,7 +76,7 @@ export function ArticleTranslation({
     } catch (requestError) {
       setError(
         requestError instanceof DOMException && requestError.name === 'TimeoutError'
-          ? '本地模型下载或翻译超时，请稍后重试'
+          ? '翻译超时，请稍后重试'
           : requestError instanceof Error
             ? requestError.message
             : '暂时无法翻译，请稍后重试'

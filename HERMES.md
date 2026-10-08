@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-10-08 Azure 优先翻译与本地回退
+
+- 分支 `feat/azure-translation-fallback` 基于已 fetch 的 `origin/master` `3630fcd`。
+- 目标：Azure Translator F0 优先，失败时回退 MTran，保留 7 天译文缓存；Azure 模式跳过本地启动预热。
+- 记录：`docs/development/azure-translation-fallback.md`；调研：`docs/research/free-translation-api.md`。
+- 已实现：Azure 原生 fetch/HTML、20 秒超时、60 秒冷却、本地回退、缓存版本更新，以及 Azure 配置时跳过模型预热。
+- 验证：Web 291 项测试、类型、修改范围 Biome 和 Bun 准备脚本两模式通过；Next 编译通过，Supabase `ECONNRESET` 阻断预渲染。自审无代码阻塞项，无新增 roadmap 项。
+- 交付分支 `feat/azure-translation-fallback`，PR base 为 `master`。下一步：用户创建并合并 PR；CI 验证完整构建/Linux 容器。服务器配置 Azure F0 密钥/区域后验收真实翻译。本地未配置 Azure 密钥，尚未部署。
+
 ## 2026-10-08 管理后台与内容发布
 
 - 分支 `feat/admin-dashboard-publication` 基于最新 `origin/master` `2108484`。

@@ -26,6 +26,8 @@ vi.mock('./redis-cache', async (importOriginal) => {
 })
 
 const translateText = vi.hoisted(() => vi.fn(async (text: string) => `中文：${text}`))
+const azureTranslate = vi.hoisted(() => vi.fn())
+vi.mock('./azure-translation', () => ({ translateWithAzure: azureTranslate }))
 vi.mock('mtranserver', () => ({
   MTran: class {
     init = async () => undefined
@@ -37,6 +39,7 @@ vi.mock('mtranserver', () => ({
 beforeEach(() => {
   cache.clear()
   translateText.mockClear()
+  azureTranslate.mockReset().mockResolvedValue(null)
 })
 
 const article: SignalArticle = {
@@ -64,6 +67,46 @@ const event: AiEvent = {
 }
 
 describe('article translation', () => {
+  it('uses Azure for articles, sanitizes its HTML and caches without local inference', async () => {
+    azureTranslate
+      .mockResolvedValueOnce('云端标题')
+      .mockResolvedValueOnce('<p>中文正文</p><script>bad()</script>')
+    const first = await translateArticleOnce(article, 'technology')
+    expect(first).toEqual({ title: '云端标题', contentHtml: '<p>中文正文</p>', summary: null })
+    expect(azureTranslate).toHaveBeenNthCalledWith(1, article.title, false)
+    expect(azureTranslate).toHaveBeenNthCalledWith(
+      2,
+      '<p>Read the <strong>complete guide</strong>.</p>',
+      true
+    )
+    expect(translateText).not.toHaveBeenCalled()
+    expect([...cache.keys()][0]).toContain('azure-v3-mtran-4.0.33-en-zh-v1')
+    azureTranslate.mockClear()
+    expect(await translateArticleOnce(article, 'technology')).toEqual(first)
+    expect(azureTranslate).not.toHaveBeenCalled()
+    expect(translateText).not.toHaveBeenCalled()
+  })
+
+  it('uses Azure for event title and summary without local inference', async () => {
+    azureTranslate.mockResolvedValueOnce('云端事件标题').mockResolvedValueOnce('云端事件摘要')
+    expect(await translateEventOnce(event)).toEqual({
+      title: '云端事件标题',
+      summary: '云端事件摘要'
+    })
+    expect(translateText).not.toHaveBeenCalled()
+    expect(azureTranslate).toHaveBeenNthCalledWith(1, event.title, false)
+    expect(azureTranslate).toHaveBeenNthCalledWith(2, event.summary, false)
+  })
+
+  it('falls back for a body when Azure succeeds only for the title', async () => {
+    azureTranslate.mockResolvedValueOnce('云端标题').mockResolvedValueOnce(null)
+    const result = await translateArticleOnce(article, 'technology')
+    expect(result.title).toBe('云端标题')
+    expect(result.contentHtml).toContain('中文：')
+    expect(translateText).toHaveBeenCalledOnce()
+    expect(cache.size).toBe(1)
+  })
+
   it('reuses article translation across sequential requests', async () => {
     const first = await translateArticleOnce(article, 'technology')
     translateText.mockClear()
