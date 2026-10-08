@@ -17,6 +17,7 @@ import {
 import Link from 'next/link'
 import { type FormEvent, useEffect, useState } from 'react'
 import { ActionButton } from '../../components/action-button'
+import { ArticleEditor } from '../../components/article-editor'
 import { IngestionDashboard } from '../../components/ingestion-dashboard'
 import { createAdminBrowserClient } from '../../lib/admin-supabase'
 import type { AppType } from '../../lib/hono-app'
@@ -538,16 +539,16 @@ export default function AdminPage() {
                           onChange={(event) => setDraft({ ...draft, summary: event.target.value })}
                         />
                       </label>
-                      <label className="block text-sm font-medium">
-                        正文 HTML
-                        <textarea
-                          className={`${field} min-h-48 font-mono text-xs`}
-                          value={draft.content_html ?? ''}
-                          onChange={(event) =>
-                            setDraft({ ...draft, content_html: event.target.value })
-                          }
-                        />
-                      </label>
+                      <ArticleEditor
+                        key={draft.id}
+                        value={draft.content_html ?? ''}
+                        disabled={saving}
+                        onChange={(html) =>
+                          setDraft((current) =>
+                            current ? { ...current, content_html: html } : current
+                          )
+                        }
+                      />
                       <div className="grid gap-4 sm:grid-cols-2">
                         <label className="block min-w-0 text-sm font-medium">
                           封面 URL

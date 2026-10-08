@@ -49,6 +49,18 @@ GitHub 直连失败；通过本机现有代理成功 fetch，已确认最新基�
 - 独立代码审查无阻塞项；没有接受的后续项，因此不创建空路线图。真实账号浏览器登录仍需用户刷新会话后验收。
 - 代码提交 `30d63a3` 已推送至 `origin/feat/admin-dashboard-publication`。提交前通过已安装 Biome 对全部暂存代码执行与 pre-commit 相同的检查，再跳过会触发 pnpm 联网安装的启动钩子。按仓库交付规则，由用户创建并合并到 `master` 的 PR。
 
+## 富文本编辑器增补（2026-10-08）
+
+用户明确批准用 Tiptap 替换正文 HTML 输入框，增加标题、加粗、斜体、列表、引用、链接、撤销重做及源码切换。继续使用当前分支和 `/admin` 编辑区；不增加路由、上传服务或付费服务。
+
+采用 Tiptap 3.31.4（React、ProseMirror、StarterKit、Image、TableKit），按官方 Next.js 指南关闭服务端即时渲染；保持现有 HTML 保存 API、清洗规则和发布流程。图片与表格扩展用于导入现有文章；特殊视频嵌入只允许源码编辑。首次加载及模式切换不写回标准化内容，只有实际编辑才更新正文。按文章 ID 重建编辑器，隔离选择、历史和正文；保存期间禁用编辑。
+
+验证：先执行组件回归测试确认缺少编辑器时失败；新增三项测试覆盖未编辑原文不改写、编辑后输出 HTML、服务端安全初始化和保存时禁用。独立审查发现 `setEditable` 默认会发出 update，已用失败回归测试复现并通过显式 `emitUpdate=false` 修复；复审无阻塞项。
+
+Web 全量 71 个文件、267 项测试通过；Web 类型、3 个变更代码文件 Biome、diff 检查通过。最终 Next 构建、62 页生成、early-hints 与 service-worker 构建步骤通过。本地 Auth/公开数据快照浏览器验证排版输出 `<strong>`、源码切换、撤销重做、保存成功、文章切换和视频嵌入原样保留；390px 手机页面无横向溢出，1280px 桌面双栏正常。图片、表格用于保留现有编辑内容，公开页面继续遵守现有清洗策略；没有新增图片上传或媒体发布能力。截图保存在本机临时目录。
+
+参考：[Tiptap Next.js](https://tiptap.dev/docs/editor/getting-started/install/nextjs)、[HTML 保存](https://tiptap.dev/docs/editor/core-concepts/persistence)。
+
 ## Risks
 
 真实管理员浏览器会话没有提供密码，不能冒充已经验证实际登录；通过云端权限查询和本地 Auth/数据替身验证对应部分，并分别记录。页面需要发布才能在线上出现。
