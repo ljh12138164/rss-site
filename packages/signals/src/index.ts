@@ -87,7 +87,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
   }
 ] as const
 
-// 科技 Technology (6)
+// 科技 Technology (8)
 export const technologySources = [
   {
     id: 'github',
@@ -166,6 +166,19 @@ export const technologySources = [
     isArticle: true,
     cronSchedule: '30 3,9,15,21 * * *',
     cronJobName: 'signal-ingest-github-blog'
+  },
+  {
+    id: 'cloudflare-blog',
+    name: 'Cloudflare Blog',
+    code: 'CF',
+    shortName: 'Cloudflare Blog',
+    description: 'Cloudflare 官方技术文章与产品动态',
+    section: 'technology',
+    itemLimit: 20,
+    rsshubPath: '/cloudflare/blog',
+    isArticle: true,
+    cronSchedule: '30 4,10,16,22 * * *',
+    cronJobName: 'signal-ingest-cloudflare-blog'
   },
   {
     id: 'geekpark',
@@ -727,7 +740,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'geekpark',
   'chuapp',
   'lilian-weng',
-  'simon-willison'
+  'simon-willison',
+  'cloudflare-blog'
 ] as const
 
 // Cron jobs

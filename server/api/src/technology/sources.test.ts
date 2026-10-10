@@ -38,6 +38,7 @@ describe('technologySources', () => {
       ['ithome', '/ithome/ranking/24h'],
       ['36kr', '/36kr/hot-list/24'],
       ['github-blog', 'https://github.blog/feed/'],
+      ['cloudflare-blog', '/cloudflare/blog'],
       ['geekpark', 'http://www.geekpark.net/rss']
     ])
     expect(technologySources.every((source) => source.section === 'technology')).toBe(true)
@@ -162,7 +163,7 @@ describe('technologySources', () => {
     expect(isGameSourceId('chuapp')).toBe(true)
     expect(isGameSourceId('steam')).toBe(false)
     expect(isGameSourceId('github')).toBe(false)
-    expect(signalSources).toHaveLength(41)
+    expect(signalSources).toHaveLength(42)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

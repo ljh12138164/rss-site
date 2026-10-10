@@ -41,7 +41,7 @@ describe('TechnologyView', () => {
     expect(html).toContain('>Hacker News<')
     expect(html).toContain('部分来源暂时无法加载，请稍后再试。')
     expect(html).not.toContain('暂无内容。')
-    expect(html.match(/data-outbound/g)).toHaveLength(12)
+    expect(html.match(/data-outbound/g)).toHaveLength(15)
     expect(html).not.toContain('href="/out?')
     expect(html).not.toContain('开源排行榜')
     expect(html).not.toContain('开源榜')

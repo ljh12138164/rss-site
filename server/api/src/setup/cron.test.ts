@@ -32,7 +32,7 @@ describe('normalizeIngestUrl', () => {
 })
 
 describe('setupSignalCron', () => {
-  it('verifies every source before replacing legacy jobs with thirty-seven staggered jobs', async () => {
+  it('verifies every source before replacing legacy jobs with forty-two staggered jobs', async () => {
     const calls: string[] = []
     const scheduledJobs: Array<{ name: string; schedule: string; command: string }> = []
     const repository: CronRepository = {
@@ -72,8 +72,8 @@ describe('setupSignalCron', () => {
     expect(calls.slice(postVerificationOffset + 3)).toEqual(
       LEGACY_SIGNAL_CRON_JOB_NAMES.map((name) => `unschedule:${name}`)
     )
-    expect(scheduledJobs).toHaveLength(42)
-    expect(scheduledJobs.slice(0, 41).map(({ name, schedule }) => ({ name, schedule }))).toEqual(
+    expect(scheduledJobs).toHaveLength(43)
+    expect(scheduledJobs.slice(0, 42).map(({ name, schedule }) => ({ name, schedule }))).toEqual(
       SIGNAL_CRON_JOBS.map(({ name, schedule }) => ({ name, schedule }))
     )
     expect(scheduledJobs[0]?.command).toContain("'/openai'")
@@ -94,13 +94,19 @@ describe('setupSignalCron', () => {
     expect(scheduledJobs[39]?.command).toContain("'/lilian-weng'")
     expect(scheduledJobs[40]?.command).toContain("'/simon-willison'")
     expect(scheduledJobs[41]).toMatchObject({
+      name: 'signal-ingest-cloudflare-blog',
+      schedule: '30 4,10,16,22 * * *'
+    })
+    expect(scheduledJobs[41]?.command).toContain("'/cloudflare-blog'")
+    expect(scheduledJobs[41]?.command).toContain('vault.decrypted_secrets')
+    expect(scheduledJobs[42]).toMatchObject({
       name: 'ingestion-runs-retention-daily',
       schedule: '30 5 * * *'
     })
-    expect(scheduledJobs[41]?.command).toContain("interval '180 days'")
-    expect(scheduledJobs[41]?.command).toContain("interval '90 days'")
-    expect(scheduledJobs[41]?.command).toContain('limit 1000')
-    expect(scheduledJobs[41]?.command).toContain("interval '30 days'")
+    expect(scheduledJobs[42]?.command).toContain("interval '180 days'")
+    expect(scheduledJobs[42]?.command).toContain("interval '90 days'")
+    expect(scheduledJobs[42]?.command).toContain('limit 1000')
+    expect(scheduledJobs[42]?.command).toContain("interval '30 days'")
     expect(result).toEqual(
       SIGNAL_CRON_JOBS.map(({ source }) => ({
         source,
@@ -116,10 +122,10 @@ describe('setupSignalCron', () => {
     )
     expect(
       SIGNAL_CRON_JOBS.slice(7).every(({ schedule }) =>
-        /\d (?:0,6,12,18|1,7,13,19|2,8,14,20|3,9,15,21) \* \* \*/.test(schedule)
+        /\d (?:0,6,12,18|1,7,13,19|2,8,14,20|3,9,15,21|4,10,16,22) \* \* \*/.test(schedule)
       )
     ).toBe(true)
-    expect(new Set(SIGNAL_CRON_JOBS.map(({ name }) => name)).size).toBe(41)
+    expect(new Set(SIGNAL_CRON_JOBS.map(({ name }) => name)).size).toBe(42)
 
     expect(SIGNAL_CRON_JOBS.map(({ source }) => source).sort()).toEqual(
       signalSources.map(({ id }) => id).sort()
@@ -134,7 +140,7 @@ describe('setupSignalCron', () => {
       return hours.map((hour) => hour * 60 + Number(minuteValue))
     }).sort((left, right) => left - right)
 
-    expect(runMinutes).toHaveLength(220)
+    expect(runMinutes).toHaveLength(224)
     expect(new Set(runMinutes).size).toBe(runMinutes.length)
     expect(
       runMinutes.every((minute, index) => {
@@ -196,7 +202,7 @@ describe('setupSignalCron', () => {
 
     expect(attempts.get('openai')).toBe(1)
     expect(attempts.get('anthropic')).toBe(2)
-    expect(result).toHaveLength(41)
+    expect(result).toHaveLength(42)
   })
 
   it('does not schedule any jobs when a source writes zero items', async () => {

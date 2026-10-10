@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-10-10 Cloudflare Blog
+
+- 分支 `feat/cloudflare-blog` 基于最新 `origin/master`。
+- 目标：仅接入 RSSHub `/cloudflare/blog` 到科技文章与服务端 Supabase Cron 采集。
+- 记录：`docs/development/cloudflare-blog.md`；无凭据上游探测 HTTP 200、20 篇全文文章。
+- 本地测试和类型检查通过；API 已部署，云迁移 `20261010123000` 已应用；生产批次 `f92652dd-8b67-4f1a-aa5c-d231e9bbc1b5` 写入 20 篇全文，数据质量核验通过。
+- `signal-ingest-cloudflare-blog` 已启用并核验 active/Vault，UTC `30 4,10,16,22 * * *`。
+- 下一步：推送分支，由用户创建并合并到 `master` 的 PR，发布 Web 来源展示；后续 API 发布需保留新来源。
+
 ## 2026-10-08 管理后台与内容发布
 
 - 分支 `feat/admin-dashboard-publication` 基于最新 `origin/master` `2108484`。
