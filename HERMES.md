@@ -8,6 +8,8 @@
 - 本地测试和类型检查通过；API 已部署，云迁移 `20261010123000` 已应用；生产批次 `f92652dd-8b67-4f1a-aa5c-d231e9bbc1b5` 写入 20 篇全文，数据质量核验通过。
 - `signal-ingest-cloudflare-blog` 已启用并核验 active/Vault，UTC `30 4,10,16,22 * * *`。
 - 实现提交 `47e15bd` 已推送 `origin/feat/cloudflare-blog`。下一步：用户创建并合并到 `master` 的 PR，发布 Web 来源展示；后续 API 发布需保留新来源。
+- 本地已启动并通过真实云文章快照预览（本机 Supabase REST 网络失败）；补齐 Cloudflare 标志与极客公园 GP 字母图标并验证。
+- 用户确认紧凑文章列表＋左侧封面，要求先排查图片来源。记录 `docs/research/article-cover-audit.md`；发现列表未取 image_url，Cloudflare 图片 enclosure/相对地址未提取。下一步根据排查结果实施列表与必要的图片提取修复。
 
 ## 2026-10-08 管理后台与内容发布
 

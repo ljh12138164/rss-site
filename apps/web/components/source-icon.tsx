@@ -5,6 +5,7 @@ import {
   SiBaidu,
   SiBilibili,
   SiBytedance,
+  SiCloudflare,
   SiDeepseek,
   SiGithub,
   SiGooglegemini,
@@ -33,6 +34,7 @@ interface FileIcon {
 const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
   github: { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
   'github-blog': { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
+  'cloudflare-blog': { Icon: SiCloudflare, color: '#f38020', bg: '#fff3e6' },
   'skills-all-time': { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
   'skills-trending': { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
   'hacker-news': { Icon: SiYcombinator, color: '#ffffff', bg: '#f0652f' },
@@ -48,6 +50,7 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
 }
 
 const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
+  geekpark: { src: '/source-icons/geekpark.svg' },
   ithome: { src: '/source-icons/ithome.png' },
   '36kr': { src: '/source-icons/36kr.svg' },
   xinhua: { src: '/source-icons/xinhua.png' },
