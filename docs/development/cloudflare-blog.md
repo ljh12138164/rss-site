@@ -39,7 +39,7 @@ Cloudflare Status、RSSHub 部署、独立定时器、新页面或布局调整�
 - 首条：Introducing Clef-omni with full multimodality, plus a faster Clef and a cheaper Clef-flash；`https://blog.cloudflare.com/clef-faster-cheaper-multimodal`；发布时间 `2026-10-09T18:27:34Z`。
 - 以上验证通过后，单独调度新来源，没有重排其他来源任务。`signal-ingest-cloudflare-blog`：active=true，UTC `30 4,10,16,22 * * *`，命令使用 Vault 中的 URL 与 Cron 密钥。最终验证时间 `2026-10-10T14:21:35.211Z`。
 - Web 来源展示随分支合并发布上线；服务端采集与定时任务已经部署并启用。
-- 本地 Next.js 已启动；本机访问云 Supabase REST 出现 ECONNRESET/代理超时，使用数据库导出的真实 20 篇文章通过临时、忽略提交的 Node preload 预览列表与阅读页，无产品代码或线上环境修改。
+- 本地 Next.js 已启动；本机访问云 Supabase REST 出现 ECONNRESET/代理超时，使用数据库导出的真实 20 篇文章通过临时、忽略提交的 Node preload 验证来源列表，无产品代码或线上环境修改。文章详情导航被浏览器以 ERR_BLOCKED_BY_CLIENT 拦截，本轮未完成阅读页视觉核验。
 - 来源图标修复：本地浏览器确认 Cloudflare 与极客公园图标可见；来源导航/科技页两项测试、Web 类型检查和图标组件 Biome 通过。
 - 用户提出文章左侧封面列表，先完成[各来源图片覆盖率排查](../research/article-cover-audit.md)；列表布局和 Feed 图片提取修复尚未实施。
 
