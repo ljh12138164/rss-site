@@ -42,6 +42,7 @@ Spacing：4px 基础间距，行内 12–16px 间隔，收藏按钮保留可点�
 - 六个分区 articles API 均 HTTP 200、各 30 条；本地时间轴已显示真实已发布事件；补齐 hot_items/source_status 预览后 Skills 可正常加载。最初 Cloudflare-only 快照造成其他分类缺数据，现已导出 1,153 篇跨来源真实云文章及热点、状态、已发布事件，并重启本地服务。
 - 标准 Next 构建编译/类型阶段通过，但直接云 REST 预渲染因本机 ECONNRESET 失败；使用忽略提交的真实云快照 preload 后 63/63 页面生产构建、early hints 与 service worker 生成通过。此构建不能替代 CI 的真实网络部署验证，快照与连接信息均未提交。
 - Standards/Spec 自检无阻塞项；未新增未请求的页面、依赖或动画，无需新增 roadmap。
+- 提交 `48f03bf` 已推送 `origin/feat/cloudflare-blog`，由用户创建并合并到 master 的 PR 后发布；本地服务继续运行。
 
 ## Risks
 上游图片可能防盗链、过期或不可访问；图片组件本地回退。外部图片不经过新代理或后端抓取。
