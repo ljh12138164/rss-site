@@ -2,6 +2,47 @@ import { describe, expect, it } from 'vitest'
 import { parseTechnologyFeed } from './feed.js'
 
 describe('parseTechnologyFeed', () => {
+  it('uses an image enclosure when the article has no inline image', () => {
+    const xml = `<rss><channel><item>
+      <title>Cloudflare release</title><link>https://blog.cloudflare.com/release</link>
+      <description><![CDATA[<p>Article body.</p>]]></description>
+      <enclosure url="https://blog.cloudflare.com/cover.png" type="image/png" />
+    </item></channel></rss>`
+    expect(parseTechnologyFeed(xml, 'Cloudflare Blog')[0]?.imageUrl).toBe(
+      'https://blog.cloudflare.com/cover.png'
+    )
+  })
+
+  it('prefers an image enclosure over an inline illustration and skips audio enclosures', () => {
+    const xml = `<rss><channel><item>
+      <title>Article</title><link>https://example.com/article</link>
+      <description><![CDATA[<img src="https://example.com/chart.png">]]></description>
+      <enclosure url="https://example.com/audio.mp3" type="audio/mpeg" />
+      <enclosure url="/cover.webp" type="image/webp" />
+    </item></channel></rss>`
+    expect(parseTechnologyFeed(xml, 'test')[0]?.imageUrl).toBe('https://example.com/cover.webp')
+  })
+
+  it('falls back from a non-image enclosure to an inline image relative to the article', () => {
+    const xml = `<rss><channel><item>
+      <title>Article</title><link>https://example.com/blog/article</link>
+      <description><![CDATA[<img src="../cover.png?size=320&amp;quality=80">]]></description>
+      <enclosure url="https://example.com/video.mp4" type="video/mp4" />
+    </item></channel></rss>`
+    expect(parseTechnologyFeed(xml, 'test')[0]?.imageUrl).toBe(
+      'https://example.com/cover.png?size=320&quality=80'
+    )
+  })
+
+  it('skips unsafe enclosure and inline image URLs before choosing a valid content image', () => {
+    const xml = `<rss><channel><item>
+      <title>Article</title><link>https://example.com/article</link>
+      <description><![CDATA[<img src="data:image/png;base64,placeholder"><img src="/cover.png">]]></description>
+      <enclosure url="javascript:alert(1)" type="image/png" />
+    </item></channel></rss>`
+    expect(parseTechnologyFeed(xml, 'test')[0]?.imageUrl).toBe('https://example.com/cover.png')
+  })
+
   it('cleans OpenAI audio UI from both stored HTML and summary', () => {
     const xml =
       '<rss><channel><item><title>Example</title><link>https://openai.com/index/example</link><description><![CDATA[<div data-read-aloud-ui="true"><div>Loading…</div><audio></audio></div><p>Actual article.</p>]]></description></item></channel></rss>'

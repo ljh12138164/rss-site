@@ -24,6 +24,7 @@ interface ParsedItem {
   summary?: unknown
   content?: unknown
   'content:encoded'?: unknown
+  enclosure?: unknown
   author?: unknown
   pubDate?: unknown
   published?: unknown
@@ -204,17 +205,38 @@ function firstAnchorUrl(value: unknown, baseUrl: unknown): string | null {
   }
 }
 
-function firstImageUrl(...values: unknown[]): string | null {
+function resolveImageUrl(value: unknown, baseUrl: string): string | null {
+  const rawUrl = textValue(value)
+  if (!rawUrl) return null
+  try {
+    return canonicalWebUrl(new URL(decodeEntities(rawUrl), baseUrl).toString())
+  } catch {
+    return null
+  }
+}
+
+function imageEnclosureUrl(value: unknown, baseUrl: string): string | null {
+  for (const enclosure of Array.isArray(value) ? value : [value]) {
+    if (!enclosure || typeof enclosure !== 'object' || !('@_type' in enclosure)) continue
+    const type = textValue(enclosure['@_type'])
+    if (!type?.toLowerCase().startsWith('image/') || !('@_url' in enclosure)) continue
+    const imageUrl = resolveImageUrl(enclosure['@_url'], baseUrl)
+    if (imageUrl) return imageUrl
+  }
+  return null
+}
+
+function firstImageUrl(baseUrl: string, ...values: unknown[]): string | null {
   for (const value of values) {
     const html = textValue(value)
     if (!html) continue
 
-    const match = html.match(/<img\b[^>]*\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/i)
-    const rawImageUrl = match?.[1] ?? match?.[2] ?? match?.[3]
-    if (!rawImageUrl) continue
-
-    const imageUrl = canonicalWebUrl(decodeEntities(rawImageUrl))
-    if (imageUrl) return imageUrl
+    for (const match of html.matchAll(
+      /<img\b[^>]*\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi
+    )) {
+      const imageUrl = resolveImageUrl(match[1] ?? match[2] ?? match[3], baseUrl)
+      if (imageUrl) return imageUrl
+    }
   }
 
   return null
@@ -265,7 +287,8 @@ export function parseSignalFeed(
         sourceKey: canonicalSourceKey(rawGuid, url),
         title,
         url,
-        imageUrl: firstImageUrl(rawDescription, content),
+        imageUrl:
+          imageEnclosureUrl(item.enclosure, url) ?? firstImageUrl(url, rawDescription, content),
         summary: options.skillMetadata
           ? skillSummary(rawDescription)
           : ((

@@ -10,6 +10,7 @@
 - 实现提交 `47e15bd` 已推送 `origin/feat/cloudflare-blog`。下一步：用户创建并合并到 `master` 的 PR，发布 Web 来源展示；后续 API 发布需保留新来源。
 - 本地已启动并通过真实云文章快照预览（本机 Supabase REST 网络失败）；补齐 Cloudflare 标志与极客公园 GP 字母图标并验证。
 - 用户确认紧凑文章列表＋左侧封面，要求先排查图片来源。记录 `docs/research/article-cover-audit.md`；发现列表未取 image_url，Cloudflare 图片 enclosure/相对地址未提取。下一步根据排查结果实施列表与必要的图片提取修复。
+- 用户要求先修复本站解析器：四项新增回归测试已验证原逻辑失败；统一解析器现支持图片 enclosure 优先、正文有效图片回退及相对路径，API 89 项、类型和 Biome 通过。Worker `56c0c2dc-84d1-4a6c-9b26-0adca12073a2` 已部署；生产批次 `4c861872-5fc3-445c-a527-47a8284a8121` 将 Cloudflare 图片从 1/20 更新为文章/热点表均 20/20，原文章 ID 保留，Cron 保持 active。下一步完成左侧封面 UI；用户仍需创建并合并分支 PR。
 
 ## 2026-10-08 管理后台与内容发布
 
