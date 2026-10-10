@@ -11,7 +11,7 @@
 - 分页文章来源查询传递 image_url，并调整加载骨架。
 
 ## Out of scope
-新页面、运行依赖、数据库迁移、线上部署及 GitHub 排行样式改动。
+新页面、数据库迁移、线上部署及 GitHub 排行样式改动。用户后来明确要求图片预览直接使用包，因此仅新增专用预览库。
 
 ## Acceptance criteria
 - 用户确认只对封面组件做 TDD；缺图、加载失败、配置默认图、懒加载、更换 src 的公开行为可验证。
@@ -19,7 +19,7 @@
 - 桌面/手机、真实封面/默认图均视觉核验；前端测试和类型通过。
 
 ## Feasibility
-可行。HotItem 已有 imageUrl；分页查询尚未读取数据库字段。复用现有 HotList、SourceIcon、ArticleBookmarkButton 和主题，不添加运行依赖。
+可行。HotItem 已有 imageUrl；复用现有 HotList、SourceIcon、ArticleBookmarkButton 和主题。后续按用户要求，图片预览只新增一个专用库。
 现有 Vitest 运行在 Node；静态输出用 Vitest，图片错误事件通过现有 Vite 的独立浏览器检查页验证，使用真实 React DOM，不模拟 React hooks，不添加 DOM 库。
 在既有 `feat/cloudflare-blog` 分支继续已记录的前端后续工作。当前 server/api/src/ingestion/feed.ts 有本地回退，保留该改动且不纳入前端提交；用户未回答该回退的处理选择，未进行依赖该选择的后端操作。
 
@@ -30,7 +30,8 @@ Hierarchy：左侧 8:5 图片，右侧标题 16px 半粗、摘要 14px 两行、
 Palette/Depth：继承 background/foreground/muted/border/primary，细分隔线和现有 hover，无额外阴影/动画。
 Spacing：4px 基础间距，行内 12–16px 间隔，收藏按钮保留可点击区域。
 组件失败地址记忆按资源 URL 工作；新 src/fallbackSrc 可正常尝试，不添加定时重试或图片代理。无具体标志的 SourceIcon 以平台 code 字母兜底，避免空占位。
-用户补充点击封面应预览：封面移出文章链接，真实图片使用 React Aria Button/DialogTrigger/ModalOverlay/Dialog 与现有 ActionButton 打开大图；标题/摘要仍为文章链接。平台占位不预览，预览提供原图、关闭按钮、Esc/遮罩关闭和焦点恢复，不引入图库/缩放等额外功能。
+用户补充点击封面应预览，并要求直接用包：封面移出文章链接，真实图片使用 `yet-another-react-lightbox@3.32.2` 打开大图；标题/摘要仍为文章链接。平台占位不预览，关闭、Esc/遮罩、焦点恢复和图片适配由库负责；仅显示当前图片，不显示前后导航按钮。
+版本依据：NPM 官方 registry 与已安装包的 README/类型。支持 React 19，无额外运行 dependencies；使用已有 React/React DOM peers。移除自定义 React Aria 弹窗、关闭按钮和图片容器，仅保留触发按钮与库的配置。用户“直接用包”的要求授权此次依赖变更，其他 UI 技术栈不变。
 本地浏览器行为检查入口：`node scripts/check-cover-image.mjs`（在 apps/web 执行），打开输出地址并运行检查。
 
 ## Verification
@@ -46,7 +47,8 @@ Spacing：4px 基础间距，行内 12–16px 间隔，收藏按钮保留可点�
 - 提交 `48f03bf` 已推送 `origin/feat/cloudflare-blog`，由用户创建并合并到 master 的 PR 后发布；本地服务继续运行。
 - 图片预览 TDD：新增真实封面应输出可访问预览按钮的 CoverImage 用例，先失败后通过；同步确认平台占位没有预览按钮。Web 271 项与类型检查通过。
 - 本地 IT之家真实封面检查：预览打开时 dialog=1，URL 仍为 `/technology/ithome`；Esc、关闭按钮与遮罩关闭后 dialog=0，Esc 后焦点返回原预览按钮。
-- 图片预览改动的 63/63 页快照生产构建通过，沿用上述云 REST 连通性限制；没有新增运行依赖、外部写入或后端变更。
+- 图片预览改动的 63/63 页快照生产构建通过，沿用上述云 REST 连通性限制；没有外部写入或后端变更。
+- 预览库替换：现有 CoverImage 4 项组件测试全部保留通过，Web 271 项、类型、63/63 页快照构建通过。IT之家实际图片已加载，URL 保持来源列表地址，关闭按钮/Esc/遮罩均关闭，焦点返回原按钮，Enter 可打开；预览由库处理，不再维护自定义 Modal。
 
 ## Risks
 上游图片可能防盗链、过期或不可访问；图片组件本地回退。外部图片不经过新代理或后端抓取。
