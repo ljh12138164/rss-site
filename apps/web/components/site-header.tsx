@@ -41,6 +41,7 @@ export function SiteHeader() {
           <Image
             src="/icon.svg"
             alt=""
+            loading="lazy"
             width={26}
             height={26}
             className="shrink-0 transition-transform duration-200 group-hover:scale-105"

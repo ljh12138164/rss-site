@@ -93,7 +93,10 @@ export function CoverImage({
         open={previewOpen}
         close={() => setPreviewOpen(false)}
         slides={[{ src: imageSrc, alt: previewLabel }]}
-        carousel={{ finite: true, imageProps: { referrerPolicy: 'no-referrer' } }}
+        carousel={{
+          finite: true,
+          imageProps: { referrerPolicy: 'no-referrer', loading: 'lazy', decoding: 'async' }
+        }}
         controller={{ closeOnBackdropClick: true }}
         render={{ buttonPrev: () => null, buttonNext: () => null }}
         labels={{ Lightbox: '图片预览', Close: '关闭图片预览' }}

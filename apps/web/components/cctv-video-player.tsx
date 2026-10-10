@@ -210,6 +210,8 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         <img
           src={videoInfo.image}
           alt={videoInfo.title}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (

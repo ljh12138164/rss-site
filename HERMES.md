@@ -8,6 +8,7 @@
 - 本地服务已补齐全分类真实数据快照并重启，六个分类接口各 30 条，时间轴可读；保留用户在 server/api/src/ingestion/feed.ts 的本地回退，不纳入前端提交。
 - 前端提交 `48f03bf` 已推送 `origin/feat/cloudflare-blog`；下一步由用户创建并合并到 master 的 PR 后部署。本地 3000 预览服务保持启动，3011 组件检查服务已关闭。
 - 后续图片点击行为：真实封面打开大图预览，标题/摘要单独跳转；平台占位不预览。用户要求直接用包，现改用 yet-another-react-lightbox 3.32.2，移除自定义弹窗，兼容现有 React 19，无额外运行 dependencies。保留 CoverImage 的懒加载/失败回退测试与接口。
+- 图片懒加载复查：封面、平台/页头图片、央视视频海报与 Lightbox 图片均使用原生 lazy；点击后才挂载预览。补齐海报的 lazy/async，相关 6 项测试和 Web 类型通过。
 
 ## 2026-10-10 Cloudflare Blog
 

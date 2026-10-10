@@ -125,6 +125,7 @@ export function SourceIcon({
     >
       <Image
         alt=""
+        loading="lazy"
         className="size-full object-contain"
         height={20}
         src={file.src}
