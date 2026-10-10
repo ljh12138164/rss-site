@@ -1,5 +1,13 @@
 # HERMES
 
+## 左侧封面的紧凑文章列表
+
+- 继续 `feat/cloudflare-blog`，记录 `docs/development/article-cover-list.md`。
+- CoverImage 支持原生懒加载、尺寸/默认图配置、fallback 插槽、图片失败回退与更换 src；列表有封面时显示真实图片，无图时显示平台标志，无文章时保持空状态。
+- 用户确认 TDD 仅测试封面组件；逐项 red/green 与真实浏览器事件检查完成。Web 270 项、类型、Biome 通过，真实快照构建 63/63 及产物脚本通过；云 REST 直连仍被本机网络阻断。
+- 本地服务已补齐全分类真实数据快照并重启，六个分类接口各 30 条，时间轴可读；保留用户在 server/api/src/ingestion/feed.ts 的本地回退，不纳入前端提交。
+- 下一步：推送前端提交，用户创建并合并到 master 的 PR 后部署；本地预览服务保持启动。
+
 ## 2026-10-10 Cloudflare Blog
 
 - 分支 `feat/cloudflare-blog` 基于最新 `origin/master`。

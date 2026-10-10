@@ -42,7 +42,7 @@ Cloudflare Status、RSSHub 部署、独立定时器、新页面或布局调整�
 - Web 来源展示随分支合并发布上线；服务端采集与定时任务已经部署并启用。
 - 本地 Next.js 已启动；本机访问云 Supabase REST 出现 ECONNRESET/代理超时，使用数据库导出的真实 20 篇文章通过临时、忽略提交的 Node preload 验证来源列表，无产品代码或线上环境修改。文章详情导航被浏览器以 ERR_BLOCKED_BY_CLIENT 拦截，本轮未完成阅读页视觉核验。
 - 来源图标修复：本地浏览器确认 Cloudflare 与极客公园图标可见；来源导航/科技页两项测试、Web 类型检查和图标组件 Biome 通过。
-- 用户提出文章左侧封面列表，先完成[各来源图片覆盖率排查](../research/article-cover-audit.md)；图片解析修复已完成，列表布局尚未实施。
+- 用户提出文章左侧封面列表，先完成[各来源图片覆盖率排查](../research/article-cover-audit.md)；图片解析修复已完成，[前端封面列表](article-cover-list.md)也已完成，等待分支合并部署。
 - 图片解析修复：先运行四项回归测试，确认原逻辑均失败（仅 enclosure、封面优先/跳过音频、相对路径、跳过不安全图片）；修改后 API 89 项测试和类型检查通过。图片 enclosure 优先，description/content 的首个有效 HTTP(S) 图片回退，相对路径基于文章 URL 解析；不修改 RSSHub，不增加请求、依赖或数据库迁移。
 - 修复差异复核（Standards/Spec）：仅扩展统一图片提取与相关回归测试；保持条目身份、正文、发布时间和 Cron，未发现阻塞项。
 - 2026-10-10 修复已部署：Worker version `56c0c2dc-84d1-4a6c-9b26-0adca12073a2`。真实 RSS HTTP 200，20 篇解析为 20 张封面。

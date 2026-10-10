@@ -14,7 +14,7 @@ import {
   SiYcombinator,
   SiZhihu
 } from 'react-icons/si'
-import type { SignalSource, SignalSourceId } from '../lib/technology-sources'
+import { getSignalSource, type SignalSource, type SignalSourceId } from '../lib/technology-sources'
 import { cn } from '../lib/utils'
 
 /** Brand-colored icon from react-icons/simple-icons. */
@@ -101,7 +101,19 @@ export function SourceIcon({
   }
 
   const file = fileIcons[source.id]
-  if (!file) return null
+  if (!file) {
+    return (
+      <span
+        aria-hidden="true"
+        className={cn(
+          'inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-muted font-mono text-xs font-semibold text-muted-foreground ring-1 ring-border/60',
+          className
+        )}
+      >
+        {getSignalSource(source.id).code}
+      </span>
+    )
+  }
 
   return (
     <span

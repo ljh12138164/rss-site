@@ -70,4 +70,4 @@
 
 ## 解析修复后的验证
 
-2026-10-10 22:55（北京时间），统一图片解析器已部署并重新采集 Cloudflare：文章与热点表各 20/20 张图片，原文章 ID 保留。批次 `4c861872-5fc3-445c-a527-47a8284a8121`。上表保留初次排查数据；Cloudflare 当前已有图片为 20/20。完整证据见 [Cloudflare 开发记录](../development/cloudflare-blog.md)。左侧封面列表尚未实施。
+2026-10-10 22:55（北京时间），统一图片解析器已部署并重新采集 Cloudflare：文章与热点表各 20/20 张图片，原文章 ID 保留。批次 `4c861872-5fc3-445c-a527-47a8284a8121`。上表保留初次排查数据；Cloudflare 当前已有图片为 20/20。完整证据见 [Cloudflare 开发记录](../development/cloudflare-blog.md)。[前端左侧封面列表](../development/article-cover-list.md)已实现；无图片时显示平台图标，无文章的平台保留空状态。

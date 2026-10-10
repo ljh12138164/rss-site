@@ -20,7 +20,7 @@ describe('HotList', () => {
       />
     )
 
-    expect(html).toContain('01')
+    expect(html).not.toContain('data-rank=')
     expect(html).toContain('构建可靠的前端应用')
     expect(html).toContain('从边界状态和数据流开始设计。')
     expect(html).toContain('示例作者')

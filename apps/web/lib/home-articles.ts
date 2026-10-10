@@ -164,7 +164,7 @@ export async function getHomeArticles(
   if (cursor?.position !== undefined) throw new Error('Invalid article cursor')
   let query = getPublicSupabaseClient()
     .from('signal_articles')
-    .select('id,source,source_key,title,url,summary,published_at')
+    .select('id,source,source_key,title,url,image_url,summary,published_at')
     .in(
       'source',
       selectedSources.filter(({ source }) => source.id !== 'github').map(({ source }) => source.id)
@@ -198,6 +198,7 @@ export async function getHomeArticles(
         sourceKey: row.source_key,
         title: row.title,
         url: row.url,
+        imageUrl: row.image_url,
         summary: row.summary?.trim().slice(0, 240) || null,
         author: null,
         publishedAt: row.published_at,
@@ -251,7 +252,7 @@ async function fetchLatestBySection(
   const timeout = AbortSignal.timeout(10000)
   let query = getPublicSupabaseClient()
     .from('signal_articles')
-    .select('id,source,source_key,title,url,summary,published_at')
+    .select('id,source,source_key,title,url,image_url,summary,published_at')
     .in('source', sourceIds)
     .order('published_at', { ascending: false, nullsFirst: false })
     .order('id', { ascending: true })
@@ -269,6 +270,7 @@ async function fetchLatestBySection(
       sourceKey: row.source_key,
       title: row.title,
       url: row.url,
+      imageUrl: row.image_url,
       summary: null,
       author: null,
       publishedAt: row.published_at,

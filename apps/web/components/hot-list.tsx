@@ -3,8 +3,9 @@ import Link from 'next/link'
 import { createArticlePath } from '../lib/article-route'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
-import type { SignalSource } from '../lib/technology-sources'
+import { findSignalSource, type SignalSource } from '../lib/technology-sources'
 import { ArticleBookmarkButton } from './article-bookmark-button'
+import { CoverImage } from './cover-image'
 import { GitHubRepositoryRow } from './github-repository-row'
 import { SourceIcon } from './source-icon'
 
@@ -31,6 +32,7 @@ export function HotList({
     <ol className="border-y border-border">
       {items.map((item) => {
         const sourceId = item.platform?.id ?? source
+        const platform = item.platform ?? (sourceId ? findSignalSource(sourceId) : undefined)
         if (sourceId === 'github') {
           return (
             <GitHubRepositoryRow
@@ -53,72 +55,82 @@ export function HotList({
 
         return (
           <li
-            className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 rounded-md border-b border-border/80 px-2.5 py-5 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5 sm:py-6"
+            className="border-b border-border/80 py-4 last:border-b-0 hover:bg-row-highlight"
             key={`${sourceId ?? ''}:${item.sourceKey}`}
           >
-            <span aria-hidden="true" className="rank-numeral pt-1" data-rank={item.position}>
-              {String(item.position).padStart(2, '0')}
-            </span>
-            <article className="min-w-0">
+            <article className="grid min-w-0 grid-cols-[6rem_minmax(0,1fr)] gap-x-3 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-x-4">
               <LinkComponent
-                className="group block max-w-full text-foreground"
+                className="group col-span-2 grid min-w-0 grid-cols-subgrid items-start text-foreground focus-visible:outline-2 focus-visible:outline-primary"
                 href={href}
                 {...outboundProps}
               >
+                <CoverImage
+                  src={item.imageUrl}
+                  className="w-24 sm:w-36"
+                  fallback={
+                    platform ? (
+                      <SourceIcon
+                        source={platform}
+                        className="size-10 text-base sm:size-12 [&>svg]:size-7 sm:[&>svg]:size-8"
+                      />
+                    ) : undefined
+                  }
+                />
                 <span className="block min-w-0">
-                  <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-7 tracking-[-0.01em] transition-colors group-hover:text-primary sm:text-[1.0625rem]">
-                    <span className="min-w-0 wrap-anywhere">{item.title}</span>
+                  <span className="flex min-w-0 items-start gap-1.5 text-base font-semibold leading-6 group-hover:text-primary">
+                    <span className="min-w-0 line-clamp-2 wrap-anywhere" title={item.title}>
+                      {item.title}
+                    </span>
                     {internalHref ? (
                       <ArrowRight
                         aria-hidden="true"
-                        className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-1 group-hover:text-primary"
+                        className="mt-1 size-3.5 shrink-0 text-muted-foreground group-hover:text-primary"
                       />
                     ) : (
                       <ArrowUpRight
                         aria-hidden="true"
-                        className="mt-1.5 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary"
+                        className="mt-1 size-3.5 shrink-0 text-muted-foreground group-hover:text-primary"
                       />
                     )}
                   </span>
                   {item.summary ? (
-                    <span className="mt-2 line-clamp-2 text-sm font-normal leading-6 text-muted-foreground">
+                    <span className="mt-1.5 line-clamp-2 text-pretty text-sm leading-5 text-muted-foreground">
                       {item.summary}
-                    </span>
-                  ) : null}
-                  {item.author || item.publishedAt ? (
-                    <span className="mt-3 flex flex-wrap items-center gap-x-2 font-mono text-[0.6875rem] font-normal tracking-[0.06em] text-muted-foreground">
-                      {item.author ? <span>{item.author}</span> : null}
-                      {item.author && item.publishedAt ? <span aria-hidden="true">·</span> : null}
-                      {item.publishedAt ? (
-                        <time dateTime={item.publishedAt.toISOString()}>
-                          {dateFormatter.format(item.publishedAt)}
-                        </time>
-                      ) : null}
                     </span>
                   ) : null}
                 </span>
               </LinkComponent>
-              <div className="mt-2.5 flex items-center justify-between gap-2">
-                {item.platform ? (
+              <div className="col-start-2 mt-1 flex min-w-0 flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                {platform ? (
                   <Link
-                    href={`${item.section ?? returnTo}/${item.platform.id}`}
-                    aria-label={`浏览${item.platform.name}`}
-                    className="inline-flex min-h-11 max-w-full items-center gap-1.5 rounded-full bg-muted/40 px-2.5 py-0.5 font-mono text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary sm:min-h-7"
+                    href={`${item.section ?? returnTo}/${platform.id}`}
+                    aria-label={`浏览${platform.name}`}
+                    className="inline-flex min-h-8 max-w-full items-center gap-1.5 hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
                   >
-                    <SourceIcon className="size-3.5 shrink-0" source={item.platform} />
-                    <span className="truncate">{item.platform.shortName}</span>
+                    <SourceIcon className="size-3.5 shrink-0" source={platform} />
+                    <span className="truncate">{platform.shortName}</span>
                   </Link>
                 ) : (
                   <span />
                 )}
+                {item.author ? <span className="max-w-28 truncate">{item.author}</span> : null}
+                {item.publishedAt ? (
+                  <time
+                    className="whitespace-nowrap tabular-nums"
+                    dateTime={item.publishedAt.toISOString()}
+                  >
+                    {dateFormatter.format(item.publishedAt)}
+                  </time>
+                ) : null}
                 <ArticleBookmarkButton
                   id={item.articleId ?? item.sourceKey}
                   title={item.title}
                   url={internalHref ?? item.url}
                   source={sourceId}
-                  sourceName={item.platform?.name}
+                  sourceName={platform?.name}
                   section={returnTo.replace(/^\//, '')}
                   variant="icon"
+                  className="ml-auto size-11 shrink-0"
                 />
               </div>
             </article>

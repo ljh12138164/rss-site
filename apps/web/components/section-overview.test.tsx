@@ -4,7 +4,7 @@ import type { FeedResult } from '../lib/hot-feed'
 import { aiSources } from '../lib/technology-sources'
 import { SectionOverview } from './section-overview'
 
-it('merges platforms by publication date with summaries and continuous numbering', () => {
+it('merges platforms by publication date with summaries and cover images', () => {
   const feeds: Record<string, FeedResult> = Object.fromEntries(
     aiSources.map((source) => [source.id, { state: 'empty' }])
   )
@@ -33,8 +33,8 @@ it('merges platforms by publication date with summaries and continuous numbering
   expect(html).toContain('摘'.repeat(240))
   expect(html).not.toContain('摘'.repeat(241))
   expect(html.match(/<ol /g)).toHaveLength(1)
-  expect(html.match(/ring-border\/60/g)).toHaveLength(3)
-  expect(html).toContain('>03</span>')
+  expect(html.match(/ring-border\/60/g)).toHaveLength(6)
+  expect(html).not.toContain('data-rank=')
   expect(html).not.toContain('查看全部')
 })
 

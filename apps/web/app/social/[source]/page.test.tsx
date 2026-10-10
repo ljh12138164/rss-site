@@ -8,7 +8,7 @@ import { SocialSourceView } from './page'
 vi.mock('next/navigation', () => ({ usePathname: () => '/social/bilibili' }))
 
 describe('SocialSourceView', () => {
-  it('renders the full source list and social platform navigation without images', () => {
+  it('renders the full source list with covers and social platform navigation', () => {
     const feed: FeedResult = {
       state: 'ready',
       items: Array.from({ length: 7 }, (_, index) => ({
@@ -39,7 +39,7 @@ describe('SocialSourceView', () => {
     expect(html).toContain('示例 UP 主')
     expect(html.match(/data-outbound/g)).toHaveLength(7)
     expect(html).not.toContain('href="/out?')
-    expect(html.match(/ring-border\/60/g)).toHaveLength(6)
+    expect(html.match(/ring-border\/60/g)).toHaveLength(13)
     expect(html).not.toContain('每六小时')
     expect(html).not.toContain('更新于')
   })
