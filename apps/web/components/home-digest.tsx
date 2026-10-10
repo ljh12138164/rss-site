@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createArticlePath } from '../lib/article-route'
 import type { HomeArticle, HomeDigest as HomeDigestData } from '../lib/home-articles'
 import type { OutboundReturnPath } from '../lib/outbound-link'
+import { CoverImage } from './cover-image'
 import { SourceIcon } from './source-icon'
 
 function getArticleHref(item: HomeArticle, returnTo: OutboundReturnPath = '/') {
@@ -39,11 +40,19 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
               return (
                 <li
                   key={item.articleId}
-                  className="-mx-2 grid grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-3 rounded-md border-b border-border/80 px-2.5 py-4 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight sm:grid-cols-[3.5rem_minmax(0,1fr)] sm:gap-5"
+                  className="group/row my-1 grid grid-cols-[6rem_minmax(0,1fr)] items-start gap-3 rounded-lg border-b border-border/60 px-3 py-4 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight/60 focus-within:bg-row-highlight/60 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-4"
                 >
-                  <span aria-hidden="true" className="rank-numeral" data-rank={item.position}>
-                    {String(item.position).padStart(2, '0')}
-                  </span>
+                  <CoverImage
+                    src={item.imageUrl}
+                    previewLabel={item.title}
+                    className="w-24 transition-colors duration-150 group-hover/row:border-primary/20 sm:w-36"
+                    fallback={
+                      <SourceIcon
+                        source={item.platform}
+                        className="size-10 text-base sm:size-12 [&>svg]:size-7 sm:[&>svg]:size-8"
+                      />
+                    }
+                  />
                   <div className="min-w-0">
                     {(() => {
                       const LinkComponent = isInternal ? Link : 'a'
@@ -57,11 +66,13 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
                       return (
                         <LinkComponent
                           href={href}
-                          className="group block text-foreground"
+                          className="group block min-h-11 text-foreground focus-visible:outline-2 focus-visible:outline-primary"
                           {...outboundProps}
                         >
                           <span className="inline-flex max-w-full items-start gap-1.5 font-serif text-base font-semibold leading-7 group-hover:text-primary sm:text-lg">
-                            <span className="min-w-0 wrap-anywhere">{item.title}</span>
+                            <span className="min-w-0 line-clamp-2 wrap-anywhere" title={item.title}>
+                              {item.title}
+                            </span>
                             {isInternal ? (
                               <ArrowRight
                                 aria-hidden="true"
@@ -96,10 +107,7 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
         </h2>
         <div className="mt-4 grid grid-cols-1 gap-px border-y border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
           {digest.sections.map((section) => (
-            <div
-              key={section.path}
-              className="flex flex-col bg-background p-5 transition-colors duration-150 hover:bg-row-highlight/50"
-            >
+            <div key={section.path} className="flex flex-col bg-background p-5">
               <div className="flex items-baseline justify-between gap-3">
                 <h3 className="font-serif text-lg font-bold">{section.name}</h3>
                 <p className="font-mono text-[0.6875rem] uppercase tracking-wider text-muted-foreground">
@@ -121,10 +129,21 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
                         'data-outbound': ''
                       }
                   return (
-                    <li key={item.articleId} className="min-w-0">
+                    <li
+                      key={item.articleId}
+                      className="group/row grid min-w-0 grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-3 rounded-lg p-2 transition-colors duration-150 hover:bg-row-highlight/60 focus-within:bg-row-highlight/60"
+                    >
+                      <CoverImage
+                        src={item.imageUrl}
+                        previewLabel={item.title}
+                        className="w-18 transition-colors duration-150 group-hover/row:border-primary/20"
+                        fallback={
+                          <SourceIcon source={item.platform} className="size-7 [&>svg]:size-5" />
+                        }
+                      />
                       <LinkComponent
                         href={href}
-                        className="group block text-sm leading-6 text-foreground/90 transition-colors duration-150 hover:text-primary"
+                        className="group block min-h-11 min-w-0 text-sm leading-6 text-foreground/90 transition-colors duration-150 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
                         {...outboundProps}
                       >
                         <span className="line-clamp-2 wrap-anywhere">{item.title}</span>

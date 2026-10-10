@@ -55,14 +55,14 @@ export function HotList({
 
         return (
           <li
-            className="border-b border-border/80 py-4 last:border-b-0 hover:bg-row-highlight"
+            className="group/row my-1 rounded-lg border-b border-border/60 px-3 py-4 transition-colors duration-150 last:border-b-0 hover:bg-row-highlight/60 focus-within:bg-row-highlight/60"
             key={`${sourceId ?? ''}:${item.sourceKey}`}
           >
             <article className="grid min-w-0 grid-cols-[6rem_minmax(0,1fr)] gap-x-3 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-x-4">
               <CoverImage
                 src={item.imageUrl}
                 previewLabel={item.title}
-                className="w-24 sm:w-36"
+                className="w-24 transition-colors duration-150 group-hover/row:border-primary/20 sm:w-36"
                 fallback={
                   platform ? (
                     <SourceIcon

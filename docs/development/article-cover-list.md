@@ -6,6 +6,7 @@
 
 ## Scope
 - 普通文章列表左侧横向封面，右侧标题、两行摘要、来源与时间；去掉普通文章的大号序号。
+- 后续用户要求首页也加封面：今日速览及分区导览文章均复用 CoverImage，无图使用平台标志，图片预览与标题跳转独立。
 - 独立 `CoverImage` 组件：src、fallbackSrc、fallback、alt、width/height、loading、className；previewLabel 可启用真实图片预览。
 - 用户补充：无图/图片失败时显示平台图标；ReactNode fallback 插槽也可传自定义占位内容，保留 fallbackSrc 与本地 SVG 通用回退。原生懒加载、固定比例；无文章的平台维持原空状态。
 - 分页文章来源查询传递 image_url，并调整加载骨架。
@@ -29,6 +30,7 @@ Intent：快速扫描 RSS 文章并决定阅读/收藏；标题是主焦点，�
 Hierarchy：左侧 8:5 图片，右侧标题 16px 半粗、摘要 14px 两行、元信息 12px；图片宽度手机 96px、桌面 144px。
 Palette/Depth：继承 background/foreground/muted/border/primary，细分隔线和现有 hover，无额外阴影/动画。
 Spacing：4px 基础间距，行内 12–16px 间隔，收藏按钮保留可点击区域。
+列表 hover 后续优化：首页/来源列表统一圆角、12px 内边距、my-1 行间留白，row-highlight/60 柔和背景，focus-within 相同反馈；图片边框轻微强调，无缩放/位移动画。导览小行用 8px 内边距与 72×45px 封面，触发面积至少 44px，移除整个分区卡片的 hover 着色。
 组件失败地址记忆按资源 URL 工作；新 src/fallbackSrc 可正常尝试，不添加定时重试或图片代理。无具体标志的 SourceIcon 以平台 code 字母兜底，避免空占位。
 用户补充点击封面应预览，并要求直接用包：封面移出文章链接，真实图片使用 `yet-another-react-lightbox@3.32.2` 打开大图；标题/摘要仍为文章链接。平台占位不预览，关闭、Esc/遮罩、焦点恢复和图片适配由库负责；仅显示当前图片，不显示前后导航按钮。
 版本依据：NPM 官方 registry 与已安装包的 README/类型。支持 React 19，无额外运行 dependencies；使用已有 React/React DOM peers。移除自定义 React Aria 弹窗、关闭按钮和图片容器，仅保留触发按钮与库的配置。用户“直接用包”的要求授权此次依赖变更，其他 UI 技术栈不变。
@@ -50,6 +52,7 @@ Spacing：4px 基础间距，行内 12–16px 间隔，收藏按钮保留可点�
 - 图片预览改动的 63/63 页快照生产构建通过，沿用上述云 REST 连通性限制；没有外部写入或后端变更。
 - 预览库替换：现有 CoverImage 4 项组件测试全部保留通过，Web 271 项、类型、63/63 页快照构建通过。IT之家实际图片已加载，URL 保持来源列表地址，关闭按钮/Esc/遮罩均关闭，焦点返回原按钮，Enter 可打开；预览由库处理，不再维护自定义 Modal。
 - 全站现有图片入口检查：列表封面默认原生 lazy；平台图标与页头 Next Image 显式 lazy；央视视频海报补 lazy/async；Lightbox imageProps 也设置 lazy/async，且仅点击后挂载。SVG 内联图标没有额外图片请求。相关 6 项既有测试与 Web 类型检查通过。
+- 首页封面/hover 验证：Web 271 项与类型检查通过、63/63 页快照构建通过；已有首页测试更新旧序号断言，没有新增用户未确认的 TDD 边界。浏览器确认首页 5 个速览真实封面、导览行封面/平台回退，图片点击预览且 URL 保持首页。首页与 Hacker News 行 hover 实测 padding=12px、主题圆角=4px、目标背景 alpha=0.6。390px 手机布局未横向溢出，首个封面宽度96px。
 
 ## Risks
 上游图片可能防盗链、过期或不可访问；图片组件本地回退。外部图片不经过新代理或后端抓取。

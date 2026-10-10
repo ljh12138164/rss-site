@@ -62,7 +62,7 @@ it('renders top signals and a per-section directory without the article feed', (
 
   // Top signals strip
   expect(html).toContain('今日速览')
-  expect(html).toContain('>01</span>')
+  expect(html).not.toContain('data-rank=')
   expect(html.indexOf('头条一')).toBeLessThan(html.indexOf('AI 动态'))
 
   // Section directory
