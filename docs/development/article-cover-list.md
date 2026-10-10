@@ -6,7 +6,7 @@
 
 ## Scope
 - 普通文章列表左侧横向封面，右侧标题、两行摘要、来源与时间；去掉普通文章的大号序号。
-- 独立 `CoverImage` 组件：src、fallbackSrc、fallback、alt、width/height、loading、className。
+- 独立 `CoverImage` 组件：src、fallbackSrc、fallback、alt、width/height、loading、className；previewLabel 可启用真实图片预览。
 - 用户补充：无图/图片失败时显示平台图标；ReactNode fallback 插槽也可传自定义占位内容，保留 fallbackSrc 与本地 SVG 通用回退。原生懒加载、固定比例；无文章的平台维持原空状态。
 - 分页文章来源查询传递 image_url，并调整加载骨架。
 
@@ -30,6 +30,7 @@ Hierarchy：左侧 8:5 图片，右侧标题 16px 半粗、摘要 14px 两行、
 Palette/Depth：继承 background/foreground/muted/border/primary，细分隔线和现有 hover，无额外阴影/动画。
 Spacing：4px 基础间距，行内 12–16px 间隔，收藏按钮保留可点击区域。
 组件失败地址记忆按资源 URL 工作；新 src/fallbackSrc 可正常尝试，不添加定时重试或图片代理。无具体标志的 SourceIcon 以平台 code 字母兜底，避免空占位。
+用户补充点击封面应预览：封面移出文章链接，真实图片使用 React Aria Button/DialogTrigger/ModalOverlay/Dialog 与现有 ActionButton 打开大图；标题/摘要仍为文章链接。平台占位不预览，预览提供原图、关闭按钮、Esc/遮罩关闭和焦点恢复，不引入图库/缩放等额外功能。
 本地浏览器行为检查入口：`node scripts/check-cover-image.mjs`（在 apps/web 执行），打开输出地址并运行检查。
 
 ## Verification
@@ -43,6 +44,9 @@ Spacing：4px 基础间距，行内 12–16px 间隔，收藏按钮保留可点�
 - 标准 Next 构建编译/类型阶段通过，但直接云 REST 预渲染因本机 ECONNRESET 失败；使用忽略提交的真实云快照 preload 后 63/63 页面生产构建、early hints 与 service worker 生成通过。此构建不能替代 CI 的真实网络部署验证，快照与连接信息均未提交。
 - Standards/Spec 自检无阻塞项；未新增未请求的页面、依赖或动画，无需新增 roadmap。
 - 提交 `48f03bf` 已推送 `origin/feat/cloudflare-blog`，由用户创建并合并到 master 的 PR 后发布；本地服务继续运行。
+- 图片预览 TDD：新增真实封面应输出可访问预览按钮的 CoverImage 用例，先失败后通过；同步确认平台占位没有预览按钮。Web 271 项与类型检查通过。
+- 本地 IT之家真实封面检查：预览打开时 dialog=1，URL 仍为 `/technology/ithome`；Esc、关闭按钮与遮罩关闭后 dialog=0，Esc 后焦点返回原预览按钮。
+- 图片预览改动的 63/63 页快照生产构建通过，沿用上述云 REST 连通性限制；没有新增运行依赖、外部写入或后端变更。
 
 ## Risks
 上游图片可能防盗链、过期或不可访问；图片组件本地回退。外部图片不经过新代理或后端抓取。

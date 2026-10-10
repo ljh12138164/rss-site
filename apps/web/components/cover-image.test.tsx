@@ -3,10 +3,21 @@ import { describe, expect, it } from 'vitest'
 import { CoverImage } from './cover-image'
 
 describe('CoverImage', () => {
+  it('offers an accessible preview button for a real cover', () => {
+    const html = renderToStaticMarkup(
+      <CoverImage src="https://example.com/cover.jpg" previewLabel="文章封面" />
+    )
+    expect(html).toContain('<button')
+    expect(html).toContain('aria-label="预览图片：文章封面"')
+    expect(html).not.toContain('<a ')
+  })
   it('allows a platform icon to replace the default image when no cover is provided', () => {
-    const html = renderToStaticMarkup(<CoverImage fallback={<span>平台图标</span>} />)
+    const html = renderToStaticMarkup(
+      <CoverImage fallback={<span>平台图标</span>} previewLabel="平台占位" />
+    )
     expect(html).toContain('平台图标')
     expect(html).not.toContain('/article-cover-default.svg')
+    expect(html).not.toContain('<button')
   })
   it('shows the local default image with native lazy loading when a cover is absent', () => {
     const html = renderToStaticMarkup(<CoverImage />)

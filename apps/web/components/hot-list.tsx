@@ -59,23 +59,24 @@ export function HotList({
             key={`${sourceId ?? ''}:${item.sourceKey}`}
           >
             <article className="grid min-w-0 grid-cols-[6rem_minmax(0,1fr)] gap-x-3 sm:grid-cols-[9rem_minmax(0,1fr)] sm:gap-x-4">
+              <CoverImage
+                src={item.imageUrl}
+                previewLabel={item.title}
+                className="w-24 sm:w-36"
+                fallback={
+                  platform ? (
+                    <SourceIcon
+                      source={platform}
+                      className="size-10 text-base sm:size-12 [&>svg]:size-7 sm:[&>svg]:size-8"
+                    />
+                  ) : undefined
+                }
+              />
               <LinkComponent
-                className="group col-span-2 grid min-w-0 grid-cols-subgrid items-start text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+                className="group block min-w-0 text-foreground focus-visible:outline-2 focus-visible:outline-primary"
                 href={href}
                 {...outboundProps}
               >
-                <CoverImage
-                  src={item.imageUrl}
-                  className="w-24 sm:w-36"
-                  fallback={
-                    platform ? (
-                      <SourceIcon
-                        source={platform}
-                        className="size-10 text-base sm:size-12 [&>svg]:size-7 sm:[&>svg]:size-8"
-                      />
-                    ) : undefined
-                  }
-                />
                 <span className="block min-w-0">
                   <span className="flex min-w-0 items-start gap-1.5 text-base font-semibold leading-6 group-hover:text-primary">
                     <span className="min-w-0 line-clamp-2 wrap-anywhere" title={item.title}>
