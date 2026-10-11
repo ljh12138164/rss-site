@@ -9,7 +9,7 @@
 - news分区六来源保留有效pubDate/published；无效或缺失则用本次采集当天的北京时间00:00，数据库UTC表示为前一天16:00。
 - news不把Atom updated当作发布时间；其他分区保持现有行为。
 - 新增部署后回填迁移：新闻未人工锁定、published_at为空的文章，取最后采集日北京时间00:00；同步hot_items，已有有效时间不覆盖。
-- RSSHub另一个仓库修复中新网正文、视频、图片日期，分支codex/fix-news-publication-dates。
+- RSSHub另一个仓库修复中新网正文、视频、图片日期，分支feat/news-publication-dates。
 
 ## Out of scope
 
@@ -51,6 +51,6 @@ RSSHub在独立干净工作区修改，以免混入知乎未完成工作。rss-s
 
 需要用户创建并合并两仓库PR。顺序：RSSHub修复部署并验Feed；部署rss-site API；执行迁移20261012064000；正常采集及缓存失效后复验云库和首页。
 
-实现提交9ebb082已推送origin/feat/news-publication-dates；RSSHub提交5b92e29ec已推送origin/codex/fix-news-publication-dates。两工作区干净，无新PR（按仓库要求由用户创建）。
+实现提交9ebb082已推送origin/feat/news-publication-dates；RSSHub实现5b92e29ec保留在origin/feat/news-publication-dates，分支文档更新d5ea281c4已推送。旧codex分支已按用户要求删除。两工作区干净，无新PR（按仓库要求由用户创建）。
 
 接受的后续工作：部署后的实际数据验收与首页来源均衡。见[路线图](../roadmaps/news-publication-dates.md)。
