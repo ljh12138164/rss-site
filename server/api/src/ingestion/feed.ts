@@ -32,6 +32,7 @@ interface ParsedItem {
 }
 
 export interface ParseSignalFeedOptions {
+  useUpdatedDate?: boolean
   titleFromFirstStrong?: boolean
   urlFromFirstAnchor?: boolean
   skillMetadata?: boolean
@@ -297,7 +298,11 @@ export function parseSignalFeed(
             )?.slice(0, 500) ?? null),
         contentHtml,
         author: extractAuthor(item.author),
-        publishedAt: publishedDate(item.pubDate ?? item.published ?? item.updated)
+        publishedAt: publishedDate(
+          item.pubDate ??
+            item.published ??
+            (options.useUpdatedDate === false ? undefined : item.updated)
+        )
       }
     ]
   })

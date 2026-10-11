@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-10-12 新闻发布时间
+
+- 用户要求新闻优先补真实日期，非法/缺失按本次抓取日北京时间00:00兜底，GitHub/Skills不改。
+- 分支feat/news-publication-dates基于origin/master c780969；RSSHub独立分支feat/news-publication-dates修中新网。
+- API100项、类型、Biome、Worker打包dry-run、RSSHub30条真实handler与云库迁移回滚验证通过。迁移20261012064000补6929条，尚未应用。
+- 实现9ebb082已推送origin/feat/news-publication-dates；RSSHub实现5b92e29ec保留在origin/feat/news-publication-dates，文档更新d5ea281c4已推送，旧codex分支已删除。记录docs/development/news-publication-dates.md。下一步用户合并两仓库PR，先上线RSSHub验证，再部署API并执行迁移和正式采集验收；当前未部署。
+
 ## 2026-10-11 SEO 与时间轴来源
 
 - 分支 `feat/seo-followup` 基于最新 `origin/master` 336d8a8，独立工作区保留原采集器未提交修改。
