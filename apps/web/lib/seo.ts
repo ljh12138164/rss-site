@@ -1,9 +1,22 @@
 import type { Metadata } from 'next'
+import sanitizeHtml from 'sanitize-html'
 import { optionalCanonical } from './site-url'
 
 export const SITE_NAME = '今日热点'
 export const SITE_ALTERNATE_NAME = 'AI 热榜'
 export const SITE_DESCRIPTION = '每日聚合 AI、科技、新闻、社交、财经与游戏热点。'
+export function articleDescription(summary: string | null, body: string) {
+  const text = sanitizeHtml(body.replace(/<\/(p|div|li|h[1-6])>|<br\s*\/?>/gi, ' '), {
+    allowedTags: [],
+    allowedAttributes: {}
+  })
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+  return toMetaDescription(summary?.trim() || text)
+}
 
 export function toMetaDescription(value: string | null | undefined, limit = 160) {
   if (!value) return undefined

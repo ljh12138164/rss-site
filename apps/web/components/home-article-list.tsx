@@ -1,7 +1,9 @@
 'use client'
 
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
+import Link from 'next/link'
 import { useCallback, useEffect, useRef } from 'react'
+import { articleArchiveHref } from '../lib/article-archive'
 import { articlePageOptions, articleQueryKey } from '../lib/article-query'
 import type { ArticleFilter, HomeArticlePage } from '../lib/home-articles'
 import { useReadingList } from '../lib/reading-list'
@@ -50,6 +52,10 @@ export function HomeArticleList({
       return !unreadOnly || !readIds.has(item.articleId)
     })
   const nextCursor = pages.at(-1)?.nextCursor ?? null
+  const archiveHref =
+    nextCursor && !unreadOnly
+      ? articleArchiveHref({ section, source, sources }, nextCursor)
+      : undefined
   const error = isError || (initialError && !data)
 
   useEffect(() => {
@@ -116,6 +122,15 @@ export function HomeArticleList({
           <ActionButton variant="outline" isDisabled={isFetching} onPress={() => void loadMore()}>
             {error ? '重试' : '加载更多'}
           </ActionButton>
+        )}
+        {archiveHref && (
+          <Link
+            href={archiveHref}
+            prefetch={false}
+            className="inline-flex min-h-11 items-center text-sm text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            查看更早文章
+          </Link>
         )}
       </div>
     </div>

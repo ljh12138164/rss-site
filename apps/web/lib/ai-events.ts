@@ -9,6 +9,7 @@ export interface AiEvent {
   occurred_at: string
   first_published_at: string
   updated_at: string
+  sources?: string[]
 }
 export interface EventPage {
   items: AiEvent[]
@@ -54,6 +55,27 @@ export async function getEventPage(cursor: string | null = null): Promise<EventP
   if (error) throw new Error('Unable to load events')
   const rows = data as AiEvent[]
   const items = rows.slice(0, 20)
+  if (items.length) {
+    const { data: links, error: linksError } = await getPublicSupabaseClient()
+      .from('ai_event_articles')
+      .select('event_id,position,signal_articles!inner(source)')
+      .in(
+        'event_id',
+        items.map((event) => event.id)
+      )
+      .order('position')
+    if (linksError) throw new Error('Unable to load event sources')
+    const sourceIds = new Map<string, Set<string>>()
+    for (const link of links as unknown as {
+      event_id: string
+      signal_articles: { source: string }
+    }[]) {
+      const ids = sourceIds.get(link.event_id) ?? new Set<string>()
+      ids.add(link.signal_articles.source)
+      sourceIds.set(link.event_id, ids)
+    }
+    for (const event of items) event.sources = [...(sourceIds.get(event.id) ?? [])]
+  }
   const last = items.at(-1)
   return {
     items,

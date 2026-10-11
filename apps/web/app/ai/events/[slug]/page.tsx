@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { EventSources } from '../../../../components/event-sources'
 import { EventTranslation } from '../../../../components/event-translation'
 import { SiteShell } from '../../../../components/site-shell'
 import { getEvent, getEventSources, getRelatedEvents } from '../../../../lib/ai-events'
@@ -65,6 +66,7 @@ export default async function EventPage({ params }: Props) {
         返回 AI 时间轴
       </Link>
       <article className="mt-6 max-w-3xl">
+        <EventSources sources={links.map((link) => link.signal_articles.source)} />
         <EventTranslation
           slug={event.slug}
           title={event.title}

@@ -15,7 +15,7 @@ export interface ResolvedRevalidation {
  */
 export function resolveRevalidation(scope: RevalidationScope): ResolvedRevalidation {
   const { section, source, eventSlugs = [] } = scope
-  const tags: string[] = []
+  const tags: string[] = ['sitemap']
 
   if (section === '/ai' || eventSlugs.length) {
     tags.push('event-status')

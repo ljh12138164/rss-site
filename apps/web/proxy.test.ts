@@ -6,6 +6,15 @@ import { proxy } from './proxy'
 vi.mock('./lib/content-status', () => ({ getContentStatus: vi.fn() }))
 
 describe('technology source proxy', () => {
+  it('lets the timeline archive validate its own cursor without an event lookup', async () => {
+    vi.mocked(getContentStatus).mockClear()
+    const response = await proxy(
+      new NextRequest('https://example.com/ai/events/archive?cursor=bad')
+    )
+    expect(response.headers.get('x-middleware-next')).toBe('1')
+    expect(getContentStatus).not.toHaveBeenCalled()
+  })
+
   it.each([
     ['ai', 'openai'],
     ['technology', 'juejin'],

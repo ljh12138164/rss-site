@@ -7,6 +7,7 @@ import { useEffect, useRef } from 'react'
 import type { EventPage } from '../lib/ai-events'
 import type { AppType } from '../lib/hono-app'
 import { ActionButton } from './action-button'
+import { EventSources } from './event-sources'
 
 const api = hc<AppType>('/')
 
@@ -24,23 +25,31 @@ function pageOptions(cursor: string | null) {
     }
   }
 }
-export function EventTimeline({ initialPage }: { initialPage: EventPage }) {
+export function EventTimeline({
+  initialPage,
+  archive = false
+}: {
+  initialPage: EventPage
+  archive?: boolean
+}) {
   const client = useQueryClient()
   const sentinel = useRef<HTMLDivElement>(null)
   const { data, fetchNextPage, hasNextPage, isFetching, isError } = useInfiniteQuery({
-    queryKey: ['ai-events'],
+    queryKey: archive ? ['ai-events', 'archive', initialPage.items[0]?.id] : ['ai-events'],
     initialPageParam: null as string | null,
     queryFn: ({ pageParam }) => client.fetchQuery(pageOptions(pageParam)),
     getNextPageParam: (page) => page.nextCursor ?? undefined,
     initialData: { pages: [initialPage], pageParams: [null] },
-    retry: false
+    retry: false,
+    enabled: !archive
   })
   const cursor = data.pages.at(-1)?.nextCursor
   useEffect(() => {
-    if (cursor && !isError) void client.prefetchQuery(pageOptions(cursor))
-  }, [client, cursor, isError])
+    if (cursor && !isError && !archive) void client.prefetchQuery(pageOptions(cursor))
+  }, [client, cursor, isError, archive])
   useEffect(() => {
     if (
+      archive ||
       !sentinel.current ||
       !hasNextPage ||
       isFetching ||
@@ -57,7 +66,7 @@ export function EventTimeline({ initialPage }: { initialPage: EventPage }) {
     )
     observer.observe(sentinel.current)
     return () => observer.disconnect()
-  }, [hasNextPage, isFetching, isError, fetchNextPage])
+  }, [hasNextPage, isFetching, isError, fetchNextPage, archive])
   const items = [
     ...new Map(data.pages.flatMap((page) => page.items).map((item) => [item.id, item])).values()
   ]
@@ -93,6 +102,7 @@ export function EventTimeline({ initialPage }: { initialPage: EventPage }) {
               <span className="relative mt-2 size-2.5 rounded-full border-2 border-primary bg-background group-first:bg-primary" />
             </div>
             <div className="col-start-2 min-w-0 pb-10 sm:col-start-3 sm:row-start-1 sm:pb-12">
+              <EventSources sources={event.sources ?? []} />
               <h2 className="text-lg font-semibold leading-7 break-words sm:text-xl">
                 <Link
                   className="hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
@@ -124,12 +134,14 @@ export function EventTimeline({ initialPage }: { initialPage: EventPage }) {
             : isError
               ? '暂时无法加载，请重试。'
               : hasNextPage
-                ? '继续向下滚动，查看更早的事件'
+                ? archive
+                  ? '通过下方链接查看更早的事件'
+                  : '继续向下滚动，查看更早的事件'
                 : items.length
                   ? '已显示全部事件'
                   : ''}
         </p>
-        {(hasNextPage || isError) && (
+        {!archive && (hasNextPage || isError) && (
           <ActionButton
             variant="outline"
             isDisabled={isFetching}
@@ -137,6 +149,15 @@ export function EventTimeline({ initialPage }: { initialPage: EventPage }) {
           >
             {isError ? '重试' : '加载更多'}
           </ActionButton>
+        )}
+        {cursor && (
+          <Link
+            href={`/ai/events/archive?cursor=${encodeURIComponent(cursor)}`}
+            prefetch={false}
+            className="inline-flex min-h-11 items-center text-sm text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            查看更早事件
+          </Link>
         )}
       </div>
     </div>

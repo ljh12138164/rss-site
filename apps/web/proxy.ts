@@ -13,7 +13,8 @@ import {
 
 export async function proxy(request: NextRequest) {
   const [section, sourceId, encodedSlug] = request.nextUrl.pathname.split('/').filter(Boolean)
-  if (section === 'ai' && sourceId === 'events' && !encodedSlug) return NextResponse.next()
+  if (section === 'ai' && sourceId === 'events' && (!encodedSlug || encodedSlug === 'archive'))
+    return NextResponse.next()
   if (
     encodedSlug &&
     ((section === 'ai' && sourceId === 'events') || articleSource(sourceId)?.section.id === section)

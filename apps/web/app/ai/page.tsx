@@ -2,6 +2,7 @@ import { PaginatedArticleFeed } from '../../components/paginated-article-feed'
 import { SectionOverview } from '../../components/section-overview'
 import type { AiFeeds } from '../../lib/hot-feed'
 import { createPageMetadata } from '../../lib/seo'
+import { AI_DESCRIPTION } from '../../lib/source-page-text'
 import { aiSources } from '../../lib/technology-sources'
 
 export const dynamic = 'force-static'
@@ -9,8 +10,7 @@ export const revalidate = 7200
 
 export const metadata = createPageMetadata({
   title: 'AI 最新动态',
-  description:
-    '来自 OpenAI、ChatGPT、Anthropic、DeepSeek、智谱 GLM、Google AI 和 Qwen 的官方文章。',
+  description: AI_DESCRIPTION,
   path: '/ai'
 })
 

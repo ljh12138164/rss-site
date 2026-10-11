@@ -1,37 +1,23 @@
 import { NextResponse } from 'next/server'
-import {
-  getChunkSitemapEntries,
-  getSignalArticlesCount,
-  renderSitemapIndexXml,
-  renderUrlSetXml,
-  SITEMAP_CACHE_CONTROL,
-  SITEMAP_CHUNK_SIZE
-} from '../../lib/sitemap-service'
+import { siteUrl } from '../../lib/site-url'
+import { getSitemapXml, SITEMAP_CACHE_CONTROL } from '../../lib/sitemap-service'
 
-export const revalidate = 7200
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
   if (!process.env.SITE_URL) return new NextResponse('Not Found', { status: 404 })
 
-  const articleCount = await getSignalArticlesCount()
-
-  // 未超出限制（<= 45,000 条）：直接在 /sitemap.xml 输出全量条目
-  if (articleCount <= SITEMAP_CHUNK_SIZE) {
-    const entries = await getChunkSitemapEntries(0)
-    return new NextResponse(renderUrlSetXml(entries), {
+  try {
+    return new NextResponse(await getSitemapXml(siteUrl('/'), null), {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
         'Cache-Control': SITEMAP_CACHE_CONTROL
       }
     })
+  } catch {
+    return new NextResponse('Sitemap temporarily unavailable', {
+      status: 503,
+      headers: { 'Cache-Control': 'no-store', 'Retry-After': '60' }
+    })
   }
-
-  // 超出限制（> 45,000 条）：自动升级为 Sitemap Index，引用各个子分片文件
-  const chunkCount = Math.max(1, Math.ceil(articleCount / SITEMAP_CHUNK_SIZE))
-  return new NextResponse(renderSitemapIndexXml(chunkCount), {
-    headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': SITEMAP_CACHE_CONTROL
-    }
-  })
 }

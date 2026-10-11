@@ -11,11 +11,14 @@ import { optionalCanonical } from '../../lib/site-url'
 
 export const dynamic = 'force-static'
 export const revalidate = 7200
-export const metadata = createPageMetadata({
-  title: '今日热点 - AI、科技、新闻、财经与游戏热榜',
-  description: SITE_DESCRIPTION,
-  path: '/'
-})
+export const metadata = {
+  ...createPageMetadata({
+    title: '今日热点 - AI、科技、新闻、财经与游戏热榜',
+    description: SITE_DESCRIPTION,
+    path: '/'
+  }),
+  title: { absolute: '今日热点 - AI、科技、新闻、财经与游戏热榜' }
+}
 
 export function HomeView({ digest }: { digest: HomeDigestData }) {
   const canonical = optionalCanonical('/')

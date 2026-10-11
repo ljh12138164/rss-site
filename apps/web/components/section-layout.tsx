@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
 import type { OutboundReturnPath } from '../lib/outbound-link'
+import { aiSourcePageText } from '../lib/source-page-text'
 import type { SignalSource } from '../lib/technology-sources'
 import { RssSubscription } from './rss-subscription'
 import { SiteShell } from './site-shell'
@@ -27,6 +28,11 @@ export function SectionLayout({
   const pathname = usePathname()
   const segments = pathname.slice(basePath.length).split('/').filter(Boolean)
   const source = sources.find((source) => source.id === segments[0])
+  const sourceText = source
+    ? basePath === '/ai'
+      ? aiSourcePageText(source)
+      : { title: source.name, description: source.description }
+    : undefined
 
   // Article details own their reading layout, outside the platform list shell.
   if (segments.length > 1 || (segments.length === 1 && !source)) return children
@@ -57,10 +63,10 @@ export function SectionLayout({
       <header className="pb-8 sm:pb-10">
         <p className="eyebrow">{sectionName} · Section</p>
         <h1 className="headline-display mt-3 text-4xl leading-[1.1] sm:text-5xl">
-          {source?.name ?? title}
+          {sourceText?.title ?? title}
         </h1>
         <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground">
-          {source?.description ?? description}
+          {sourceText?.description ?? description}
         </p>
         <RssSubscription key={basePath} basePath={basePath} sectionName={sectionName} />
       </header>
