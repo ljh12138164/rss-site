@@ -61,7 +61,7 @@
 
 审查后接受的后续工作见 [路线图](../roadmaps/seo-followup.md)。拒绝添加 meta keywords、批量未经核验的翻译和任意字数阈值，它们不能代替可读内容。
 
-交付分支 `feat/seo-followup`，base `master`。按仓库要求，由用户创建并合并 PR；Web 尚未部署。云迁移已经生效且向后兼容，不要求同时更新采集器；部署后应复验线上 robots、来源和 sitemap。
+实现提交 `772bc99` 已推送分支 `feat/seo-followup`，base `master`。按仓库要求，由用户创建并合并 PR；Web 尚未部署。CI 工作流仅在 PR、master push 或手动调用时触发，因此本分支 push 没有 CI 运行。云迁移已经生效且向后兼容，不要求同时更新采集器；部署后应复验线上 robots、来源和 sitemap。
 
 ## Risks
 

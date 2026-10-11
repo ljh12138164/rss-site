@@ -7,7 +7,7 @@
 - 用户已批准逐项实施，沿用现有界面和组件；不继续知乎回答抓取，不新增来源或 Cron。
 - 已完成六项 Web 优化与云迁移 `20261011143000`；282 项测试、类型、Biome、真实云快照生产构建与 HTML/XML 验证通过。REST 直连构建受本机网络限制，详见开发文档。
 - 时间轴与历史页通过桌面/手机、浅色/深色浏览器检查；16 个 sitemap 分片无重复或不可索引文章，热请求不重查数据库。
-- 后续路线图：`docs/roadmaps/seo-followup.md`。下一步：推送分支后由用户创建并合并到 `master` 的 PR，再发布 Web 并复验线上；Web 当前尚未部署。
+- 实现提交 `772bc99` 已推送 `origin/feat/seo-followup`，工作区干净。后续路线图：`docs/roadmaps/seo-followup.md`。下一步：用户创建并合并到 `master` 的 PR，再发布 Web 并复验线上；Web 当前尚未部署。CI 仅在 PR 或 master push 时触发。
 
 ## 左侧封面的紧凑文章列表
 
