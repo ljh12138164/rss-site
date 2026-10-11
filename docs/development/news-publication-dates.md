@@ -51,4 +51,6 @@ RSSHub在独立干净工作区修改，以免混入知乎未完成工作。rss-s
 
 需要用户创建并合并两仓库PR。顺序：RSSHub修复部署并验Feed；部署rss-site API；执行迁移20261012064000；正常采集及缓存失效后复验云库和首页。
 
+实现提交9ebb082已推送origin/feat/news-publication-dates；RSSHub提交5b92e29ec已推送origin/codex/fix-news-publication-dates。两工作区干净，无新PR（按仓库要求由用户创建）。
+
 接受的后续工作：部署后的实际数据验收与首页来源均衡。见[路线图](../roadmaps/news-publication-dates.md)。
