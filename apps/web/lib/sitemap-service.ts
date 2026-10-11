@@ -6,13 +6,25 @@ import {
   socialSources,
   technologyArticleSources
 } from '@rss-site/signals'
+import { unstable_cache } from 'next/cache'
 import { createArticlePath } from './article-route'
 import { siteUrl } from './site-url'
 import { getPublicSupabaseClient } from './supabase'
 
-export const SITEMAP_CHUNK_SIZE = 5000
+// Keep cached XML documents below Next's 2 MB data-cache limit.
+export const SITEMAP_CHUNK_SIZE = 2000
 export const SITEMAP_CACHE_CONTROL =
   'public, max-age=0, s-maxage=7200, stale-while-revalidate=86400'
+const readerSources = [
+  ...aiSources,
+  ...financeSources,
+  ...gameSources,
+  ...newsSources,
+  ...socialSources,
+  ...technologyArticleSources
+]
+  .filter((source) => source.isArticle)
+  .map((source) => source.id)
 
 export type SitemapEntry = {
   url: string
@@ -29,20 +41,14 @@ function escapeXml(str: string): string {
 }
 
 export async function getSignalArticlesCount(): Promise<number> {
-  try {
-    const client = getPublicSupabaseClient()
-    const { count, error } = await client
-      .from('signal_articles')
-      .select('*', { count: 'exact', head: true })
-
-    if (error || typeof count !== 'number' || count < 0) {
-      return 0
-    }
-    return count
-  } catch (err) {
-    console.warn('[sitemap] Failed to get signal articles count:', err)
-    return 0
-  }
+  const { count, error } = await getPublicSupabaseClient()
+    .from('signal_articles')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_indexable', true)
+    .in('source', readerSources)
+    .abortSignal(AbortSignal.timeout(10000))
+  if (error || typeof count !== 'number' || count < 0) throw new Error('Sitemap count unavailable')
+  return count
 }
 
 export function getBaseEntries(): SitemapEntry[] {
@@ -80,95 +86,91 @@ export async function getAiEventEntries(): Promise<SitemapEntry[]> {
   let afterEventId: string | null = null
 
   for (;;) {
-    try {
-      let query = getPublicSupabaseClient()
-        .from('ai_events')
-        .select('id,slug,updated_at')
-        .eq('status', 'published')
-        .order('id')
-        .limit(1000)
+    let query = getPublicSupabaseClient()
+      .from('ai_events')
+      .select('id,slug,updated_at')
+      .eq('status', 'published')
+      .order('id')
+      .limit(1000)
 
-      if (afterEventId) query = query.gt('id', afterEventId)
-      const { data, error } = await query
+    if (afterEventId) query = query.gt('id', afterEventId)
+    const { data, error } = await query.abortSignal(AbortSignal.timeout(10000))
+    if (error) throw new Error('Sitemap events unavailable')
+    if (!data || data.length === 0) break
 
-      if (error) {
-        console.warn('[sitemap] Failed to fetch events from Supabase:', error.message)
-        break
-      }
-      if (!data || data.length === 0) break
-
-      for (const event of data) {
-        entries.push({
-          url: siteUrl(`/ai/events/${event.slug}`),
-          lastModified: event.updated_at
-        })
-      }
-
-      if (data.length < 1000) break
-      afterEventId = data[data.length - 1].id
-    } catch (err) {
-      console.warn('[sitemap] Unexpected error querying ai_events:', err)
-      break
+    for (const event of data) {
+      entries.push({
+        url: siteUrl(`/ai/events/${event.slug}`),
+        lastModified: event.updated_at
+      })
     }
+
+    if (data.length < 1000) break
+    afterEventId = data[data.length - 1].id
   }
 
   return entries
 }
 
 export async function getArticleEntries(offset: number, limit: number): Promise<SitemapEntry[]> {
-  const entries: SitemapEntry[] = []
-  let currentOffset = offset
-  const maxEnd = offset + limit
-
-  for (;;) {
-    const batchLimit = Math.min(1000, maxEnd - currentOffset)
-    if (batchLimit <= 0) break
-
-    try {
+  const batches = await Promise.all(
+    Array.from({ length: Math.ceil(limit / 1000) }, async (_, index) => {
+      const start = offset + index * 1000
+      const end = Math.min(start + 999, offset + limit - 1)
       const { data, error } = await getPublicSupabaseClient()
         .from('signal_articles')
         .select('id,source,title,published_at,last_seen_at,content_updated_at')
+        .eq('is_indexable', true)
+        .in('source', readerSources)
         .order('published_at', { ascending: false, nullsFirst: false })
         .order('id', { ascending: false })
-        .range(currentOffset, currentOffset + batchLimit - 1)
-
-      if (error) {
-        console.warn('[sitemap] Failed to fetch articles from Supabase:', error.message)
-        break
-      }
-      if (!data || data.length === 0) break
-
-      for (const article of data) {
-        try {
-          const path = createArticlePath(article.source, article.title, article.id)
-          entries.push({
-            url: siteUrl(path),
-            lastModified: article.content_updated_at ?? article.published_at ?? article.last_seen_at
-          })
-        } catch {}
-      }
-
-      if (data.length < batchLimit) break
-      currentOffset += data.length
-    } catch (err) {
-      console.warn('[sitemap] Unexpected error querying signal_articles:', err)
-      break
-    }
-  }
-
-  return entries
+        .range(start, end)
+        .abortSignal(AbortSignal.timeout(10000))
+      if (error) throw new Error('Sitemap articles unavailable')
+      return (data ?? []).map((article) => ({
+        url: siteUrl(createArticlePath(article.source, article.title, article.id)),
+        lastModified: article.content_updated_at ?? article.published_at ?? article.last_seen_at
+      }))
+    })
+  )
+  return batches.flat()
 }
+
+const getSitemapCatalog = unstable_cache(
+  async (_origin: string) => {
+    const [events, articleCount] = await Promise.all([
+      getAiEventEntries(),
+      getSignalArticlesCount()
+    ])
+    const entries = [...getBaseEntries(), ...events]
+    return { entries, total: entries.length + articleCount }
+  },
+  ['sitemap-catalog-v2'],
+  { revalidate: 7200, tags: ['sitemap'] }
+)
 
 export async function getChunkSitemapEntries(chunkIndex: number): Promise<SitemapEntry[]> {
-  if (chunkIndex === 0) {
-    const base = getBaseEntries()
-    const events = await getAiEventEntries()
-    const articles = await getArticleEntries(0, SITEMAP_CHUNK_SIZE)
-    return [...base, ...events, ...articles]
-  }
-
-  return getArticleEntries(chunkIndex * SITEMAP_CHUNK_SIZE, SITEMAP_CHUNK_SIZE)
+  const { entries } = await getSitemapCatalog(siteUrl('/'))
+  const start = chunkIndex * SITEMAP_CHUNK_SIZE
+  const catalog = entries.slice(start, start + SITEMAP_CHUNK_SIZE)
+  const articles = await getArticleEntries(
+    Math.max(0, start - entries.length),
+    SITEMAP_CHUNK_SIZE - catalog.length
+  )
+  return [...catalog, ...articles]
 }
+
+export const getSitemapXml = unstable_cache(
+  async (_origin: string, chunk: number | null) => {
+    const { total } = await getSitemapCatalog(siteUrl('/'))
+    const chunks = Math.max(1, Math.ceil(total / SITEMAP_CHUNK_SIZE))
+    if (chunk !== null && chunk >= chunks) return null
+    if (chunk === null && chunks > 1) return renderSitemapIndexXml(chunks)
+    return renderUrlSetXml(await getChunkSitemapEntries(chunk ?? 0))
+  },
+  ['sitemap-xml-v2'],
+  { revalidate: 7200, tags: ['sitemap'] }
+)
 
 export function renderUrlSetXml(entries: SitemapEntry[]): string {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n'

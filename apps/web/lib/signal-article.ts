@@ -14,6 +14,7 @@ export interface SignalArticleRow {
   first_seen_at: string
   last_seen_at: string
   content_updated_at?: string | null
+  is_indexable?: boolean
 }
 
 export interface SignalArticle {
@@ -29,6 +30,7 @@ export interface SignalArticle {
   firstSeenAt: Date
   lastSeenAt: Date
   contentUpdatedAt?: Date
+  isIndexable?: boolean
 }
 
 export type SignalArticleQuery = (
@@ -80,8 +82,24 @@ export async function getSignalArticle(
     publishedAt: result.data.published_at ? new Date(result.data.published_at) : null,
     firstSeenAt: new Date(result.data.first_seen_at),
     lastSeenAt: new Date(result.data.last_seen_at),
-    contentUpdatedAt: new Date(result.data.content_updated_at ?? result.data.last_seen_at)
+    contentUpdatedAt: new Date(result.data.content_updated_at ?? result.data.last_seen_at),
+    isIndexable: result.data.is_indexable === true
   }
 }
 
 export const getNewsArticle = getSignalArticle
+
+export async function getSameSourceArticles(id: string, source: SignalSourceId) {
+  const { data, error } = await getPublicSupabaseClient()
+    .from('signal_articles')
+    .select('id,title,source')
+    .eq('source', source)
+    .eq('is_indexable', true)
+    .neq('id', id)
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('id')
+    .limit(4)
+    .abortSignal(AbortSignal.timeout(5000))
+  if (error) throw new Error('Unable to load same-source articles')
+  return (data ?? []) as { id: string; title: string; source: SignalSourceId }[]
+}

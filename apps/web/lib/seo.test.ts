@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  articleDescription,
   createArticleStructuredData,
   createEventStructuredData,
   createHomepageStructuredData,
@@ -44,6 +45,12 @@ describe('createPageMetadata', () => {
 })
 
 describe('toMetaDescription', () => {
+  it('falls back to visible body when the summary is empty', () => {
+    expect(articleDescription('  ', '<p>模型已正式发布。</p><p>可以下载。</p>')).toBe(
+      '模型已正式发布。 可以下载。'
+    )
+    expect(articleDescription('真实摘要', '<p>正文</p>')).toBe('真实摘要')
+  })
   it('ends long descriptions at a complete sentence when one fits the limit', () => {
     const text =
       '第一句说明这条动态的核心事实，并提供足够上下文。第二句继续补充背景信息，但不应在元描述中被截断到一半。第三句不会进入结果。'

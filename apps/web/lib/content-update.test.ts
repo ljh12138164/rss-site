@@ -43,6 +43,7 @@ it('invalidates tags, concrete pages and dynamic pages before scheduling concret
     publicationId: '11111111-1111-4111-8111-111111111111'
   })
   expect(operations).toEqual([
+    'tag:sitemap',
     'tag:event-status',
     'tag:news-status:openai',
     'path:/',

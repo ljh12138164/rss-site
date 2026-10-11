@@ -4,6 +4,7 @@ import { PaginatedArticleFeed } from '../../../components/paginated-article-feed
 import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { createPageMetadata } from '../../../lib/seo'
+import { aiSourcePageText } from '../../../lib/source-page-text'
 import {
   type AiSource,
   aiSources,
@@ -27,8 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const source = getAiSource(sourceId)
   return createPageMetadata({
-    title: source.name,
-    description: source.description,
+    ...aiSourcePageText(source),
     path: `/ai/${source.id}`
   })
 }

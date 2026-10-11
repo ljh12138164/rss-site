@@ -7,12 +7,12 @@ import { renderArticleContent } from '../lib/article-content'
 import { looksLikeEnglish } from '../lib/article-language'
 import { articleSource, createArticlePath, parseArticleIdFromSlug } from '../lib/article-route'
 import {
+  articleDescription,
   createArticleStructuredData,
   createPageMetadata,
-  serializeStructuredData,
-  toMetaDescription
+  serializeStructuredData
 } from '../lib/seo'
-import { getNewsArticle, type SignalArticle } from '../lib/signal-article'
+import { getNewsArticle, getSameSourceArticles, type SignalArticle } from '../lib/signal-article'
 import { optionalCanonical } from '../lib/site-url'
 import type { SignalSource } from '../lib/technology-sources'
 import { ArticleBookmarkButton } from './article-bookmark-button'
@@ -42,7 +42,10 @@ async function resolveArticle(params: ArticlePageProps['params'], section: strin
 export async function articleMetadata(props: ArticlePageProps, section: string): Promise<Metadata> {
   const { article } = await resolveArticle(props.params, section)
   const path = createArticlePath(article.source, article.title, article.id)
-  const description = toMetaDescription(article.summary)
+  const description = articleDescription(
+    article.summary,
+    renderArticleContent(article.contentHtml ?? '', article.url)
+  )
   const modifiedAt = article.contentUpdatedAt ?? article.lastSeenAt
   return {
     ...createPageMetadata({
@@ -53,17 +56,18 @@ export async function articleMetadata(props: ArticlePageProps, section: string):
       publishedTime: article.publishedAt?.toISOString(),
       modifiedTime: modifiedAt.toISOString()
     }),
-    robots: { index: true, follow: true },
-    description
+    robots: { index: article.isIndexable === true, follow: true }
   }
 }
 
 export function ArticleReader({
   article,
-  source
+  source,
+  related = []
 }: {
   article: SignalArticle
   source: SignalSource
+  related?: { id: string; title: string; source: string }[]
 }) {
   const entry = articleSource(source.id)
   if (!entry) return null
@@ -206,6 +210,28 @@ export function ArticleReader({
             </a>
           </div>
         </footer>
+        {related.length > 0 && (
+          <section
+            className="mt-6 border-t border-border pt-6"
+            aria-labelledby="same-source-articles"
+          >
+            <h2 id="same-source-articles" className="text-balance text-lg font-semibold">
+              同来源文章
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {related.map((item) => (
+                <li key={item.id}>
+                  <Link
+                    className="inline-flex min-h-11 items-center text-pretty text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
+                    href={createArticlePath(item.source, item.title, item.id)}
+                  >
+                    {item.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
         {structuredJson && <script type="application/ld+json">{structuredJson}</script>}
       </article>
     </SiteShell>
@@ -213,5 +239,9 @@ export function ArticleReader({
 }
 
 export async function renderArticlePage(props: ArticlePageProps, section: string) {
-  return <ArticleReader {...(await resolveArticle(props.params, section))} />
+  const resolved = await resolveArticle(props.params, section)
+  const related = await getSameSourceArticles(resolved.article.id, resolved.source.id).catch(
+    () => []
+  )
+  return <ArticleReader {...resolved} related={related} />
 }
