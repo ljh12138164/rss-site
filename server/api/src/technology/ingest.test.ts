@@ -1,3 +1,4 @@
+import { getSignalSource, newsSources } from '@rss-site/signals'
 import { describe, expect, it } from 'vitest'
 import type { TechnologyFeedItem } from './feed.js'
 import { ingestSignal, type SignalStore, type SuccessfulIngestion } from './ingest.js'
@@ -126,5 +127,64 @@ describe('ingestSignal', () => {
 
     expect(result.itemCount).toBe(30)
     expect(store.items).toHaveLength(30)
+  })
+
+  it.each([
+    ['2026-10-11T15:59:00Z', '2026-10-10T16:00:00.000Z'],
+    ['2026-10-11T16:01:00Z', '2026-10-11T16:00:00.000Z']
+  ])('uses Shanghai midnight for missing and invalid news dates at %s', async (now, expected) => {
+    const store = new MemoryStore()
+    const xml =
+      '<rss><channel><item><title>Missing</title><link>https://example.com/missing</link></item><item><title>Invalid</title><link>https://example.com/invalid</link><pubDate>Invalid Date</pubDate></item><item><title>Real</title><link>https://example.com/real</link><pubDate>Sun, 11 Oct 2026 05:00:00 GMT</pubDate></item></channel></rss>'
+    await ingestSignal(
+      getNewsSource('chinanews'),
+      { fetchFeed: async () => xml, store },
+      new Date(now)
+    )
+    expect([...store.items.values()].map((item) => item.publishedAt?.toISOString())).toEqual([
+      expected,
+      expected,
+      '2026-10-11T05:00:00.000Z'
+    ])
+  })
+
+  it.each(['github', 'skills-all-time'] as const)(
+    'leaves missing dates alone for %s',
+    async (id) => {
+      const store = new MemoryStore()
+      await ingestSignal(
+        getSignalSource(id),
+        { fetchFeed: async () => feed([{ id: '1', title: 'Ranking' }]), store },
+        new Date('2026-10-11T18:25:00Z')
+      )
+      expect([...store.items.values()][0]?.publishedAt).toBeNull()
+    }
+  )
+
+  it.each(newsSources.map((source) => source.id))('applies the news policy to %s', async (id) => {
+    const store = new MemoryStore()
+    const source = getSignalSource(id)
+    const deps = { fetchFeed: async () => feed([{ id: '1', title: 'News' }]), store }
+    await ingestSignal(source, deps, new Date('2026-10-11T16:01:00Z'))
+    await ingestSignal(source, deps, new Date('2026-10-12T12:00:00Z'))
+    expect([...store.items.values()][0]?.publishedAt?.toISOString()).toBe(
+      '2026-10-11T16:00:00.000Z'
+    )
+  })
+
+  it('does not use an Atom update time as the news publication time', async () => {
+    const store = new MemoryStore()
+    await ingestSignal(
+      getNewsSource('chinanews'),
+      {
+        fetchFeed: async () =>
+          '<feed><entry><title>News</title><link href="https://example.com/1"/><updated>2026-10-12T05:00:00Z</updated></entry></feed>',
+        store
+      },
+      new Date('2026-10-12T12:00:00Z')
+    )
+    expect([...store.items.values()][0]?.publishedAt?.toISOString()).toBe(
+      '2026-10-11T16:00:00.000Z'
+    )
   })
 })

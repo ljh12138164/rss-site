@@ -22,11 +22,18 @@ export async function ingestSignal(
 
   try {
     const items = parseSignalFeed(await deps.fetchFeed(), source.name, {
+      useUpdatedDate: source.section !== 'news',
       titleFromFirstStrong:
         'titleFromFirstStrong' in source ? source.titleFromFirstStrong : undefined,
       urlFromFirstAnchor: 'urlFromFirstAnchor' in source ? source.urlFromFirstAnchor : undefined,
       skillMetadata: 'skillMetadata' in source ? source.skillMetadata : undefined
     }).slice(0, source.itemLimit)
+    if (source.section === 'news') {
+      const day = 24 * 60 * 60 * 1000
+      const offset = 8 * 60 * 60 * 1000
+      const midnight = new Date(Math.floor((now.getTime() + offset) / day) * day - offset)
+      for (const item of items) item.publishedAt ??= midnight
+    }
     const change = await deps.store.replaceRanking({
       batchId,
       startedAt: now,
