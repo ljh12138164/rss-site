@@ -124,6 +124,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  #nprogress .bar {
+    /* biome-ignore lint/complexity/noImportantStyles: NProgress applies transitions inline. */
+    transition: none !important;
+  }
+
   .skeleton-shimmer::after {
     display: none;
   }
