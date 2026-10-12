@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import NextTopLoader from 'nextjs-toploader'
 import type { ReactNode } from 'react'
 import { GoogleScripts } from '../components/google-scripts'
 import { QueryProvider } from '../components/query-provider'
@@ -33,6 +34,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body>
+        <NextTopLoader
+          color="var(--primary)"
+          height={2}
+          showSpinner={false}
+          showForHashAnchor={false}
+          shadow={false}
+          zIndex={50}
+        />
         <GoogleScripts />
         <ServiceWorker />
         <ThemeProvider
