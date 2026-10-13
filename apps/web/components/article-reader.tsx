@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+import { convert } from 'html-to-text'
 import { ArrowUpRight } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -6,6 +8,7 @@ import { cache } from 'react'
 import { renderArticleContent } from '../lib/article-content'
 import { looksLikeEnglish } from '../lib/article-language'
 import { articleSource, createArticlePath, parseArticleIdFromSlug } from '../lib/article-route'
+import { ARTICLE_SUMMARY_VERSION } from '../lib/article-summary-result'
 import {
   articleDescription,
   createArticleStructuredData,
@@ -17,6 +20,7 @@ import { optionalCanonical } from '../lib/site-url'
 import type { SignalSource } from '../lib/technology-sources'
 import { ArticleBookmarkButton } from './article-bookmark-button'
 import { ArticleHistoryTracker } from './article-history-tracker'
+import { ArticleSummary } from './article-summary'
 import { ArticleTranslation } from './article-translation'
 import { SiteShell } from './site-shell'
 import { SourceIcon } from './source-icon'
@@ -76,6 +80,20 @@ export function ArticleReader({
     ? renderArticleContent(article.contentHtml, article.url, section.id)
     : ''
   const canTranslate = looksLikeEnglish(`${article.title}\n${body || article.summary || ''}`)
+  const summaryTextOptions = {
+    wordwrap: false as const,
+    selectors: [
+      { selector: 'a', options: { ignoreHref: true } },
+      { selector: 'img', format: 'skip' }
+    ]
+  }
+  const summaryText =
+    convert(body, summaryTextOptions).trim() ||
+    convert(article.summary ?? '', summaryTextOptions).trim()
+  const canSummarize = Array.from(summaryText.replace(/\s/g, '')).length >= 200
+  const summaryKey = `${ARTICLE_SUMMARY_VERSION}:${source.id}:${article.id}:${createHash('sha256')
+    .update(JSON.stringify([article.title, body, article.summary]))
+    .digest('hex')}`
   const modifiedAt = article.contentUpdatedAt ?? article.lastSeenAt
   const canonical = optionalCanonical(createArticlePath(article.source, article.title, article.id))
   const structuredJson = canonical
@@ -147,6 +165,11 @@ export function ArticleReader({
           contentHtml={body}
           summary={article.summary}
           canTranslate={canTranslate}
+          summaryControl={
+            canSummarize ? (
+              <ArticleSummary key={summaryKey} cacheKey={summaryKey} articleId={article.id} />
+            ) : undefined
+          }
           sourceLabel={
             <div className="mb-5 flex items-center gap-2.5 text-sm font-medium text-primary">
               <SourceIcon source={source} className="size-5" />

@@ -12,6 +12,7 @@ import {
   searchFilter,
   searchValidation
 } from './article-search'
+import { requestArticleSummary, SummaryRequestError } from './article-summary'
 import {
   TranslationBusyError,
   translateArticleOnce,
@@ -30,6 +31,19 @@ import { getNewsArticle } from './signal-article'
 import { getPublicSupabaseClient } from './supabase'
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+const summaryInput = validator('json', (value, c) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    return c.json({ error: '文章参数无效' }, 400)
+  const input = value as Record<string, unknown>
+  if (
+    Object.keys(input).length !== 1 ||
+    typeof input.id !== 'string' ||
+    !uuidPattern.test(input.id)
+  )
+    return c.json({ error: '文章参数无效' }, 400)
+  return { id: input.id.toLowerCase() }
+})
 
 const editInput = validator('json', (value, c) => {
   if (!value || typeof value !== 'object' || Array.isArray(value))
@@ -94,6 +108,24 @@ const eventTranslationInput = validator('json', (value, c) => {
 
 export const app = new Hono()
   .basePath('/api')
+  .post('/articles/summarize', summaryInput, async (c) => {
+    c.header('Cache-Control', 'no-store')
+    const { id } = c.req.valid('json')
+    try {
+      const summary = await requestArticleSummary(id, c.req.raw.signal)
+      return c.json({ summary }, 200)
+    } catch (error) {
+      if (error instanceof SummaryRequestError && error.status === 404)
+        return c.json({ error: '文章不存在' }, 404)
+      if (error instanceof SummaryRequestError && error.status === 429)
+        return c.json({ error: '总结任务较多，请稍后重试' }, 429)
+      if (error instanceof SummaryRequestError && error.status === 422)
+        return c.json({ error: '文章内容少于 200 字，无需生成总结' }, 422)
+      if (error instanceof SummaryRequestError && error.status === 413)
+        return c.json({ error: '文章内容超过总结长度限制，请查看原文' }, 413)
+      return c.json({ error: '暂时无法生成总结，请稍后重试' }, 503)
+    }
+  })
   .post('/articles/translate', translationInput, async (c) => {
     const { id, source } = c.req.valid('json')
     const entry = articleSource(source)

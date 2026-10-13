@@ -1,5 +1,18 @@
 # HERMES
 
+## 2026-10-13 Cloudflare 文章总结
+
+- 最新调整：浏览器/Web/Nest 仅传 {id}，Nest Drizzle 直查 Supabase 标题与正文，Redis 30 天与并发合并迁入 Nest。少于 200 个非空白 Unicode 字符前端隐藏、后端拒绝，标题与链接地址不计入。两仓版本 v2，idb 缓存保留。用户确认移除 Nest assistant 示例。
+- 当前验证：Nest 18 项、Web 300 项测试，双仓类型/相关 lint/构建通过；Supabase 实际只读抽查 10 条通过。审查的链接字数问题已修复并回归，无剩余阻塞。真实模型推理与部署未执行。
+- 两仓实现已推送 feat/article-summary-agent：后端 0ee3b01，前端 411bc09。后端现有 PR https://github.com/ljh12138164/ai-base/pull/1 的描述已更新，未报告 CI 检查；前端由用户通过下方链接创建到 master 的 PR。下一步配置 Nest 可达的 REDIS_URL，协调两仓合并并验证真实模型后部署；本轮未验证真实 Redis/Cloudflare 或部署。
+
+- 当前目标：feat/article-summary-agent，Nest DeepAgentsJS/Cloudflare Qwen 总结接口与 Web 手动入口。
+- 开发记录：docs/development/article-summary-agent.md；用户已确认详情页 UI，Folo 公开调用/缓存/正文边界调研完成。
+- 用户先要求调研，随后确认 idb 实现，并要求 PR 地址；交付两仓 feat/article-summary-agent 分支到 master 的 PR 创建链接。AI 生成结果（总结和翻译）缓存为 30 天，本轮不部署。
+- 已有实现的验证记录：Web 294、API 100、signals 7 项测试、全仓类型及 Web 62 页生产构建通过，浏览器模拟响应验证桌面/手机、明暗主题和键盘操作。真实 Cloudflare 推理未验证。
+- 用户已确认 idb 本地总结缓存，实现与验证完成：30 天期限、刷新恢复、正文/版本失效、存储降级、首次生成手动。全仓 409 项测试、Web 类型、变更文件 Biome、62 页生产构建通过；浏览器真实 IndexedDB 配模拟总结响应验证刷新/折叠/正文切换，首次生成后无新增总结请求，临时页面/服务/标签页已清理。独立审查无阻塞项和接受的后续事项。
+- 交付：[rss-site PR 创建链接](https://github.com/ljh12138164/rss-site/compare/master...feat/article-summary-agent?expand=1)、[ai-base PR 创建链接](https://github.com/ljh12138164/ai-base/compare/master...feat/article-summary-agent?expand=1)。按 AGENTS，由用户创建并协调合并两仓 PR；接着配置 Nest/Web 服务端环境并验证真实 Cloudflare 调用，再部署。
+
 ## 2026-10-12 顶部导航加载条
 
 - 分支 `feat/top-loading-bar` 基于最新 `origin/master` `955b21d`。
