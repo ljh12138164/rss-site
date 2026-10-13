@@ -43,9 +43,9 @@ describe('Redis result cache', () => {
     expect(await readResultCache('translation:test', isResult)).toBeNull()
   })
 
-  it('writes JSON with atomic seven-day expiration', async () => {
+  it('writes JSON with atomic thirty-day expiration', async () => {
     await writeResultCache('translation:test', { title: '译文' })
-    expect(redis.set).toHaveBeenCalledWith('translation:test', '{"title":"译文"}', 'EX', 604800)
+    expect(redis.set).toHaveBeenCalledWith('translation:test', '{"title":"译文"}', 'EX', 2592000)
   })
 
   it('treats Redis read and write failures as cache misses', async () => {

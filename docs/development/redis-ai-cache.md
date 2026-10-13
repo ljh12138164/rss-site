@@ -3,6 +3,8 @@
 ## Background
 Translation results previously lived only in page state. The service merged in-flight work but repeated inference after refresh. The user approved a seven-day Redis cache and a reusable foundation for future AI summaries.
 
+2026-10-13 update: the user requested a longer lifetime for AI-generated results. The shared result cache now writes translations and summaries with a 30-day TTL (2592000 seconds). The seven-day values below record the original implementation and verification; existing keys keep their original expiry until rewritten.
+
 ## Scope
 - Cache article and AI event translations for 604800 seconds after creation.
 - Share JSON cache read/write and hashed, versioned key helpers with future AI summaries.

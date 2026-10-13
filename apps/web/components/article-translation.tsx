@@ -31,6 +31,7 @@ interface ArticleTranslationProps {
   canTranslate: boolean
   sourceLabel: ReactNode
   metadata: ReactNode
+  summaryControl?: ReactNode
 }
 
 export function ArticleTranslation({
@@ -41,7 +42,8 @@ export function ArticleTranslation({
   summary,
   canTranslate,
   sourceLabel,
-  metadata
+  metadata,
+  summaryControl
 }: ArticleTranslationProps) {
   const [translation, setTranslation] = useState<Translation | null>(null)
   const [mode, setMode] = useState<ReadingMode>('original')
@@ -170,6 +172,7 @@ export function ArticleTranslation({
           </p>
         )}
       </header>
+      {summaryControl}
       <ArticleReadingTools
         articleId={articleId}
         contentKey={mode}

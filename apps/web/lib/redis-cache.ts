@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto'
 import { Redis } from 'ioredis'
 
-export const RESULT_CACHE_TTL_SECONDS = 7 * 24 * 60 * 60
+export const RESULT_CACHE_TTL_SECONDS = 30 * 24 * 60 * 60
 
 let client: Redis | undefined
 let connecting: Promise<Redis> | undefined

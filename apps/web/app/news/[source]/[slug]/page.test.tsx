@@ -34,7 +34,7 @@ describe('NewsArticleView', () => {
     expect(html).toContain('href="https://www.news.cn/story"')
     expect(html).toContain('target="_blank"')
     expect(html).toContain('data-outbound')
-    expect(html).not.toContain('AI 总结')
+    expect(html).toContain('AI 总结')
     expect(html).not.toContain('翻译为中文')
   })
 

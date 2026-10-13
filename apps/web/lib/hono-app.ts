@@ -12,6 +12,7 @@ import {
   searchFilter,
   searchValidation
 } from './article-search'
+import { SummaryBusyError, summarizeArticleOnce } from './article-summary'
 import {
   TranslationBusyError,
   translateArticleOnce,
@@ -94,6 +95,26 @@ const eventTranslationInput = validator('json', (value, c) => {
 
 export const app = new Hono()
   .basePath('/api')
+  .post('/articles/summarize', translationInput, async (c) => {
+    c.header('Cache-Control', 'no-store')
+    const { id, source } = c.req.valid('json')
+    const entry = articleSource(source)
+    if (!entry) return c.json({ error: '文章来源无效' }, 400)
+    try {
+      const article = await getNewsArticle(id, entry.source.id)
+      if (!article) return c.json({ error: '文章不存在' }, 404)
+      const summary = await summarizeArticleOnce(article, entry.section.id)
+      return c.json({ summary }, 200)
+    } catch (error) {
+      if (error instanceof SummaryBusyError)
+        return c.json({ error: '总结任务较多，请稍后重试' }, 429)
+      if (error instanceof Error && error.message === 'SUMMARY_EMPTY')
+        return c.json({ error: '来源未提供可总结的正文或摘要，请查看原文' }, 422)
+      if (error instanceof Error && error.message === 'SUMMARY_TOO_LONG')
+        return c.json({ error: '文章内容超过总结长度限制，请查看原文' }, 413)
+      return c.json({ error: '暂时无法生成总结，请稍后重试' }, 503)
+    }
+  })
   .post('/articles/translate', translationInput, async (c) => {
     const { id, source } = c.req.valid('json')
     const entry = articleSource(source)

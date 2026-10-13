@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-10-13 Cloudflare 文章总结
+
+- 当前目标：feat/article-summary-agent，Nest DeepAgentsJS/Cloudflare Qwen 总结接口与 Web 手动入口。
+- 开发记录：docs/development/article-summary-agent.md；用户已确认详情页 UI，Folo 公开调用/缓存/正文边界调研完成。
+- 用户先要求调研，随后确认 idb 实现，并要求 PR 地址；交付两仓 feat/article-summary-agent 分支到 master 的 PR 创建链接。AI 生成结果（总结和翻译）缓存为 30 天，本轮不部署。
+- 已有实现的验证记录：Web 294、API 100、signals 7 项测试、全仓类型及 Web 62 页生产构建通过，浏览器模拟响应验证桌面/手机、明暗主题和键盘操作。真实 Cloudflare 推理未验证。
+- 用户已确认 idb 本地总结缓存，实现与验证完成：30 天期限、刷新恢复、正文/版本失效、存储降级、首次生成手动。全仓 409 项测试、Web 类型、变更文件 Biome、62 页生产构建通过；浏览器真实 IndexedDB 配模拟总结响应验证刷新/折叠/正文切换，首次生成后无新增总结请求，临时页面/服务/标签页已清理。独立审查无阻塞项和接受的后续事项。
+- 交付：[rss-site PR 创建链接](https://github.com/ljh12138164/rss-site/compare/master...feat/article-summary-agent?expand=1)、[ai-base PR 创建链接](https://github.com/ljh12138164/ai-base/compare/master...feat/article-summary-agent?expand=1)。按 AGENTS，由用户创建并协调合并两仓 PR；接着配置 Nest/Web 服务端环境并验证真实 Cloudflare 调用，再部署。
+
 ## 2026-10-12 顶部导航加载条
 
 - 分支 `feat/top-loading-bar` 基于最新 `origin/master` `955b21d`。
