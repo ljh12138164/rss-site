@@ -2,6 +2,7 @@
 
 ## 2026-10-13 Folo 风格总结面板
 
+- 用户后续要求符合项目色调：已用 text-primary、border-border、bg-muted/30 替换紫色，18 项回归、Biome 与明暗截图通过；继续推送同一 feat/summary-folo-ui 分支。
 - 目标：feat/summary-folo-ui，基于 d0326c6，仅修改详情页 ArticleSummary 的卡片与标题栏。
 - 记录：docs/development/summary-folo-ui.md；已完成 300 项 Web 测试、类型、Biome 与本地全状态/明暗/390px 验证；完整构建编译通过但云 REST 预渲染超时。分支交付后由用户创建并合并到 master 的 PR，以 CI 复验。未部署。
 

@@ -70,10 +70,10 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
   return (
     <section
       aria-label="AI 总结"
-      className="mt-6 rounded-2xl border border-violet-200/60 bg-violet-50/50 p-4 dark:border-violet-400/15 dark:bg-violet-400/5 sm:p-5"
+      className="mt-6 rounded-2xl border border-border bg-muted/30 p-4 sm:p-5"
     >
       <div className="flex min-w-0 items-center justify-between gap-3">
-        <h2 className="flex min-w-0 items-center gap-2 text-balance text-sm font-medium text-violet-700 dark:text-violet-300">
+        <h2 className="flex min-w-0 items-center gap-2 text-balance text-sm font-medium text-primary">
           <Sparkles className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">AI 总结</span>
         </h2>
@@ -94,7 +94,7 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
           }
           aria-expanded={summary ? visible : undefined}
           aria-controls={summary ? contentId : undefined}
-          className="rounded-lg px-3 text-xs text-violet-700 hover:bg-violet-100/60 hover:text-violet-800 focus-visible:ring-2 focus-visible:ring-ring dark:text-violet-300 dark:hover:bg-violet-400/10 dark:hover:text-violet-200"
+          className="rounded-lg px-3 text-xs text-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
         >
           {pending
             ? '生成中…'
