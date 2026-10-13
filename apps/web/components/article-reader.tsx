@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { convert } from 'html-to-text'
 import { ArrowUpRight } from 'lucide-react'
 import type { Metadata } from 'next'
 import Link from 'next/link'
@@ -79,6 +80,17 @@ export function ArticleReader({
     ? renderArticleContent(article.contentHtml, article.url, section.id)
     : ''
   const canTranslate = looksLikeEnglish(`${article.title}\n${body || article.summary || ''}`)
+  const summaryTextOptions = {
+    wordwrap: false as const,
+    selectors: [
+      { selector: 'a', options: { ignoreHref: true } },
+      { selector: 'img', format: 'skip' }
+    ]
+  }
+  const summaryText =
+    convert(body, summaryTextOptions).trim() ||
+    convert(article.summary ?? '', summaryTextOptions).trim()
+  const canSummarize = Array.from(summaryText.replace(/\s/g, '')).length >= 200
   const summaryKey = `${ARTICLE_SUMMARY_VERSION}:${source.id}:${article.id}:${createHash('sha256')
     .update(JSON.stringify([article.title, body, article.summary]))
     .digest('hex')}`
@@ -154,13 +166,8 @@ export function ArticleReader({
           summary={article.summary}
           canTranslate={canTranslate}
           summaryControl={
-            body.replace(/<[^>]*>/g, '').trim() || article.summary?.trim() ? (
-              <ArticleSummary
-                key={summaryKey}
-                cacheKey={summaryKey}
-                articleId={article.id}
-                source={source.id}
-              />
+            canSummarize ? (
+              <ArticleSummary key={summaryKey} cacheKey={summaryKey} articleId={article.id} />
             ) : undefined
           }
           sourceLabel={

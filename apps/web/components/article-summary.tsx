@@ -10,15 +10,7 @@ import { ActionButton } from './action-button'
 
 const api = hc<AppType>('/')
 
-export function ArticleSummary({
-  articleId,
-  source,
-  cacheKey
-}: {
-  articleId: string
-  source: string
-  cacheKey: string
-}) {
+export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cacheKey: string }) {
   const [summary, setSummary] = useState<Summary | null>(null)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
@@ -52,7 +44,7 @@ export function ArticleSummary({
         return
       }
       const response = await api.api.articles.summarize.$post(
-        { json: { id: articleId, source } },
+        { json: { id: articleId } },
         { init: { signal: AbortSignal.timeout(130_000) } }
       )
       const payload = await response.json()

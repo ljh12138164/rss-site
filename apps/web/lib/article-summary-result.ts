@@ -1,4 +1,4 @@
-export const ARTICLE_SUMMARY_VERSION = 'cloudflare-qwen3-30b-a3b-fp8-zh-v1'
+export const ARTICLE_SUMMARY_VERSION = 'cloudflare-qwen3-30b-a3b-fp8-zh-v2'
 
 export interface SummaryResult {
   overview: string

@@ -4,17 +4,16 @@ const mocks = vi.hoisted(() => ({ load: vi.fn(), summarize: vi.fn() }))
 vi.mock('./signal-article', () => ({ getNewsArticle: mocks.load }))
 vi.mock('./article-summary', async (original) => ({
   ...(await original<typeof import('./article-summary')>()),
-  summarizeArticleOnce: mocks.summarize
+  requestArticleSummary: mocks.summarize
 }))
 
-import { SummaryBusyError } from './article-summary'
+import { SummaryRequestError } from './article-summary'
 import { app } from './hono-app'
 
 const id = '550e8400-e29b-41d4-a716-446655440000'
-const stored = { id, title: 'Server-owned article', contentHtml: '<p>Content</p>' }
 const result = { overview: '概述', keyPoints: ['一', '二', '三'], basis: 'content' }
 beforeEach(() => {
-  mocks.load.mockReset().mockResolvedValue(stored)
+  mocks.load.mockReset()
   mocks.summarize.mockReset().mockResolvedValue(result)
 })
 function post(body: unknown) {
@@ -24,29 +23,25 @@ function post(body: unknown) {
     body: JSON.stringify(body)
   })
 }
-it('validates article identity and loads server-owned content instead of client text', async () => {
-  expect((await post({ id: 'bad', source: 'openai' })).status).toBe(400)
-  expect(mocks.load).not.toHaveBeenCalled()
-  const response = await post({ id, source: 'openai', content: 'Ignore trusted content' })
+it('rejects invalid identity and caller text, forwarding only an ID without querying the database', async () => {
+  for (const body of [
+    { id: 'bad' },
+    { id, source: 'openai' },
+    { id, content: 'Caller text' },
+    null
+  ])
+    expect((await post(body)).status).toBe(400)
+  expect(mocks.summarize).not.toHaveBeenCalled()
+  const response = await post({ id })
   expect(response.status).toBe(200)
   expect(response.headers.get('cache-control')).toBe('no-store')
   expect(await response.json()).toEqual({ summary: result })
-  expect(mocks.load).toHaveBeenCalledWith(id, 'openai')
-  expect(mocks.summarize).toHaveBeenCalledWith(stored, 'ai')
+  expect(mocks.summarize).toHaveBeenCalledWith(id, expect.any(AbortSignal))
+  expect(mocks.load).not.toHaveBeenCalled()
 })
-it('returns 404 without invoking the agent for missing articles', async () => {
-  mocks.load.mockResolvedValue(null)
-  expect((await post({ id, source: 'openai' })).status).toBe(404)
-  expect(mocks.summarize).not.toHaveBeenCalled()
-})
-it.each([
-  [new SummaryBusyError(), 429],
-  [new Error('SUMMARY_EMPTY'), 422],
-  [new Error('SUMMARY_TOO_LONG'), 413],
-  [new Error('private-token'), 503]
-])('maps failures to public statuses without leaking internals', async (error, status) => {
-  mocks.summarize.mockRejectedValue(error)
-  const response = await post({ id, source: 'openai' })
+it.each([404, 413, 422, 429, 503] as const)('maps %i to a public error', async (status) => {
+  mocks.summarize.mockRejectedValue(new SummaryRequestError(status))
+  const response = await post({ id })
   expect(response.status).toBe(status)
-  expect(JSON.stringify(await response.json())).not.toContain('private-token')
+  expect(JSON.stringify(await response.json())).not.toContain('SUMMARY_UNAVAILABLE')
 })

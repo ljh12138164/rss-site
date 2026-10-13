@@ -19,8 +19,8 @@ it('invalidates local summaries when article content changes, but not when it is
     sourceKey: 'one',
     title: '文章标题',
     url: 'https://example.com/article',
-    summary: '来源摘要',
-    contentHtml: '<p>原始正文</p>',
+    summary: '来源摘要'.repeat(50),
+    contentHtml: `<p>${'原始正文'.repeat(50)}</p>`,
     author: null,
     publishedAt: null,
     firstSeenAt: new Date(0),
@@ -30,7 +30,7 @@ it('invalidates local summaries when article content changes, but not when it is
     renderToStaticMarkup(<ArticleReader article={value} source={getSignalSource('xinhua')} />)
   render(article)
   render({ ...article, lastSeenAt: new Date() })
-  render({ ...article, contentHtml: '<p>修改正文</p>' })
+  render({ ...article, contentHtml: `<p>${'修改正文'.repeat(50)}</p>` })
   render({ ...article, title: '修改标题' })
   render({ ...article, contentHtml: null })
   expect(keys[0]).toEqual(expect.any(String))
