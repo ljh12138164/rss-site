@@ -4,7 +4,7 @@
 
 - 最新调整：浏览器/Web/Nest 仅传 {id}，Nest Drizzle 直查 Supabase 标题与正文，Redis 30 天与并发合并迁入 Nest。少于 200 个非空白 Unicode 字符前端隐藏、后端拒绝，标题与链接地址不计入。两仓版本 v2，idb 缓存保留。用户确认移除 Nest assistant 示例。
 - 当前验证：Nest 18 项、Web 300 项测试，双仓类型/相关 lint/构建通过；Supabase 实际只读抽查 10 条通过。审查的链接字数问题已修复并回归，无剩余阻塞。真实模型推理与部署未执行。
-- 后端现有 PR https://github.com/ljh12138164/ai-base/pull/1；前端仍由用户创建 feat/article-summary-agent 到 master 的 PR。本轮推送更新后协调两仓合并。
+- 两仓实现已推送 feat/article-summary-agent：后端 0ee3b01，前端 411bc09。后端现有 PR https://github.com/ljh12138164/ai-base/pull/1 的描述已更新，未报告 CI 检查；前端由用户通过下方链接创建到 master 的 PR。下一步配置 Nest 可达的 REDIS_URL，协调两仓合并并验证真实模型后部署；本轮未验证真实 Redis/Cloudflare 或部署。
 
 - 当前目标：feat/article-summary-agent，Nest DeepAgentsJS/Cloudflare Qwen 总结接口与 Web 手动入口。
 - 开发记录：docs/development/article-summary-agent.md；用户已确认详情页 UI，Folo 公开调用/缓存/正文边界调研完成。
