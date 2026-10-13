@@ -1,8 +1,8 @@
 'use client'
 
 import { hc } from 'hono/client'
-import { ListCollapse } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { readLocalSummary, writeLocalSummary } from '../lib/article-summary-cache'
 import { isArticleSummary, type ArticleSummary as Summary } from '../lib/article-summary-result'
 import type { AppType } from '../lib/hono-app'
@@ -16,6 +16,7 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
   const [error, setError] = useState('')
   const [visible, setVisible] = useState(true)
   const restoration = useRef<Promise<Summary | null> | null>(null)
+  const contentId = useId()
 
   useEffect(() => {
     let active = true
@@ -67,22 +68,54 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
   }
 
   return (
-    <section aria-label="AI 总结" className="mt-6">
-      <ActionButton variant="outline" isDisabled={pending} onPress={summarize}>
-        <ListCollapse className="size-4 shrink-0" aria-hidden="true" />
-        {pending
-          ? '正在生成总结'
-          : summary
-            ? visible
-              ? '收起 AI 总结'
-              : '展开 AI 总结'
-            : error
-              ? '重试 AI 总结'
-              : 'AI 总结'}
-      </ActionButton>
-      <div aria-live="polite" aria-busy={pending}>
+    <section
+      aria-label="AI 总结"
+      className="mt-6 rounded-2xl border border-violet-200/60 bg-violet-50/50 p-4 dark:border-violet-400/15 dark:bg-violet-400/5 sm:p-5"
+    >
+      <div className="flex min-w-0 items-center justify-between gap-3">
+        <h2 className="flex min-w-0 items-center gap-2 text-balance text-sm font-medium text-violet-700 dark:text-violet-300">
+          <Sparkles className="size-4 shrink-0" aria-hidden="true" />
+          <span className="truncate">AI 总结</span>
+        </h2>
+        <ActionButton
+          variant="ghost"
+          isDisabled={pending}
+          onPress={summarize}
+          aria-label={
+            pending
+              ? '正在生成总结'
+              : summary
+                ? visible
+                  ? '收起 AI 总结'
+                  : '展开 AI 总结'
+                : error
+                  ? '重试 AI 总结'
+                  : '生成 AI 总结'
+          }
+          aria-expanded={summary ? visible : undefined}
+          aria-controls={summary ? contentId : undefined}
+          className="rounded-lg px-3 text-xs text-violet-700 hover:bg-violet-100/60 hover:text-violet-800 focus-visible:ring-2 focus-visible:ring-ring dark:text-violet-300 dark:hover:bg-violet-400/10 dark:hover:text-violet-200"
+        >
+          {pending
+            ? '生成中…'
+            : summary
+              ? visible
+                ? '收起'
+                : '展开'
+              : error
+                ? '重试'
+                : '生成总结'}
+          {summary &&
+            (visible ? (
+              <ChevronUp className="size-4 shrink-0" aria-hidden="true" />
+            ) : (
+              <ChevronDown className="size-4 shrink-0" aria-hidden="true" />
+            ))}
+        </ActionButton>
+      </div>
+      <div id={contentId} aria-live="polite" aria-busy={pending}>
         {pending && (
-          <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4">
+          <div className="mt-3">
             <p className="text-pretty text-sm text-muted-foreground">正在提取文章要点，请稍候…</p>
             <div aria-hidden="true" className="mt-4 space-y-2">
               <div className="h-3 w-full rounded-sm bg-muted" />
@@ -97,9 +130,8 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
           </p>
         )}
         {summary && visible && (
-          <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 sm:p-5">
-            <h2 className="text-balance text-base font-semibold">文章要点</h2>
-            <p className="mt-3 break-words text-pretty text-sm leading-7">{summary.overview}</p>
+          <div className="mt-3">
+            <p className="break-words text-pretty text-sm leading-7">{summary.overview}</p>
             <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-7">
               {summary.keyPoints.map((point) => (
                 <li className="break-words text-pretty" key={point}>
@@ -114,6 +146,11 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
               完整内容以原文为准。
             </p>
           </div>
+        )}
+        {!pending && !summary && !error && (
+          <p className="mt-2 text-pretty text-xs leading-5 text-muted-foreground">
+            提炼文章概述与要点，快速了解主要内容。
+          </p>
         )}
       </div>
     </section>

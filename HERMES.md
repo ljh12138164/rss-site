@@ -1,5 +1,10 @@
 # HERMES
 
+## 2026-10-13 Folo 风格总结面板
+
+- 目标：feat/summary-folo-ui，基于 d0326c6，仅修改详情页 ArticleSummary 的卡片与标题栏。
+- 记录：docs/development/summary-folo-ui.md；已完成 300 项 Web 测试、类型、Biome 与本地全状态/明暗/390px 验证；完整构建编译通过但云 REST 预渲染超时。分支交付后由用户创建并合并到 master 的 PR，以 CI 复验。未部署。
+
 ## 2026-10-13 Cloudflare 文章总结
 
 - 最新调整：浏览器/Web/Nest 仅传 {id}，Nest Drizzle 直查 Supabase 标题与正文，Redis 30 天与并发合并迁入 Nest。少于 200 个非空白 Unicode 字符前端隐藏、后端拒绝，标题与链接地址不计入。两仓版本 v2，idb 缓存保留。用户确认移除 Nest assistant 示例。
