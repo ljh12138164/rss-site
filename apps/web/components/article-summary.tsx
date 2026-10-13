@@ -70,7 +70,7 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
   return (
     <section
       aria-label="AI 总结"
-      className="mt-6 rounded-2xl border border-border bg-muted/30 p-4 sm:p-5"
+      className="mt-6 rounded-2xl border-2 border-primary/70 bg-muted/30 p-4 sm:p-5"
     >
       <div className="flex min-w-0 items-center justify-between gap-3">
         <h2 className="flex min-w-0 items-center gap-2 text-balance text-sm font-medium text-primary">

@@ -1,5 +1,10 @@
 # HERMES
 
+## 2026-10-13 总结边框可见性
+
+- 目标：feat/summary-card-border，在已合并 PR #40 后提高总结轮廓可见性；用户反馈 1px/40% 仍太淡，现改为 2px/70%，已验证完整展开态明暗截图。
+- 记录：docs/development/summary-card-border.md；明暗截图和 Biome/diff 检查完成，无阻塞审查项。交付 feat/summary-card-border，由用户创建并合并到 master 的 PR，未部署。
+
 ## 2026-10-13 Folo 风格总结面板
 
 - 用户后续要求符合项目色调：已用 text-primary、border-border、bg-muted/30 替换紫色，18 项回归、Biome 与明暗截图通过；继续推送同一 feat/summary-folo-ui 分支。
