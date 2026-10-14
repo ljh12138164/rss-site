@@ -23,6 +23,20 @@ afterEach(() => {
 })
 
 describe('content publication', () => {
+  it('purges canonical Skill details for both GitHub and well-known sources', async () => {
+    const paths = ['/skills/mattpocock/skills/tdd', '/skills/open.feishu.cn/lark-doc']
+    await publishContent(paths, 'skills-batch')
+    expect(JSON.parse(String(requests[0].init?.body)).files).toEqual(
+      paths.map((path) => `https://news.example${path}`)
+    )
+    for (const path of [
+      '/skills/owner/../bad',
+      '/skills/owner/repo/a%2Fb',
+      '/skills/owner/repo/skill?token=x'
+    ]) {
+      await expect(publishContent([path], 'invalid')).rejects.toThrow('Invalid publication path')
+    }
+  })
   it('purges exact canonical URLs before warming and indexing, excluding sitemap from indexing', async () => {
     const result = await publishContent(
       ['/', '/sitemap.xml', '/ai', '/ai/openai', '/ai'],

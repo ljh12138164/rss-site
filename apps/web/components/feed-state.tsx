@@ -5,7 +5,6 @@ export function EmptyFeed() {
     <div className="border-y border-border py-12 text-center">
       <Inbox aria-hidden="true" className="mx-auto size-5 text-muted-foreground" />
       <p className="mt-4 text-sm font-medium">暂无内容</p>
-      <p className="mt-2 text-sm text-muted-foreground">这里还没有可显示的文章。</p>
     </div>
   )
 }

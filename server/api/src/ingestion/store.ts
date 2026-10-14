@@ -7,6 +7,7 @@ import {
   hotItems,
   ingestionRuns,
   signalArticles,
+  skillDetails,
   sourceStatus
 } from '../db/schema.js'
 import { changedSourceKeys } from './content-change.js'
@@ -29,7 +30,7 @@ export interface FailedIngestion {
 export interface SignalStore {
   replaceRanking(
     input: SuccessfulIngestion
-  ): Promise<{ changed: boolean; events: string[] } | undefined>
+  ): Promise<{ changed: boolean; events: string[]; skills?: string[] } | undefined>
   recordFailure(input: FailedIngestion): Promise<void>
 }
 
@@ -58,6 +59,67 @@ export class DrizzleSignalStore implements SignalStore {
         .leftJoin(signalArticles, eq(hotItems.articleId, signalArticles.id))
         .where(eq(hotItems.source, this.source))
       const changedKeys = changedSourceKeys(previous, input.items)
+      const details = input.items.flatMap((item) => (item.skillDetail ? [item.skillDetail] : []))
+      const changedDetails: string[] = []
+      if (details.length) {
+        const previousDetails = await tx
+          .select()
+          .from(skillDetails)
+          .where(
+            inArray(
+              skillDetails.skillId,
+              details.map((detail) => detail.skillId)
+            )
+          )
+        const previousById = new Map(previousDetails.map((detail) => [detail.skillId, detail]))
+        const values = details.map((detail) => {
+          const old = previousById.get(detail.skillId)
+          const hasBody = Boolean(detail.skillMarkdown && detail.contentHtml)
+          if (
+            !old ||
+            old.skillMarkdown !== (hasBody ? detail.skillMarkdown : old.skillMarkdown) ||
+            old.totalInstalls !== (detail.totalInstalls ?? old.totalInstalls) ||
+            old.description !== (detail.description ?? old.description) ||
+            old.detailState !== detail.detailState ||
+            old.name !== detail.name ||
+            old.installUrl !== detail.installUrl ||
+            old.upstreamUrl !== detail.upstreamUrl
+          ) {
+            changedDetails.push(detail.skillId)
+          }
+          return {
+            ...detail,
+            skillMarkdown: hasBody ? detail.skillMarkdown : null,
+            contentHtml: hasBody ? detail.contentHtml : null,
+            contentHash: hasBody ? detail.contentHash : null,
+            lastSeenAt: input.finishedAt,
+            contentSyncedAt: hasBody ? input.finishedAt : null,
+            totalInstallsSyncedAt: detail.totalInstalls !== null ? input.finishedAt : null
+          }
+        })
+        await tx
+          .insert(skillDetails)
+          .values(values)
+          .onConflictDoUpdate({
+            target: skillDetails.skillId,
+            set: {
+              name: sql.raw('excluded.name'),
+              source: sql.raw('excluded.source'),
+              sourceType: sql.raw('excluded.source_type'),
+              upstreamUrl: sql.raw('excluded.upstream_url'),
+              installUrl: sql.raw('excluded.install_url'),
+              detailState: sql.raw('excluded.detail_state'),
+              lastSeenAt: input.finishedAt,
+              description: sql`coalesce(excluded.description, ${skillDetails.description})`,
+              skillMarkdown: sql`coalesce(excluded.skill_markdown, ${skillDetails.skillMarkdown})`,
+              contentHtml: sql`coalesce(excluded.content_html, ${skillDetails.contentHtml})`,
+              contentHash: sql`case when excluded.skill_markdown is not null then excluded.content_hash else ${skillDetails.contentHash} end`,
+              contentSyncedAt: sql`coalesce(excluded.content_synced_at, ${skillDetails.contentSyncedAt})`,
+              totalInstalls: sql`coalesce(excluded.total_installs, ${skillDetails.totalInstalls})`,
+              totalInstallsSyncedAt: sql`coalesce(excluded.total_installs_synced_at, ${skillDetails.totalInstallsSyncedAt})`
+            }
+          })
+      }
       await tx.insert(ingestionRuns).values({
         id: input.batchId,
         source: this.source,
@@ -179,7 +241,13 @@ export class DrizzleSignalStore implements SignalStore {
                 )
               )
           : []
-      return { changed: changedKeys.length > 0, events: events.map((event) => event.slug) }
+      return {
+        changed: changedKeys.length > 0 || changedDetails.length > 0,
+        events: events.map((event) => event.slug),
+        ...(this.section === 'skills'
+          ? { skills: [...new Set([...changedKeys, ...changedDetails])] }
+          : {})
+      }
     })
   }
 

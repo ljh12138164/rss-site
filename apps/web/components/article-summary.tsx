@@ -10,7 +10,15 @@ import { ActionButton } from './action-button'
 
 const api = hc<AppType>('/')
 
-export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cacheKey: string }) {
+export function ArticleSummary({
+  articleId,
+  cacheKey,
+  kind = 'article'
+}: {
+  articleId: string
+  cacheKey: string
+  kind?: 'article' | 'skill'
+}) {
   const [summary, setSummary] = useState<Summary | null>(null)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
@@ -44,7 +52,9 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
         setVisible(true)
         return
       }
-      const response = await api.api.articles.summarize.$post(
+      const invoke =
+        kind === 'skill' ? api.api.skills.summarize.$post : api.api.articles.summarize.$post
+      const response = await invoke(
         { json: { id: articleId } },
         { init: { signal: AbortSignal.timeout(130_000) } }
       )
@@ -116,7 +126,9 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
       <div id={contentId} aria-live="polite" aria-busy={pending}>
         {pending && (
           <div className="mt-3">
-            <p className="text-pretty text-sm text-muted-foreground">正在提取文章要点，请稍候…</p>
+            <p className="text-pretty text-sm text-muted-foreground">
+              {kind === 'skill' ? '正在总结 SKILL.md…' : '正在提取文章要点，请稍候…'}
+            </p>
             <div aria-hidden="true" className="mt-4 space-y-2">
               <div className="h-3 w-full rounded-sm bg-muted" />
               <div className="h-3 w-5/6 rounded-sm bg-muted" />
@@ -140,16 +152,20 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
               ))}
             </ul>
             <p className="mt-4 text-pretty text-xs leading-5 text-muted-foreground">
-              {summary.basis === 'excerpt'
-                ? '基于来源摘要整理，未获取全文。'
-                : '基于站内已有正文整理，内容可能为节选。'}
-              完整内容以原文为准。
+              {kind === 'skill'
+                ? '基于 SKILL.md 整理，请结合原文使用。'
+                : summary.basis === 'excerpt'
+                  ? '基于来源摘要整理，未获取全文。'
+                  : '基于站内已有正文整理，内容可能为节选。'}
+              {kind === 'article' && '完整内容以原文为准。'}
             </p>
           </div>
         )}
         {!pending && !summary && !error && (
           <p className="mt-2 text-pretty text-xs leading-5 text-muted-foreground">
-            提炼文章概述与要点，快速了解主要内容。
+            {kind === 'skill'
+              ? '整理 Skill 的用途与使用要点。'
+              : '提炼文章概述与要点，快速了解主要内容。'}
           </p>
         )}
       </div>

@@ -7,6 +7,7 @@ import {
   technologyArticleSources
 } from '@rss-site/signals'
 import { unstable_cache } from 'next/cache'
+import { skillPath } from '../../../shared/skills'
 import { createArticlePath } from './article-route'
 import { siteUrl } from './site-url'
 import { getPublicSupabaseClient } from './supabase'
@@ -136,16 +137,42 @@ export async function getArticleEntries(offset: number, limit: number): Promise<
   return batches.flat()
 }
 
+export async function getSkillEntries(): Promise<SitemapEntry[]> {
+  const entries: SitemapEntry[] = []
+  let afterId: string | null = null
+  for (;;) {
+    let query = getPublicSupabaseClient()
+      .from('skill_details')
+      .select('skill_id,content_synced_at')
+      .not('skill_markdown', 'is', null)
+      .order('skill_id')
+      .limit(1000)
+    if (afterId) query = query.gt('skill_id', afterId)
+    const { data, error } = await query.abortSignal(AbortSignal.timeout(10000))
+    if (error) throw new Error('Sitemap Skills unavailable')
+    if (!data?.length) break
+    for (const skill of data) {
+      const path = skillPath(skill.skill_id)
+      if (path)
+        entries.push({ url: siteUrl(path), lastModified: skill.content_synced_at ?? undefined })
+    }
+    if (data.length < 1000) break
+    afterId = data[data.length - 1].skill_id
+  }
+  return entries
+}
+
 const getSitemapCatalog = unstable_cache(
   async (_origin: string) => {
-    const [events, articleCount] = await Promise.all([
+    const [events, skills, articleCount] = await Promise.all([
       getAiEventEntries(),
+      getSkillEntries(),
       getSignalArticlesCount()
     ])
-    const entries = [...getBaseEntries(), ...events]
+    const entries = [...getBaseEntries(), ...events, ...skills]
     return { entries, total: entries.length + articleCount }
   },
-  ['sitemap-catalog-v2'],
+  ['sitemap-catalog-v3'],
   { revalidate: 7200, tags: ['sitemap'] }
 )
 
@@ -168,7 +195,7 @@ export const getSitemapXml = unstable_cache(
     if (chunk === null && chunks > 1) return renderSitemapIndexXml(chunks)
     return renderUrlSetXml(await getChunkSitemapEntries(chunk ?? 0))
   },
-  ['sitemap-xml-v2'],
+  ['sitemap-xml-v3'],
   { revalidate: 7200, tags: ['sitemap'] }
 )
 

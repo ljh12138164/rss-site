@@ -33,7 +33,12 @@ export async function runIngestionPipeline(
 ): Promise<IngestionPipelineResult> {
   const rsshubBaseUrl = options.rsshubBaseUrl.replace(/\/$/, '')
   const feedUrl = resolveSignalFeedUrl(source, rsshubBaseUrl)
-  const fetcher = options.fetchFeed ?? fetchSignalFeed
+  const fetcher =
+    options.fetchFeed ??
+    ((url: string) =>
+      fetchSignalFeed(url, {
+        timeoutMs: source.section === 'skills' ? 90_000 : 30_000
+      }))
   const store = new DrizzleSignalStore(options.db, source.id, source.section)
 
   const result = await ingestSignal(

@@ -2,6 +2,7 @@ import { getSignalSource, signalSources } from '@rss-site/signals'
 import { describe, expect, it } from 'vitest'
 import {
   type CronRepository,
+  createCronCommand,
   LEGACY_SIGNAL_CRON_JOB_NAMES,
   normalizeIngestUrl,
   SIGNAL_CRON_JOBS,
@@ -32,6 +33,11 @@ describe('normalizeIngestUrl', () => {
 })
 
 describe('setupSignalCron', () => {
+  it('allows the Skill snapshot window while retaining other job timeouts', () => {
+    expect(createCronCommand('skills-all-time')).toContain('timeout_milliseconds := 120000')
+    expect(createCronCommand('skills-trending')).toContain('timeout_milliseconds := 120000')
+    expect(createCronCommand('openai')).toContain('timeout_milliseconds := 45000')
+  })
   it('verifies every source before replacing legacy jobs with forty-two staggered jobs', async () => {
     const calls: string[] = []
     const scheduledJobs: Array<{ name: string; schedule: string; command: string }> = []

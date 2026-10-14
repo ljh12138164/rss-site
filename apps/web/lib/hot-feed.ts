@@ -1,3 +1,4 @@
+import { readSkillsPreview } from './skill-detail'
 import { getPublicSupabaseClient } from './supabase'
 import {
   type AiSourceId,
@@ -91,6 +92,10 @@ async function querySectionFeeds(
   section: SignalSectionId,
   sourceIds: SignalSourceId[]
 ): Promise<FeedCollectionQueryResult> {
+  if (section === 'skills') {
+    const preview = await readSkillsPreview()
+    if (preview) return { items: preview.items, statuses: preview.statuses, error: null }
+  }
   try {
     const supabase = getPublicSupabaseClient()
     const [itemsResult, statusesResult] = await Promise.all([

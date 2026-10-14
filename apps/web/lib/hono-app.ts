@@ -2,6 +2,7 @@ import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
 import { getSignalSource, isSignalSourceId, listSignalSources } from '@rss-site/signals'
 import { Hono } from 'hono'
 import { validator } from 'hono/validator'
+import { validSkillId } from '../../../shared/skills'
 import { getAdminDataClient } from './admin-supabase'
 import { getEvent, getEventPage, parseEventCursor, validEventSlug } from './ai-events'
 import { articleSource } from './article-route'
@@ -43,6 +44,15 @@ const summaryInput = validator('json', (value, c) => {
   )
     return c.json({ error: '文章参数无效' }, 400)
   return { id: input.id.toLowerCase() }
+})
+
+const skillSummaryInput = validator('json', (value, c) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    return c.json({ error: 'Skill 参数无效' }, 400)
+  const input = value as Record<string, unknown>
+  if (Object.keys(input).length !== 1 || typeof input.id !== 'string' || !validSkillId(input.id))
+    return c.json({ error: 'Skill 参数无效' }, 400)
+  return { id: input.id }
 })
 
 const editInput = validator('json', (value, c) => {
@@ -108,6 +118,23 @@ const eventTranslationInput = validator('json', (value, c) => {
 
 export const app = new Hono()
   .basePath('/api')
+  .post('/skills/summarize', skillSummaryInput, async (c) => {
+    c.header('Cache-Control', 'no-store')
+    try {
+      const summary = await requestArticleSummary(c.req.valid('json').id, c.req.raw.signal, 'skill')
+      return c.json({ summary }, 200)
+    } catch (error) {
+      if (error instanceof SummaryRequestError && error.status === 404)
+        return c.json({ error: 'Skill 未找到' }, 404)
+      if (error instanceof SummaryRequestError && error.status === 422)
+        return c.json({ error: '暂未收录 SKILL.md，无法生成总结' }, 422)
+      if (error instanceof SummaryRequestError && error.status === 413)
+        return c.json({ error: 'SKILL.md 内容过长，请阅读原文' }, 413)
+      if (error instanceof SummaryRequestError && error.status === 429)
+        return c.json({ error: '总结任务较多，请稍后重试' }, 429)
+      return c.json({ error: '总结服务暂不可用，请检查 ai-base 配置或稍后重试' }, 503)
+    }
+  })
   .post('/articles/summarize', summaryInput, async (c) => {
     c.header('Cache-Control', 'no-store')
     const { id } = c.req.valid('json')
@@ -264,6 +291,7 @@ export const app = new Hono()
     let section: string | undefined
     let source: string | undefined
     let eventSlugs: string[] = []
+    let skillIds: string[] = []
     let publicationId = randomUUID()
     try {
       const input = await c.req.json()
@@ -271,7 +299,9 @@ export const app = new Hono()
         !input ||
         typeof input !== 'object' ||
         Array.isArray(input) ||
-        Object.keys(input).some((key) => !['section', 'source', 'events', 'batchId'].includes(key))
+        Object.keys(input).some(
+          (key) => !['section', 'source', 'events', 'skills', 'batchId'].includes(key)
+        )
       )
         throw new Error('Invalid scope')
       if (input.batchId !== undefined) {
@@ -291,6 +321,15 @@ export const app = new Hono()
           throw new Error('Invalid events')
         eventSlugs = [...new Set<string>(input.events)]
       }
+      if (input.skills !== undefined) {
+        if (
+          !Array.isArray(input.skills) ||
+          input.skills.length + eventSlugs.length > 100 ||
+          !input.skills.every((id: unknown) => typeof id === 'string' && validSkillId(id))
+        )
+          throw new Error('Invalid Skills')
+        skillIds = [...new Set<string>(input.skills)]
+      }
       if (input.section !== undefined || input.source !== undefined) {
         if (typeof input.section !== 'string' || typeof input.source !== 'string')
           throw new Error('Invalid scope')
@@ -299,13 +338,15 @@ export const app = new Hono()
         if (signalSource.section !== input.section) throw new Error('Invalid scope')
         section = `/${signalSource.section}`
         source = signalSource.id
-      } else if (!eventSlugs.length) throw new Error('Invalid scope')
+        if (skillIds.length && section !== '/skills') throw new Error('Invalid scope')
+      } else if (skillIds.length) section = '/skills'
+      else if (!eventSlugs.length) throw new Error('Invalid scope')
     } catch {
       return c.json({ error: 'Invalid section or source' }, 400)
     }
 
     try {
-      const { paths } = updateContent({ section, source, eventSlugs, publicationId })
+      const { paths } = updateContent({ section, source, eventSlugs, skillIds, publicationId })
       c.header('Cache-Control', CACHE_HEADERS.NO_STORE['Cache-Control'])
       return c.json({ revalidated: true, paths, publicationId })
     } catch {

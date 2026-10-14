@@ -29,12 +29,11 @@ export function HomeView({ digest }: { digest: HomeDigestData }) {
   return (
     <SiteShell mainClassName="pt-8 sm:pt-10">
       <header className="border-b border-border pb-7 sm:pb-9">
-        <p className="eyebrow">每日聚合 · RSS Digest</p>
         <h1 className="headline-display mt-3 text-[2.625rem] leading-[1.08] sm:text-6xl">
           今日热点
         </h1>
         <p className="mt-4 max-w-2xl text-pretty text-sm leading-6 text-muted-foreground">
-          每日聚合 AI、科技、新闻、社交、财经与游戏热点，一眼看全，按分区深入。
+          汇集 AI、科技、新闻、社交、财经与游戏热点。
         </p>
       </header>
       <HomeDigest digest={digest} />

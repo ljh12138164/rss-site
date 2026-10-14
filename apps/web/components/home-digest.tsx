@@ -32,7 +32,7 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
       {digest.top.length > 0 && (
         <section aria-labelledby="top-signals" className="mt-10 sm:mt-12">
           <h2 id="top-signals" className="eyebrow">
-            今日速览 · Top Signals
+            今日速览
           </h2>
           <ol className="mt-4 border-y border-border">
             {digest.top.map((item) => {
@@ -103,7 +103,7 @@ export function HomeDigest({ digest }: { digest: HomeDigestData }) {
       {/* Per-section directory */}
       <section aria-labelledby="section-directory" className="mt-12 sm:mt-14">
         <h2 id="section-directory" className="eyebrow">
-          分区导览 · Directory
+          分区导览
         </h2>
         <div className="mt-4 grid grid-cols-1 gap-px border-y border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
           {digest.sections.map((section) => (

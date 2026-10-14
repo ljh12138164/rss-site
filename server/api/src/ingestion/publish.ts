@@ -4,7 +4,7 @@ export type PublicationStatus = 'revalidated' | 'failed' | 'disabled' | 'unchang
 
 export async function publishSourceUpdate(
   source: SignalSource,
-  change: { changed: boolean; events: string[]; batchId: string },
+  change: { changed: boolean; events: string[]; skills?: string[]; batchId: string },
   environment: { webAppUrl?: string; revalidateSecret?: string } = {
     webAppUrl: process.env.WEB_APP_URL,
     revalidateSecret: process.env.REVALIDATE_SECRET
@@ -17,7 +17,8 @@ export async function publishSourceUpdate(
   if (!siteUrl || !secret) return 'failed'
   try {
     const events = [...new Set(change.events)]
-    for (let offset = 0; offset < Math.max(1, events.length); offset += 100) {
+    const skills = [...new Set(change.skills ?? [])]
+    for (let offset = 0; offset < Math.max(1, events.length, skills.length); offset += 100) {
       const response = await fetch(new URL('/api/revalidate', siteUrl), {
         method: 'POST',
         redirect: 'error',
@@ -25,6 +26,7 @@ export async function publishSourceUpdate(
         body: JSON.stringify({
           ...(offset === 0 ? { section: source.section, source: source.id } : {}),
           events: events.slice(offset, offset + 100),
+          ...(skills.length ? { skills: skills.slice(offset, offset + 100) } : {}),
           batchId: change.batchId
         }),
         signal: AbortSignal.timeout(5000)

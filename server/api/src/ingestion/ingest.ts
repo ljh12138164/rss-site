@@ -44,7 +44,8 @@ export async function ingestSignal(
       batchId,
       itemCount: items.length,
       changed: change?.changed ?? true,
-      events: change?.events ?? []
+      events: change?.events ?? [],
+      ...(change?.skills ? { skills: change.skills } : {})
     }
   } catch (error) {
     await deps.store.recordFailure({

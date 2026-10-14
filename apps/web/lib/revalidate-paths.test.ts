@@ -19,7 +19,7 @@ describe('resolveRevalidation', () => {
   it('special-cases skills section paths', () => {
     const result = resolveRevalidation({ section: '/skills', source: 'skills-all-time' })
     expect(result.paths).toEqual(['/', '/sitemap.xml', '/skills'])
-    expect(result.dynamicPages).toEqual([])
+    expect(result.dynamicPages).toEqual(['/skills/[...skillId]'])
     expect(result.tags).toEqual(['sitemap', 'news-status:skills-all-time'])
   })
 
@@ -35,5 +35,21 @@ describe('resolveRevalidation', () => {
     expect(result.dynamicPages).toContain('/ai/openai/[slug]')
     expect(result.tags).toContain('event-status')
     expect(result.tags).toContain('news-status:openai')
+  })
+
+  it('invalidates concrete Skill details including entries removed from a ranking', () => {
+    const result = resolveRevalidation({
+      section: '/skills',
+      source: 'skills-trending',
+      skillIds: ['mattpocock/skills/tdd', 'open.feishu.cn/lark-doc', 'mattpocock/skills/tdd']
+    })
+    expect(result.paths).toEqual([
+      '/',
+      '/sitemap.xml',
+      '/skills',
+      '/skills/mattpocock/skills/tdd',
+      '/skills/open.feishu.cn/lark-doc'
+    ])
+    expect(() => resolveRevalidation({ skillIds: ['owner/../bad'] })).toThrow('Invalid Skill ID')
   })
 })

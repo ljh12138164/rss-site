@@ -2,6 +2,7 @@
 **/node_modules
 **/.next
 **/.env*
+**/.skills-preview.json
 **/runtime.env
 .vercel
 .cache
