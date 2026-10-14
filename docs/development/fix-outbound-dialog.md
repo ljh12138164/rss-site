@@ -44,6 +44,7 @@
 - `pnpm exec biome check apps/web/components/outbound-dialog.tsx apps/web/components/outbound-dialog.interaction.test.tsx apps/web/package.json`：通过。
 - 实际 Chromium 加载产品组件：普通外链与历史链接分别用鼠标点击、键盘 Enter 确认，均只打开一个正确原文标签，`window.opener === null`，弹窗关闭；取消不打开标签。网络响应以本地 fixture 替代，验证浏览器实际导航地址而非第三方网站可用性。
 - 完成标准与验收审查：改动限定于跳转顺序和对应验证，无阻塞项，无接受的后续事项，不创建空 roadmap。此变更不涉及 Next 路由、服务端或构建配置，使用类型检查、全量 Web 测试与真实浏览器回归作为相称验证。
+- 修复提交 `22b9135`。普通 push 与 HTTP/1.1 重试均因 GitHub 443 端口连接失败而未发布。恢复网络后执行 `git push -u origin feat/fix-outbound-dialog`，由用户创建并合并该分支到 `master` 的 PR。
 
 ## Risks
 
