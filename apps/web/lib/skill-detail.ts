@@ -40,6 +40,7 @@ export const getSkillDetail = cache(async (id: string): Promise<StoredSkill | nu
     .from('skill_details')
     .select('*')
     .eq('skill_id', id)
+    .abortSignal(AbortSignal.timeout(10000))
     .maybeSingle()
   if (error) throw new Error('Unable to load Skill details')
   if (!data) return null
@@ -75,6 +76,7 @@ export async function getRelatedSkills(source: string, id: string) {
     .neq('skill_id', id)
     .order('name')
     .limit(4)
+    .abortSignal(AbortSignal.timeout(10000))
   if (error) return []
   return (data ?? []).map((item) => ({
     skillId: item.skill_id as string,

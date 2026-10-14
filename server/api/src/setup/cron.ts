@@ -58,7 +58,7 @@ select net.http_post(
     'Content-Type', 'application/json'
   ),
   body := jsonb_build_object('scheduled_at', now(), 'source', '${source}'),
-  timeout_milliseconds := 45000
+  timeout_milliseconds := ${getSignalSource(source).section === 'skills' ? 120000 : 45000}
 ) as request_id;
 `.trim()
 }

@@ -1,3 +1,4 @@
+import { skillPath } from '../../../shared/skills'
 import { validEventSlug } from './ai-events'
 import { articleSource, parseArticleIdFromSlug } from './article-route'
 import { parseArticleFilter } from './home-articles'
@@ -17,6 +18,7 @@ export function indexNowKey(): string | undefined {
 function validatePaths(paths: string[]): void {
   if (!paths.length || paths.length > 105) throw new Error('Invalid publication path')
   for (const path of paths) {
+    if (path.startsWith('/skills/') && skillPath(path.slice(8)) === path) continue
     if (
       path === '/' ||
       path === '/sitemap.xml' ||

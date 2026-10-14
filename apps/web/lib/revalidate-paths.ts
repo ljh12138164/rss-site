@@ -1,7 +1,10 @@
+import { skillPath } from '../../../shared/skills'
+
 export interface RevalidationScope {
   section?: string
   source?: string
   eventSlugs?: string[]
+  skillIds?: string[]
 }
 
 export interface ResolvedRevalidation {
@@ -14,7 +17,7 @@ export interface ResolvedRevalidation {
  * Resolves static paths, dynamic page patterns, and cache tags to revalidate.
  */
 export function resolveRevalidation(scope: RevalidationScope): ResolvedRevalidation {
-  const { section, source, eventSlugs = [] } = scope
+  const { section, source, eventSlugs = [], skillIds = [] } = scope
   const tags: string[] = ['sitemap']
 
   if (section === '/ai' || eventSlugs.length) {
@@ -39,6 +42,11 @@ export function resolveRevalidation(scope: RevalidationScope): ResolvedRevalidat
 
   for (const slug of eventSlugs) {
     paths.push(`/ai/events/${slug}`)
+  }
+  for (const id of skillIds) {
+    const path = skillPath(id)
+    if (!path) throw new Error('Invalid Skill ID')
+    paths.push(path)
   }
 
   if (section === '/ai' || eventSlugs.length) {

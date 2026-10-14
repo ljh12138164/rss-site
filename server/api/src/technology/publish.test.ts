@@ -45,3 +45,22 @@ it('reports a rejected notification without throwing after ingestion', async () 
     await publishSourceUpdate(getSignalSource('openai'), { changed: true, events: [], batchId })
   ).toBe('failed')
 })
+
+it('delivers every changed Skill ID in bounded notifications', async () => {
+  const skills = Array.from({ length: 101 }, (_, index) => `owner/repo/skill-${index}`)
+  expect(
+    await publishSourceUpdate(getSignalSource('skills-trending'), {
+      changed: true,
+      events: [],
+      skills,
+      batchId
+    })
+  ).toBe('revalidated')
+  expect(requests).toHaveLength(2)
+  expect(JSON.parse(String(requests[0].init.body)).skills).toEqual(skills.slice(0, 100))
+  expect(JSON.parse(String(requests[1].init.body))).toEqual({
+    events: [],
+    skills: [skills[100]],
+    batchId
+  })
+})

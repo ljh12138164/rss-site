@@ -70,4 +70,21 @@ describe('Skills detail contract', () => {
     expect(item.detail.skillMarkdown).toBeNull()
     expect(item.detail.detailState).toBe('missing')
   })
+
+  it('does not mistake the JSON Feed serializer title fallback for SKILL.md', () => {
+    const [item] = readSkillJsonFeed(
+      JSON.stringify({
+        items: [
+          {
+            ...entry,
+            content_text: entry.title,
+            content_html: '',
+            _extra: { skills: { ...entry._extra.skills, state: 'missing' } }
+          }
+        ]
+      })
+    )
+    expect(item.detail.skillMarkdown).toBeNull()
+    expect(item.detail.detailState).toBe('missing')
+  })
 })

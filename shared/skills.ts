@@ -84,6 +84,7 @@ export function readSkillJsonFeed(
     )
       throw new Error('Invalid Skills source')
     const text =
+      metadata.state === 'ready' &&
       typeof item.content_text === 'string' &&
       new TextEncoder().encode(item.content_text).length <= 131072
         ? item.content_text

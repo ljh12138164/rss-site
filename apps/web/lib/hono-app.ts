@@ -291,6 +291,7 @@ export const app = new Hono()
     let section: string | undefined
     let source: string | undefined
     let eventSlugs: string[] = []
+    let skillIds: string[] = []
     let publicationId = randomUUID()
     try {
       const input = await c.req.json()
@@ -298,7 +299,9 @@ export const app = new Hono()
         !input ||
         typeof input !== 'object' ||
         Array.isArray(input) ||
-        Object.keys(input).some((key) => !['section', 'source', 'events', 'batchId'].includes(key))
+        Object.keys(input).some(
+          (key) => !['section', 'source', 'events', 'skills', 'batchId'].includes(key)
+        )
       )
         throw new Error('Invalid scope')
       if (input.batchId !== undefined) {
@@ -318,6 +321,15 @@ export const app = new Hono()
           throw new Error('Invalid events')
         eventSlugs = [...new Set<string>(input.events)]
       }
+      if (input.skills !== undefined) {
+        if (
+          !Array.isArray(input.skills) ||
+          input.skills.length + eventSlugs.length > 100 ||
+          !input.skills.every((id: unknown) => typeof id === 'string' && validSkillId(id))
+        )
+          throw new Error('Invalid Skills')
+        skillIds = [...new Set<string>(input.skills)]
+      }
       if (input.section !== undefined || input.source !== undefined) {
         if (typeof input.section !== 'string' || typeof input.source !== 'string')
           throw new Error('Invalid scope')
@@ -326,13 +338,15 @@ export const app = new Hono()
         if (signalSource.section !== input.section) throw new Error('Invalid scope')
         section = `/${signalSource.section}`
         source = signalSource.id
-      } else if (!eventSlugs.length) throw new Error('Invalid scope')
+        if (skillIds.length && section !== '/skills') throw new Error('Invalid scope')
+      } else if (skillIds.length) section = '/skills'
+      else if (!eventSlugs.length) throw new Error('Invalid scope')
     } catch {
       return c.json({ error: 'Invalid section or source' }, 400)
     }
 
     try {
-      const { paths } = updateContent({ section, source, eventSlugs, publicationId })
+      const { paths } = updateContent({ section, source, eventSlugs, skillIds, publicationId })
       c.header('Cache-Control', CACHE_HEADERS.NO_STORE['Cache-Control'])
       return c.json({ revalidated: true, paths, publicationId })
     } catch {

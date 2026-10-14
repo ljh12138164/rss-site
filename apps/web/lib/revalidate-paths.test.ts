@@ -36,4 +36,20 @@ describe('resolveRevalidation', () => {
     expect(result.tags).toContain('event-status')
     expect(result.tags).toContain('news-status:openai')
   })
+
+  it('invalidates concrete Skill details including entries removed from a ranking', () => {
+    const result = resolveRevalidation({
+      section: '/skills',
+      source: 'skills-trending',
+      skillIds: ['mattpocock/skills/tdd', 'open.feishu.cn/lark-doc', 'mattpocock/skills/tdd']
+    })
+    expect(result.paths).toEqual([
+      '/',
+      '/sitemap.xml',
+      '/skills',
+      '/skills/mattpocock/skills/tdd',
+      '/skills/open.feishu.cn/lark-doc'
+    ])
+    expect(() => resolveRevalidation({ skillIds: ['owner/../bad'] })).toThrow('Invalid Skill ID')
+  })
 })

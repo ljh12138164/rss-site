@@ -4,6 +4,7 @@ import { GET as getSitemapXml } from './sitemap.xml/route'
 
 let mockError = false
 let mockArticleCount = 1
+let mockSkills = [{ skill_id: 'mattpocock/skills/tdd', content_synced_at: '2026-10-14T00:00:00Z' }]
 const { cached, databaseCalls, articleFilters } = vi.hoisted(() => ({
   cached: new Map<string, unknown>(),
   databaseCalls: vi.fn(),
@@ -40,6 +41,7 @@ vi.mock('../lib/supabase', () => ({
         },
         order: () => query,
         in: () => query,
+        not: () => query,
         limit: () => query,
         gt: () => query,
         range: (from: number, to: number) => {
@@ -51,6 +53,7 @@ vi.mock('../lib/supabase', () => ({
           databaseCalls(table)
           if (mockError) return { data: null, count: null, error: { message: 'DB down' } }
           if (head) return { count: mockArticleCount, error: null }
+          if (table === 'skill_details') return { data: mockSkills, error: null }
           if (table === 'ai_events')
             return {
               data: [{ id: '1', slug: 'test-event', updated_at: '2026-01-01' }],
@@ -83,6 +86,7 @@ vi.mock('../lib/supabase', () => ({
 afterEach(() => {
   mockError = false
   mockArticleCount = 1
+  mockSkills = [{ skill_id: 'mattpocock/skills/tdd', content_synced_at: '2026-10-14T00:00:00Z' }]
   cached.clear()
   databaseCalls.mockClear()
   articleFilters.mockClear()
@@ -118,6 +122,8 @@ it('within limit: /sitemap.xml returns full urlset XML with all platform article
   expect(xml).toContain('<loc>https://news.ljhboard.cn/privacy</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/github</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/skills</loc>')
+  expect(xml).toContain('<loc>https://news.ljhboard.cn/skills/mattpocock/skills/tdd</loc>')
+  expect(xml).toContain('<lastmod>2026-10-14T00:00:00Z</lastmod>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/mcp</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/ai</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/news/xinhua</loc>')

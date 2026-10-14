@@ -58,6 +58,28 @@ it('publishes both skill sources only to the shared skills route', async () => {
   expect(publication).toHaveBeenCalledWith(['/', '/sitemap.xml', '/skills'], expect.any(String))
 })
 
+it('validates and publishes concrete Skill IDs, including a continuation batch', async () => {
+  const id = 'mattpocock/skills/tdd'
+  expect(
+    (await app.request(request({ section: 'skills', source: 'skills-trending', skills: [id] })))
+      .status
+  ).toBe(200)
+  expect(paths).toHaveBeenCalledWith(`/skills/${id}`)
+  await callbacks[0]()
+  expect(publication).toHaveBeenCalledWith(
+    expect.arrayContaining([`/skills/${id}`]),
+    expect.any(String)
+  )
+  expect((await app.request(request({ skills: ['open.feishu.cn/lark-doc'] }))).status).toBe(200)
+  expect((await app.request(request({ skills: ['owner/../bad'] }))).status).toBe(400)
+  expect(
+    (await app.request(request({ section: 'ai', source: 'openai', skills: [id] }))).status
+  ).toBe(400)
+  expect(
+    (await app.request(request({ skills: Array.from({ length: 101 }, () => id) }))).status
+  ).toBe(400)
+})
+
 it('rejects unauthenticated requests and path injection without invalidating or scheduling work', async () => {
   expect((await app.request(request({ section: 'ai', source: 'openai' }, 'wrong'))).status).toBe(
     401

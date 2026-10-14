@@ -163,7 +163,9 @@ export function ArticleSummary({
         )}
         {!pending && !summary && !error && (
           <p className="mt-2 text-pretty text-xs leading-5 text-muted-foreground">
-            {kind === 'skill' ? '整理 Skill 的用途与使用要点。' : '提炼文章概述与要点，快速了解主要内容。'}
+            {kind === 'skill'
+              ? '整理 Skill 的用途与使用要点。'
+              : '提炼文章概述与要点，快速了解主要内容。'}
           </p>
         )}
       </div>
