@@ -1,5 +1,25 @@
 # HERMES
 
+## 2026-10-14 外链确认弹窗跳转修复
+
+- 当前目标：`feat/fix-outbound-dialog` 修复“继续访问”在关闭弹窗后跳到本站首页。
+- 基于最新 `origin/master` `238a613`；沿用原外链弹窗设计，无 UI 或数据源变更。
+- 开发记录：`docs/development/fix-outbound-dialog.md`。
+- 修复已验证：先同步打开目标链接再关闭弹窗。Web 303 项测试、类型、相关 Biome 通过；真实 Chromium 验证普通/历史链接鼠标与键盘操作、单标签、安全参数和取消。
+- 标准与验收审查完成，无阻塞或接受的后续事项。修复提交 `22b9135`；普通 push 与 HTTP/1.1 重试均因无法连接 GitHub 443 端口失败。
+- 下一步恢复网络后推送 `feat/fix-outbound-dialog`，由用户创建并合并到 `master` 的 PR，然后按现有流程发布；本轮不部署生产。
+
+## 2026-10-13 总结边框可见性
+
+- 目标：feat/summary-card-border，在已合并 PR #40 后提高总结轮廓可见性；用户反馈 1px/40% 仍太淡，现改为 2px/70%，已验证完整展开态明暗截图。
+- 记录：docs/development/summary-card-border.md；明暗截图和 Biome/diff 检查完成，无阻塞审查项。交付 feat/summary-card-border，由用户创建并合并到 master 的 PR，未部署。
+
+## 2026-10-13 Folo 风格总结面板
+
+- 用户后续要求符合项目色调：已用 text-primary、border-border、bg-muted/30 替换紫色，18 项回归、Biome 与明暗截图通过；继续推送同一 feat/summary-folo-ui 分支。
+- 目标：feat/summary-folo-ui，基于 d0326c6，仅修改详情页 ArticleSummary 的卡片与标题栏。
+- 记录：docs/development/summary-folo-ui.md；已完成 300 项 Web 测试、类型、Biome 与本地全状态/明暗/390px 验证；完整构建编译通过但云 REST 预渲染超时。分支交付后由用户创建并合并到 master 的 PR，以 CI 复验。未部署。
+
 ## 2026-10-13 Cloudflare 文章总结
 
 - 最新调整：浏览器/Web/Nest 仅传 {id}，Nest Drizzle 直查 Supabase 标题与正文，Redis 30 天与并发合并迁入 Nest。少于 200 个非空白 Unicode 字符前端隐藏、后端拒绝，标题与链接地址不计入。两仓版本 v2，idb 缓存保留。用户确认移除 Nest assistant 示例。
