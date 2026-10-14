@@ -58,7 +58,11 @@ export function OutboundDialogView({
               href={destination ?? pending ?? '/'}
               target="_blank"
               rel="noreferrer noopener external"
-              onClick={onClose}
+              onClick={(event) => {
+                event.preventDefault()
+                window.open(event.currentTarget.href, '_blank', 'noopener,noreferrer')
+                onClose()
+              }}
             >
               <ExternalLink aria-hidden="true" className="size-4" />
               继续访问
