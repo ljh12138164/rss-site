@@ -6,6 +6,7 @@
 - rss-site feat/skills-detail-page 已合并最新 origin/master；补齐具体 Skill CDN 通知、sitemap、正文缺失解析、Skills 超时窗口及批量 upsert。记录 docs/development/skills-detail-page.md，包含部署顺序与回退步骤。
 - 官方真实 Feed 两榜各 100 条，约 2.0 / 2.5 MB，tdd 有正文；云库回滚事务验证匿名只读、去重存储、失败保留旧正文和安装量，持久迁移未应用，现有榜单仍各 100 条。
 - 本机 Web 编译与类型通过，完整生产构建被既有新华/OpenAI 的 Supabase 网络超时阻断；合并前必须由 CI 构建验收。下一步：推送三仓 PR，检查 CI；按文档先 RSSHub、迁移/API/采集、Nest，最后合并自动部署 Web 的 rss-site。
+- 已交付 RSSHub #5 https://github.com/ljh12138164/RSSHub/pull/5、ai-base #4 https://github.com/ljh12138164/ai-base/pull/4、rss-site #43 https://github.com/ljh12138164/rss-site/pull/43，均基于 master、可合并且未合并，CI 已启动。Web 全量 313、API 107、signals 7 项测试通过；临时真实数据/探测脚本已删除，无关研究文档保留未提交。开发快照同时被 Git 与 Docker context 忽略。下一步检查 CI 并按 PR 中上线门槛安排发布。
 
 ## 2026-10-14 外链确认弹窗跳转修复
 

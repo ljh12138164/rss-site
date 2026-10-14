@@ -105,3 +105,5 @@ Web 新增 `/api/skills/summarize`，只验证并转发 Skill ID；Nest 读取�
 回退时先回退 Web，再回退 Nest/API；数据库迁移为新增表，保留已采集数据，旧程序无需该表。RSSHub 原榜单路由保持兼容。
 
 当前检查：Web 全量 313 项测试、上线相关 33 项回归、Web/API 类型通过；API 107 项测试、Worker 打包 dry-run 通过；RSSHub 7 项既有路由/JSON 序列化测试及路由生成通过；Nest 21 项测试、类型、lint、构建通过。本机完整 Web 生产构建仍在既有新华/OpenAI 数据请求超时或 ECONNRESET 后失败，编译和类型阶段通过；GitHub CI 构建必须通过后才能合并。持久迁移、生产路由部署、正式采集与生产总结验收仍待 review 后执行。
+
+上线 PR：[RSSHub #5](https://github.com/ljh12138164/RSSHub/pull/5)、[ai-base #4](https://github.com/ljh12138164/ai-base/pull/4)、[rss-site #43](https://github.com/ljh12138164/rss-site/pull/43)。PR 已相互关联；未合并，CI 结果以各 PR 检查为准。快照文件也被 Docker context 忽略。合并远端时 pnpm 钩子被依赖元数据网络请求阻断，使用已安装 Biome 对同一暂存范围执行等价检查后提交；上线改动的暂存检查通过。
