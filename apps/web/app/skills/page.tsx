@@ -24,7 +24,7 @@ export function SkillsHeader() {
         热门 Skills
       </h1>
       <p className="mt-4 max-w-2xl text-pretty text-sm leading-6 text-muted-foreground">
-        浏览 skills.sh 上最热门和增长最快的 Agent Skills。榜单每 6 小时更新。
+        skills.sh 榜单，每 6 小时更新。
       </p>
     </header>
   )

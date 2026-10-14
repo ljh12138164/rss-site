@@ -5,6 +5,6 @@ import { SkillsHeader } from './page'
 it('introduces the two skills.sh ranking views', () => {
   const html = renderToStaticMarkup(<SkillsHeader />)
   expect(html).toContain('热门 Skills')
-  expect(html).toContain('最热门和增长最快')
+  expect(html).toContain('skills.sh 榜单')
   expect(html).toContain('每 6 小时更新')
 })

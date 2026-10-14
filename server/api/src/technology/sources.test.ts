@@ -106,8 +106,8 @@ describe('technologySources', () => {
 
   it('registers the two skills.sh rankings as an independent section', () => {
     expect(skillSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
-      ['skills-all-time', '/skills-sh/all-time'],
-      ['skills-trending', '/skills-sh/trending']
+      ['skills-all-time', '/skills-sh/details/all-time?format=json'],
+      ['skills-trending', '/skills-sh/details/trending?format=json']
     ])
     expect(skillSources.every((source) => source.section === 'skills')).toBe(true)
     expect(skillSources.every((source) => source.itemLimit === 100)).toBe(true)
@@ -128,9 +128,7 @@ describe('technologySources', () => {
   })
 
   it('registers confirmed game feeds', () => {
-    expect(
-      gameSources.map((source) => [source.id, resolveSignalFeedUrl(source, '')])
-    ).toEqual([
+    expect(gameSources.map((source) => [source.id, resolveSignalFeedUrl(source, '')])).toEqual([
       ['3dmgame', '/3dmgame/news/game'],
       ['gcores', '/gcores/news?limit=20'],
       ['gamersky', '/gamersky/news'],

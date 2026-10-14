@@ -7,6 +7,7 @@ import {
   hotItems,
   ingestionRuns,
   signalArticles,
+  skillDetails,
   sourceStatus
 } from '../db/schema.js'
 import { changedSourceKeys } from './content-change.js'
@@ -58,6 +59,55 @@ export class DrizzleSignalStore implements SignalStore {
         .leftJoin(signalArticles, eq(hotItems.articleId, signalArticles.id))
         .where(eq(hotItems.source, this.source))
       const changedKeys = changedSourceKeys(previous, input.items)
+      const details = input.items.flatMap((item) => (item.skillDetail ? [item.skillDetail] : []))
+      let detailsChanged = false
+      for (const detail of details) {
+        const [old] = await tx
+          .select()
+          .from(skillDetails)
+          .where(eq(skillDetails.skillId, detail.skillId))
+        const hasBody = Boolean(detail.skillMarkdown && detail.contentHtml)
+        const values = {
+          ...detail,
+          description: detail.description ?? old?.description ?? null,
+          skillMarkdown: hasBody ? detail.skillMarkdown : (old?.skillMarkdown ?? null),
+          contentHtml: hasBody ? detail.contentHtml : (old?.contentHtml ?? null),
+          contentHash: hasBody ? detail.contentHash : (old?.contentHash ?? null),
+          totalInstalls: detail.totalInstalls ?? old?.totalInstalls ?? null,
+          lastSeenAt: input.finishedAt,
+          contentSyncedAt: hasBody ? input.finishedAt : (old?.contentSyncedAt ?? null),
+          totalInstallsSyncedAt:
+            detail.totalInstalls !== null ? input.finishedAt : (old?.totalInstallsSyncedAt ?? null)
+        }
+        detailsChanged ||=
+          !old ||
+          old.skillMarkdown !== values.skillMarkdown ||
+          old.totalInstalls !== values.totalInstalls ||
+          old.description !== values.description ||
+          old.detailState !== values.detailState
+        await tx
+          .insert(skillDetails)
+          .values(values)
+          .onConflictDoUpdate({
+            target: skillDetails.skillId,
+            set: {
+              ...values,
+              description: sql`coalesce(excluded.description, ${skillDetails.description})`,
+              skillMarkdown: hasBody ? detail.skillMarkdown : sql`${skillDetails.skillMarkdown}`,
+              contentHtml: hasBody ? detail.contentHtml : sql`${skillDetails.contentHtml}`,
+              contentHash: hasBody ? detail.contentHash : sql`${skillDetails.contentHash}`,
+              contentSyncedAt: hasBody ? input.finishedAt : sql`${skillDetails.contentSyncedAt}`,
+              totalInstalls:
+                detail.totalInstalls !== null
+                  ? detail.totalInstalls
+                  : sql`${skillDetails.totalInstalls}`,
+              totalInstallsSyncedAt:
+                detail.totalInstalls !== null
+                  ? input.finishedAt
+                  : sql`${skillDetails.totalInstallsSyncedAt}`
+            }
+          })
+      }
       await tx.insert(ingestionRuns).values({
         id: input.batchId,
         source: this.source,
@@ -179,7 +229,10 @@ export class DrizzleSignalStore implements SignalStore {
                 )
               )
           : []
-      return { changed: changedKeys.length > 0, events: events.map((event) => event.slug) }
+      return {
+        changed: changedKeys.length > 0 || detailsChanged,
+        events: events.map((event) => event.slug)
+      }
     })
   }
 

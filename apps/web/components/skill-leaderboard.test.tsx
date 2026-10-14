@@ -9,7 +9,7 @@ const feeds: SkillFeeds = {
     status: { itemCount: 1, lastSuccessAt: new Date('2026-09-14T01:00:00.000Z') },
     items: [
       {
-        sourceKey: 'owner/repo/example',
+        sourceKey: 'owner/repo/example-skill',
         title: '#1 example-skill',
         url: 'https://www.skills.sh/owner/repo/example-skill',
         summary: 'Helps with examples. · Installs: 1,234 · Source: owner/repo',
@@ -29,9 +29,9 @@ describe('SkillLeaderboard', () => {
     expect(html).toContain('增长最快')
     expect(html).toContain('example-skill')
     expect(html).toContain('Helps with examples.')
-    expect(html).toContain('href="https://www.skills.sh/owner/repo/example-skill"')
-    expect(html).toContain('target="_blank"')
-    expect(html).toContain('data-outbound')
+    expect(html).toContain('href="/skills/owner/repo/example-skill"')
+    expect(html).toContain('卡片')
+    expect(html).toContain('累计安装')
     expect(html).not.toContain('href="/out?')
   })
 

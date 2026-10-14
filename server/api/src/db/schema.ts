@@ -34,6 +34,29 @@ export const sourceStatus = pgTable('source_status', {
     .references(() => ingestionRuns.id, { onDelete: 'restrict' })
 })
 
+export const skillDetails = pgTable(
+  'skill_details',
+  {
+    skillId: text('skill_id').primaryKey(),
+    name: text().notNull(),
+    source: text().notNull(),
+    sourceType: text('source_type').notNull(),
+    upstreamUrl: text('upstream_url').notNull(),
+    installUrl: text('install_url'),
+    description: text(),
+    skillMarkdown: text('skill_markdown'),
+    contentHtml: text('content_html'),
+    totalInstalls: integer('total_installs'),
+    contentHash: text('content_hash'),
+    detailState: text('detail_state').notNull(),
+    firstSeenAt: timestamp('first_seen_at', { withTimezone: true }).defaultNow().notNull(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull(),
+    contentSyncedAt: timestamp('content_synced_at', { withTimezone: true }),
+    totalInstallsSyncedAt: timestamp('total_installs_synced_at', { withTimezone: true })
+  },
+  (table) => [index('skill_details_source_idx').on(table.source)]
+)
+
 export const signalArticles = pgTable(
   'signal_articles',
   {

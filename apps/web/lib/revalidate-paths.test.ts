@@ -19,7 +19,7 @@ describe('resolveRevalidation', () => {
   it('special-cases skills section paths', () => {
     const result = resolveRevalidation({ section: '/skills', source: 'skills-all-time' })
     expect(result.paths).toEqual(['/', '/sitemap.xml', '/skills'])
-    expect(result.dynamicPages).toEqual([])
+    expect(result.dynamicPages).toEqual(['/skills/[...skillId]'])
     expect(result.tags).toEqual(['sitemap', 'news-status:skills-all-time'])
   })
 

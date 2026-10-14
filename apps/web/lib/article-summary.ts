@@ -8,7 +8,8 @@ export class SummaryRequestError extends Error {
 
 export async function requestArticleSummary(
   id: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  kind: 'article' | 'skill' = 'article'
 ): Promise<ArticleSummary> {
   try {
     const token = process.env.AGENT_SERVICE_TOKEN?.trim()
@@ -23,7 +24,7 @@ export async function requestArticleSummary(
       base.pathname !== '/'
     )
       throw new Error()
-    const response = await fetch(new URL('/v1/agents/article-summary/invoke', base).href, {
+    const response = await fetch(new URL(`/v1/agents/${kind}-summary/invoke`, base).href, {
       method: 'POST',
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: JSON.stringify({ id }),

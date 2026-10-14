@@ -46,6 +46,7 @@ export function resolveRevalidation(scope: RevalidationScope): ResolvedRevalidat
   }
 
   const dynamicPages: string[] = []
+  if (section === '/skills') dynamicPages.push('/skills/[...skillId]')
   if (section === '/ai' || eventSlugs.length) {
     dynamicPages.push('/ai/events/[slug]')
   }

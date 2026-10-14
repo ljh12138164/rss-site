@@ -1,7 +1,9 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser'
 import { cleanCmsTemplateTags, cleanFeedArticleHtml } from '../../../../shared/openai-content.js'
+import { readSkillJsonFeed, type SkillDetail } from '../../../../shared/skills.js'
 
 export interface SignalFeedItem {
+  skillDetail?: SkillDetail
   sourceKey: string
   title: string
   url: string
@@ -256,6 +258,22 @@ export function parseSignalFeed(
   sourceName: string,
   options: ParseSignalFeedOptions = {}
 ): SignalFeedItem[] {
+  if (options.skillMetadata && xml.trimStart().startsWith('{')) {
+    const items = readSkillJsonFeed(xml).map(({ detail, installs, position }) => ({
+      sourceKey: detail.skillId,
+      title: detail.name,
+      url: detail.upstreamUrl,
+      imageUrl: null,
+      summary: `${detail.description ?? ''} · Installs: ${installs ?? ''} · Source: ${detail.source} · Source type: ${detail.sourceType}`,
+      contentHtml: detail.contentHtml,
+      author: detail.source.split('/')[0],
+      publishedAt: null,
+      position,
+      skillDetail: detail
+    }))
+    if (!items.length) throw new Error('Skills feed is empty')
+    return items
+  }
   const validation = XMLValidator.validate(xml)
   if (validation !== true) throw new Error('RSSHub returned invalid XML')
 

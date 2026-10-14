@@ -10,7 +10,15 @@ import { ActionButton } from './action-button'
 
 const api = hc<AppType>('/')
 
-export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cacheKey: string }) {
+export function ArticleSummary({
+  articleId,
+  cacheKey,
+  kind = 'article'
+}: {
+  articleId: string
+  cacheKey: string
+  kind?: 'article' | 'skill'
+}) {
   const [summary, setSummary] = useState<Summary | null>(null)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
@@ -43,7 +51,9 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
         setVisible(true)
         return
       }
-      const response = await api.api.articles.summarize.$post(
+      const invoke =
+        kind === 'skill' ? api.api.skills.summarize.$post : api.api.articles.summarize.$post
+      const response = await invoke(
         { json: { id: articleId } },
         { init: { signal: AbortSignal.timeout(130_000) } }
       )
@@ -83,7 +93,9 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
       <div aria-live="polite" aria-busy={pending}>
         {pending && (
           <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4">
-            <p className="text-pretty text-sm text-muted-foreground">正在提取文章要点，请稍候…</p>
+            <p className="text-pretty text-sm text-muted-foreground">
+              {kind === 'skill' ? '正在总结 SKILL.md…' : '正在提取文章要点，请稍候…'}
+            </p>
             <div aria-hidden="true" className="mt-4 space-y-2">
               <div className="h-3 w-full rounded-sm bg-muted" />
               <div className="h-3 w-5/6 rounded-sm bg-muted" />
@@ -98,7 +110,9 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
         )}
         {summary && visible && (
           <div className="mt-4 rounded-lg border border-border bg-muted/30 p-4 sm:p-5">
-            <h2 className="text-balance text-base font-semibold">文章要点</h2>
+            <h2 className="text-balance text-base font-semibold">
+              {kind === 'skill' ? 'Skill 要点' : '文章要点'}
+            </h2>
             <p className="mt-3 break-words text-pretty text-sm leading-7">{summary.overview}</p>
             <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-7">
               {summary.keyPoints.map((point) => (
@@ -108,10 +122,12 @@ export function ArticleSummary({ articleId, cacheKey }: { articleId: string; cac
               ))}
             </ul>
             <p className="mt-4 text-pretty text-xs leading-5 text-muted-foreground">
-              {summary.basis === 'excerpt'
-                ? '基于来源摘要整理，未获取全文。'
-                : '基于站内已有正文整理，内容可能为节选。'}
-              完整内容以原文为准。
+              {kind === 'skill'
+                ? '基于 SKILL.md 整理，请结合原文使用。'
+                : summary.basis === 'excerpt'
+                  ? '基于来源摘要整理，未获取全文。'
+                  : '基于站内已有正文整理，内容可能为节选。'}
+              {kind === 'article' && '完整内容以原文为准。'}
             </p>
           </div>
         )}
