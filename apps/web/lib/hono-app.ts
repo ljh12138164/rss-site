@@ -13,7 +13,11 @@ import {
   searchFilter,
   searchValidation
 } from './article-search'
-import { requestArticleSummary, SummaryRequestError } from './article-summary'
+import {
+  requestArticleSummary,
+  requestArticleSummaryStream,
+  SummaryRequestError
+} from './article-summary'
 import {
   TranslationBusyError,
   translateArticleOnce,
@@ -121,6 +125,8 @@ export const app = new Hono()
   .post('/skills/summarize', skillSummaryInput, async (c) => {
     c.header('Cache-Control', 'no-store')
     try {
+      if (c.req.header('accept')?.includes('application/x-ndjson'))
+        return await requestArticleSummaryStream(c.req.valid('json').id, c.req.raw.signal, 'skill')
       const summary = await requestArticleSummary(c.req.valid('json').id, c.req.raw.signal, 'skill')
       return c.json({ summary }, 200)
     } catch (error) {
@@ -139,6 +145,8 @@ export const app = new Hono()
     c.header('Cache-Control', 'no-store')
     const { id } = c.req.valid('json')
     try {
+      if (c.req.header('accept')?.includes('application/x-ndjson'))
+        return await requestArticleSummaryStream(id, c.req.raw.signal)
       const summary = await requestArticleSummary(id, c.req.raw.signal)
       return c.json({ summary }, 200)
     } catch (error) {
