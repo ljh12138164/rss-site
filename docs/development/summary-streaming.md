@@ -41,6 +41,8 @@ The card displays provisional overview/key points, resets them on fallback, clea
 
 The default production build passes with all 62 pages, early hints and service worker generation. It uses separately installed frozen-lockfile dependencies in the worktree and a temporary local empty Supabase fixture; no production database/server requests are required. The fixture was removed and stopped after the build. Production inference/Redis and deployed buffering are not revalidated by this PR.
 
+Delivery: [rss-site #44](https://github.com/ljh12138164/rss-site/pull/44), paired with [ai-base #7](https://github.com/ljh12138164/ai-base/pull/7). No merge/deployment performed.
+
 ## Risks
 
 Deploy the matching ai-base backend first; old JSON clients remain supported. Streaming does not eliminate model first-byte latency. Partial content is provisional and never persisted. Existing cache keys/TTL are preserved because the final schema and summary semantics are unchanged.
