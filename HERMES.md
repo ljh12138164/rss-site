@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-10-17 总结流式渲染
+
+- 当前目标：feat/summary-streaming，打通已有文章/Skill 总结卡片的渐进显示，保持 Redis/IndexedDB 仅缓存完整成功结果；配套 ai-base 同名分支。
+- 原工作区的无关文档保留，使用独立工作区；沿用既有 UI，不新增页面或依赖。
+- 流式、回退草稿清除、取消与完整结果缓存已完成；329 项 Web 测试、类型检查、变更文件 Biome、62 页默认生产构建通过。浏览器验证提前显示、缓存恢复、折叠/展开、失败重试及浅深色窄卡片；无审查阻塞或新增后续项。
+- 已交付 Web PR：https://github.com/ljh12138164/rss-site/pull/44；配套后端 PR：https://github.com/ljh12138164/ai-base/pull/7。详见 docs/development/summary-streaming.md。下一步维护者检查 CI、评审后协调后端先上线。未授权部署或合并，本任务不部署。
+
 ## 2026-10-14 Skills 上线 PR
 
 - 当前目标：交付 RSSHub、rss-site、ai-base 的 Skills 详情、搜索及 AI 总结 PR，沿用已确认 UI；不直接合并或部署。

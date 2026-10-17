@@ -4,7 +4,8 @@ import { hc } from 'hono/client'
 import { ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { readLocalSummary, writeLocalSummary } from '../lib/article-summary-cache'
-import { isArticleSummary, type ArticleSummary as Summary } from '../lib/article-summary-result'
+import type { ArticleSummary as Summary, SummaryResult } from '../lib/article-summary-result'
+import { readSummaryStream } from '../lib/article-summary-stream'
 import type { AppType } from '../lib/hono-app'
 import { ActionButton } from './action-button'
 
@@ -20,11 +21,14 @@ export function ArticleSummary({
   kind?: 'article' | 'skill'
 }) {
   const [summary, setSummary] = useState<Summary | null>(null)
+  const [draft, setDraft] = useState<SummaryResult | null>(null)
   const [pending, setPending] = useState(false)
   const [error, setError] = useState('')
   const [visible, setVisible] = useState(true)
   const restoration = useRef<Promise<Summary | null> | null>(null)
+  const request = useRef<AbortController | null>(null)
   const contentId = useId()
+  const displayed = summary ?? draft
 
   useEffect(() => {
     let active = true
@@ -34,6 +38,7 @@ export function ArticleSummary({
     })
     return () => {
       active = false
+      request.current?.abort()
     }
   }, [cacheKey])
 
@@ -45,8 +50,12 @@ export function ArticleSummary({
     }
     setPending(true)
     setError('')
+    setDraft(null)
+    const controller = new AbortController()
+    request.current = controller
     try {
       const cached = await (restoration.current ?? readLocalSummary(cacheKey))
+      controller.signal.throwIfAborted()
       if (cached) {
         setSummary(cached)
         setVisible(true)
@@ -56,15 +65,24 @@ export function ArticleSummary({
         kind === 'skill' ? api.api.skills.summarize.$post : api.api.articles.summarize.$post
       const response = await invoke(
         { json: { id: articleId } },
-        { init: { signal: AbortSignal.timeout(130_000) } }
+        {
+          init: {
+            signal: AbortSignal.any([controller.signal, AbortSignal.timeout(130_000)]),
+            headers: { accept: 'application/x-ndjson', 'content-type': 'application/json' }
+          }
+        }
       )
-      const payload = await response.json()
-      if (!response.ok || !('summary' in payload) || !isArticleSummary(payload.summary))
-        throw new Error('error' in payload ? payload.error : '暂时无法生成总结，请稍后重试')
-      setSummary(payload.summary)
+      const result = await readSummaryStream(response, (partial) => {
+        if (!controller.signal.aborted) setDraft(partial)
+      })
+      controller.signal.throwIfAborted()
+      setSummary(result)
+      setDraft(null)
       setVisible(true)
-      void writeLocalSummary(cacheKey, payload.summary)
+      void writeLocalSummary(cacheKey, result)
     } catch (failure) {
+      if (controller.signal.aborted) return
+      setDraft(null)
       setError(
         failure instanceof Error && failure.name === 'TimeoutError'
           ? '生成总结超时，请稍后重试'
@@ -73,7 +91,7 @@ export function ArticleSummary({
             : '暂时无法生成总结，请稍后重试'
       )
     } finally {
-      setPending(false)
+      if (!controller.signal.aborted) setPending(false)
     }
   }
 
@@ -129,11 +147,13 @@ export function ArticleSummary({
             <p className="text-pretty text-sm text-muted-foreground">
               {kind === 'skill' ? '正在总结 SKILL.md…' : '正在提取文章要点，请稍候…'}
             </p>
-            <div aria-hidden="true" className="mt-4 space-y-2">
-              <div className="h-3 w-full rounded-sm bg-muted" />
-              <div className="h-3 w-5/6 rounded-sm bg-muted" />
-              <div className="h-3 w-2/3 rounded-sm bg-muted" />
-            </div>
+            {!draft && (
+              <div aria-hidden="true" className="mt-4 space-y-2">
+                <div className="h-3 w-full rounded-sm bg-muted" />
+                <div className="h-3 w-5/6 rounded-sm bg-muted" />
+                <div className="h-3 w-2/3 rounded-sm bg-muted" />
+              </div>
+            )}
           </div>
         )}
         {error && (
@@ -141,24 +161,26 @@ export function ArticleSummary({
             {error}
           </p>
         )}
-        {summary && visible && (
+        {displayed && visible && (
           <div className="mt-3">
-            <p className="break-words text-pretty text-sm leading-7">{summary.overview}</p>
+            <p className="break-words text-pretty text-sm leading-7">{displayed.overview}</p>
             <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-7">
-              {summary.keyPoints.map((point) => (
+              {displayed.keyPoints.map((point) => (
                 <li className="break-words text-pretty" key={point}>
                   {point}
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-pretty text-xs leading-5 text-muted-foreground">
-              {kind === 'skill'
-                ? '基于 SKILL.md 整理，请结合原文使用。'
-                : summary.basis === 'excerpt'
-                  ? '基于来源摘要整理，未获取全文。'
-                  : '基于站内已有正文整理，内容可能为节选。'}
-              {kind === 'article' && '完整内容以原文为准。'}
-            </p>
+            {summary && (
+              <p className="mt-4 text-pretty text-xs leading-5 text-muted-foreground">
+                {kind === 'skill'
+                  ? '基于 SKILL.md 整理，请结合原文使用。'
+                  : summary.basis === 'excerpt'
+                    ? '基于来源摘要整理，未获取全文。'
+                    : '基于站内已有正文整理，内容可能为节选。'}
+                {kind === 'article' && '完整内容以原文为准。'}
+              </p>
+            )}
           </div>
         )}
         {!pending && !summary && !error && (
