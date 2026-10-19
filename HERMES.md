@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-10-19 Antigravity 中文适配
+
+- 当前目标：`feat/antigravity-chinese`，基于 `origin/master` `4438163`，用户已确认中文站点采用官方中文标题与正文。
+- 开发记录：`docs/development/antigravity-chinese.md`。只切换现有来源至配套 RSSHub zh-CN 路径，不改变来源 ID、文章 URL、数据库或 Cron。
+- 配套真实 Feed 已通过消费方解析：25/25 中文标题、正文、封面、日期、唯一 URL；Signals 7 项、全仓类型和变更文件 Biome 通过。
+- 已交付 rss-site PR https://github.com/ljh12138164/rss-site/pull/47，配套 RSSHub https://github.com/ljh12138164/RSSHub/pull/7；CI/预览待完成。
+- 下一步 CI 后回归预览；RSSHub 先部署，再发布 rss-site API 并执行生产采集/刷新回归。本轮不直接部署。
+
 ## 2026-10-19 线上回归与 Worker 刷新兼容
 
 - 当前目标：`feat/fix-worker-revalidation`，基于 `origin/master` `0ffbe59`；记录 `docs/development/fix-worker-revalidation.md`。
