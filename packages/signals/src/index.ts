@@ -399,7 +399,7 @@ export const aiSources = [
     description: 'Google Antigravity 官方博客与产品动态',
     section: 'ai',
     itemLimit: 20,
-    rsshubPath: '/google/antigravity/blog',
+    rsshubPath: '/google/antigravity/blog/zh-CN',
     isArticle: true,
     cronSchedule: '35 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-antigravity'

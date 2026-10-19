@@ -84,7 +84,7 @@ describe('@rss-site/signals', () => {
       'https://github.blog/feed/'
     )
     expect(resolveSignalFeedUrl(getSignalSource('antigravity'), 'https://rsshub.app')).toBe(
-      'https://rsshub.app/google/antigravity/blog'
+      'https://rsshub.app/google/antigravity/blog/zh-CN'
     )
     expect(
       resolveSignalFeedUrl(getSignalSource('cloudflare-blog'), 'https://rss.ljhboard.cn')
