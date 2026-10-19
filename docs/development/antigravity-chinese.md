@@ -25,6 +25,7 @@ UI 改版、机器翻译、依赖变更、数据库迁移、生产直接部署�
 ## Implementation
 
 - 基于最新 `origin/master` `4438163` 创建 `feat/antigravity-chinese`。
+- PR：[rss-site #47](https://github.com/ljh12138164/rss-site/pull/47)，依赖先部署 [RSSHub #7](https://github.com/ljh12138164/RSSHub/pull/7)。CI/预览状态以 PR 检查结果为准。
 - 路径与对应来源解析断言改为 zh-CN。
 - 必须先合并部署配套 RSSHub 路由，再合并 rss-site 发布 API，最后手动生产采集验证 20 条原文章更新为中文并刷新 Web；本任务不直接合并部署。
 
