@@ -6,7 +6,7 @@
 - 复用官方源直连和统一注册表设计；采集由 Cloudflare Worker 执行，不依赖用户本机代理。官方 RSS 实测 HTTP 200、25 篇，无正文、摘要或封面。
 - 开发记录：`docs/development/antigravity-feed.md`。来源配置、版本化白名单迁移和错峰 Cron 配置已实现。
 - 443 项测试、全仓类型、五个变更代码文件 Biome、63 页生产构建、Worker 打包及 diff 检查通过；Standards/Spec 自审无阻塞或接受的后续事项。
-- 下一步：推送分支并通过 CLI 创建 PR。本轮不部署或启用生产 Cron，合并后仍须完成云端数据验收门禁。
+- 已提交 `010254a` 并推送，交付 PR https://github.com/ljh12138164/rss-site/pull/45，目标 `master`。下一步检查 CI、评审及合并后发布门禁；本轮不部署或启用生产 Cron。
 
 ## 2026-10-17 总结流式渲染
 
