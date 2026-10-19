@@ -21,11 +21,11 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 42 sources', () => {
+  it('defines 7 sections and 43 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(42)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(42)
+    expect(signalSources).toHaveLength(43)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(43)
   })
 
   it('correctly maps all section counts', () => {
@@ -33,7 +33,7 @@ describe('@rss-site/signals', () => {
     expect(technologyArticleSources).toHaveLength(7)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
-    expect(aiSources).toHaveLength(9)
+    expect(aiSources).toHaveLength(10)
     expect(socialSources).toHaveLength(6)
     expect(financeSources).toHaveLength(5)
     expect(gameSources).toHaveLength(6)
@@ -82,6 +82,9 @@ describe('@rss-site/signals', () => {
     const directSource = getSignalSource('github-blog')
     expect(resolveSignalFeedUrl(directSource, 'https://rsshub.app')).toBe(
       'https://github.blog/feed/'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('antigravity'), 'https://rsshub.app')).toBe(
+      'https://antigravity.google/blog/rss.xml'
     )
     expect(
       resolveSignalFeedUrl(getSignalSource('cloudflare-blog'), 'https://rss.ljhboard.cn')

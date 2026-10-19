@@ -392,6 +392,19 @@ export const aiSources = [
     cronJobName: 'signal-ingest-google-ai'
   },
   {
+    id: 'antigravity',
+    name: 'Google Antigravity',
+    code: 'AG',
+    shortName: 'Antigravity',
+    description: 'Google Antigravity 官方博客与产品动态',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://antigravity.google/blog/rss.xml',
+    isArticle: true,
+    cronSchedule: '35 4,10,16,22 * * *',
+    cronJobName: 'signal-ingest-antigravity'
+  },
+  {
     id: 'qwen',
     name: 'Qwen',
     code: 'QW',
@@ -741,7 +754,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'chuapp',
   'lilian-weng',
   'simon-willison',
-  'cloudflare-blog'
+  'cloudflare-blog',
+  'antigravity'
 ] as const
 
 // Cron jobs

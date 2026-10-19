@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-10-19 Antigravity 官方 RSS
+
+- 当前目标：`feat/antigravity-feed`，向 AI 分区接入官方 `https://antigravity.google/blog/rss.xml` 并交付 PR；基于最新 `origin/master` `450cf08`。
+- 复用官方源直连和统一注册表设计；采集由 Cloudflare Worker 执行，不依赖用户本机代理。官方 RSS 实测 HTTP 200、25 篇，无正文、摘要或封面。
+- 开发记录：`docs/development/antigravity-feed.md`。来源配置、版本化白名单迁移和错峰 Cron 配置已实现。
+- 443 项测试、全仓类型、五个变更代码文件 Biome、63 页生产构建、Worker 打包及 diff 检查通过；Standards/Spec 自审无阻塞或接受的后续事项。
+- 下一步：推送分支并通过 CLI 创建 PR。本轮不部署或启用生产 Cron，合并后仍须完成云端数据验收门禁。
+
 ## 2026-10-17 总结流式渲染
 
 - 当前目标：feat/summary-streaming，打通已有文章/Skill 总结卡片的渐进显示，保持 Redis/IndexedDB 仅缓存完整成功结果；配套 ai-base 同名分支。

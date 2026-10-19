@@ -65,6 +65,7 @@ describe('technologySources', () => {
       'deepseek',
       'glm',
       'google-ai',
+      'antigravity',
       'qwen',
       'lilian-weng',
       'simon-willison'
@@ -161,7 +162,7 @@ describe('technologySources', () => {
     expect(isGameSourceId('chuapp')).toBe(true)
     expect(isGameSourceId('steam')).toBe(false)
     expect(isGameSourceId('github')).toBe(false)
-    expect(signalSources).toHaveLength(42)
+    expect(signalSources).toHaveLength(43)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })
