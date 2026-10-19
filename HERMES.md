@@ -5,8 +5,9 @@
 - 当前目标：`feat/antigravity-chinese`，基于 `origin/master` `4438163`，用户已确认中文站点采用官方中文标题与正文。
 - 开发记录：`docs/development/antigravity-chinese.md`。只切换现有来源至配套 RSSHub zh-CN 路径，不改变来源 ID、文章 URL、数据库或 Cron。
 - 配套真实 Feed 已通过消费方解析：25/25 中文标题、正文、封面、日期、唯一 URL；Signals 7 项、全仓类型和变更文件 Biome 通过。
-- 已交付 rss-site PR https://github.com/ljh12138164/rss-site/pull/47，配套 RSSHub https://github.com/ljh12138164/RSSHub/pull/7；CI/预览待完成。
-- 下一步 CI 后回归预览；RSSHub 先部署，再发布 rss-site API 并执行生产采集/刷新回归。本轮不直接部署。
+- rss-site #47、RSSHub #7 和后续 Vercel 内存修复 #8 均已由用户合并部署；Web 主分支 `01164e8c` Actions `39212473132` 成功，RSSHub `41e9dc51` Vercel 成功。rss-site PR CI 的 447 项测试、类型与镜像/运行时验证通过。
+- 生产中文 Feed 25/25 完整；Supabase 采用现有 Vault/Cron 路径执行采集 HTTP 200，批次 `4546c12d-f932-4184-96a9-79ec94d403ca` succeeded、20 条、changed=true、publication=revalidated。
+- 原有 20 篇全部原地更新为中文正文和标题，封面/日期完整，零新行；浏览器来源页和首篇完整正文已确认中文。Cron 119 保持 active、原六小时错峰调度。本任务已完成，未自动合并、未直接部署或修改定时配置；其他来源的缓存通知异常不在本次结论范围。
 
 ## 2026-10-19 线上回归与 Worker 刷新兼容
 
