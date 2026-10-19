@@ -21,7 +21,7 @@ export async function publishSourceUpdate(
     for (let offset = 0; offset < Math.max(1, events.length, skills.length); offset += 100) {
       const response = await fetch(new URL('/api/revalidate', siteUrl), {
         method: 'POST',
-        redirect: 'error',
+        redirect: 'manual',
         headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...(offset === 0 ? { section: source.section, source: source.id } : {}),

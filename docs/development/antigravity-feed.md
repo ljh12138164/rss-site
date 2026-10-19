@@ -48,7 +48,18 @@
 - `pnpm build` 通过：63/63 静态页、early hints 与 service worker 生成成功；Turbo 写入 Windows standalone 构建缓存时出现现有符号链接路径过长警告，命令退出 0，Linux 发布仍由 CI 验证。
 - 迁移静态核验通过：与此前完整白名单迁移相比，四项约束仅增加 `antigravity`，不删除旧来源。
 - Standards/Spec 自审通过：固定 RSSHub 路径、正确 AI 分区、原始发布时间、20 条上限、43 路任务全部覆盖来源；每日 228 个执行时间无碰撞且相隔至少五分钟；保留上线门禁。无阻塞发现或接受的后续事项，不创建空 roadmap。
-- 未应用生产迁移、执行生产采集或启用 Cron；完整云端门禁属于合并后的发布步骤。
+- 原 PR 交付时未应用生产迁移、执行生产采集或启用 Cron；合并后的生产回归见下文。
+
+## Production regression — 2026-10-19
+
+- RSSHub #6、rss-site #45 已合并；RSSHub Vercel 部署和 Web Actions `39197619582` 成功。Web 发布提交 `0ffbe597c2dc0ada33b18a97c9e2f0295dc2b69f`，Worker 版本 `e808453a-6c8b-4370-9111-747214b1b0fe`。
+- 生产 `https://rss.ljhboard.cn/google/antigravity/blog` HTTP 200；现有解析器识别 25 篇，25/25 正文、封面、日期、唯一链接，最短 HTML 3,082 字符。
+- 回归发现云端四张表尚未包含来源白名单。通过 MCP 应用仓库 `20261019033047_add_antigravity_source.sql` 的原 SQL；云迁移登记为 `20261019041547_add_antigravity_source`（MCP 生成时间戳）。保留这项本地/云端版本映射，不重写已执行迁移历史。
+- 生产 `POST /cron/signals/antigravity` HTTP 200，批次 `8430cb3d-6f12-4e1e-a6e0-c7933015b345`，20 条；云端 run 为 `succeeded`，完成时间 `2026-10-19T04:15:56.488Z`，source_status 同步同批次、AI 分区、20 条。
+- 云端 `signal_articles` 20/20 正文、封面、发布时间及唯一链接，最短正文 HTML 3,570 字符，无分享/邮件订阅组件；`hot_items` 20 条、排名 1–20、20 张封面及唯一 URL。
+- 初次采集 `publication=failed`，导致来源页暂为空。定位为 Workers 不支持 `redirect: 'error'`，生产两端凭据一致。使用生产服务器持有的凭据调用刷新 HTTP 200；浏览器确认 20 条文章链接，前两张封面已加载（naturalWidth 1,920 / 1,440），首篇 Gemini 4 Argon 阅读页可读完整正文、三节目录及原文链接。没有输出或提交密钥。
+- 修复后的真实通知函数在 Cloudflare 远程预览返回 `publication=revalidated`，耗时 1,357 ms；正式修复发布及复验仍待完成，详见 [Worker 刷新修复](fix-worker-revalidation.md)。人工刷新不等于正式 API 已修复。
+- 数据门禁通过后仅新增 Cron `signal-ingest-antigravity`，job ID `119`，`active=true`，确认命中 Antigravity 端点并使用 Vault。UTC `35 4,10,16,22 * * *`，北京时间 00:35、06:35、12:35、18:35；尚未等待首次自然调度。
 
 ## Release gate
 
