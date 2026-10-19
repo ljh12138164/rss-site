@@ -2,8 +2,9 @@
 
 ## 2026-10-19 Antigravity 官方 RSS
 
-- 当前目标：`feat/antigravity-feed`，向 AI 分区接入官方 `https://antigravity.google/blog/rss.xml` 并交付 PR；基于最新 `origin/master` `450cf08`。
-- 复用官方源直连和统一注册表设计；采集由 Cloudflare Worker 执行，不依赖用户本机代理。官方 RSS 实测 HTTP 200、25 篇，无正文、摘要或封面。
+- 当前目标：`feat/antigravity-feed`，向 AI 分区接入 RSSHub `/google/antigravity/blog` 全文与封面并更新 PR；基于最新 `origin/master` `450cf08`。
+- 官方 RSS 实测 HTTP 200、25 篇，无正文、摘要或封面。按用户要求改为配套 RSSHub 路由补抓正文和封面，采集由云端执行，不依赖用户本机代理。
+- 配套 RSSHub PR https://github.com/ljh12138164/RSSHub/pull/6 已交付，真实 RSS 经本项目解析器验证 25/25 正文、封面与时间；切换路径后 Signals 测试、全仓类型和变更文件 Biome 通过。
 - 开发记录：`docs/development/antigravity-feed.md`。来源配置、版本化白名单迁移和错峰 Cron 配置已实现。
 - 443 项测试、全仓类型、五个变更代码文件 Biome、63 页生产构建、Worker 打包及 diff 检查通过；Standards/Spec 自审无阻塞或接受的后续事项。
 - 已提交 `010254a` 并推送，交付 PR https://github.com/ljh12138164/rss-site/pull/45，目标 `master`。下一步检查 CI、评审及合并后发布门禁；本轮不部署或启用生产 Cron。
