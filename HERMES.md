@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-10-19 线上回归与 Worker 刷新兼容
+
+- 当前目标：`feat/fix-worker-revalidation`，基于 `origin/master` `0ffbe59`；记录 `docs/development/fix-worker-revalidation.md`。
+- Antigravity 两仓 PR 已合并部署；生产 RSSHub 25/25 正文封面，云端迁移已应用，手动采集 20 篇成功入库。Web 来源页及正文经手动刷新恢复。
+- 发现 Worker 不支持 Fetch `redirect: error`，导致所有变化后通知在发出前失败；远程预览已复现，凭据一致。改用 manual 并拒绝 3xx，保持既有安全边界。
+- API 111 项测试、类型、变更文件 Biome、Worker 打包与 diff 检查通过；修复后的真实函数在 Cloudflare 远程预览刷新生产成功（1,357 ms）。数据门禁通过后启用 Antigravity Cron job 119，Vault-backed、active；尚未等待首次自然调度。
+- 修复 PR https://github.com/ljh12138164/rss-site/pull/46，提交 `200c332`；CI 已启动。下一步由用户合并发布后复验正式 API 自动刷新，当前未部署此修复。
+
 ## 2026-10-19 Antigravity 官方 RSS
 
 - 当前目标：`feat/antigravity-feed`，向 AI 分区接入 RSSHub `/google/antigravity/blog` 全文与封面并更新 PR；基于最新 `origin/master` `450cf08`。

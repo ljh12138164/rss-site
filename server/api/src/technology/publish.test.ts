@@ -9,6 +9,7 @@ beforeEach(() => {
   vi.stubEnv('WEB_APP_URL', 'https://news.example')
   vi.stubEnv('REVALIDATE_SECRET', 'private-secret')
   vi.stubGlobal('fetch', async (url: URL, init: RequestInit) => {
+    if (init.redirect === 'error') throw new TypeError('Invalid redirect value in Workers')
     requests.push({ url: url.href, init })
     return Response.json({ revalidated: true })
   })
@@ -37,7 +38,22 @@ it('carries the ingestion batch and every affected event in bounded requests', a
     batchId
   })
   expect(JSON.parse(String(requests[1].init.body))).toEqual({ events: ['event-100'], batchId })
-  expect(requests.every((r) => r.init.redirect === 'error')).toBe(true)
+  expect(requests.every((r) => r.init.redirect === 'manual')).toBe(true)
+})
+it.each([301, 302, 307, 308])('rejects HTTP %i without forwarding credentials', async (status) => {
+  const request = vi.fn(
+    async (_url: URL, _init: RequestInit) =>
+      new Response(null, {
+        status,
+        headers: { Location: 'https://other.example/api/revalidate' }
+      })
+  )
+  vi.stubGlobal('fetch', request)
+  expect(
+    await publishSourceUpdate(getSignalSource('openai'), { changed: true, events: [], batchId })
+  ).toBe('failed')
+  expect(request).toHaveBeenCalledTimes(1)
+  expect(request.mock.calls[0][1].redirect).toBe('manual')
 })
 it('reports a rejected notification without throwing after ingestion', async () => {
   vi.stubGlobal('fetch', async () => new Response('', { status: 503 }))
