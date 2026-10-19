@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-10-19 Local Drizzle Studio
+
+- Objective: `feat/local-drizzle-studio`, based on latest `origin/master`; add `pnpm db:studio`.
+- Document: `docs/development/local-drizzle-studio.md`. Reuse the API environment and schema,
+  bind loopback only, retain Supabase migrations for schema changes.
+- Verified Studio startup and HTTPS init/read HTTP 200; `hot_items` count 996. No database writes.
+- API types, changed-file Biome and diff checks passed. Review has no blockers or follow-ups.
+- Next: push the verified branch for the user to create and merge a PR into `master`.
+
 ## 2026-10-19 Antigravity 中文适配
 
 - 当前目标：`feat/antigravity-chinese`，基于 `origin/master` `4438163`，用户已确认中文站点采用官方中文标题与正文。

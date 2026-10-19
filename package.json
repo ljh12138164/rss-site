@@ -9,6 +9,7 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "check-types": "turbo run check-types",
+    "db:studio": "pnpm --filter @rss-site/api db:studio",
     "setup:cron": "pnpm --filter @rss-site/api setup:cron",
     "prepare": "simple-git-hooks"
   },

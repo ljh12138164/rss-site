@@ -98,6 +98,21 @@ curl.exe -X POST http://localhost:3001/cron/signals/xinhua -H "Authorization: Be
 成功响应会包含 `batchId` 和 `itemCount`。刷新网页后即可看到 Supabase 中的新数据。
 若返回 `401`，检查请求密钥是否与 API 环境变量一致；若返回 `502`，检查 Feed 上游和 Supabase 数据库连接。
 
+### 本地查看数据库
+
+在 `server/api/.env` 中填写 `DATABASE_URL` 后，从仓库根目录运行：
+
+```bash
+pnpm db:studio
+```
+
+打开 [Drizzle Studio](https://local.drizzle.studio)，即可浏览现有业务表。Studio 服务仅监听
+`127.0.0.1:4983`，不需要启动 Web 或 API；按 `Ctrl+C` 停止。
+
+这里的“本地”指 Studio 在本机运行，数据来自 `DATABASE_URL` 指向的数据库。连接云端 Supabase
+时看到的就是云端数据；连接本地 PostgreSQL 时看到的就是本地数据。Studio 也支持修改数据，
+操作会直接影响所连接的数据库。数据库结构继续由 `supabase/migrations` 管理。
+
 ### 代码检查
 
 完整验证：
