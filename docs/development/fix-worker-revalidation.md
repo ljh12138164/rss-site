@@ -29,6 +29,7 @@ UI、数据库结构、通知重试机制、CLI 专用发布流程、其他来�
 - `publishSourceUpdate` 使用 `redirect: 'manual'`。
 - 既有测试模拟 Workers 拒绝 `error`，并覆盖四类跳转；先验证失败再修复。
 - Antigravity 的迁移、云端采集和页面人工刷新证据见 [接入记录](antigravity-feed.md)。
+- 修复 PR：https://github.com/ljh12138164/rss-site/pull/46。
 
 ## Verification
 
@@ -36,7 +37,7 @@ UI、数据库结构、通知重试机制、CLI 专用发布流程、其他来�
 - 修改前回归 8 项中 6 项失败，包含正常批量/Skills 通知与重定向模式检查。
 - 修复后直接导入本分支 `publishSourceUpdate` 的 Cloudflare 远程预览成功刷新正式 Web，返回 `publication=revalidated`，耗时 1,357 ms；未修改生产 Worker 代码。
 - `pnpm --filter @rss-site/api test`：11 文件、111 项全部通过。
-- API 类型检查、Worker `deploy:check` 打包、两个变更代码文件 Biome 通过。
+- API 类型检查、Worker `deploy:check` 打包、两个变更代码文件 Biome、`git diff --check` 通过。
 - Standards/Spec 自审：一行运行时代码变更，保持不跟随跳转、五秒超时、原有通知协议及分批；无阻塞发现或接受的后续项，不创建空 roadmap。
 
 ## Risks
