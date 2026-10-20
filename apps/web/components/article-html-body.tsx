@@ -5,19 +5,21 @@ import { CctvVideoPlayer } from './cctv-video-player'
 export interface ArticleHtmlBodyProps {
   html: string
   className?: string
+  lang?: string
 }
 
 const CCTV_MOUNT_REGEX = /(<div\b[^>]*data-cctv-video=["'][a-f0-9]{32}["'][^>]*><\/div>)/gi
 const EXTRACT_CCTV_ATTRS =
   /<div\b[^>]*data-cctv-video=["']([a-f0-9]{32})["'](?:[^>]*data-cctv-type=["'](\d+)["'])?[^>]*><\/div>/i
 
-export function ArticleHtmlBody({ html, className }: ArticleHtmlBodyProps) {
+export function ArticleHtmlBody({ html, className, lang }: ArticleHtmlBodyProps) {
   if (!html) return null
 
   if (!html.includes('data-cctv-video')) {
     return (
       <div
         className={className ?? 'article-content'}
+        lang={lang}
         // biome-ignore lint/security/noDangerouslySetInnerHtml: server-sanitized feed HTML
         dangerouslySetInnerHTML={{ __html: html }}
       />
@@ -27,7 +29,7 @@ export function ArticleHtmlBody({ html, className }: ArticleHtmlBodyProps) {
   const parts = html.split(CCTV_MOUNT_REGEX)
 
   return (
-    <div className={className ?? 'article-content'}>
+    <div className={className ?? 'article-content'} lang={lang}>
       {parts.map((part, index) => {
         if (!part) return null
 

@@ -1,10 +1,47 @@
 import sanitizeHtml from 'sanitize-html'
 import { cleanFeedArticleHtml } from '../../../shared/openai-content'
 
+// OpenAI embeds desktop and mobile TOCs in its feed body. The reader supplies its own.
+function removeOpenAiContents(html: string, originalUrl: string) {
+  let article: URL
+  try {
+    article = new URL(originalUrl)
+    if (article.hostname !== 'openai.com') return html
+  } catch {
+    return html
+  }
+  const text = (value: string) =>
+    sanitizeHtml(value, { allowedTags: [], allowedAttributes: {} }).replace(/\s+/g, ' ').trim()
+  const headings = new Set(
+    Array.from(html.matchAll(/<h[2-6]\b[^>]*>([\s\S]*?)<\/h[2-6]>/gi), (match) => text(match[1]))
+  )
+  return html.replace(/<(ul|ol)\b[^>]*>([\s\S]*?)<\/\1>/gi, (list, _tag, body: string) => {
+    const itemPattern =
+      /<li\b[^>]*>\s*<a\b[^>]*\bhref=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>\s*<\/li>/gi
+    const items = Array.from(body.matchAll(itemPattern))
+    if (items.length < 2 || body.replace(itemPattern, '').trim()) return list
+    const isContents = items.every((item) => {
+      try {
+        const link = new URL(item[1].replace(/&amp;/g, '&'), article)
+        return (
+          link.origin === article.origin &&
+          link.pathname.replace(/\/+$/, '') === article.pathname.replace(/\/+$/, '') &&
+          link.search === article.search &&
+          Boolean(link.hash) &&
+          headings.has(text(item[2]))
+        )
+      } catch {
+        return false
+      }
+    })
+    return isContents ? '' : list
+  })
+}
+
 // This function must run before stored, untrusted Feed HTML reaches the document.
 export function renderArticleContent(html: string, originalUrl: string, _section?: string) {
   if (Buffer.byteLength(html, 'utf8') > 512 * 1024) return ''
-  return sanitizeHtml(cleanFeedArticleHtml(html, originalUrl), {
+  return sanitizeHtml(removeOpenAiContents(cleanFeedArticleHtml(html, originalUrl), originalUrl), {
     allowedTags: [
       'p',
       'div',

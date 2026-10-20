@@ -21,7 +21,7 @@ export function actionStyles(
   className?: string
 ) {
   return cn(
-    'inline-flex shrink-0 items-center justify-center gap-2 rounded-sm text-sm font-medium transition-colors outline-none disabled:pointer-events-none disabled:opacity-50 data-[pressed]:translate-y-px',
+    'inline-flex shrink-0 items-center justify-center gap-2 rounded-sm text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50 data-[pressed]:translate-y-px',
     variants[variant],
     sizes[size],
     className
