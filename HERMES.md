@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-10-20 Impeccable 审计修复
+
+- 目标：`feat/impeccable-audit-fixes`，修复焦点、文章语言、44px 目标与 OpenAI 重复目录。
+- 文档：`docs/development/impeccable-audit-fixes.md`；复用用户确认的审计范围与现有 UI。
+- 四项修复完成，Web 333 项、变更文件 Biome、明暗主题及移动/桌面浏览器回归通过。
+- 构建编译成功，但既有路由额外导出导致类型阶段失败；基线诊断一致，见开发记录及 `docs/roadmaps/impeccable-audit-fixes.md`，不能宣称生产构建通过。
+- 交付分支：`feat/impeccable-audit-fixes`；PR 待用户创建。
+- 下一步：按 AGENTS 由用户创建到 master 的 PR；解决既有构建问题并通过 CI 后合并。
+
 ## 2026-10-19 Local Drizzle Studio
 
 - Objective: `feat/local-drizzle-studio`, based on latest `origin/master`; add `pnpm db:studio`.

@@ -2,6 +2,41 @@ import { describe, expect, it } from 'vitest'
 import { renderArticleContent } from './article-content'
 
 describe('article HTML', () => {
+  const openAiToc =
+    '<ul><li><a href="#first">First section</a></li><li><a href="https://openai.com/index/example#second">Second section</a></li></ul>'
+  const openAiBody = '<h2>First section</h2><p>Article text.</p><h2>Second section</h2>'
+
+  it('removes duplicate OpenAI same-article TOCs while keeping the body', () => {
+    expect(
+      renderArticleContent(openAiToc + openAiToc + openAiBody, 'https://openai.com/index/example')
+    ).toBe(openAiBody)
+  })
+
+  it('recognizes the trailing-slash variation used in the real upstream TOC', () => {
+    const toc = openAiToc
+      .replaceAll('href="#first"', 'href="https://openai.com/index/example/#first"')
+      .replace('/example#second', '/example/#second')
+    expect(renderArticleContent(toc + toc + openAiBody, 'https://openai.com/index/example')).toBe(
+      openAiBody
+    )
+  })
+
+  it('keeps lists outside the narrowly identified OpenAI TOC pattern', () => {
+    const lists = [
+      '<ul><li>First section</li><li>Second section</li></ul>',
+      '<ul><li><a href="#first">First section</a> commentary</li><li><a href="#second">Second section</a></li></ul>',
+      openAiToc.replace('#first', '/index/another#first'),
+      openAiToc.replace('First section', 'Unrelated link')
+    ]
+    for (const list of lists) {
+      expect(renderArticleContent(list + openAiBody, 'https://openai.com/index/example')).toContain(
+        '<ul>'
+      )
+    }
+    expect(renderArticleContent(openAiToc + openAiBody, 'https://example.com/article')).toContain(
+      '<ul>'
+    )
+  })
   it('removes the OpenAI read-aloud placeholder while keeping article text', () => {
     const html =
       '<div data-read-aloud-ui="true"><div><span>Loading…</span></div><audio preload="none"></audio></div><p>Loading models is useful.</p>'

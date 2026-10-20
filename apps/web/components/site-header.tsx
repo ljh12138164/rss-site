@@ -52,7 +52,7 @@ export function SiteHeader() {
         <div className="flex shrink-0 items-center gap-1.5">
           <Link
             href="/reading-list"
-            className="relative inline-flex size-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+            className="relative inline-flex size-11 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
             aria-label={savedCount > 0 ? `稍后读与足迹 (${savedCount})` : '稍后读与足迹'}
             title="稍后读与足迹"
           >

@@ -5,6 +5,7 @@ import { Languages, LoaderCircle } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { pairBilingualBlocks } from '../lib/article-bilingual'
+import { looksLikeEnglish } from '../lib/article-language'
 import type { AppType } from '../lib/hono-app'
 import { estimateReadingMinutes } from '../lib/reading-progress'
 import { cn } from '../lib/utils'
@@ -93,16 +94,30 @@ export function ArticleTranslation({
   const isChinese = mode === 'chinese' && Boolean(translation)
 
   const displayedTitle = isChinese && translation ? translation.title : title
+  const originalLang = looksLikeEnglish((contentHtml || summary || title).replace(/<[^>]*>/g, ''))
+    ? 'en'
+    : 'zh-CN'
+  const titleLang = /\p{Script=Han}/u.test(title)
+    ? 'zh-CN'
+    : /[A-Za-z]/.test(title)
+      ? 'en'
+      : originalLang
 
   return (
     <>
       <header className="border-b border-border pb-7 sm:pb-9">
         {sourceLabel}
-        <h1 className="headline-display text-pretty text-3xl leading-[1.25] sm:text-[2.5rem] sm:leading-[1.2]">
+        <h1
+          lang={isChinese ? 'zh-CN' : titleLang}
+          className="headline-display text-pretty text-3xl leading-[1.25] sm:text-[2.5rem] sm:leading-[1.2]"
+        >
           {displayedTitle}
         </h1>
         {isBilingual && translation && (
-          <p className="mt-3 text-pretty text-xl font-medium text-muted-foreground/90 sm:text-2xl">
+          <p
+            lang="zh-CN"
+            className="mt-3 text-pretty text-xl font-medium text-muted-foreground/90 sm:text-2xl"
+          >
             {translation.title}
           </p>
         )}
@@ -187,12 +202,14 @@ export function ArticleTranslation({
                     {pair.original && (
                       <ArticleHtmlBody
                         html={pair.original}
+                        lang={originalLang}
                         className="article-content text-foreground font-serif leading-relaxed"
                       />
                     )}
                     {pair.translated && (
                       <ArticleHtmlBody
                         html={pair.translated}
+                        lang="zh-CN"
                         className="article-content mt-2.5 rounded-r-md border-l-2 border-primary/40 bg-accent/20 py-2 pl-3.5 pr-2 font-sans text-[0.95em] leading-relaxed text-muted-foreground transition-colors group-hover:border-primary group-hover:text-foreground"
                       />
                     )}
@@ -206,7 +223,10 @@ export function ArticleTranslation({
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Original Summary
                     </p>
-                    <p className="whitespace-pre-line text-sm leading-7 text-foreground/90">
+                    <p
+                      lang={originalLang}
+                      className="whitespace-pre-line text-sm leading-7 text-foreground/90"
+                    >
                       {summary}
                     </p>
                   </div>
@@ -216,7 +236,10 @@ export function ArticleTranslation({
                     <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
                       中文摘要
                     </p>
-                    <p className="whitespace-pre-line text-sm leading-7 text-foreground">
+                    <p
+                      lang="zh-CN"
+                      className="whitespace-pre-line text-sm leading-7 text-foreground"
+                    >
                       {translation.summary}
                     </p>
                   </div>
@@ -225,11 +248,13 @@ export function ArticleTranslation({
             )
           ) : isChinese && translation ? (
             translation.contentHtml ? (
-              <ArticleHtmlBody html={translation.contentHtml} />
+              <ArticleHtmlBody html={translation.contentHtml} lang="zh-CN" />
             ) : translation.summary ? (
               <div className="article-content">
                 <p className="mb-5 text-sm text-muted-foreground">文章摘要</p>
-                <p className="whitespace-pre-line">{translation.summary}</p>
+                <p lang="zh-CN" className="whitespace-pre-line">
+                  {translation.summary}
+                </p>
               </div>
             ) : (
               <p className="text-base leading-8 text-muted-foreground">
@@ -237,11 +262,13 @@ export function ArticleTranslation({
               </p>
             )
           ) : hasBody && contentHtml ? (
-            <ArticleHtmlBody html={contentHtml} />
+            <ArticleHtmlBody html={contentHtml} lang={originalLang} />
           ) : summary ? (
             <div className="article-content">
               <p className="mb-5 text-sm text-muted-foreground">文章摘要</p>
-              <p className="whitespace-pre-line">{summary}</p>
+              <p lang={originalLang} className="whitespace-pre-line">
+                {summary}
+              </p>
             </div>
           ) : (
             <p className="text-base leading-8 text-muted-foreground">
