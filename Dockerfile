@@ -38,4 +38,4 @@ USER bun
 RUN cd /app/apps/web && bun -e "const { MTran } = await import('mtranserver'); if (typeof MTran !== 'function') throw new Error('Missing MTran export')"
 EXPOSE 3000
 HEALTHCHECK --interval=10s --timeout=3s --start-period=300s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:3000/healthz || exit 1
-CMD ["sh", "-c", "bun apps/web/scripts/prepare-translation.mjs && exec bun apps/web/server.js"]
+CMD ["sh", "-c", "bun --smol apps/web/scripts/prepare-translation.mjs && exec bun --smol apps/web/server.js"]
