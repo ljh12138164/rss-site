@@ -73,7 +73,7 @@ export default function AboutPage() {
           内容也可能被原站修改或撤回，请以原文为准。
         </p>
       </section>
-      <section>
+      <section id="rss">
         <h2>继续阅读，或订阅更新</h2>
         <p>
           外部文章会先显示离站提示，确认地址后点击“继续访问”，即可在当前标签页打开原文。

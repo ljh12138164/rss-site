@@ -27,7 +27,7 @@ export function resolveRevalidation(scope: RevalidationScope): ResolvedRevalidat
     tags.push(`news-status:${source}`)
   }
 
-  const paths: string[] = ['/', '/sitemap.xml']
+  const paths: string[] = ['/', '/latest', '/sitemap.xml']
 
   if (source === 'github') {
     paths.push('/github')

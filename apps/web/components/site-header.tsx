@@ -10,7 +10,7 @@ import { ArticleSearch } from './article-search'
 import { ThemeToggle } from './theme-toggle'
 
 const sections = [
-  ['/', '全部'],
+  ['/latest', '全部'],
   ['/following', '我的关注'],
   ['/ai', 'AI'],
   ['/technology', '科技'],
@@ -71,8 +71,8 @@ export function SiteHeader() {
         <div className="flex min-w-max items-center border-t border-border lg:min-w-0">
           {sections.map(([href, label], index) => {
             const active =
-              href === '/'
-                ? pathname === '/'
+              href === '/latest'
+                ? pathname === '/latest'
                 : href === '/ai/events'
                   ? timeline
                   : href === '/github'

@@ -33,7 +33,7 @@ it('schedules external publication only after authorized ISR invalidation', asyn
   expect(publication).not.toHaveBeenCalled()
   await callbacks[0]()
   expect(publication).toHaveBeenCalledWith(
-    ['/', '/sitemap.xml', '/ai', '/ai/openai', '/ai/events'],
+    ['/', '/latest', '/sitemap.xml', '/ai', '/ai/openai', '/ai/events'],
     expect.any(String)
   )
 })
@@ -45,7 +45,10 @@ it('publishes GitHub ingestion to the independent ranking route', async () => {
   expect(paths).not.toHaveBeenCalledWith('/technology/github')
   expect(paths).not.toHaveBeenCalledWith('/technology/github/[slug]', 'page')
   await callbacks[0]()
-  expect(publication).toHaveBeenCalledWith(['/', '/sitemap.xml', '/github'], expect.any(String))
+  expect(publication).toHaveBeenCalledWith(
+    ['/', '/latest', '/sitemap.xml', '/github'],
+    expect.any(String)
+  )
 })
 
 it('publishes both skill sources only to the shared skills route', async () => {
@@ -55,7 +58,10 @@ it('publishes both skill sources only to the shared skills route', async () => {
   expect(paths).not.toHaveBeenCalledWith('/skills/skills-all-time')
   expect(paths).not.toHaveBeenCalledWith('/skills/skills-all-time/[slug]', 'page')
   await callbacks[0]()
-  expect(publication).toHaveBeenCalledWith(['/', '/sitemap.xml', '/skills'], expect.any(String))
+  expect(publication).toHaveBeenCalledWith(
+    ['/', '/latest', '/sitemap.xml', '/skills'],
+    expect.any(String)
+  )
 })
 
 it('validates and publishes concrete Skill IDs, including a continuation batch', async () => {

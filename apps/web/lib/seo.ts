@@ -101,7 +101,7 @@ export function createHomepageStructuredData(canonical: string) {
         inLanguage: 'zh-CN'
       },
       {
-        '@type': 'CollectionPage',
+        '@type': 'WebPage',
         '@id': `${homepage}#webpage`,
         url: homepage,
         name: SITE_NAME,

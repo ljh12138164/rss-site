@@ -23,6 +23,15 @@ afterEach(() => {
 })
 
 describe('content publication', () => {
+  it('publishes the relocated reading overview through the existing pipeline', async () => {
+    await publishContent(['/latest'], 'latest-overview')
+    expect(JSON.parse(String(requests[0].init?.body)).files).toEqual([
+      'https://news.example/latest'
+    ])
+    expect(JSON.parse(String(requests.at(-1)?.init?.body)).urlList).toEqual([
+      'https://news.example/latest'
+    ])
+  })
   it('purges canonical Skill details for both GitHub and well-known sources', async () => {
     const paths = ['/skills/mattpocock/skills/tdd', '/skills/open.feishu.cn/lark-doc']
     await publishContent(paths, 'skills-batch')

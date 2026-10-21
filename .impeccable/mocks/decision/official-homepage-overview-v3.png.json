@@ -1,0 +1,8 @@
+{
+  "tool": "image_gen",
+  "prompt": "Use case: precise-object-edit. Revise the attached desktop homepage for 今日热点, 1440×960, edge-to-edge interface, crisp Chinese, no browser frame. The user clarified that the product is 今日热点: discovering what different platforms are talking about today. Reading tools are secondary. Carry over the reference's flame mark, Chinese type voices, white/navy/teal identity and fine separators. Keep the broad centered hero but replace the entire three-step article-reading journey with one dominant editorial HOT-TOPIC OVERVIEW, not a tutorial. Exact headline 今天的热点，在这里看。 Intro 汇集多个平台的热门话题和最新动态。从 AI、科技到新闻、社交、财经和游戏，看看今天有哪些值得关注的事。 Primary 开始阅读; secondary 看看有哪些热点. Navigation 热点分区, 内容来源, 关于本站. Beneath hero show 各个平台，都在关注什么？ and label 热点浏览示意. Use a continuous editorial preview of three topic groups, with AI prominent: AI 模型与产品动态 (OpenAI, Anthropic, DeepSeek, Google AI), 科技与开发者社区 (GitHub), 新闻与社会话题 (澎湃新闻, 知乎, 哔哩哔哩). These phrases describe coverage, not current news headlines. Include clear 进入 AI 分区 and 查看全部热点 entry points. Start a quiet lower section 保留来源，方便继续了解. Do not show RSS, feed URLs, translation, bookmarking or following in the hero. Do not fabricate today's stories, ranks, publication times, metrics or endorsements. This is the product website explaining its hot-topic aggregation, with functional navigation and entry points, not a live dashboard.",
+  "approved": true,
+  "approvalEvidence": "Saved 1a43e961 answer selects reading-journey; user resumed the chosen design and requested a colorful homepage chart on 2026-10-21.",
+  "copySource": "docs/development/official-homepage-copy.md",
+  "revision": "今日热点定位：热点内容优先，RSS 退至页尾"
+}
