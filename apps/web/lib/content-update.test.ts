@@ -47,6 +47,7 @@ it('invalidates tags, concrete pages and dynamic pages before scheduling concret
     'tag:event-status',
     'tag:news-status:openai',
     'path:/',
+    'path:/latest',
     'path:/sitemap.xml',
     'path:/ai',
     'path:/ai/openai',
@@ -61,6 +62,7 @@ it('invalidates tags, concrete pages and dynamic pages before scheduling concret
   await callbacks[0]()
   expect(JSON.parse(fetch.mock.calls[0][1].body).urlList).toEqual([
     'https://news.example/',
+    'https://news.example/latest',
     'https://news.example/ai',
     'https://news.example/ai/openai',
     'https://news.example/ai/events/release-12345678',
@@ -84,7 +86,15 @@ it('publishes both old and new article URLs after a title edit, once each', asyn
   })
   const oldPath = '/news/xinhua/old-title--550e8400-e29b-41d4-a716-446655440000'
   const newPath = '/news/xinhua/new-title--550e8400-e29b-41d4-a716-446655440000'
-  expect(result.paths).toEqual(['/', '/sitemap.xml', '/news', '/news/xinhua', oldPath, newPath])
+  expect(result.paths).toEqual([
+    '/',
+    '/latest',
+    '/sitemap.xml',
+    '/news',
+    '/news/xinhua',
+    oldPath,
+    newPath
+  ])
   expect(path).toHaveBeenCalledWith(oldPath)
   expect(path).toHaveBeenCalledWith(newPath)
   await callbacks[0]()
@@ -131,11 +141,12 @@ it.each([
       title: 'New title'
     }
   })
-  expect(result.paths).toEqual(['/', '/sitemap.xml', route])
+  expect(result.paths).toEqual(['/', '/latest', '/sitemap.xml', route])
   expect(path).not.toHaveBeenCalledWith(`${section}/${source}/[slug]`, 'page')
   await callbacks[0]()
   expect(JSON.parse(fetch.mock.calls[0][1].body).urlList).toEqual([
     'https://news.example/',
+    'https://news.example/latest',
     `https://news.example${route}`
   ])
 })
@@ -152,6 +163,7 @@ it('deduplicates the article URL when a title edit preserves the slug', () => {
   })
   expect(result.paths).toEqual([
     '/',
+    '/latest',
     '/sitemap.xml',
     '/news',
     '/news/xinhua',

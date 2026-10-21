@@ -4,21 +4,21 @@ import { resolveRevalidation } from './revalidate-paths'
 describe('resolveRevalidation', () => {
   it('resolves standard section and source paths', () => {
     const result = resolveRevalidation({ section: '/news', source: 'xinhua' })
-    expect(result.paths).toEqual(['/', '/sitemap.xml', '/news', '/news/xinhua'])
+    expect(result.paths).toEqual(['/', '/latest', '/sitemap.xml', '/news', '/news/xinhua'])
     expect(result.dynamicPages).toEqual(['/news/xinhua/[slug]'])
     expect(result.tags).toEqual(['sitemap', 'news-status:xinhua'])
   })
 
   it('special-cases github ranking paths', () => {
     const result = resolveRevalidation({ section: '/technology', source: 'github' })
-    expect(result.paths).toEqual(['/', '/sitemap.xml', '/github'])
+    expect(result.paths).toEqual(['/', '/latest', '/sitemap.xml', '/github'])
     expect(result.dynamicPages).toEqual([])
     expect(result.tags).toEqual(['sitemap', 'news-status:github'])
   })
 
   it('special-cases skills section paths', () => {
     const result = resolveRevalidation({ section: '/skills', source: 'skills-all-time' })
-    expect(result.paths).toEqual(['/', '/sitemap.xml', '/skills'])
+    expect(result.paths).toEqual(['/', '/latest', '/sitemap.xml', '/skills'])
     expect(result.dynamicPages).toEqual(['/skills/[...skillId]'])
     expect(result.tags).toEqual(['sitemap', 'news-status:skills-all-time'])
   })
@@ -45,6 +45,7 @@ describe('resolveRevalidation', () => {
     })
     expect(result.paths).toEqual([
       '/',
+      '/latest',
       '/sitemap.xml',
       '/skills',
       '/skills/mattpocock/skills/tdd',

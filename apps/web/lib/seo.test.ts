@@ -60,7 +60,7 @@ describe('toMetaDescription', () => {
 })
 
 describe('structured data', () => {
-  it('describes the homepage as a website and collection without inventing an operator', () => {
+  it('describes the product homepage as a website and webpage without inventing an operator', () => {
     expect(createHomepageStructuredData('https://news.ljhboard.cn/')).toEqual({
       '@context': 'https://schema.org',
       '@graph': [
@@ -73,7 +73,7 @@ describe('structured data', () => {
           inLanguage: 'zh-CN'
         },
         {
-          '@type': 'CollectionPage',
+          '@type': 'WebPage',
           '@id': 'https://news.ljhboard.cn/#webpage',
           url: 'https://news.ljhboard.cn/',
           name: '今日热点',

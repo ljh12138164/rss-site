@@ -124,7 +124,7 @@ it('invalidates and publishes old and new URLs after saving a title edit', async
   expect(publication).not.toHaveBeenCalled()
   await callbacks[0]()
   expect(publication).toHaveBeenCalledWith(
-    ['/', '/sitemap.xml', '/news', '/news/xinhua', oldPath, newPath],
+    ['/', '/latest', '/sitemap.xml', '/news', '/news/xinhua', oldPath, newPath],
     expect.any(String)
   )
 })

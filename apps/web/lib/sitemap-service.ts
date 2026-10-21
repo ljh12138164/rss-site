@@ -55,6 +55,7 @@ export async function getSignalArticlesCount(): Promise<number> {
 export function getBaseEntries(): SitemapEntry[] {
   const entries: SitemapEntry[] = [
     { url: siteUrl('/') },
+    { url: siteUrl('/latest') },
     { url: siteUrl('/about') },
     { url: siteUrl('/privacy') },
     { url: siteUrl('/ai/events') },

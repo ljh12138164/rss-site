@@ -1,8 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { expect, it } from 'vitest'
+import { HomeView } from '../../components/latest-overview'
 import type { HomeDigest } from '../../lib/home-articles'
 import { aiSources, newsSources, type socialSources } from '../../lib/technology-sources'
-import { HomeView } from './page'
 
 type Platform =
   | (typeof aiSources)[number]

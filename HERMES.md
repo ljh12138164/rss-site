@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-10-21 官网首页
+
+- 用户确认 `/` 改为官网，通过“开始阅读”进入热点列表；主动作据此为开始阅读。
+- 分支 `feat/official-homepage`，文档 `docs/development/official-homepage.md`。
+- 续接已恢复 A「热点总览」选择，用户要求彩色图表；`/` 静态官网和 `/latest` 热点总览已实现。复用原组件，彩色柱图展示配置来源数，无新依赖。
+- 最新定位：突出“今日热点”，主标题“今天的热点，在这里看。”；热点范围、平台和分区入口优先，阅读工具在下方，RSS 只在页尾。
+- 已选 `.impeccable/mocks/decision/official-homepage-overview-v3.png`，文案以 `docs/development/official-homepage-copy.md` 为准。335 项测试和浏览器明暗/桌面手机检查通过；Webpack 编译成功，完整类型阶段受既有路由额外导出阻断（沿用审计修复路线图）。用户要求跳过页面 reviewer，已中断；用户明确要求通过 API 创建 PR，交付分支，不部署或合并。
+
 ## 2026-10-20 Impeccable 审计修复
 
 - 目标：`feat/impeccable-audit-fixes`，修复焦点、文章语言、44px 目标与 OpenAI 重复目录。

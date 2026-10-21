@@ -21,6 +21,7 @@ function validatePaths(paths: string[]): void {
     if (path.startsWith('/skills/') && skillPath(path.slice(8)) === path) continue
     if (
       path === '/' ||
+      path === '/latest' ||
       path === '/sitemap.xml' ||
       path === '/ai/events' ||
       path === '/github' ||
