@@ -7,6 +7,7 @@
 - 续接已恢复 A「热点总览」选择，用户要求彩色图表；`/` 静态官网和 `/latest` 热点总览已实现。复用原组件，彩色柱图展示配置来源数，无新依赖。
 - 最新定位：突出“今日热点”，主标题“今天的热点，在这里看。”；热点范围、平台和分区入口优先，阅读工具在下方，RSS 只在页尾。
 - 已选 `.impeccable/mocks/decision/official-homepage-overview-v3.png`，文案以 `docs/development/official-homepage-copy.md` 为准。335 项测试和浏览器明暗/桌面手机检查通过；Webpack 编译成功，完整类型阶段受既有路由额外导出阻断（沿用审计修复路线图）。用户要求跳过页面 reviewer，已中断；用户明确要求通过 API 创建 PR，交付分支，不部署或合并。
+- 已推送 `feat/official-homepage`，草稿 PR https://github.com/ljh12138164/rss-site/pull/51 ，目标 `master`。下一步处理已有构建基线并查看 CI 后再决定合并；本地 3015 Webpack 预览保留。
 
 ## 2026-10-20 Impeccable 审计修复
 
