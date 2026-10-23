@@ -60,29 +60,66 @@ describe('toMetaDescription', () => {
 })
 
 describe('structured data', () => {
-  it('describes the product homepage as a website and webpage without inventing an operator', () => {
-    expect(createHomepageStructuredData('https://news.ljhboard.cn/')).toEqual({
-      '@context': 'https://schema.org',
-      '@graph': [
-        {
-          '@type': 'WebSite',
-          '@id': 'https://news.ljhboard.cn/#website',
-          url: 'https://news.ljhboard.cn/',
-          name: '今日热点',
-          alternateName: 'AI 热榜',
-          inLanguage: 'zh-CN'
-        },
-        {
-          '@type': 'WebPage',
-          '@id': 'https://news.ljhboard.cn/#webpage',
-          url: 'https://news.ljhboard.cn/',
-          name: '今日热点',
-          description: '每日聚合 AI、科技、新闻、社交、财经与游戏热点。',
-          isPartOf: { '@id': 'https://news.ljhboard.cn/#website' },
-          inLanguage: 'zh-CN'
-        }
-      ]
-    })
+  it('describes the product homepage with organization, author, dates, citations, sameAs, and FAQPage schema', () => {
+    const data = createHomepageStructuredData('https://news.ljhboard.cn/')
+    expect(data['@context']).toBe('https://schema.org')
+    expect(data['@graph']).toEqual([
+      expect.objectContaining({
+        '@type': 'Organization',
+        '@id': 'https://news.ljhboard.cn/#organization',
+        name: '今日热点',
+        alternateName: 'AI 热榜',
+        url: 'https://news.ljhboard.cn/',
+        sameAs: expect.arrayContaining(['https://github.com/ljh12138164/rss-site'])
+      }),
+      expect.objectContaining({
+        '@type': 'Person',
+        '@id': 'https://news.ljhboard.cn/#author',
+        name: 'LJH',
+        url: 'https://blog.ljhboard.cn/',
+        sameAs: expect.arrayContaining(['https://github.com/ljh12138164'])
+      }),
+      expect.objectContaining({
+        '@type': 'WebSite',
+        '@id': 'https://news.ljhboard.cn/#website',
+        url: 'https://news.ljhboard.cn/',
+        name: '今日热点',
+        alternateName: 'AI 热榜',
+        inLanguage: 'zh-CN',
+        sameAs: expect.arrayContaining(['https://github.com/ljh12138164/rss-site'])
+      }),
+      expect.objectContaining({
+        '@type': 'WebPage',
+        '@id': 'https://news.ljhboard.cn/#webpage',
+        url: 'https://news.ljhboard.cn/',
+        name: '今日热点',
+        description: '每日聚合 AI、科技、新闻、社交、财经与游戏热点。',
+        isPartOf: { '@id': 'https://news.ljhboard.cn/#website' },
+        author: { '@id': 'https://news.ljhboard.cn/#author' },
+        publisher: { '@id': 'https://news.ljhboard.cn/#organization' },
+        datePublished: '2026-09-01T00:00:00+08:00',
+        dateModified: '2026-10-23T00:00:00+08:00',
+        citation: expect.arrayContaining(['https://www.rssboard.org/rss-specification']),
+        inLanguage: 'zh-CN'
+      }),
+      expect.objectContaining({
+        '@type': 'FAQPage',
+        '@id': 'https://news.ljhboard.cn/#faq',
+        author: { '@id': 'https://news.ljhboard.cn/#author' },
+        datePublished: '2026-09-01T00:00:00+08:00',
+        dateModified: '2026-10-23T00:00:00+08:00',
+        mainEntity: expect.arrayContaining([
+          expect.objectContaining({
+            '@type': 'Question',
+            name: expect.stringContaining('今日热点'),
+            acceptedAnswer: expect.objectContaining({
+              '@type': 'Answer',
+              text: expect.stringContaining('OpenAI')
+            })
+          })
+        ])
+      })
+    ])
   })
 
   it('links an article to its original source and visible breadcrumb trail', () => {

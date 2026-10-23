@@ -90,25 +90,26 @@ export default function AboutPage() {
           <div>
             <h3 className="text-sm font-semibold text-foreground">什么是今日热点？</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              今日热点是一个去中心化信源的聚合阅读站，把分散在各大平台和官方博客的优质动态汇集在一起，
-              保留原始来源与发布时间，为读者提供干净、客观、实时的阅读与 RSS 订阅服务。
+              今日热点（AI 热榜）是一个多平台公开内容聚合站，覆盖
+              AI、科技、国内新闻、社交、财经与游戏 6 个阅读分区及 Skills
+              榜单，把分散在官方博客与媒体站点的动态整理到一起，保留原始出处、发布时间与原文链接。
             </p>
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">内容更新频率是怎样的？</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              本站采用错峰采集机制：AI 平台专区（覆盖 OpenAI、Anthropic、DeepSeek、Google AI
-              等主流模型平台）每 2 小时自动同步最新动态；
-              科技、国内新闻、社交热点、财经与游戏各分区每 6
-              小时同步一次，既保证内容的时效性，又确保系统稳定可靠。
+              站点采用定时错峰拉取机制，并非实时流式抓取。AI
+              专区的核心模型来源（OpenAI、ChatGPT、Anthropic、DeepSeek、Google AI、智谱 GLM、Qwen
+              等）每 2 小时检查一次更新；科技、国内新闻、社交热点、财经、游戏与 Skills 榜单每 6
+              小时同步一次。
             </p>
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">如何使用 RSS 订阅本站？</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              本站为 AI、科技、国内新闻、社交、财经、游戏六大分区均提供标准的 RSS 2.0 订阅链接（例如
-              /feeds/ai.xml）。 将目标分区的订阅链接复制到任意 RSS
-              阅读器中，即可在不打开网页的情况下接收实时资讯更新。
+              AI、科技、国内新闻、社交、财经、游戏六个分区均提供标准 RSS 2.0 订阅地址（例如
+              /feeds/ai.xml），也可以在「我的关注」页面生成自定义来源组合的 RSS
+              链接，粘贴到任意阅读器即可按周期接收更新。
             </p>
           </div>
         </div>
@@ -116,11 +117,41 @@ export default function AboutPage() {
       <section>
         <h2>访问与隐私</h2>
         <p>
-          浏览本站无需注册。关于主题偏好、搜索请求和外部链接的数据处理，参见
+          浏览本站无需注册。关于主题偏好、搜索请求、外部链接与使用规则的说明，参见
           <Link className="text-primary underline underline-offset-4" href="/privacy">
             隐私说明
           </Link>
+          与
+          <Link className="text-primary underline underline-offset-4" href="/privacy#terms">
+            服务条款
+          </Link>
           。
+        </p>
+      </section>
+      <section id="contact" aria-labelledby="contact-heading">
+        <h2 id="contact-heading">联系我们</h2>
+        <p>
+          本站由{' '}
+          <a
+            className="text-primary underline underline-offset-4"
+            href="https://blog.ljhboard.cn/"
+            rel="author"
+          >
+            LJH
+          </a>{' '}
+          维护。如果发现来源链接失效、抓取排版异常，或有信源增补与内容权利相关反馈，可通过{' '}
+          <a
+            className="text-primary underline underline-offset-4"
+            href="https://github.com/ljh12138164/rss-site/issues"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            GitHub Issues
+          </a>{' '}
+          或作者博客留言联系。
+        </p>
+        <p>
+          最近更新：<time dateTime="2026-10-23">2026 年 10 月 23 日</time>
         </p>
       </section>
     </InformationPage>

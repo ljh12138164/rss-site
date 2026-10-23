@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-10-23 GEO 生成式引擎优化
+
+- 当前目标：`feat/geo-optimization`，基于最新 `origin/master`（`d14f444`），修复首页 GEO 报告检出的 11 项问题（目标 90+ Grade A），文案采用 `humanizer-zh` 优化。
+- 开发记录：`docs/development/geo-optimization.md`。保留现有首页视觉框架，补充 `FAQPage`/`Organization`/`Person` JSON-LD、`sameAs`、`author`、`datePublished`/`dateModified`、引用标记、真实统计表、问答式 H2/H3、署名与时间标记，并在 `/about#contact` 与 `/privacy#terms` 补齐联系与条款章节及页脚入口。
+- 验证完成：Web 90 文件 336 项测试、TypeScript `check-types`、变更文件 Biome（0 警告 0 错误）及 `git diff --check` 通过；浏览器实测首页 `<main>` 空白分词 592 词（全页 617 词），1440/1280/390px 明暗主题无横向溢出，锚点与页脚均就位；Standards/Spec 审查无阻塞项或后续项。
+- 已推送 `feat/geo-optimization`（提交 `a228486`）并交付 PR https://github.com/ljh12138164/rss-site/pull/52 ，目标 `master`。下一步等待 CI 检查通过后由用户合并发布，并复测线上 GEO 评分；本轮不直接部署生产。
+
 ## 2026-10-21 官网首页
 
 - 用户确认 `/` 改为官网，通过“开始阅读”进入热点列表；主动作据此为开始阅读。
