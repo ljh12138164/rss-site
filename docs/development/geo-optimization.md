@@ -75,6 +75,7 @@
 - **Standards 审查**：复用仓库既有颜色 token、`home.css`、`InformationPage`、`SiteShell` 与 `@rss-site/signals` 数据源，无新增依赖；所有文案通过 `humanizer-zh` 审查，不夸大实时性或虚构数据。
 - **Spec 审查**：GEO 报告列出的 11 项待修复项全部覆盖并验证通过。
 - **审查结论**：0 项阻塞问题（Blocking），0 项需延后的后续事项（Accepted follow-ups），因此不创建空路线图文档。
+- **交付**：分支 `feat/geo-optimization` 已推送并创建 [PR #52](https://github.com/ljh12138164/rss-site/pull/52)（目标 `master`）。下一步待 CI 通过后由维护者合并并发布，随后在生产环境复测 GEO 评分。
 
 ## Risks
 
