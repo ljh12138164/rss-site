@@ -6,7 +6,7 @@ import { QueryProvider } from '../components/query-provider'
 import { ReactAriaProvider } from '../components/react-aria-provider'
 import { ServiceWorker } from '../components/service-worker'
 import { ThemeProvider } from '../components/theme-provider'
-import { SITE_DESCRIPTION } from '../lib/seo'
+import { SITE_AUTHOR_NAME, SITE_AUTHOR_URL, SITE_DESCRIPTION, SITE_NAME } from '../lib/seo'
 import { optionalCanonical } from '../lib/site-url'
 import './globals.css'
 
@@ -14,12 +14,15 @@ const homepage = optionalCanonical('/')
 
 export const metadata: Metadata = {
   ...(homepage ? { metadataBase: new URL(homepage) } : {}),
-  applicationName: '今日热点',
+  applicationName: SITE_NAME,
   title: {
     default: '今日热点 - AI、科技、新闻、财经与游戏热榜',
     template: '%s · 今日热点'
   },
   description: SITE_DESCRIPTION,
+  authors: [{ name: SITE_AUTHOR_NAME, url: SITE_AUTHOR_URL }],
+  creator: SITE_AUTHOR_NAME,
+  publisher: SITE_NAME,
   category: 'news',
   icons: { icon: '/icon.svg' },
   verification: {

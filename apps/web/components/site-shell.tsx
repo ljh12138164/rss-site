@@ -39,9 +39,21 @@ export function SiteShell({
           </Link>
           <Link
             className="flex min-h-11 items-center transition-colors hover:text-foreground"
+            href="/about#contact"
+          >
+            联系我们
+          </Link>
+          <Link
+            className="flex min-h-11 items-center transition-colors hover:text-foreground"
             href="/privacy"
           >
             隐私说明
+          </Link>
+          <Link
+            className="flex min-h-11 items-center transition-colors hover:text-foreground"
+            href="/privacy#terms"
+          >
+            服务条款
           </Link>
           <a
             className="flex min-h-11 items-center transition-colors hover:text-foreground"
