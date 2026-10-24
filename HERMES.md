@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-10-25 详情与功能页文案去模板化（humanizer-zh）
+
+- 当前目标：`feat/humanize-ui-copy`，基于最新 `origin/master`（`f7c8711`），按 `humanizer-zh` 与 `PRODUCT.md` 清理稍后读（`/reading-list`）、MCP 接入（`/mcp`）、关于页（`/about`）、隐私说明（`/privacy`）、AI 来源描述模板（`source-page-text.ts`）以及文章/事件详情翻译与总结卡片中的模板化套话、提示词复读与内部实现暴露。
+- 开发记录：`docs/development/humanize-ui-copy.md`。保留所有事实、数字（`100 条`、`35+`）、条件限定、标题锚点与组件结构，不改动已通过 GEO 验收的官网首页正文。
+- 验证完成：Web 90 文件 336 项测试、TypeScript `check-types`、变更文件 Biome（0 错误 0 警告）及 `git diff --check` 全部通过；Standards/Acceptance 审查无阻塞项或需延后的后续事项。
+- 下一步：推送 `feat/humanize-ui-copy`，按 `AGENTS.md` 交付分支并由用户创建与合并指向 `master` 的 PR；本轮不直接部署生产。
+
 ## 2026-10-23 GEO 生成式引擎优化
 
 - 当前目标：`feat/geo-optimization`，基于最新 `origin/master`（`d14f444`），修复首页 GEO 报告检出的 11 项问题（目标 90+ Grade A），文案采用 `humanizer-zh` 优化。

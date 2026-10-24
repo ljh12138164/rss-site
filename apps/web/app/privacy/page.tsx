@@ -16,8 +16,8 @@ export default function PrivacyPage() {
       <section>
         <h2>浏览本站</h2>
         <p>
-          目前浏览 AI 热榜无需注册或登录，本站不要求你提供姓名、手机号或邮箱， 本站使用 Google
-          AdSense 加载广告，并在配置启用时使用 Google Analytics 统计访问情况。 这些服务可能使用
+          目前浏览 AI 热榜无需注册或登录，本站不要求你提供姓名、手机号或邮箱。本站使用 Google
+          AdSense 加载广告，并在配置启用时使用 Google Analytics 统计访问情况。这些服务可能使用
           Cookie 并处理页面地址、设备及访问数据。
         </p>
       </section>
@@ -44,7 +44,6 @@ export default function PrivacyPage() {
         <p>
           加载页面和搜索结果时，提供网站运行与网络传输的服务会接收 IP 地址、请求地址、
           浏览器信息等必要的连接信息，并可能出于运行维护与安全需要记录日志。
-          这与浏览器中的主题设置是不同的数据处理过程。
         </p>
       </section>
       <section>

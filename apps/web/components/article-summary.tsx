@@ -177,7 +177,7 @@ export function ArticleSummary({
                   ? '基于 SKILL.md 整理，请结合原文使用。'
                   : summary.basis === 'excerpt'
                     ? '基于来源摘要整理，未获取全文。'
-                    : '基于站内已有正文整理，内容可能为节选。'}
+                    : '基于站内正文整理。'}
                 {kind === 'article' && '完整内容以原文为准。'}
               </p>
             )}

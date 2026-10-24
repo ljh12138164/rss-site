@@ -61,7 +61,7 @@ export default function ReadingListPage() {
       <header className="mb-8 border-b border-border pb-7 sm:mb-10">
         <h1 className="headline-display text-3xl sm:text-4xl">稍后读与阅读足迹</h1>
         <p className="mt-3 text-pretty text-sm leading-7 text-muted-foreground">
-          零后端数据库开销，基于本地浏览器安全离线存储。随时收藏深度热点并追溯阅读历史。
+          收藏的文章和最近 100 条阅读足迹保存在当前浏览器，可随时回看。
         </p>
 
         {/* Tab switch */}
@@ -144,7 +144,7 @@ export default function ReadingListPage() {
             <EmptyState
               icon={<Bookmark className="size-10 text-muted-foreground/40" />}
               title="暂无稍后阅读文章"
-              description="在浏览热点或阅读详情页时，点击「稍后阅读」按钮即可将文章收藏到此处，便于稍后沉浸研读。"
+              description="浏览热点或文章详情页时，点击「稍后阅读」即可把文章收藏到这里。"
             />
           ) : (
             <ol className="divide-y divide-border border-y border-border">
@@ -161,7 +161,7 @@ export default function ReadingListPage() {
           <EmptyState
             icon={<History className="size-10 text-muted-foreground/40" />}
             title="暂无阅读足迹"
-            description="当您在站内打开并阅读任意文章后，系统将自动在本地记录您的阅读足迹，最多保存最近 100 条。"
+            description="在站内打开过的文章会自动记录在当前浏览器，最多保留最近 100 条。"
           />
         ) : (
           <ol className="divide-y divide-border border-y border-border">

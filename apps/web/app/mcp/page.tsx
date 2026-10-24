@@ -15,7 +15,7 @@ import { createPageMetadata } from '../../lib/seo'
 export const metadata = createPageMetadata({
   title: '接入 MCP 服务',
   description:
-    '支持 Codex CLI、Claude Code、Cursor、Claude Desktop 等 AI 客户端一键命令行接入，支持平台级传参与分类筛选，默认返回全网最新 100 条热点。',
+    '在 Codex CLI、Claude Code、Cursor、Claude Desktop 等客户端接入今日热点 MCP 服务，按平台或分类查询最新 100 条热点。',
   path: '/mcp'
 })
 
@@ -91,8 +91,8 @@ export default function McpPage() {
           接入 MCP 新闻服务
         </h1>
         <p className="mt-3 text-pretty text-sm leading-7 text-muted-foreground sm:text-base">
-          支持 Codex CLI、Claude Code、Cursor、Windsurf 等 AI
-          客户端直接连接本站。支持终端命令行一键安装，大模型可自主调用工具获取全网实时热点资讯。
+          将本站接入 Codex CLI、Claude Code、Cursor、Windsurf 等 AI
+          客户端后，可在对话中调用工具，按平台或分类获取已收录的最新热点。
         </p>
       </header>
 
@@ -104,8 +104,7 @@ export default function McpPage() {
             <h2 id="client-config-heading">客户端快速接入（支持终端一键命令）</h2>
           </div>
           <p className="text-sm leading-6 text-muted-foreground">
-            选择你正在使用的 AI 开发工具或客户端，复制对应的终端命令或配置文件，即可自动接入本站 MCP
-            服务：
+            选择正在使用的 AI 开发工具或客户端，复制对应的终端命令或配置文件即可接入：
           </p>
           <McpClientConfig />
         </section>
@@ -125,8 +124,7 @@ export default function McpPage() {
               </span>
             </div>
             <p className="text-sm leading-6 text-muted-foreground">
-              获取最新热点新闻资讯，支持按平台或分类筛选。若不提供任何参数，默认返回全平台最新的 100
-              条热点。
+              获取已收录的热点资讯，支持按平台或分类筛选；不传参数时默认返回全平台最新 100 条热点。
             </p>
 
             {/* Parameters Table */}
@@ -168,11 +166,10 @@ export default function McpPage() {
 
             {/* Default 100 highlight */}
             <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-xs sm:text-sm leading-6 text-foreground">
-              <span className="font-semibold text-primary">默认策略：</span>当 AI 调用工具时不传{' '}
+              <span className="font-semibold text-primary">默认策略：</span>调用时不传{' '}
               <code className="font-mono font-semibold">platform</code>{' '}
-              参数时，服务将自动检索全平台最新入库的{' '}
-              <strong className="font-bold text-primary">100 条</strong>{' '}
-              资讯，无需大模型额外猜测平台名称即可掌握全网态势。
+              参数，默认返回全平台最新入库的{' '}
+              <strong className="font-bold text-primary">100 条</strong> 资讯。
             </div>
           </div>
         </section>
