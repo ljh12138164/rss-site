@@ -31,6 +31,8 @@ describe('ReadingListPage', () => {
   it('renders title, subtitle, tabs, and initial empty state', () => {
     const html = renderToStaticMarkup(<ReadingListPage />)
     expect(html).toContain('稍后读与阅读足迹')
+    expect(html).toContain('保存在当前浏览器')
+    expect(html).not.toContain('零后端数据库开销')
     expect(html).toContain('稍后阅读')
     expect(html).toContain('历史足迹')
     expect(html).toContain('暂无稍后阅读文章')

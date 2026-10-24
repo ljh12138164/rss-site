@@ -24,26 +24,26 @@ const snippets: ClientSnippet[] = [
     id: 'codex',
     label: 'Codex CLI',
     command: `codex mcp add rss-board-news --url ${MCP_ENDPOINT}`,
-    commandDesc: '在终端执行以下命令，一键添加新闻服务到 OpenAI Codex CLI：',
+    commandDesc: '在终端执行以下命令，添加服务到 OpenAI Codex CLI：',
     filePath: '~/.codex/config.toml',
-    fileDesc: '亦可在 Codex 配置文件中直接声明：',
+    fileDesc: '或在 Codex 配置文件中添加：',
     fileLang: 'toml',
     fileCode: `[mcp_servers.rss-board-news]
 url = "${MCP_ENDPOINT}"`,
-    tip: '添加完成后，在终端运行 codex mcp list 即可验证服务连接状态与可用工具。'
+    tip: '添加后，在终端运行 codex mcp list 可查看连接状态与可用工具。'
   },
   {
     id: 'claude-code',
     label: 'Claude Code',
     command: `claude mcp add --transport http rss-board-news ${MCP_ENDPOINT}`,
-    commandDesc: '在终端执行以下命令，一键注册到 Claude Code CLI：',
-    tip: '添加完成后，在终端运行 claude mcp list 即可查看已启用的工具。'
+    commandDesc: '在终端执行以下命令，注册到 Claude Code CLI：',
+    tip: '添加后，在终端运行 claude mcp list 可查看已启用的工具。'
   },
   {
     id: 'cursor',
     label: 'Cursor',
     command: `mkdir -p .cursor && echo '{"mcpServers":{"rss-board-news":{"url":"${MCP_ENDPOINT}"}}}' > .cursor/mcp.json`,
-    commandDesc: '在项目根目录终端执行以下单行命令，快速生成配置文件：',
+    commandDesc: '在项目根目录执行以下命令生成配置文件：',
     filePath: '.cursor/mcp.json',
     fileDesc: '或手动创建/编辑配置文件，或在 Cursor Settings -> Features -> MCP 中添加：',
     fileLang: 'json',
