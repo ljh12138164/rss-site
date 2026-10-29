@@ -67,7 +67,10 @@ export function SiteHeader() {
           <ThemeToggle />
         </div>
       </div>
-      <nav aria-label="主导航" className="-mx-5 overflow-x-auto px-5 sm:-mx-7 sm:px-7">
+      <nav
+        aria-label="主导航"
+        className="-mx-5 overflow-x-auto px-5 pb-1 slim-scrollbar sm:-mx-7 sm:px-7"
+      >
         <div className="flex min-w-max items-center border-t border-border lg:min-w-0">
           {sections.map(([href, label], index) => {
             const active =

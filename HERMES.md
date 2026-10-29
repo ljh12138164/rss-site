@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-10-29 导航与全局滚动条优化（feat/optimize-navigation-scrollbars）
+
+- 当前目标：`feat/optimize-navigation-scrollbars`，消除 Windows 平台在顶部主导航与二级分类条出现的原生粗灰滚动条，并美化全站纵向滚动条。
+- 开发记录：`docs/development/optimize-navigation-scrollbars.md`。在 `globals.css` 中引入 `@utility no-scrollbar` 及现代化细长自适应滚动条样式，在 `site-header.tsx` 与 `source-navigation.tsx` 中应用。
+- 验证完成：Web 91 文件 340 项测试、TypeScript `check-types`、Biome（0 错误 0 警告）及 `git diff --check` 全部通过。
+- 下一步：提交并推送 `feat/optimize-navigation-scrollbars` 分支，由用户创建与合并指向 `master` 的 PR。
+
 ## 2026-10-29 Adsterra 广告集成（feat/adsterra-ads）
 
 - 当前目标：`feat/adsterra-ads`，基于最新 `origin/master`（`f742e66`），接入 Adsterra 原生横幅（Native Banner `container-dbe8d6056eda1c6cbeb39ecf76bad967`）与移动端横幅（Banner 320x50 `b2067460601c71f2427a266d44f5a43d`）。

@@ -184,7 +184,7 @@ export default function AdminPage() {
         </div>
         <nav
           aria-label="管理导航"
-          className="flex gap-2 overflow-x-auto px-4 pb-4 lg:flex-col lg:px-3"
+          className="flex gap-2 overflow-x-auto px-4 pb-4 no-scrollbar lg:flex-col lg:px-3"
         >
           <Link
             href="/admin"

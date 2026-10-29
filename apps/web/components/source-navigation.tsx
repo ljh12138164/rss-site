@@ -20,7 +20,7 @@ export function SourceNavigation({
 
   return (
     <nav aria-label={ariaLabel} className="min-w-0 border-b border-border/80 pb-3">
-      <div className="relative -mx-5 overflow-x-auto px-5 scroll-fade-mask sm:-mx-7 sm:px-7">
+      <div className="relative -mx-5 overflow-x-auto px-5 pb-1 slim-scrollbar sm:-mx-7 sm:px-7">
         <ul className="flex min-w-max items-center gap-2 py-0.5 sm:min-w-0 sm:flex-wrap sm:gap-2">
           <li>
             <Link
