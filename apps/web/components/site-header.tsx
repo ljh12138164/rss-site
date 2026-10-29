@@ -69,7 +69,7 @@ export function SiteHeader() {
       </div>
       <nav
         aria-label="主导航"
-        className="-mx-5 overflow-x-auto px-5 scroll-fade-mask no-scrollbar sm:-mx-7 sm:px-7"
+        className="-mx-5 overflow-x-auto px-5 pb-1 slim-scrollbar sm:-mx-7 sm:px-7"
       >
         <div className="flex min-w-max items-center border-t border-border lg:min-w-0">
           {sections.map(([href, label], index) => {

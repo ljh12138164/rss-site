@@ -29,9 +29,14 @@
 
 ## Implementation
 
-1. `apps/web/app/globals.css`: 添加全局细长滚动条定义与 `@utility no-scrollbar`。
-2. `apps/web/components/site-header.tsx`: 在 `<nav>` 上增加 `no-scrollbar scroll-fade-mask`。
-3. `apps/web/components/source-navigation.tsx`: 在可滚动容器上增加 `no-scrollbar`。
+1. `apps/web/app/globals.css`:
+   - 添加 `@utility slim-scrollbar`：4px 极细圆角胶囊滑块（`border-radius: 9999px`），背景透明（零灰槽占位），彻底剔除 Windows 三角箭头按钮；
+   - 悬浮/拖拽时高亮为主题暖橙色（`var(--primary)`）；
+   - 保留全站纵向 6px 微型自适应滚动条。
+2. `apps/web/components/site-header.tsx`:
+   - 主导航应用 `slim-scrollbar pb-1`，紧凑贴合在各分区按钮下方。
+3. `apps/web/components/source-navigation.tsx`:
+   - 二级分类标签应用 `slim-scrollbar pb-1`，明确提示可拖拽滑动的进度与范围。
 
 ## Verification
 
