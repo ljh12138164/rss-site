@@ -1,6 +1,11 @@
+import fs from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
 import { expect, it } from 'vitest'
 import {
   cachePublicHtml,
+  injectMonetagSnippet,
+  MONETAG_SW_SNIPPET,
   matchesPublicPage,
   matchesStaticAsset
 } from './generate-service-worker.mjs'
@@ -69,4 +74,25 @@ it('only caches same-origin Next static scripts, styles and fonts', () => {
   expect(matchesStaticAsset({ ...asset, request: { method: 'POST', destination: 'script' } })).toBe(
     false
   )
+})
+
+it('injects Monetag service worker verification snippet once into sw.js', async () => {
+  const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-test-'))
+  const tmpSw = path.join(tmpDir, 'sw.js')
+  try {
+    await fs.writeFile(tmpSw, 'console.log("workbox runtime")', 'utf8')
+    await injectMonetagSnippet(tmpSw)
+    let content = await fs.readFile(tmpSw, 'utf8')
+    expect(content.startsWith(MONETAG_SW_SNIPPET)).toBe(true)
+    expect(content.includes('zoneId": 12146646')).toBe(true)
+    expect(content.includes('console.log("workbox runtime")')).toBe(true)
+
+    // Second call should be idempotent
+    await injectMonetagSnippet(tmpSw)
+    content = await fs.readFile(tmpSw, 'utf8')
+    const occurrences = content.split('12146646').length - 1
+    expect(occurrences).toBe(1)
+  } finally {
+    await fs.rm(tmpDir, { recursive: true, force: true })
+  }
 })
