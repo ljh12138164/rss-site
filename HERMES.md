@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-10-29 Adsterra 广告集成（feat/adsterra-ads）
+
+- 当前目标：`feat/adsterra-ads`，基于最新 `origin/master`（`f742e66`），接入 Adsterra 原生横幅（Native Banner `container-dbe8d6056eda1c6cbeb39ecf76bad967`）与移动端横幅（Banner 320x50 `b2067460601c71f2427a266d44f5a43d`）。
+- 开发记录：`docs/development/adsterra-ads.md`。封装客户端专用隔离渲染组件，置于文章详情页（`ArticleReader`）正文尾部与同来源文章之间，全端样式自适应，320x50 仅在移动端展示，避免污染桌面端与 SSR 崩溃。
+- 验证完成：Web 91 文件 340 项测试、TypeScript `check-types`、变更文件 Biome（0 错误 0 警告）及 `git diff --check` 全部通过；无阻塞审查项。
+- 下一步：提交变更并推送 `feat/adsterra-ads`，按仓库规定由用户创建与合并指向 `master` 的 Pull Request。
+
 ## 2026-10-25 详情与功能页文案去模板化（humanizer-zh）
 
 - 当前目标：`feat/humanize-ui-copy`，基于最新 `origin/master`（`f7c8711`），按 `humanizer-zh` 与 `PRODUCT.md` 清理稍后读（`/reading-list`）、MCP 接入（`/mcp`）、关于页（`/about`）、隐私说明（`/privacy`）、AI 来源描述模板（`source-page-text.ts`）以及文章/事件详情翻译与总结卡片中的模板化套话、提示词复读与内部实现暴露。
