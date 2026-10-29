@@ -1,6 +1,21 @@
+import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { generateSW } from 'workbox-build'
+
+export const MONETAG_SW_SNIPPET = `self.options = {
+    "domain": "3nbf4.com",
+    "zoneId": 12146646
+}
+self.lary = ""
+importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')`
+
+export async function injectMonetagSnippet(swPath) {
+  const content = await fs.readFile(swPath, 'utf8')
+  if (!content.includes('3nbf4.com')) {
+    await fs.writeFile(swPath, `${MONETAG_SW_SNIPPET}\n${content}`, 'utf8')
+  }
+}
 
 // These callbacks must be self-contained: Workbox serializes them into sw.js.
 export function matchesPublicPage({ request, url, sameOrigin }) {
@@ -71,7 +86,9 @@ export function serviceWorkerConfig(webDir) {
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const webDir = fileURLToPath(new URL('../', import.meta.url))
+  const swPath = path.join(webDir, 'public/sw.js')
   const { count, size, warnings } = await generateSW(serviceWorkerConfig(webDir))
   if (warnings.length) throw new Error(warnings.join('\n'))
+  await injectMonetagSnippet(swPath)
   console.log(`Generated sw.js: ${count} precached file, ${size} bytes`)
 }

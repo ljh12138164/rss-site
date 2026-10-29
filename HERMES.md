@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-10-29 Monetag 域名验证与 Service Worker 集成（feat/monetag-sw）
+
+- 当前目标：`feat/monetag-sw`，基于最新 `origin/master`（`7a6ac29`），彻底移除 Adsterra 广告组件与相关引用；将 Monetag 域名验证与 Multitag 推送所需的 `sw.js` 逻辑整合至 Workbox 生成构建流水线。
+- 开发记录：`docs/development/monetag-sw.md`。在 `generate-service-worker.mjs` 中接入 `injectMonetagSnippet` 自动在生成的 Service Worker 头部注入 Monetag 配置与脚本引入，同时删除 `adsterra-banner-320`、`adsterra-native-banner` 及 `adsterra-ads.test.tsx`。
+- 验证完成：Web 90 文件 337 项测试、TypeScript `check-types`、变更文件 Biome（0 错误 0 警告）及 `git diff --check` 全部通过。
+- 下一步：提交并推送 `feat/monetag-sw` 分支，由用户创建与合并指向 `master` 的 PR，部署生产后在 Monetag 页面点击“Verify”。
+
 ## 2026-10-29 导航与全局滚动条优化（feat/optimize-navigation-scrollbars）
 
 - 当前目标：`feat/optimize-navigation-scrollbars`，消除 Windows 平台在顶部主导航与二级分类条出现的原生粗灰滚动条，并美化全站纵向滚动条。
