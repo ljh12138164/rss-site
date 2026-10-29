@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import NextTopLoader from 'nextjs-toploader'
 import type { ReactNode } from 'react'
 import { GoogleScripts } from '../components/google-scripts'
+import { MonetagScript } from '../components/monetag-script'
 import { QueryProvider } from '../components/query-provider'
 import { ReactAriaProvider } from '../components/react-aria-provider'
 import { ServiceWorker } from '../components/service-worker'
@@ -46,6 +47,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           zIndex={50}
         />
         <GoogleScripts />
+        <MonetagScript />
         <ServiceWorker />
         <ThemeProvider
           attribute="class"
