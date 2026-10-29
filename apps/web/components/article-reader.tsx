@@ -18,6 +18,8 @@ import {
 import { getNewsArticle, getSameSourceArticles, type SignalArticle } from '../lib/signal-article'
 import { optionalCanonical } from '../lib/site-url'
 import type { SignalSource } from '../lib/technology-sources'
+import { AdsterraBanner320 } from './adsterra-banner-320'
+import { AdsterraNativeBanner } from './adsterra-native-banner'
 import { ArticleBookmarkButton } from './article-bookmark-button'
 import { ArticleHistoryTracker } from './article-history-tracker'
 import { ArticleSummary } from './article-summary'
@@ -233,6 +235,8 @@ export function ArticleReader({
             </a>
           </div>
         </footer>
+        <AdsterraNativeBanner />
+        <AdsterraBanner320 />
         {related.length > 0 && (
           <section
             className="mt-6 border-t border-border pt-6"
