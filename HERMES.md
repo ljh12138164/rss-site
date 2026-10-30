@@ -9,7 +9,9 @@
   3. 文案全面遵循 `humanizer-zh`，使用自然干练的开发者口吻。
   4. 数据库采用 Drizzle ORM 设计 `ai_models`、`ai_model_prices`、`ai_leaderboard_ranks`、`ai_model_evidences`，并在每日 Cron 任务中仅执行对 `last_seen_at < now() - interval '90 days'` 的下架模型级联清理。
 - 开发记录：`docs/development/ai-leaderboard.md`。
-- 下一步：按序实现数据库 Schema/迁移、Web 数据访问层、UI 组件、页面路由与引流入口，完成类型与单测验证。
+- 验证完成：Web 93 个测试文件 343 项测试全数通过、API 11 个测试文件 111 项测试通过、两包 TypeScript `check-types` 0 错误、Biome（12 个代码文件 0 错误 0 警告）及 `git diff --check` 全部通过。
+- 交付成果：代码已提交至 `feat/ai-leaderboard`（commit `cabca0b`）并推送至 `origin/feat/ai-leaderboard`。
+- 下一步：按仓库交付规则，由用户创建指向 `master` 的 Pull Request 并合并（PR 地址：https://github.com/ljh12138164/rss-site/pull/new/feat/ai-leaderboard ）。合并发布后在 Supabase 项目中执行迁移 `20261030113000_ai_leaderboard.sql`。
 
 
 ## 2026-10-29 Monetag 域名验证与 Service Worker 集成（feat/monetag-sw）
