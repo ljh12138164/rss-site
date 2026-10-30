@@ -155,7 +155,86 @@ export const hotItems = pgTable(
   ]
 )
 
+export const aiModels = pgTable(
+  'ai_models',
+  {
+    slug: text().primaryKey(),
+    name: text().notNull(),
+    creator: text().notNull(),
+    description: text(),
+    officialUrl: text('official_url'),
+    overallScore: text('overall_score'),
+    releasedAt: timestamp('released_at', { withTimezone: true }),
+    firstSeenAt: timestamp('first_seen_at', { withTimezone: true }).defaultNow().notNull(),
+    lastSeenAt: timestamp('last_seen_at', { withTimezone: true }).defaultNow().notNull()
+  },
+  (table) => [
+    index('ai_models_last_seen_idx').on(table.lastSeenAt),
+    index('ai_models_creator_idx').on(table.creator)
+  ]
+)
+
+export const aiModelPrices = pgTable(
+  'ai_model_prices',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    modelSlug: text('model_slug')
+      .notNull()
+      .references(() => aiModels.slug, { onDelete: 'cascade' }),
+    currency: text().default('CNY').notNull(),
+    inputPricePerMillion: text('input_price_per_million'),
+    outputPricePerMillion: text('output_price_per_million'),
+    cachedInputPricePerMillion: text('cached_input_price_per_million'),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+  },
+  (table) => [index('ai_model_prices_model_slug_idx').on(table.modelSlug)]
+)
+
+export const aiLeaderboardRanks = pgTable(
+  'ai_leaderboard_ranks',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    modelSlug: text('model_slug')
+      .notNull()
+      .references(() => aiModels.slug, { onDelete: 'cascade' }),
+    category: text().notNull(),
+    rank: integer().notNull(),
+    score: text().notNull(),
+    percentile: text(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+  },
+  (table) => [
+    unique('ai_leaderboard_ranks_category_slug_unique').on(table.category, table.modelSlug),
+    index('ai_leaderboard_ranks_category_rank_idx').on(table.category, table.rank)
+  ]
+)
+
+export const aiModelEvidences = pgTable(
+  'ai_model_evidences',
+  {
+    id: uuid().defaultRandom().primaryKey(),
+    modelSlug: text('model_slug')
+      .notNull()
+      .references(() => aiModels.slug, { onDelete: 'cascade' }),
+    sourceKey: text('source_key').notNull(),
+    benchmarkName: text('benchmark_name').notNull(),
+    evaluator: text().notNull(),
+    domain: text().notNull(),
+    rawScore: text('raw_score'),
+    capabilityScore: text('capability_score'),
+    reasoningTier: text('reasoning_tier'),
+    measured: boolean().default(true).notNull(),
+    sourceUrl: text('source_url'),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+  },
+  (table) => [index('ai_model_evidences_model_domain_idx').on(table.modelSlug, table.domain)]
+)
+
 export type HotItemInsert = typeof hotItems.$inferInsert
 export type SignalArticleInsert = typeof signalArticles.$inferInsert
 export type SourceStatusInsert = typeof sourceStatus.$inferInsert
 export type IngestionRunInsert = typeof ingestionRuns.$inferInsert
+export type AiModelInsert = typeof aiModels.$inferInsert
+export type AiModelPriceInsert = typeof aiModelPrices.$inferInsert
+export type AiLeaderboardRankInsert = typeof aiLeaderboardRanks.$inferInsert
+export type AiModelEvidenceInsert = typeof aiModelEvidences.$inferInsert

@@ -21,6 +21,7 @@ const sections = [
   ['/ai/events', 'AI 时间轴'],
   ['/github', '开源排行'],
   ['/skills', '热门 Skills'],
+  ['/leaderboard', '模型榜'],
   ['/mcp', 'MCP']
 ] as const
 
@@ -30,6 +31,7 @@ export function SiteHeader() {
   const timeline = pathname?.startsWith('/ai/events')
   const githubRanking = pathname?.startsWith('/github')
   const skillRanking = pathname?.startsWith('/skills')
+  const modelRanking = pathname?.startsWith('/leaderboard')
 
   return (
     <header className="sticky top-0 z-20 border-b border-border/40 bg-background/90 backdrop-blur-md transition-colors">
@@ -82,8 +84,10 @@ export function SiteHeader() {
                     ? githubRanking
                     : href === '/skills'
                       ? skillRanking
-                      : !(href === '/ai' && timeline) &&
-                        (pathname === href || pathname?.startsWith(`${href}/`))
+                      : href === '/leaderboard'
+                        ? modelRanking
+                        : !(href === '/ai' && timeline) &&
+                          (pathname === href || pathname?.startsWith(`${href}/`))
 
             return (
               <Link
