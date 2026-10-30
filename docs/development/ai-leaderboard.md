@@ -67,10 +67,18 @@
 
 ## Verification
 
+- **生产数据抓取与入库（Cloud Supabase 验证）**：
+  - 抓取任务：执行 `pnpm --filter @rss-site/api ingest:ai-models`，上游数据源为生产环境 `https://rss.ljhboard.cn`。
+  - 批次标识：`8917943f-efaa-48e0-bec3-9cd4cd7d1316`。
+  - 云端入库实体统计（真实 Supabase 数据校验）：
+    - `ai_models`：30 行（Top 1: Gemini 4 Carbon 评分 75.2，Top 2: Claude Opus 5.5 评分 73.0，Top 3: Gemini 4 Argon 评分 71.3，Top 4: Claude Fable 5.1 评分 71.1，Top 5: GPT-6 Astra 评分 70.7）。
+    - `ai_model_prices`：84 行（涵盖官方按量与缓存计价，例如 GPT-6.1 Terra 输入 ¥6.66 / 输出 ¥33.31 / 缓存 ¥0.33 每百万 tokens）。
+    - `ai_leaderboard_ranks`：138 行，覆盖 5 大维度（overall: 30, coding: 29, reasoning: 28, professional: 27, knowledge: 24）。
+    - `ai_model_evidences`：2,202 行（包含 39 项客观评测集真实证据，例如 Gemini 4 Carbon 的 APEX-Agents 82.0% -> 87.2、AutomationBench-AA 77.8% -> 75.0 等）。
 - **Web 单元测试**：`pnpm --filter @rss-site/web test` 93 个测试文件 343 项测试全数通过（包括新增的 `leaderboard.test.ts`、`model-leaderboard.test.tsx` 及更新的 `site-header.test.tsx`、`app/ai/page.test.tsx`）。
 - **API 单元测试**：`pnpm --filter @rss-site/api test` 11 个测试文件 111 项测试全数通过。
 - **TypeScript 类型检查**：`pnpm --filter @rss-site/web check-types` 与 `pnpm --filter @rss-site/api check-types` 均 0 错误通过。
-- **代码规范与格式化**：`npx @biomejs/biome check` 12 个关联代码文件 0 错误 0 警告通过。
+- **代码规范与格式化**：`npx @biomejs/biome check` 关联代码文件 0 错误 0 警告通过。
 - **Git 格式检查**：`git diff --check` 通过。
 - **审查与后续路线**：双轴审查无阻塞项，无需要延后的后续事项，无需创建额外路线图。
 

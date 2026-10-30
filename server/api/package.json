@@ -12,6 +12,7 @@
     "check-types": "tsc --noEmit",
     "test": "vitest run",
     "setup:cron": "tsx --env-file=.env src/setup/cli.ts",
+    "ingest:ai-models": "tsx --env-file=.env src/ingestion/run-ai-models-ingest.ts",
     "publish:event": "tsx --env-file=.env src/technology/publish-event.ts",
     "cf-typegen": "wrangler types",
     "deploy:check": "wrangler deploy --dry-run"
