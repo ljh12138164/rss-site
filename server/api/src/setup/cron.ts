@@ -101,6 +101,9 @@ where run.started_at < now() - interval '30 days'
     from public.source_status as source_state
     where source_state.last_batch_id = run.id
   );
+
+delete from public.ai_models as model
+where model.last_seen_at < now() - interval '90 days';
 `.trim()
 
 export interface CronRepository {

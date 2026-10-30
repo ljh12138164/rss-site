@@ -1,5 +1,17 @@
 # HERMES
 
+## 2026-10-30 AI 模型评测排行榜（feat/ai-leaderboard）
+
+- 当前目标：`feat/ai-leaderboard`，基于最新 `origin/master`（`878356b`），实现 1 个独立主页面（`/leaderboard` 及 `/leaderboard/[slug]`）+ 2 处上下文引流入口（全局顶栏与 AI 分区）。
+- 需求要点：
+  1. 数据接入已部署的 RSSHub 生产路由 `https://rss.ljhboard.cn/aihot/leaderboard?format=json` 及 `/aihot/model/:slug`，配置 4 小时 ISR。
+  2. UI 复用 `SkillLeaderboard` 架构（React Aria Components、Tab 维度切换、搜索框、列表/卡片视图切换、`rank-numeral`）。
+  3. 文案全面遵循 `humanizer-zh`，使用自然干练的开发者口吻。
+  4. 数据库采用 Drizzle ORM 设计 `ai_models`、`ai_model_prices`、`ai_leaderboard_ranks`、`ai_model_evidences`，并在每日 Cron 任务中仅执行对 `last_seen_at < now() - interval '90 days'` 的下架模型级联清理。
+- 开发记录：`docs/development/ai-leaderboard.md`。
+- 下一步：按序实现数据库 Schema/迁移、Web 数据访问层、UI 组件、页面路由与引流入口，完成类型与单测验证。
+
+
 ## 2026-10-29 Monetag 域名验证与 Service Worker 集成（feat/monetag-sw）
 
 - 当前目标：`feat/monetag-sw`，基于最新 `origin/master`（`7a6ac29`），彻底移除 Adsterra 广告组件与相关引用；将 Monetag 域名验证与 Multitag 推送所需的 `sw.js` 逻辑整合至 Workbox 生成构建流水线。
