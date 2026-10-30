@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-10-30 取消 Bun 低内存模式（feat/remove-bun-smol）
+
+- 当前目标：基于最新 `origin/master`（`3ae04f9`），移除 Docker 启动命令中翻译准备和 Next standalone 的两处 `--smol`，使用 Bun 默认运行模式。
+- 开发记录：`docs/development/remove-bun-smol.md`。复用现有 Bun 容器与启动顺序，不修改 ISR 策略或容器内存上限。
+- 验证完成：Bun CMD 断言、Compose 配置、启动参数残留检查与 `git diff --check` 通过；差异审查无阻塞项或后续项。本机 Docker daemon 未运行，容器构建与健康检查由 PR CI 验证。
+- 交付分支：`feat/remove-bun-smol`。下一步由用户创建、合并指向 `master` 的 PR；本轮未部署生产。
+
 ## 2026-10-30 AI 模型评测排行榜（feat/ai-leaderboard）
 
 - 当前目标：`feat/ai-leaderboard`，基于最新 `origin/master`（`878356b`），实现 1 个独立主页面（`/leaderboard` 及 `/leaderboard/[slug]`）+ 2 处上下文引流入口（全局顶栏与 AI 分区）。
