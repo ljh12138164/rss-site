@@ -1,4 +1,5 @@
 import { getSignalSource, type SignalSourceId } from '@rss-site/signals'
+import { unstable_cache } from 'next/cache'
 import { getPublicSupabaseClient } from './supabase'
 
 export interface SignalArticleRow {
@@ -90,16 +91,22 @@ export async function getSignalArticle(
 export const getNewsArticle = getSignalArticle
 
 export async function getSameSourceArticles(id: string, source: SignalSourceId) {
-  const { data, error } = await getPublicSupabaseClient()
-    .from('signal_articles')
-    .select('id,title,source')
-    .eq('source', source)
-    .eq('is_indexable', true)
-    .neq('id', id)
-    .order('published_at', { ascending: false, nullsFirst: false })
-    .order('id')
-    .limit(4)
-    .abortSignal(AbortSignal.timeout(5000))
-  if (error) throw new Error('Unable to load same-source articles')
-  return (data ?? []) as { id: string; title: string; source: SignalSourceId }[]
+  const articles = await unstable_cache(
+    async () => {
+      const { data, error } = await getPublicSupabaseClient()
+        .from('signal_articles')
+        .select('id,title,source')
+        .eq('source', source)
+        .eq('is_indexable', true)
+        .order('published_at', { ascending: false, nullsFirst: false })
+        .order('id')
+        .limit(5)
+        .abortSignal(AbortSignal.timeout(5000))
+      if (error) throw new Error('Unable to load same-source articles')
+      return (data ?? []) as { id: string; title: string; source: SignalSourceId }[]
+    },
+    ['same-source-articles', source],
+    { revalidate: 21600, tags: [`news-status:${source}`] }
+  )()
+  return articles.filter((article) => article.id !== id).slice(0, 4)
 }

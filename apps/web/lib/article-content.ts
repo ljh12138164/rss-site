@@ -79,11 +79,13 @@ export function renderArticleContent(html: string, originalUrl: string, _section
     ],
     allowedAttributes: {
       a: ['href', 'rel', 'target', 'data-outbound'],
+      code: ['class'],
       div: ['data-cctv-video', 'data-cctv-type', 'class'],
       th: ['colspan', 'rowspan', 'scope'],
       td: ['colspan', 'rowspan'],
       ol: ['start']
     },
+    allowedClasses: { code: ['language-mermaid', 'lang-mermaid'] },
     allowedSchemes: ['https', 'http'],
     allowProtocolRelative: false,
     nonTextTags: [

@@ -1,5 +1,16 @@
 # HERMES
 
+## 2026-10-30 首次访问加载优化与文章图表（feat/improve-cold-page-loading）
+
+- 当前目标：从 `origin/master`（`3ae04f9`）优先优化冷文章加载，修复掘金历史 Mermaid 源码直出；用户已暂停 TLS 排查。
+- 文档：`docs/development/improve-cold-page-loading.md`。用户明确同意新增 Mermaid 渲染依赖，复用现有文章界面，仅含图表时按需加载。
+- 线上对照：缓存列表源站 4–11ms，公网曾 32s；问题文章源站/Nginx 约 1.2s 完整返回，公网传输曾超过 140s。当前容器健康、无 OOM，不能认定 ISR 是根因。
+- 冷页基线：源站文章 MISS 7.39s/HIT 1.12s；四次串行数据库查询共约 5.54s，并发对照两阶段共约 1.76s（单次测量，受连接复用影响）。
+- 已实现两阶段并发查询、共享同来源列表缓存，纳入此前已确认的 Bun `--smol` 移除；Mermaid 按需渲染兼容历史转义，保留严格安全配置、主题切换与失败回退。
+- 验证：Web 97 文件 359 项测试、三包类型检查、11 个变更代码文件 Biome、Compose 配置和 diff 检查通过。真实两张流程图的桌面/移动/明暗浏览器检查通过，临时预览路由已移除。
+- 构建：生产编译与 TypeScript 通过；既有列表静态预生成受本机访问 Supabase 的连接重置/超时阻断，完整镜像构建和 Linux/Bun 运行须由 PR CI 验证。尚未部署，不将独立查询对照当作修改后整页耗时。
+- 交付分支：`feat/improve-cold-page-loading`；无新增 roadmap 跟进项。下一步由用户[创建指向 `master` 的 PR](https://github.com/ljh12138164/rss-site/compare/master...feat/improve-cold-page-loading?expand=1)，待 CI 通过后合并发布。
+
 ## 2026-10-30 AI 模型评测排行榜（feat/ai-leaderboard）
 
 - 当前目标：`feat/ai-leaderboard`，基于最新 `origin/master`（`878356b`），实现 1 个独立主页面（`/leaderboard` 及 `/leaderboard/[slug]`）+ 2 处上下文引流入口（全局顶栏与 AI 分区）。
