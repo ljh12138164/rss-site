@@ -63,7 +63,7 @@ export const LEADERBOARD_CATEGORIES = [
   { id: 'overall', label: '综合' },
   { id: 'coding', label: '代码与编程' },
   { id: 'reasoning', label: '逻辑科研' },
-  { id: 'agent', label: '专业办公 Agent' },
+  { id: 'professional', label: '专业办公 Agent' },
   { id: 'knowledge', label: '知识问答' }
 ] as const
 

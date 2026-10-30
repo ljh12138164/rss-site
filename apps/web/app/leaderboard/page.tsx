@@ -35,18 +35,18 @@ export default async function LeaderboardPage() {
   const categoriesData: Record<string, ModelLeaderboardItem[]> = {}
 
   // Fetch overall and category rankings in parallel
-  const [overall, coding, reasoning, agent, knowledge] = await Promise.all([
+  const [overall, coding, reasoning, professional, knowledge] = await Promise.all([
     getModelLeaderboard('overall'),
     getModelLeaderboard('coding'),
     getModelLeaderboard('reasoning'),
-    getModelLeaderboard('agent'),
+    getModelLeaderboard('professional'),
     getModelLeaderboard('knowledge')
   ])
 
   categoriesData.overall = overall
   categoriesData.coding = coding
   categoriesData.reasoning = reasoning
-  categoriesData.agent = agent
+  categoriesData.professional = professional
   categoriesData.knowledge = knowledge
 
   return (
