@@ -33,14 +33,19 @@ const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
   timeZone: 'Asia/Shanghai'
 })
 
-async function resolveArticle(params: ArticlePageProps['params'], section: string) {
+async function resolveArticleRoute(params: ArticlePageProps['params'], section: string) {
   const { source, slug } = await params
   const entry = articleSource(source)
   const id = parseArticleIdFromSlug(slug)
   if (!entry || entry.section.id !== section || !id) notFound()
-  const article = await loadArticle(id, entry.source.id)
+  return { id, source: entry.source }
+}
+
+async function resolveArticle(params: ArticlePageProps['params'], section: string) {
+  const { id, source } = await resolveArticleRoute(params, section)
+  const article = await loadArticle(id, source.id)
   if (!article) notFound()
-  return { article, source: entry.source }
+  return { article, source }
 }
 
 export async function articleMetadata(props: ArticlePageProps, section: string): Promise<Metadata> {
@@ -262,9 +267,11 @@ export function ArticleReader({
 }
 
 export async function renderArticlePage(props: ArticlePageProps, section: string) {
-  const resolved = await resolveArticle(props.params, section)
-  const related = await getSameSourceArticles(resolved.article.id, resolved.source.id).catch(
-    () => []
-  )
-  return <ArticleReader {...resolved} related={related} />
+  const { id, source } = await resolveArticleRoute(props.params, section)
+  const [article, related] = await Promise.all([
+    loadArticle(id, source.id),
+    getSameSourceArticles(id, source.id).catch(() => [])
+  ])
+  if (!article) notFound()
+  return <ArticleReader article={article} source={source} related={related} />
 }

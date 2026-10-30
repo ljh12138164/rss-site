@@ -64,6 +64,13 @@ describe('article HTML', () => {
     expect(html).toContain('<code>&lt;div&gt;</code>')
     expect(html).toContain('<td>数据</td>')
   })
+  it('preserves Mermaid language markers without allowing arbitrary code attributes', () => {
+    const html = render(
+      '<pre><code class="language-mermaid injected" onclick="evil()">flowchart LR\nA--&gt;B</code></pre>'
+    )
+    expect(html).toContain('class="language-mermaid"')
+    expect(html).not.toMatch(/injected|onclick/)
+  })
   it('removes executable HTML, CSS, media and dangerous URLs', () => {
     const html = render(
       '<script>alert(1)</script><style>body{display:none}</style><p onclick="evil()" style="position:fixed">safe</p><img src=x onerror=evil()><iframe srcdoc="evil"></iframe><svg><script>evil()</script></svg><a href="java&#x73;cript:evil()">bad</a><form><input name=x></form>'

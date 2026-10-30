@@ -6,25 +6,23 @@ export function getContentStatus(kind: 'event' | 'news', id: string, source: str
   return unstable_cache(
     async () => {
       const db = getPublicSupabaseClient()
-      const removed = await db
+      const removedQuery = db
         .from('content_tombstones')
         .select('key')
         .eq('kind', kind)
         .eq('key', kind === 'event' ? id : `${source}/${id}`)
         .abortSignal(AbortSignal.timeout(10000))
         .maybeSingle()
-      if (removed.error) throw new Error('Content status unavailable')
-      if (removed.data) return 410
-      const visible =
+      const visibleQuery =
         kind === 'event'
-          ? await db
+          ? db
               .from('ai_events')
               .select('id')
               .eq('slug', id)
               .eq('status', 'published')
               .abortSignal(AbortSignal.timeout(10000))
               .maybeSingle()
-          : await db
+          : db
               .from('signal_articles')
               .select('id')
               .eq('id', id)
@@ -32,6 +30,9 @@ export function getContentStatus(kind: 'event' | 'news', id: string, source: str
               .eq('source', source)
               .abortSignal(AbortSignal.timeout(10000))
               .maybeSingle()
+      const [removed, visible] = await Promise.all([removedQuery, visibleQuery])
+      if (removed.error) throw new Error('Content status unavailable')
+      if (removed.data) return 410
       if (visible.error) throw new Error('Content status unavailable')
       return visible.data ? 200 : 404
     },
