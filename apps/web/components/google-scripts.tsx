@@ -12,23 +12,11 @@ export function GoogleScripts({ pathname: propPathname }: { pathname?: string } 
     return null
   }
 
-  const ga = process.env.NEXT_PUBLIC_GA_ID
   return (
     <>
       <Script id="umami-before-send" strategy="beforeInteractive">
         {`window.umamiBeforeSend=function(type,payload){if(payload&&payload.url&&(payload.url==='/out'||payload.url.startsWith('/out?')||payload.url.startsWith('/out/')))return false;return payload;};`}
       </Script>
-      {ga && /^G-[A-Z0-9]+$/.test(ga) && (
-        <>
-          <Script id="google-analytics" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${ga}');`}
-          </Script>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${ga}`}
-            strategy="afterInteractive"
-          />
-        </>
-      )}
       <Script
         id="umami-analytics"
         defer

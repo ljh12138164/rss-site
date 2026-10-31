@@ -9,11 +9,9 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY . .
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-ARG NEXT_PUBLIC_GA_ID
 ENV SITE_URL=https://news.ljhboard.cn
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 RUN pnpm --filter @rss-site/web build
 # The preparation script is outside Next's route tracing. Install its complete
 # dependency tree separately so it does not depend on standalone's pnpm links.
