@@ -55,6 +55,20 @@ describe('GoogleScripts', () => {
     // expect(adsenseScript?.props.src).toContain('pagead2.googlesyndication.com')
   })
 
+  it('does not render Google Analytics script', () => {
+    const element = GoogleScripts()
+    expect(element).not.toBeNull()
+    if (!element) throw new Error('Expected element')
+    const children = (
+      Array.isArray(element.props.children)
+        ? element.props.children.flat()
+        : [element.props.children]
+    ).filter(Boolean) as ReactElement<ScriptProps>[]
+
+    const gaScript = children.find((child) => child.props.id === 'google-analytics')
+    expect(gaScript).toBeUndefined()
+  })
+
   it('does not render tracking scripts on /out pathname', () => {
     expect(GoogleScripts({ pathname: '/out' })).toBeNull()
     expect(GoogleScripts({ pathname: '/out/sub' })).toBeNull()

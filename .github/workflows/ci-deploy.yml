@@ -15,7 +15,6 @@ jobs:
       SITE_URL: https://news.ljhboard.cn
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-      NEXT_PUBLIC_GA_ID: ${{ vars.NEXT_PUBLIC_GA_ID }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -41,8 +40,7 @@ jobs:
           test -n "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
           docker build --tag "rss-site-web:sha-${GITHUB_SHA}" \
             --build-arg NEXT_PUBLIC_SUPABASE_URL \
-            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
-            --build-arg NEXT_PUBLIC_GA_ID .
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY .
       - name: Verify runtime
         run: |
           cleanup() {
@@ -76,7 +74,6 @@ jobs:
       SITE_URL: https://news.ljhboard.cn
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-      NEXT_PUBLIC_GA_ID: ${{ vars.NEXT_PUBLIC_GA_ID }}
     steps:
       - uses: actions/checkout@v4
       - name: Build release image
@@ -85,8 +82,7 @@ jobs:
           test -n "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
           docker build --tag "rss-site-web:sha-${GITHUB_SHA}" \
             --build-arg NEXT_PUBLIC_SUPABASE_URL \
-            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
-            --build-arg NEXT_PUBLIC_GA_ID .
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY .
       - name: Verify release image
         run: |
           cleanup() {
