@@ -11,6 +11,7 @@ import {
   listSignalSources,
   newsSources,
   resolveSignalFeedUrl,
+  resolveSignalFeedUrls,
   SIGNAL_CRON_JOBS,
   signalSections,
   signalSources,
@@ -21,16 +22,16 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 43 sources', () => {
+  it('defines 7 sections and 45 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(43)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(43)
+    expect(signalSources).toHaveLength(45)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(45)
   })
 
   it('correctly maps all section counts', () => {
-    expect(technologySources).toHaveLength(8)
-    expect(technologyArticleSources).toHaveLength(7)
+    expect(technologySources).toHaveLength(10)
+    expect(technologyArticleSources).toHaveLength(9)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
     expect(aiSources).toHaveLength(10)
@@ -66,7 +67,7 @@ describe('@rss-site/signals', () => {
 
   it('filters sources by section and isArticle', () => {
     const techArticles = listSignalSources({ section: 'technology', isArticle: true })
-    expect(techArticles).toHaveLength(7)
+    expect(techArticles).toHaveLength(9)
     expect(techArticles.some((s) => s.id === 'github')).toBe(false)
 
     const allSkills = listSignalSources({ section: 'skills' })
@@ -89,6 +90,19 @@ describe('@rss-site/signals', () => {
     expect(
       resolveSignalFeedUrl(getSignalSource('cloudflare-blog'), 'https://rss.ljhboard.cn')
     ).toBe('https://rss.ljhboard.cn/cloudflare/blog')
+  })
+
+  it('groups only Chinese NVIDIA and AMD feeds under two technology platforms', () => {
+    expect(resolveSignalFeedUrls(getSignalSource('nvidia'), 'https://rss.ljhboard.cn')).toEqual([
+      'https://rss.ljhboard.cn/nvidia/developer/zh-CN?limit=20',
+      'https://blogs.nvidia.cn/feed/'
+    ])
+    expect(resolveSignalFeedUrls(getSignalSource('amd'), 'https://rss.ljhboard.cn')).toEqual([
+      'https://rss.ljhboard.cn/amd/newsroom/all/zh-CN?limit=20'
+    ])
+    expect(
+      resolveSignalFeedUrls(getSignalSource('github-blog'), 'https://rss.ljhboard.cn')
+    ).toEqual(['https://github.blog/feed/'])
   })
 
   it('ensures every cron job has valid format and non-empty schedule', () => {

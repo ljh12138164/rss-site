@@ -39,7 +39,9 @@ describe('technologySources', () => {
       ['36kr', '/36kr/hot-list/24'],
       ['github-blog', 'https://github.blog/feed/'],
       ['cloudflare-blog', '/cloudflare/blog'],
-      ['geekpark', 'http://www.geekpark.net/rss']
+      ['geekpark', 'http://www.geekpark.net/rss'],
+      ['nvidia', '/nvidia/developer/zh-CN?limit=20'],
+      ['amd', '/amd/newsroom/all/zh-CN?limit=20']
     ])
     expect(technologySources.every((source) => source.section === 'technology')).toBe(true)
   })
@@ -162,7 +164,7 @@ describe('technologySources', () => {
     expect(isGameSourceId('chuapp')).toBe(true)
     expect(isGameSourceId('steam')).toBe(false)
     expect(isGameSourceId('github')).toBe(false)
-    expect(signalSources).toHaveLength(43)
+    expect(signalSources).toHaveLength(45)
     expect(getSignalSource('cctv').section).toBe('news')
   })
 })

@@ -1,4 +1,4 @@
-import { resolveSignalFeedUrl, type SignalSource } from '@rss-site/signals'
+import { resolveSignalFeedUrls, type SignalSource } from '@rss-site/signals'
 import type { Database } from '../db/client.js'
 import { fetchSignalFeed } from './fetch.js'
 import { ingestSignal } from './ingest.js'
@@ -32,7 +32,7 @@ export async function runIngestionPipeline(
   now = new Date()
 ): Promise<IngestionPipelineResult> {
   const rsshubBaseUrl = options.rsshubBaseUrl.replace(/\/$/, '')
-  const feedUrl = resolveSignalFeedUrl(source, rsshubBaseUrl)
+  const feedUrls = resolveSignalFeedUrls(source, rsshubBaseUrl)
   const fetcher =
     options.fetchFeed ??
     ((url: string) =>
@@ -44,7 +44,7 @@ export async function runIngestionPipeline(
   const result = await ingestSignal(
     source,
     {
-      fetchFeed: () => fetcher(feedUrl),
+      fetchFeed: () => Promise.all(feedUrls.map((url) => fetcher(url))),
       store
     },
     now

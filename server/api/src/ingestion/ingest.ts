@@ -1,11 +1,11 @@
 import type { SignalSource } from '@rss-site/signals'
-import { parseSignalFeed } from './feed.js'
+import { parseSignalFeed, type SignalFeedItem } from './feed.js'
 import type { FailedIngestion, SignalStore, SuccessfulIngestion } from './store.js'
 
 export type { FailedIngestion, SignalStore, SuccessfulIngestion }
 
 export interface IngestionDependencies {
-  fetchFeed(): Promise<string>
+  fetchFeed(): Promise<string | string[]>
   store: SignalStore
 }
 
@@ -21,13 +21,34 @@ export async function ingestSignal(
   const batchId = crypto.randomUUID()
 
   try {
-    const items = parseSignalFeed(await deps.fetchFeed(), source.name, {
-      useUpdatedDate: source.section !== 'news',
-      titleFromFirstStrong:
-        'titleFromFirstStrong' in source ? source.titleFromFirstStrong : undefined,
-      urlFromFirstAnchor: 'urlFromFirstAnchor' in source ? source.urlFromFirstAnchor : undefined,
-      skillMetadata: 'skillMetadata' in source ? source.skillMetadata : undefined
-    }).slice(0, source.itemLimit)
+    const feeds = await deps.fetchFeed()
+    const candidates = [feeds].flat().flatMap((feed) =>
+      parseSignalFeed(feed, source.name, {
+        useUpdatedDate: source.section !== 'news',
+        titleFromFirstStrong:
+          'titleFromFirstStrong' in source ? source.titleFromFirstStrong : undefined,
+        urlFromFirstAnchor: 'urlFromFirstAnchor' in source ? source.urlFromFirstAnchor : undefined,
+        skillMetadata: 'skillMetadata' in source ? source.skillMetadata : undefined
+      })
+    )
+    const merged = new Map<string, SignalFeedItem>()
+    if ('feeds' in source) {
+      for (const item of candidates) {
+        const existing = merged.get(item.url)
+        if (!existing || (item.contentHtml?.length ?? 0) > (existing.contentHtml?.length ?? 0)) {
+          merged.set(item.url, { ...item, sourceKey: item.url })
+        }
+      }
+    }
+    const items = (
+      'feeds' in source
+        ? [...merged.values()].sort(
+            (a, b) => (b.publishedAt?.getTime() ?? 0) - (a.publishedAt?.getTime() ?? 0)
+          )
+        : candidates
+    )
+      .slice(0, source.itemLimit)
+      .map((item, index) => ({ ...item, position: index + 1 }))
     if (source.section === 'news') {
       const day = 24 * 60 * 60 * 1000
       const offset = 8 * 60 * 60 * 1000

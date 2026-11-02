@@ -113,6 +113,33 @@ describe('runIngestionPipeline', () => {
       status: 'failed'
     })
   })
+
+  it('requests every component feed and records a component failure without replacing data', async () => {
+    const requested: string[] = []
+    const fakeDb = {
+      transaction: vi.fn(),
+      insert: vi.fn(() => ({ values: vi.fn(async () => undefined) }))
+    } as unknown as Database
+
+    await expect(
+      runIngestionPipeline(getSignalSource('nvidia'), {
+        db: fakeDb,
+        rsshubBaseUrl: 'https://rsshub.test/',
+        fetchFeed: async (url) => {
+          requested.push(url)
+          if (url.includes('blogs.nvidia.cn')) throw new Error('Upstream unavailable')
+          return sampleRssXml()
+        }
+      })
+    ).rejects.toThrow('Upstream unavailable')
+
+    expect(requested).toEqual([
+      'https://rsshub.test/nvidia/developer/zh-CN?limit=20',
+      'https://blogs.nvidia.cn/feed/'
+    ])
+    expect(fakeDb.transaction).not.toHaveBeenCalled()
+    expect(fakeDb.insert).toHaveBeenCalledOnce()
+  })
 })
 
 describe('readBoundedText', () => {

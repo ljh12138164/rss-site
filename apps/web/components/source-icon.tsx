@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import type { ComponentType } from 'react'
 import {
+  SiAmd,
   SiAnthropic,
   SiBaidu,
   SiBilibili,
@@ -10,6 +11,7 @@ import {
   SiGithub,
   SiGooglegemini,
   SiJuejin,
+  SiNvidia,
   SiQwen,
   SiYcombinator,
   SiZhihu
@@ -35,6 +37,8 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
   github: { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
   'github-blog': { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
   'cloudflare-blog': { Icon: SiCloudflare, color: '#f38020', bg: '#fff3e6' },
+  nvidia: { Icon: SiNvidia, color: '#76b900', bg: '#f0f8e4' },
+  amd: { Icon: SiAmd, color: '#ed1c24', bg: '#fde8e9' },
   'skills-all-time': { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
   'skills-trending': { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
   'hacker-news': { Icon: SiYcombinator, color: '#ffffff', bg: '#f0652f' },
