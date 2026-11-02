@@ -38,14 +38,34 @@ function fixture(initialState?: CookieState) {
 }
 
 describe('daily Zhihu credential rotation', () => {
-  it('rejects a value-only seed before checking identity or rotating credentials', async () => {
-    const { deps } = fixture()
-    deps.initialCookie = 'value-only'
-    await expect(runZhihuCookieRefresh(deps)).rejects.toThrow('invalid_cookie')
-    expect(deps.account).not.toHaveBeenCalled()
-    expect(deps.refresh).not.toHaveBeenCalled()
-    expect(deps.publish).not.toHaveBeenCalled()
-  })
+  it.each([
+    ['value-only', 'z_c0=value-only'],
+    ['synthetic==', 'z_c0=synthetic=='],
+    ['z_c0=old', 'z_c0=old'],
+    ['d_c0=device; z_c0=old; _xsrf=xsrf', 'd_c0=device; z_c0=old; _xsrf=xsrf']
+  ])(
+    'accepts the configured Cookie %s and passes canonical form to authentication',
+    async (input, expected) => {
+      const { deps } = fixture()
+      deps.initialCookie = input
+      await runZhihuCookieRefresh(deps)
+      expect(deps.account).toHaveBeenCalledWith(expected)
+      expect(deps.refresh).toHaveBeenCalledWith(expected)
+      expect(deps.publish).toHaveBeenCalledWith('z_c0=new')
+    }
+  )
+
+  it.each(['z_c0=', 'd_c0=device; _xsrf=xsrf', 'value\r\ninvalid=header'])(
+    'still rejects a malformed Cookie before checking identity: %s',
+    async (input) => {
+      const { deps } = fixture()
+      deps.initialCookie = input
+      await expect(runZhihuCookieRefresh(deps)).rejects.toThrow('invalid_cookie')
+      expect(deps.account).not.toHaveBeenCalled()
+      expect(deps.refresh).not.toHaveBeenCalled()
+      expect(deps.publish).not.toHaveBeenCalled()
+    }
+  )
 
   it('skips a concurrent invocation while the rotation holds the lock', async () => {
     const { deps } = fixture()

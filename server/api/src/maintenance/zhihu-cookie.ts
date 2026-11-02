@@ -1,4 +1,4 @@
-import { assertZhihuCookie, RefreshError } from './zhihu.js'
+import { assertZhihuCookie, cookieValue, RefreshError } from './zhihu.js'
 
 export interface CookieState {
   cookie: string
@@ -38,7 +38,13 @@ export async function runZhihuCookieRefresh(deps: CookieRefreshDependencies) {
     let state = await store.load()
     if (!state) {
       if (!deps.initialCookie) throw new RefreshError('missing_initial_cookie')
-      state = { cookie: deps.initialCookie }
+      const initial = deps.initialCookie
+      state = {
+        cookie:
+          cookieValue(initial, 'z_c0') !== undefined || initial.includes(';')
+            ? initial
+            : `z_c0=${initial}`
+      }
     }
 
     if (state.deploymentId) {
