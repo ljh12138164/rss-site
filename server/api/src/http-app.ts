@@ -7,6 +7,8 @@ import {
 } from '@rss-site/signals'
 import type { Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { RefreshError } from './maintenance/zhihu.js'
+import type { CookieRefreshResult } from './maintenance/zhihu-cookie.js'
 import { handleMcpJsonRpc } from './mcp/handler.js'
 import type { McpNewsItem } from './mcp/service.js'
 
@@ -14,6 +16,7 @@ export interface AppDependencies {
   cronSecret: string
   runIngestion(source: SignalSourceId): Promise<{ batchId: string; itemCount: number }>
   fetchNews?(options: { platform?: string; limit?: number }): Promise<McpNewsItem[]>
+  refreshZhihuCookie?(): Promise<CookieRefreshResult>
 }
 
 function matchesSecret(actual: string | undefined, expected: string): boolean {
@@ -26,6 +29,26 @@ function matchesSecret(actual: string | undefined, expected: string): boolean {
 
 export function configureApp(app: Hono, deps: AppDependencies) {
   app.get('/health', (context) => context.json({ status: 'ok' as const }))
+
+  app.post('/cron/maintenance/zhihu-cookie', async (context) => {
+    if (!matchesSecret(context.req.header('Authorization'), deps.cronSecret)) {
+      return context.json({ error: 'Unauthorized' }, 401)
+    }
+    if (!deps.refreshZhihuCookie)
+      return context.json({ error: 'Cookie refresh is not configured' }, 503)
+    try {
+      const result = await deps.refreshZhihuCookie()
+      return context.json(result, result.status === 'deployment_pending' ? 202 : 200)
+    } catch (error) {
+      return context.json(
+        {
+          error: 'Cookie refresh failed',
+          code: error instanceof RefreshError ? error.code : 'request_failed'
+        },
+        502
+      )
+    }
+  })
 
   // Standard Hono CORS middleware for MCP endpoint
   app.use(

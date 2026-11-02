@@ -1,5 +1,16 @@
 # HERMES
 
+## 2026-11-02 Zhihu Cookie refresh via native Worker Cron
+
+- Branch: feat/zhihu-cookie-refresh, based on fetched origin/master at e87ade1
+- Objective: daily native Cloudflare scheduled task at 04:00 Asia/Shanghai, shared with authenticated manual maintenance endpoint
+- Implemented: two-step refresh, encrypted Vault state and transaction lock, Vercel Production env update/redeployment and subsequent login verification
+- Document: [development](docs/development/zhihu-cookie-refresh.md)
+- Verification: 146 API tests, all workspace type checks, Worker dry-run and local workerd authentication probe passed
+- Automatic execution remains disabled until real account, Vault persistence, deployment and CPU-budget verification; no production mutations made
+- Delivery: verified branch pushed to origin/feat/zhihu-cookie-refresh; working tree clean
+- Next: owner creates and merges PR into master, then provision Worker secrets and perform manual acceptance before enabling Cron
+
 ## 2026-10-30 首次访问加载优化与文章图表（feat/improve-cold-page-loading）
 
 - 当前目标：从 `origin/master`（`3ae04f9`）优先优化冷文章加载，修复掘金历史 Mermaid 源码直出；用户已暂停 TLS 排查。
