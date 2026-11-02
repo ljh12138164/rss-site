@@ -1,5 +1,15 @@
 # HERMES
 
+## 2026-11-02 Zhihu refresh runtime correction
+
+- Branch: feat/fix-zhihu-cookie-refresh, based on fetched origin/master at 551fb75
+- Confirmed cause: Workers rejects redirect=error before sending the request; separate configuration issue: Cookie value lacked z_c0= prefix
+- Fixed: manual redirects with non-2xx rejection, Cookie validation before identity, and explicit configuration examples
+- Evidence: Hyperdrive lock/read/second connection succeeded in authenticated cloud preview; native fetch succeeded while the original helper failed
+- Verification: 154 API tests including real workerd redirect regression, API types and full preview bundle passed
+- Document: [fix and verification](docs/development/fix-zhihu-cookie-refresh.md)
+- Next: owner merges/deploys the fix and updates Cookie format, then complete real refresh/publication acceptance before enabling Cron
+
 ## 2026-11-02 Zhihu Cookie refresh via native Worker Cron
 
 - Branch: feat/zhihu-cookie-refresh, based on fetched origin/master at e87ade1

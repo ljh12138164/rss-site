@@ -1,8 +1,33 @@
 import { describe, expect, it, vi } from 'vitest'
-import { refreshZhihuCookie, zhihuAccount } from './zhihu.js'
+import { refreshZhihuCookie, requestJson, zhihuAccount } from './zhihu.js'
 import { encryptZseV4 } from './zse-v4.js'
 
 describe('Zhihu web authentication protocol', () => {
+  it('rejects redirects without following them or forwarding credentials', async () => {
+    const request = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(null, {
+        status: 302,
+        headers: { Location: 'https://other.example/' }
+      })
+    )
+    await expect(
+      requestJson(request, 'https://www.zhihu.com/api/v4/me', {
+        headers: { Cookie: 'z_c0=synthetic' }
+      })
+    ).rejects.toThrow('upstream_http_302')
+    expect(request).toHaveBeenCalledOnce()
+    expect(request.mock.calls[0][1]?.redirect).toBe('manual')
+  })
+
+  it.each(['value-only', 'z_c0=', 'z_c0=synthetic\r\ninvalid=value', 'z_c0=\u4e2d\u6587'])(
+    'rejects malformed Cookie before any identity request: %s',
+    async (cookie) => {
+      const request = vi.fn<typeof fetch>()
+      await expect(zhihuAccount(cookie, request)).rejects.toThrow('invalid_cookie')
+      expect(request).not.toHaveBeenCalled()
+    }
+  )
+
   // Generated independently by the reference Python implementation at 2b746001.
   it.each([
     ['', '+6xIt2FGPUaT5v8jKc7bCB=/'],
@@ -36,8 +61,8 @@ describe('Zhihu web authentication protocol', () => {
     )
     expect(result).toBe('z_c0=new-cookie; d_c0=device; _xsrf=xsrf')
     expect(request.mock.calls.map(([url, init]) => [url, init?.method, init?.redirect])).toEqual([
-      ['https://www.zhihu.com/api/account/prod/token/refresh', 'POST', 'error'],
-      ['https://www.zhihu.com/api/v3/oauth/sign_in', 'POST', 'error']
+      ['https://www.zhihu.com/api/account/prod/token/refresh', 'POST', 'manual'],
+      ['https://www.zhihu.com/api/v3/oauth/sign_in', 'POST', 'manual']
     ])
     const init = request.mock.calls[1][1]
     expect(new Headers(init?.headers).get('x-zse-83')).toBe('3_3.0')

@@ -27,7 +27,7 @@ describe('RSSHub Vercel publication', () => {
     for (const [url, init] of request.mock.calls) {
       expect(new URL(String(url)).searchParams.get('teamId')).toBe('team_test')
       expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer synthetic')
-      expect(init?.redirect).toBe('error')
+      expect(init?.redirect).toBe('manual')
     }
   })
 

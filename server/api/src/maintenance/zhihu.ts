@@ -18,7 +18,8 @@ export type Request = typeof fetch
 export async function requestJson(request: Request, url: string, init: RequestInit = {}) {
   const response = await request(url, {
     ...init,
-    redirect: 'error',
+    // Workers supports manual/follow only; the status check below rejects redirects.
+    redirect: 'manual',
     signal: AbortSignal.timeout(15_000)
   })
   if (!response.ok) {
@@ -47,13 +48,17 @@ export function cookieValue(cookie: string, name: string) {
     ?.slice(name.length + 1)
 }
 
+export function assertZhihuCookie(cookie: string) {
+  if (!cookieValue(cookie, 'z_c0') || /[^\x20-\x7e]/.test(cookie))
+    throw new RefreshError('invalid_cookie')
+}
+
 export async function refreshZhihuCookie(
   cookie: string,
   request: Request = fetch,
   now = Date.now()
 ) {
-  if (!cookieValue(cookie, 'z_c0') || /[\r\n]/.test(cookie))
-    throw new RefreshError('invalid_cookie')
+  assertZhihuCookie(cookie)
   const first = await requestJson(request, `${origin}/api/account/prod/token/refresh`, {
     method: 'POST',
     headers: headers(cookie)
@@ -116,6 +121,7 @@ export async function refreshZhihuCookie(
 }
 
 export async function zhihuAccount(cookie: string, request: Request = fetch): Promise<string> {
+  assertZhihuCookie(cookie)
   const response = await requestJson(request, `${origin}/api/v4/me?include=is_realname`, {
     headers: headers(cookie)
   })
