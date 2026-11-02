@@ -1,4 +1,4 @@
--- Manual fallback for `pnpm setup:cron`. Run only after all 37 production sources have passed
+-- Manual fallback for `pnpm setup:cron`. Run only after all 39 listed production sources have passed
 -- the API and cloud Supabase verification gate and these secrets are stored in Vault:
 -- select vault.create_secret('https://your-api.vercel.app/cron/signals', 'signal_ingest_base_url');
 -- select vault.create_secret('replace-with-a-random-secret', 'signal_cron_secret');
@@ -86,7 +86,9 @@ begin
       ('indienova', 'signal-ingest-indienova', '20 3,9,15,21 * * *'),
       ('github-blog', 'signal-ingest-github-blog', '30 3,9,15,21 * * *'),
       ('skills-all-time', 'signal-ingest-skills-all-time', '40 3,9,15,21 * * *'),
-      ('skills-trending', 'signal-ingest-skills-trending', '50 3,9,15,21 * * *')
+      ('skills-trending', 'signal-ingest-skills-trending', '50 3,9,15,21 * * *'),
+      ('nvidia', 'signal-ingest-nvidia', '40 4,10,16,22 * * *'),
+      ('amd', 'signal-ingest-amd', '50 4,10,16,22 * * *')
     ) as jobs(source_id, job_name, job_schedule)
   loop
     perform cron.schedule(

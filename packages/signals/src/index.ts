@@ -87,7 +87,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
   }
 ] as const
 
-// 科技 Technology (8)
+// 科技 Technology (10)
 export const technologySources = [
   {
     id: 'github',
@@ -192,6 +192,35 @@ export const technologySources = [
     isArticle: true,
     cronSchedule: '35 3,9,15,21 * * *',
     cronJobName: 'signal-ingest-geekpark'
+  },
+  {
+    id: 'nvidia',
+    name: 'NVIDIA',
+    code: 'NV',
+    shortName: 'NVIDIA',
+    description: 'NVIDIA 官方中文技术博客与企业动态',
+    section: 'technology',
+    itemLimit: 30,
+    feeds: [
+      { rsshubPath: '/nvidia/developer/zh-CN?limit=20' },
+      { feedUrl: 'https://blogs.nvidia.cn/feed/' }
+    ],
+    isArticle: true,
+    cronSchedule: '40 4,10,16,22 * * *',
+    cronJobName: 'signal-ingest-nvidia'
+  },
+  {
+    id: 'amd',
+    name: 'AMD',
+    code: 'AMD',
+    shortName: 'AMD',
+    description: 'AMD 官方中文新闻与新闻稿',
+    section: 'technology',
+    itemLimit: 30,
+    feeds: [{ rsshubPath: '/amd/newsroom/all/zh-CN?limit=20' }],
+    isArticle: true,
+    cronSchedule: '50 4,10,16,22 * * *',
+    cronJobName: 'signal-ingest-amd'
   }
 ] as const
 
@@ -755,7 +784,9 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'lilian-weng',
   'simon-willison',
   'cloudflare-blog',
-  'antigravity'
+  'antigravity',
+  'nvidia',
+  'amd'
 ] as const
 
 // Cron jobs
@@ -893,7 +924,14 @@ export function listSignalCronJobs(): ReadonlyArray<{
 }
 
 export function resolveSignalFeedUrl(source: SignalSource, rsshubBaseUrl: string): string {
-  return 'feedUrl' in source && typeof source.feedUrl === 'string'
-    ? source.feedUrl
-    : `${rsshubBaseUrl}${'rsshubPath' in source ? source.rsshubPath : ''}`
+  const feed = 'feeds' in source ? source.feeds[0] : source
+  return 'feedUrl' in feed ? feed.feedUrl : `${rsshubBaseUrl}${feed.rsshubPath}`
+}
+
+export function resolveSignalFeedUrls(source: SignalSource, rsshubBaseUrl: string): string[] {
+  return 'feeds' in source
+    ? source.feeds.map((feed) =>
+        'feedUrl' in feed ? feed.feedUrl : `${rsshubBaseUrl}${feed.rsshubPath}`
+      )
+    : [resolveSignalFeedUrl(source, rsshubBaseUrl)]
 }

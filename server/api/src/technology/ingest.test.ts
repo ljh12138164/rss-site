@@ -42,6 +42,60 @@ function feed(items: Array<{ id: string; title: string }>) {
 describe('ingestSignal', () => {
   const source = getTechnologySource('github')
 
+  it('merges platform feeds by URL, keeps the complete body, and sorts before limiting', async () => {
+    const store = new MemoryStore()
+    const source = getTechnologySource('nvidia')
+    const xml = (id: string, title: string, date: string, body: string) =>
+      `<rss><channel><item><guid>${title}</guid><title>${title}</title><link>https://example.com/${id}</link><pubDate>${date}</pubDate><description>${body}</description></item></channel></rss>`
+
+    await ingestSignal(source, {
+      fetchFeed: async () => [
+        feed(
+          Array.from({ length: 31 }, (_, index) => ({
+            id: `old-${index}`,
+            title: `Older ${index}`
+          }))
+        ),
+        xml('shared', 'Newsroom', '2026-10-02T00:00:00Z', 'Excerpt'),
+        xml('shared', 'Blog', '2026-10-02T00:00:00Z', 'Complete article body'),
+        xml('new', 'Newest', '2026-10-03T00:00:00Z', 'New body')
+      ],
+      store
+    })
+
+    expect(
+      [...store.items.values()]
+        .slice(0, 2)
+        .map((item) => [item.title, item.position, item.sourceKey])
+    ).toEqual([
+      ['Newest', 1, 'https://example.com/new'],
+      ['Blog', 2, 'https://example.com/shared']
+    ])
+    expect(store.items.size).toBe(30)
+    expect(store.items.get('https://example.com/shared')?.contentHtml).toContain(
+      'Complete article body'
+    )
+  })
+
+  it('preserves the platform ranking when one component feed fails', async () => {
+    const store = new MemoryStore()
+    const source = getTechnologySource('nvidia')
+    await ingestSignal(source, {
+      fetchFeed: async () => [feed([{ id: '1', title: 'Last good item' }])],
+      store
+    })
+
+    await expect(
+      ingestSignal(source, {
+        fetchFeed: async () => [feed([{ id: '2', title: 'New item' }]), '<rss><channel /></rss>'],
+        store
+      })
+    ).rejects.toThrow('empty NVIDIA feed')
+
+    expect([...store.items.values()].map((item) => item.title)).toEqual(['Last good item'])
+    expect(store.successCount).toBe(1)
+  })
+
   it('reconciles repeated feeds into one current ordered ranking', async () => {
     const store = new MemoryStore()
     const now = new Date('2026-09-04T01:00:00.000Z')
