@@ -1,4 +1,4 @@
-import { RefreshError } from './zhihu.js'
+import { assertZhihuCookie, RefreshError } from './zhihu.js'
 
 export interface CookieState {
   cookie: string
@@ -65,6 +65,7 @@ export async function runZhihuCookieRefresh(deps: CookieRefreshDependencies) {
         if (state.refreshedAt && now - state.refreshedAt < 23 * 60 * 60 * 1000) {
           return { status: 'not_due' }
         }
+        assertZhihuCookie(state.cookie)
         if (!state.accountId) {
           try {
             state.accountId = await deps.account(state.cookie)

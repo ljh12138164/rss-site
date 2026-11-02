@@ -38,6 +38,15 @@ function fixture(initialState?: CookieState) {
 }
 
 describe('daily Zhihu credential rotation', () => {
+  it('rejects a value-only seed before checking identity or rotating credentials', async () => {
+    const { deps } = fixture()
+    deps.initialCookie = 'value-only'
+    await expect(runZhihuCookieRefresh(deps)).rejects.toThrow('invalid_cookie')
+    expect(deps.account).not.toHaveBeenCalled()
+    expect(deps.refresh).not.toHaveBeenCalled()
+    expect(deps.publish).not.toHaveBeenCalled()
+  })
+
   it('skips a concurrent invocation while the rotation holds the lock', async () => {
     const { deps } = fixture()
     let release!: (cookie: string) => void

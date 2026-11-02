@@ -46,6 +46,8 @@ Vercel 仅更新 Production 专用 `ZHIHU_COOKIES`，用原生产部署的名称
 
 ### 配置与启用
 
+`ZHIHU_COOKIES` 填写的是 Cookie 名称和值，例如 `z_c0=从浏览器复制的实际值`，也可填写包含它的整段 `name=value; z_c0=实际值`。不能只填 `z_c0` 后面的值，也不要添加 `Cookie:` 或外层引号。生产回归中的 Workers 重定向兼容问题及修复见 [修复记录](fix-zhihu-cookie-refresh.md)。
+
 1. 通过 `pnpm --filter @rss-site/api exec wrangler secret put ZHIHU_COOKIES` 和 `pnpm --filter @rss-site/api exec wrangler secret put VERCEL_API_TOKEN` 交互输入 secret，禁止将值放入命令行或提交。初始 Cookie 应与当前 RSSHub 完整 Cookie 一致，包含 `z_c0`；Vercel token 需具备该项目环境变量和部署权限
 2. 项目与 team ID 已按现有 `rss-hub` 项目配置；保留已有 `CRON_SECRET`、`REVALIDATE_SECRET` 和 Hyperdrive，无需新增 migration
 3. 合并后部署 API，保持自动开关关闭，用服务端 `CRON_SECRET` 的 Bearer 鉴权调用 `POST /cron/maintenance/zhihu-cookie`
