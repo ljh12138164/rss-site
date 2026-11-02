@@ -8,7 +8,8 @@
 - Document: [development](docs/development/zhihu-cookie-refresh.md)
 - Verification: 146 API tests, all workspace type checks, Worker dry-run and local workerd authentication probe passed
 - Automatic execution remains disabled until real account, Vault persistence, deployment and CPU-budget verification; no production mutations made
-- Next: push the verified feature branch; owner creates and merges PR into master, then provision Worker secrets and perform manual acceptance before enabling Cron
+- Delivery: verified branch pushed to origin/feat/zhihu-cookie-refresh; working tree clean
+- Next: owner creates and merges PR into master, then provision Worker secrets and perform manual acceptance before enabling Cron
 
 ## 2026-10-30 首次访问加载优化与文章图表（feat/improve-cold-page-loading）
 
