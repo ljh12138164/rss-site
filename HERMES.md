@@ -1,5 +1,16 @@
 # HERMES
 
+## 2026-11-02 Accept raw Zhihu Cookie values and enable verified Cron
+
+- Branch: feat/accept-zhihu-cookie-value, based on fetched origin/master 97377e7
+- Implemented: bare z_c0 values are prefixed automatically at seed initialization; named and complete Cookie strings remain supported
+- Real acceptance: existing raw Worker secret refreshed successfully, canonical Cookie persisted to Vault, Vercel production deployment READY with rss.ljhboard.cn alias, production API returned HTTP 200 / published at 17:16:16 Asia/Shanghai
+- RSSHub login check: HTTP 200, code=0; Vault publish_pending=false, candidate and deployment ID cleared
+- Verification: 160 API tests including workerd, API types, regenerated bindings and full Worker preview upload passed
+- Native daily schedule remains 04:00 Asia/Shanghai; source flag enabled after successful acceptance, effective after branch merge/deployment
+- Document: [acceptance and implementation](docs/development/accept-zhihu-cookie-value.md)
+- Next: owner creates and merges PR into master; deploy normalized-seed handling and enabled daily Cron, then observe the next scheduled invocation
+
 ## 2026-11-02 Zhihu refresh runtime correction
 
 - Branch: feat/fix-zhihu-cookie-refresh, based on fetched origin/master at 551fb75
