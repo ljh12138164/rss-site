@@ -20,7 +20,7 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllEnvs())
 
-it('returns a validated hit without loading or renewing TTL', async () => {
+it('returns a validated hit without loading', async () => {
   evaluate.mockResolvedValue(['version', JSON.stringify(value)])
   const load = vi.fn()
   expect(await getCachedList('hit', valid, load)).toEqual(value)
@@ -29,22 +29,19 @@ it('returns a validated hit without loading or renewing TTL', async () => {
 })
 
 it.each(['', 'invalid-json', '{"items":42}'])(
-  'fills missing or invalid data %s with a bounded TTL',
+  'fills missing or invalid data %s as resident cache data',
   async (raw) => {
     evaluate.mockResolvedValueOnce(['version', raw]).mockResolvedValueOnce(1)
     expect(await getCachedList(`invalid:${raw}`, valid, async () => value)).toEqual(value)
     const args = evaluate.mock.calls[1]
     expect(args.slice(1, 5)).toEqual([2, ...listCacheKeys(`invalid:${raw}`), 'version'])
     expect(args[5]).toBe(JSON.stringify(value))
-    expect(args[6]).toBeGreaterThanOrEqual(300)
-    expect(args[6]).toBeLessThanOrEqual(330)
   }
 )
 
-it('caches successful empty data briefly but never caches database errors', async () => {
+it('caches successful empty data but never caches database errors', async () => {
   evaluate.mockResolvedValueOnce(['version', '']).mockResolvedValueOnce(1)
   await getCachedList('empty', valid, async () => ({ items: [] }))
-  expect(evaluate.mock.calls[1][6]).toBe(30)
   evaluate.mockClear().mockResolvedValue(['version', ''])
   await expect(
     getCachedList('error', valid, async () => {

@@ -32,15 +32,15 @@ describe.skipIf(!process.env.TEST_REDIS_URL)('list cache against real Redis', ()
     vi.unstubAllEnvs()
   })
 
-  it('writes a real expiring JSON value and serves subsequent hits without a database load', async () => {
+  it('keeps a real JSON value resident and serves subsequent hits without a database load', async () => {
     const key = scope()
     const load = vi.fn(async () => ({ items: ['current'] }))
     await getCachedList(key, valid, load)
     expect(await getCachedList(key, valid, load)).toEqual({ items: ['current'] })
     expect(load).toHaveBeenCalledTimes(1)
     const ttl = await withRedisCache((redis) => redis.ttl(listCacheKeys(key)[1]))
-    expect(ttl).toBeGreaterThanOrEqual(299)
-    expect(ttl).toBeLessThanOrEqual(330)
+    expect(ttl).toBe(-1)
+    expect(await withRedisCache((redis) => redis.ttl(listCacheKeys(key)[0]))).toBe(-1)
   })
 
   it('rejects a prewarm result that arrives after invalidation without replacing the new list', async () => {
@@ -91,7 +91,7 @@ describe.skipIf(!process.env.TEST_REDIS_URL)('list cache against real Redis', ()
     expect(load).toHaveBeenCalledTimes(1)
   })
 
-  it('merges real concurrent misses and refills after expiration', async () => {
+  it('keeps empty lists resident, merges misses, and refills a removed data key', async () => {
     const key = scope()
     const load = vi.fn(async () => {
       await new Promise((resolve) => setTimeout(resolve, 30))
@@ -100,11 +100,44 @@ describe.skipIf(!process.env.TEST_REDIS_URL)('list cache against real Redis', ()
     await Promise.all(Array.from({ length: 5 }, () => getCachedList(key, valid, load)))
     expect(load).toHaveBeenCalledTimes(1)
     const dataKey = listCacheKeys(key)[1]
-    expect(await withRedisCache((redis) => redis.ttl(dataKey))).toBeLessThanOrEqual(30)
-    await withRedisCache((redis) => redis.pexpire(dataKey, 1))
-    await new Promise((resolve) => setTimeout(resolve, 10))
+    expect(await withRedisCache((redis) => redis.ttl(dataKey))).toBe(-1)
+    await withRedisCache((redis) => redis.del(dataKey))
     await getCachedList(key, valid, load)
     expect(load).toHaveBeenCalledTimes(2)
+  })
+
+  it('adopts legacy expiring keys without dropping a valid hit', async () => {
+    const key = scope()
+    const [generation, data] = listCacheKeys(key)
+    await withRedisCache(async (redis) => {
+      await redis.set(generation, 'legacy', 'EX', 86400)
+      await redis.set(data, JSON.stringify({ items: ['existing'] }), 'EX', 300)
+      return true
+    })
+    const load = vi.fn(async () => ({ items: ['unexpected'] }))
+    expect(await getCachedList(key, valid, load)).toEqual({ items: ['existing'] })
+    expect(load).not.toHaveBeenCalled()
+    expect(await withRedisCache((redis) => redis.ttl(generation))).toBe(-1)
+    expect(await withRedisCache((redis) => redis.ttl(data))).toBe(-1)
+  })
+
+  it('preserves the last good list when a forced maintenance refresh fails', async () => {
+    const key = scope()
+    await getCachedList(key, valid, async () => ({ items: ['last good'] }))
+    await expect(
+      getCachedList(
+        key,
+        valid,
+        async () => {
+          throw new Error('database unavailable')
+        },
+        true
+      )
+    ).rejects.toThrow('database unavailable')
+    const load = vi.fn(async () => ({ items: ['unexpected'] }))
+    expect(await getCachedList(key, valid, load)).toEqual({ items: ['last good'] })
+    expect(load).not.toHaveBeenCalled()
+    expect(await withRedisCache((redis) => redis.ttl(listCacheKeys(key)[1]))).toBe(-1)
   })
 
   it('never caches failed loads and replaces corrupted values', async () => {
