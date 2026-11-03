@@ -10,7 +10,10 @@
 - Verification: Web 388 项（含 Redis 7.4 真实集成 6 项）、API 164 项、Signals 8 项，三包类型、67 页生产构建、变更文件 Biome、部署打包/预热失败回滚隔离测试及语法检查通过
 - Real-data evidence: 云端公开只读数据预热到临时本地 Redis 50/50 成功，约 1.72 MiB；随后 50 次读取没有新增数据库请求；本地生产模式通知/首屏/分页/HTML 均 HTTP 200
 - Review: 客户端依赖边界、旧 SSR 查询晚到和 Turbo 测试环境传递问题均已解决，无未关闭阻塞项或接受的范围外跟进
-- Next: 用户从 feat/list-first-page-cache 创建指向 master 的 PR，待 Linux 镜像构建与 CI 通过后合并发布。未直接部署生产
+- Production: 用户已上线 master 152a34d，Actions 41572666618 的 verify/deploy 均成功；首次由旧服务器脚本执行，已手动补预热 50/50，新预热 hook 已安装供后续部署使用
+- Acceptance: 生产列表键约 1.67 MiB；首屏与 Redis 完全一致，分页 200；重放知乎通知 200，两组缓存换代回填且后台 listCache=succeeded，无关分类版本不变，未触发采集或数据库写入
+- Publication: 同批 Cloudflare 清理和 IndexNow 均成功；原页面预热失败后已逐页补热 5/5 HTTP 200，/latest 此次 5.54 秒超出既有 3 秒预热窗口
+- Delivery: 生产验收记录分支 feat/list-cache-production-verification，无产品代码变更；无需额外运行预热或修改 Cron
 
 ## 2026-11-02 Accept raw Zhihu Cookie values and enable verified Cron
 

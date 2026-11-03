@@ -13,7 +13,7 @@
 
 ## Out of scope
 
-新界面、上游采集逻辑、数据库迁移、Cron 配置、历史分页/搜索/个人筛选缓存、生产直接部署
+新界面、上游采集逻辑、数据库迁移、Cron 配置、历史分页/搜索/个人筛选缓存
 
 ## Acceptance criteria
 
@@ -72,8 +72,19 @@ docker compose --project-directory /opt/stacks/rss-site exec -T web bun apps/web
 - 全部 22 个变更 JS/TS/JSON 文件 Biome 检查通过；`git diff --check` 通过；生成的浏览器静态 JS 中未出现 Redis 模块/配置或列表缓存键
 - WSL `python3 deploy/server/test-release-packaging.py`：3 项通过，包含实际执行部署末尾逻辑并模拟预热失败，确认不会触发回滚；部署 bash/sh 语法检查通过
 - Bun 内部命令 bundle：119 模块、约 0.92 MB，未配置 Redis 时安全报告 disabled 并退出
-- 本机无 Docker/shellcheck，Linux 镜像构建、镜像内命令和 shellcheck 留待 PR CI；CI 工作流已经包含这些检查，尚未创建 PR 或运行该 CI
-- 未修改生产 Redis、Supabase schema、Cron、线上配置或生产服务
+- 本机无 Docker/shellcheck；上线 CI 的 verify/deploy 已完成 Linux 镜像构建、镜像内命令、shellcheck、测试、类型及运行时验证
+- 实现阶段未修改生产；用户合并上线后按授权执行下述生产验收，未修改 Supabase schema、Cron 或运行配置
+
+### 生产验收（2026-11-03）
+
+- 用户已合并并上线 master `152a34df2b2e3d4e186f6a9a876875c8e264bc2f`；[Actions 41572666618](https://github.com/ljh12138164/rss-site/actions/runs/41572666618) 的 verify/deploy 均成功，服务器 Web 使用该镜像且 Web/Redis 均 healthy
+- 本次首次发布由服务器旧部署脚本执行，因此日志没有首轮预热记录；新脚本已安装到服务器，包含健康检查后的预热 hook，后续发布使用新脚本。本次通过 Workbench 手动执行内部命令补齐，结果 `listPrewarm=succeeded,total=50,succeeded=50,failed=[]`
+- 随后 Redis 快照：48 个数据键、50 个版本键，列表键 `MEMORY USAGE` 合计 1,751,320 字节（约 1.67 MiB），数据 TTL 202–266 秒；空列表只有 30 秒 TTL，预热成功不承诺之后一直保有 50 个数据键。Redis 总内存检查约 1.97 MiB（补预热前），上限 128 MiB、allkeys-lru
+- 源站 `/api/articles?source=zhihu` 返回 HTTP 200/30 条，与生产 Redis 对应 JSON 完全一致；重复请求相同，服务器回环请求实测 41 ms、10 ms；原 nextCursor 后续页 HTTP 200/30 条。这些时间不包含公网网络或浏览器渲染
+- 使用容器已有服务端凭据重放知乎来源通知（未抓取上游、未写数据库）：HTTP 200、revalidated=true，publicationId `11263468-de22-4cb8-9640-f9dc80412cc3`；来源和社交分类版本均改变、两组数据均回填，无关 AI 分类版本不变。后台记录 `listCache=succeeded,failed=[]`，时间 `2026-11-03T03:44:21.402Z`
+- 同批发布日志：Cloudflare purge HTTP 200/succeeded，IndexNow HTTP 200/succeeded；原有页面预热汇总为 failed。随后在生产容器逐页补热五个通知路径，全部 HTTP 200；/latest 本次耗时 5,540 ms，高于既有单请求 3 秒预热上限，其他页面 227–2,242 ms。Redis 列表回填成功与该页面预热步骤独立，本轮未调整既有超时或 /latest 逻辑
+- 公网 healthz、知乎首屏 API、AI 分类 HTML、知乎平台 HTML 均 HTTP 200；HTML 观察到 CDN HIT
+- 本轮验证缓存更新入口及后台回填，没有触发真实采集，也未声称观察到下一次 Cron 运行；下一次定时采集沿用该通知入口
 
 ## Risks
 
@@ -88,4 +99,4 @@ docker compose --project-directory /opt/stacks/rss-site exec -T web bun apps/web
 - Blocking，已解决：旧查询虽然不能覆盖 Redis，仍可能返回给 SSR 生成旧页面；条件写入失败的普通读取改为重读当前版本，并以真实 Redis 测试验证
 - Blocking，已解决：Turbo 默认环境过滤会让 CI 集成测试静默跳过，显式声明 TEST_REDIS_URL
 - Blocking，已解决：预热必须确认 Redis 条件写入成功，不能把成功读库误报为缓存已更新；失败独立报告并重试
-- 审查结束，无剩余本地阻塞项；无已接受的范围外跟进项，不创建空 roadmap。生产上线及镜像验证仍须经过用户创建 PR 后的 CI/合并流程
+- 审查结束，无剩余本地阻塞项；无已接受的范围外跟进项，不创建空 roadmap。用户已完成 PR/CI/合并上线，生产补预热及通知回填验收已通过
