@@ -1,4 +1,3 @@
-import { invalidateListCaches } from '../lib/list-cache'
 import { warmListCaches } from '../lib/list-cache-prewarm'
 import { listCacheTargets } from '../lib/list-cache-scopes'
 
@@ -13,7 +12,7 @@ async function main() {
   if (requested.some((scope) => !targets.some((target) => target.scope === scope)))
     throw new Error('Invalid prewarm scope')
   const scopes = requested.length ? [...new Set(requested)] : targets.map((target) => target.scope)
-  if (!(await invalidateListCaches(scopes))) throw new Error('List cache invalidation failed')
+  // Force-refresh in place so an outage leaves the previous successful lists readable.
   const deadline = AbortSignal.timeout(5 * 60 * 1000)
   let result = await warmListCaches(scopes, deadline)
   if (result.failed.length) {

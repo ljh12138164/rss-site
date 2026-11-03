@@ -1,5 +1,18 @@
 # HERMES
 
+## 2026-11-03 修正首屏缓存自动过期
+
+- Branch: feat/keep-list-cache-warm，基于 origin/master 152a34d
+- Objective: 固定 50 组首屏长期保留；采集定向刷新；服务启动及每 15 分钟补偿刷新
+- Evidence: 生产 50 个版本键、0 个数据键，expired_keys=49、evicted_keys=0
+- Design/Feasibility: 已复用用户确认范围，无 UI/迁移/Cron 变更；单实例 Node instrumentation 后台维护可行
+- Document: [持续缓存修正](docs/development/keep-list-cache-warm.md)
+- Implemented: 数据/版本/合法空列表均长期保留，旧键 PERSIST 迁移；部署预热原位替换；Node 启动及每 15 分钟后台补偿，失败有限重试，不重叠
+- Verification: 真实 Redis 8 项、维护/门控 9 项、Web 全量 399 项通过；三包类型、67 页构建通过；standalone 无访客恢复缺失键，50 数据键 + 50 版本键全部 TTL=-1，约 1.72 MiB
+- Final verification: 全包顺序运行 571 项通过（8+164+399），无跳过；Bun 内部 bundle 与浏览器模块边界检查通过
+- Review: 无剩余阻塞项；后台补偿仅刷新 Redis，页面/CDN 仍沿用采集通知/原过期策略；无新增 roadmap
+- Next: 用户从 feat/keep-list-cache-warm 创建指向 master 的 PR，经 CI 后合并上线，再验生产长期保留
+
 ## 2026-11-03 分类与平台首屏缓存
 
 - Branch: feat/list-first-page-cache，基于已 fetch 的远端默认分支 73d83b0，独立工作树 rss-site-list-cache
@@ -10,7 +23,7 @@
 - Verification: Web 388 项（含 Redis 7.4 真实集成 6 项）、API 164 项、Signals 8 项，三包类型、67 页生产构建、变更文件 Biome、部署打包/预热失败回滚隔离测试及语法检查通过
 - Real-data evidence: 云端公开只读数据预热到临时本地 Redis 50/50 成功，约 1.72 MiB；随后 50 次读取没有新增数据库请求；本地生产模式通知/首屏/分页/HTML 均 HTTP 200
 - Review: 客户端依赖边界、旧 SSR 查询晚到和 Turbo 测试环境传递问题均已解决，无未关闭阻塞项或接受的范围外跟进
-- Next: 用户从 feat/list-first-page-cache 创建指向 master 的 PR，待 Linux 镜像构建与 CI 通过后合并发布。未直接部署生产
+- Next: 用户已合并上线 master 152a34d；短 TTL 导致数据过期，修正由 feat/keep-list-cache-warm 承接
 
 ## 2026-11-02 Accept raw Zhihu Cookie values and enable verified Cron
 

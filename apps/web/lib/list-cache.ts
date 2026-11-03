@@ -8,19 +8,22 @@ const readScript = `
 local generation = redis.call('GET', KEYS[1])
 if not generation then
   generation = ARGV[1]
-  redis.call('SET', KEYS[1], generation, 'EX', 86400)
+  redis.call('SET', KEYS[1], generation)
   redis.call('DEL', KEYS[2])
 end
+-- Adopt keys left by the old expiring-cache release without a cold reload.
+redis.call('PERSIST', KEYS[1])
+redis.call('PERSIST', KEYS[2])
 return {generation, redis.call('GET', KEYS[2]) or ''}
 `
 const writeScript = `
 if redis.call('GET', KEYS[1]) ~= ARGV[1] then return 0 end
-redis.call('SET', KEYS[2], ARGV[2], 'EX', ARGV[3])
+redis.call('SET', KEYS[2], ARGV[2])
 return 1
 `
 const invalidateScript = `
 for i = 1, #KEYS, 2 do
-  redis.call('SET', KEYS[i], ARGV[1], 'EX', 86400)
+  redis.call('SET', KEYS[i], ARGV[1])
   redis.call('DEL', KEYS[i + 1])
 end
 return 1
@@ -79,9 +82,8 @@ async function readList<T extends { items: unknown[] | null }>(
     (async () => {
       const value = await load()
       if (!validate(value)) throw new Error('Invalid list result')
-      const ttl = value.items?.length ? 300 + Math.floor(Math.random() * 31) : 30
       const written = await withRedisCache((redis) =>
-        redis.eval(writeScript, 2, ...keys, generation, JSON.stringify(value), ttl)
+        redis.eval(writeScript, 2, ...keys, generation, JSON.stringify(value))
       )
       return { value, written }
     })()
