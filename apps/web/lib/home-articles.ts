@@ -4,64 +4,24 @@ import {
   gameSources,
   newsSources,
   type SignalSource,
-  type SignalSourceId,
   socialSources,
   technologyArticleSources,
   technologySources
 } from '@rss-site/signals'
+import { type ArticleFilter, articleSections } from './article-filter'
 import type { HotItem } from './hot-feed'
+import { getCachedList } from './list-cache'
+import { articleListScope } from './list-cache-scopes'
 import type { OutboundReturnPath } from './outbound-link'
 import { getPublicSupabaseClient } from './supabase'
 
-const sections = [
-  { path: '/ai', sources: aiSources },
-  { path: '/technology', sources: technologySources },
-  { path: '/news', sources: newsSources },
-  { path: '/social', sources: socialSources },
-  { path: '/finance', sources: financeSources },
-  { path: '/games', sources: gameSources }
-] as const
+export type { ArticleFilter } from './article-filter'
+export { parseArticleFilter } from './article-filter'
 
-const sources = sections.flatMap(({ path, sources }) => sources.map((source) => ({ source, path })))
+const sources = articleSections.flatMap(({ path, sources }) =>
+  sources.map((source) => ({ source, path }))
+)
 const PAGE_SIZE = 30
-
-export interface ArticleFilter {
-  section?: Exclude<OutboundReturnPath, '/'>
-  source?: SignalSourceId
-  sources?: SignalSourceId[]
-}
-
-export function parseArticleFilter(
-  section: string | null,
-  source: string | null,
-  selected: string | null = null
-): ArticleFilter {
-  if (section !== null && !sections.some((entry) => entry.path === section))
-    throw new Error('Invalid section')
-  if (
-    source !== null &&
-    !sources.some((entry) => entry.source.id === source && (!section || entry.path === section))
-  )
-    throw new Error('Invalid source')
-  const sourceIds = selected === null ? undefined : [...new Set(selected.split(','))].sort()
-  if (
-    sourceIds &&
-    (source !== null ||
-      sourceIds.length > sources.length ||
-      !sourceIds.every((id) =>
-        sources.some(
-          (entry) =>
-            entry.source.id === id && entry.source.isArticle && (!section || entry.path === section)
-        )
-      ))
-  )
-    throw new Error('Invalid sources')
-  return {
-    section: (section ?? undefined) as ArticleFilter['section'],
-    source: (source ?? undefined) as ArticleFilter['source'],
-    ...(sourceIds ? { sources: sourceIds as SignalSourceId[] } : {})
-  }
-}
 
 interface Cursor {
   id: string
@@ -110,7 +70,59 @@ export function parseHomeCursor(value: string): Cursor {
 export async function getHomeArticles(
   cursor: Cursor | null = null,
   signal?: AbortSignal,
-  filter: ArticleFilter = {}
+  filter: ArticleFilter = {},
+  refresh = false
+): Promise<HomeArticlePage> {
+  const scope = cursor ? null : articleListScope(filter)
+  if (!scope) return queryHomeArticles(cursor, signal, filter)
+  // A shared fill has its own database deadline, independent of any visitor's cancellation.
+  return getCachedList(
+    scope,
+    isHomeArticlePage,
+    () => queryHomeArticles(null, undefined, filter),
+    refresh
+  )
+}
+
+function isHomeArticlePage(value: unknown): value is HomeArticlePage {
+  if (!value || typeof value !== 'object') return false
+  const page = value as HomeArticlePage
+  if (!Array.isArray(page.items) || page.items.length > PAGE_SIZE) return false
+  if (page.nextCursor !== null) {
+    if (typeof page.nextCursor !== 'string') return false
+    try {
+      parseHomeCursor(page.nextCursor)
+    } catch {
+      return false
+    }
+  }
+  return page.items.every((item) => {
+    if (!item || typeof item !== 'object') return false
+    const source = sources.find(({ source }) => source.id === item.platform?.id)
+    return (
+      !!source &&
+      item.section === source.path &&
+      typeof item.articleId === 'string' &&
+      typeof item.sourceKey === 'string' &&
+      typeof item.title === 'string' &&
+      typeof item.url === 'string' &&
+      (item.summary === null || typeof item.summary === 'string') &&
+      (item.author === null || typeof item.author === 'string') &&
+      (item.imageUrl === undefined ||
+        item.imageUrl === null ||
+        typeof item.imageUrl === 'string') &&
+      (item.publishedAt === null ||
+        (typeof item.publishedAt === 'string' && Number.isFinite(Date.parse(item.publishedAt)))) &&
+      Number.isInteger(item.position) &&
+      item.position > 0
+    )
+  })
+}
+
+async function queryHomeArticles(
+  cursor: Cursor | null,
+  signal: AbortSignal | undefined,
+  filter: ArticleFilter
 ): Promise<HomeArticlePage> {
   const snapshot = cursor?.snapshot ?? new Date().toISOString()
   const selectedSources = sources.filter(

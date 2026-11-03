@@ -3,6 +3,9 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { after } from 'next/server'
 import { articleSource, createArticlePath } from './article-route'
 import { publishContent } from './content-publication'
+import { invalidateListCaches } from './list-cache'
+import { warmListCaches } from './list-cache-prewarm'
+import { affectedListScopes } from './list-cache-scopes'
 import { type RevalidationScope, resolveRevalidation } from './revalidate-paths'
 
 interface ContentUpdate extends RevalidationScope {
@@ -10,9 +13,9 @@ interface ContentUpdate extends RevalidationScope {
   article?: { id: string; previousTitle: string; title: string }
 }
 
-export function updateContent(scope: ContentUpdate) {
+export async function updateContent(scope: ContentUpdate) {
   const publicationId = scope.publicationId ?? randomUUID()
-  const logFailure = (phase: 'revalidation' | 'publication') =>
+  const logFailure = (phase: 'revalidation' | 'publication' | 'listCache') =>
     console.info(
       JSON.stringify({
         publicationId,
@@ -22,6 +25,9 @@ export function updateContent(scope: ContentUpdate) {
       })
     )
   try {
+    const listScopes = affectedListScopes(scope)
+    const cacheInvalidated = await invalidateListCaches(listScopes)
+    if (!cacheInvalidated) logFailure('listCache')
     const { paths, dynamicPages, tags } = resolveRevalidation(scope)
     if (
       scope.article &&
@@ -35,17 +41,40 @@ export function updateContent(scope: ContentUpdate) {
         if (!paths.includes(path)) paths.push(path)
       }
     }
-    for (const tag of tags) revalidateTag(tag, { expire: 0 })
-    for (const path of paths) revalidatePath(path)
-    for (const path of dynamicPages) revalidatePath(path, 'page')
+    const invalidatePages = () => {
+      for (const tag of tags) revalidateTag(tag, { expire: 0 })
+      for (const path of paths) revalidatePath(path)
+      for (const path of dynamicPages) revalidatePath(path, 'page')
+    }
+    invalidatePages()
     after(async () => {
       try {
+        if (listScopes.length && process.env.REDIS_URL) {
+          let invalidated = cacheInvalidated
+          let failed = listScopes
+          for (let attempt = 0; attempt < 2; attempt++) {
+            if (!invalidated) invalidated = await invalidateListCaches(listScopes)
+            if (!invalidated) continue
+            failed = (await warmListCaches(failed)).failed
+            if (!failed.length) break
+          }
+          console.info(
+            JSON.stringify({
+              publicationId,
+              listCache: failed.length ? 'failed' : 'succeeded',
+              failed,
+              at: new Date().toISOString()
+            })
+          )
+          // Discard any page regenerated while the lists were being refreshed.
+          invalidatePages()
+        }
         await publishContent(paths, publicationId)
       } catch {
         logFailure('publication')
       }
     })
-    return { paths, publicationId }
+    return { paths, publicationId, cacheInvalidated }
   } catch (error) {
     logFailure('revalidation')
     throw error

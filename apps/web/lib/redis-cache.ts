@@ -48,6 +48,20 @@ async function getClient() {
   return connecting
 }
 
+export async function withRedisCache<T>(
+  operation: (redis: Redis) => Promise<T>
+): Promise<T | null> {
+  let redis: Redis | null | undefined
+  try {
+    redis = await getClient()
+    return redis ? await operation(redis) : null
+  } catch {
+    discardClient(redis)
+    console.warn('[list-cache] Cache unavailable; continuing without cache')
+    return null
+  }
+}
+
 export async function readResultCache<T>(
   key: string,
   validate: (value: unknown) => value is T

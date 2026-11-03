@@ -1,5 +1,17 @@
 # HERMES
 
+## 2026-11-03 分类与平台首屏缓存
+
+- Branch: feat/list-first-page-cache，基于已 fetch 的远端默认分支 73d83b0，独立工作树 rss-site-list-cache
+- Objective: 全部分类与平台第一页共用 Redis，采集后失效/回填，部署健康检查后主动预热
+- Accepted design: 当前对话已确认范围、分页行为及发布顺序，无 UI 变更、迁移或新增 Cron
+- Document: [开发与验收](docs/development/list-first-page-cache.md)
+- Implemented: 50 组分类/平台/Skills 首屏缓存、版本保护、采集/编辑后的失效回填及页面发布、健康检查后的内部部署预热；无 schema/Cron/UI 变更
+- Verification: Web 388 项（含 Redis 7.4 真实集成 6 项）、API 164 项、Signals 8 项，三包类型、67 页生产构建、变更文件 Biome、部署打包/预热失败回滚隔离测试及语法检查通过
+- Real-data evidence: 云端公开只读数据预热到临时本地 Redis 50/50 成功，约 1.72 MiB；随后 50 次读取没有新增数据库请求；本地生产模式通知/首屏/分页/HTML 均 HTTP 200
+- Review: 客户端依赖边界、旧 SSR 查询晚到和 Turbo 测试环境传递问题均已解决，无未关闭阻塞项或接受的范围外跟进
+- Next: 用户从 feat/list-first-page-cache 创建指向 master 的 PR，待 Linux 镜像构建与 CI 通过后合并发布。未直接部署生产
+
 ## 2026-11-02 Accept raw Zhihu Cookie values and enable verified Cron
 
 - Branch: feat/accept-zhihu-cookie-value, based on fetched origin/master 97377e7

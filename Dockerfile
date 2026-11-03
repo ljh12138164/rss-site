@@ -1,4 +1,5 @@
 FROM node:24-alpine AS builder
+COPY --from=oven/bun:1-alpine /usr/local/bin/bun /usr/local/bin/bun
 WORKDIR /app
 RUN npm install --global pnpm@11.23.0
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -13,6 +14,7 @@ ENV SITE_URL=https://news.ljhboard.cn
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 RUN pnpm --filter @rss-site/web build
+RUN bun build apps/web/scripts/prewarm-lists.ts --target=bun --outfile=/list-cache/prewarm-lists.mjs
 # The preparation script is outside Next's route tracing. Install its complete
 # dependency tree separately so it does not depend on standalone's pnpm links.
 RUN npm install --prefix /mtran-runtime --omit=dev --ignore-scripts --no-audit --no-fund mtranserver@4.0.33
@@ -28,6 +30,7 @@ COPY --from=builder --chown=bun:bun /app/apps/web/.next/standalone ./
 COPY --from=builder --chown=bun:bun /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder --chown=bun:bun /app/apps/web/public ./apps/web/public
 COPY --from=builder --chown=bun:bun /app/apps/web/scripts/prepare-translation.mjs ./apps/web/scripts/prepare-translation.mjs
+COPY --from=builder --chown=bun:bun /list-cache/prewarm-lists.mjs ./apps/web/scripts/prewarm-lists.mjs
 COPY --from=builder --chown=bun:bun /mtran-runtime/node_modules ./translation/node_modules
 RUN mkdir -p /app/apps/web/node_modules && \
     ln -sfn /app/translation/node_modules/mtranserver /app/apps/web/node_modules/mtranserver

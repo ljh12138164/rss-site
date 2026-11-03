@@ -11,7 +11,14 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:7.4-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
     env:
+      TEST_REDIS_URL: redis://127.0.0.1:6379
       SITE_URL: https://news.ljhboard.cn
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
@@ -60,6 +67,7 @@ jobs:
           curl -fsS http://127.0.0.1:18101/ > /tmp/news-home.html
           grep -Fq 'news.ljhboard.cn' /tmp/news-home.html
           curl -fsS http://127.0.0.1:18101/icon.svg > /dev/null
+          docker exec news-verify bun apps/web/scripts/prewarm-lists.mjs
           curl -fsS http://127.0.0.1:18101/ads.txt | grep -F 'pub-7441827328189379'
           curl -fsI http://127.0.0.1:18101/ | grep -i '^link:.*rel=preload.*as=style'
   deploy:
@@ -100,6 +108,7 @@ jobs:
           curl --fail --silent --show-error --retry 150 --retry-all-errors --retry-delay 2 \
             --connect-timeout 3 --max-time 5 --retry-max-time 300 http://127.0.0.1:18101/healthz
           curl -fsS http://127.0.0.1:18101/admin | grep -Fq '文章管理'
+          docker exec news-deploy-verify bun apps/web/scripts/prewarm-lists.mjs
       - name: Package release image
         run: |
           docker pull redis:7.4-alpine

@@ -1,6 +1,6 @@
 import { createServer, type Socket } from 'node:net'
 import { afterEach, expect, it, vi } from 'vitest'
-import { readResultCache, writeResultCache } from './redis-cache'
+import { readResultCache, withRedisCache, writeResultCache } from './redis-cache'
 
 afterEach(() => vi.unstubAllEnvs())
 
@@ -25,6 +25,8 @@ it('drops stalled Redis connections instead of retaining timed-out commands', as
     ).toBeNull()
     await vi.waitFor(() => expect(sockets.size).toBe(0))
     await writeResultCache('translation:stalled', { title: '译文' })
+    await vi.waitFor(() => expect(sockets.size).toBe(0))
+    expect(await withRedisCache((redis) => redis.eval('return 1', 0))).toBeNull()
     await vi.waitFor(() => expect(sockets.size).toBe(0))
   } finally {
     for (const socket of sockets) socket.destroy()

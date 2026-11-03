@@ -21,6 +21,7 @@ beforeEach(() => {
   callbacks.length = 0
   tag.mockImplementation((value) => operations.push(`tag:${value}`))
   path.mockImplementation((value, type) => operations.push(`${type ?? 'path'}:${value}`))
+  vi.stubEnv('REDIS_URL', '')
   vi.stubEnv('SITE_URL', 'https://news.example')
   vi.stubEnv('INDEXNOW_KEY', 'test-key-123')
   vi.stubEnv('CLOUDFLARE_API_TOKEN', '')
@@ -36,7 +37,7 @@ it('invalidates tags, concrete pages and dynamic pages before scheduling concret
   const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 202 }))
   vi.stubGlobal('fetch', fetch)
   const log = vi.spyOn(console, 'info').mockImplementation(() => {})
-  const result = updateContent({
+  const result = await updateContent({
     section: '/ai',
     source: 'openai',
     eventSlugs: ['release-12345678'],
@@ -75,7 +76,7 @@ it('publishes both old and new article URLs after a title edit, once each', asyn
   const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 202 }))
   vi.stubGlobal('fetch', fetch)
   vi.spyOn(console, 'info').mockImplementation(() => {})
-  const result = updateContent({
+  const result = await updateContent({
     section: '/news',
     source: 'xinhua',
     article: {
@@ -106,18 +107,18 @@ it('publishes both old and new article URLs after a title edit, once each', asyn
   )
 })
 
-it('records safe invalidation failure evidence and schedules no publication', () => {
+it('records safe invalidation failure evidence and schedules no publication', async () => {
   const log = vi.spyOn(console, 'info').mockImplementation(() => {})
   path.mockImplementationOnce(() => {
     throw new Error('private-secret')
   })
-  expect(() =>
+  await expect(
     updateContent({
       section: '/news',
       source: 'xinhua',
       publicationId: 'known-batch'
     })
-  ).toThrow('private-secret')
+  ).rejects.toThrow('private-secret')
   expect(callbacks).toHaveLength(0)
   expect(log).toHaveBeenCalledWith(expect.stringContaining('"revalidation":"failed"'))
   expect(log).toHaveBeenCalledWith(expect.stringContaining('known-batch'))
@@ -132,7 +133,7 @@ it.each([
   const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 202 }))
   vi.stubGlobal('fetch', fetch)
   vi.spyOn(console, 'info').mockImplementation(() => {})
-  const result = updateContent({
+  const result = await updateContent({
     section,
     source,
     article: {
@@ -151,8 +152,8 @@ it.each([
   ])
 })
 
-it('deduplicates the article URL when a title edit preserves the slug', () => {
-  const result = updateContent({
+it('deduplicates the article URL when a title edit preserves the slug', async () => {
+  const result = await updateContent({
     section: '/news',
     source: 'xinhua',
     article: {
@@ -174,7 +175,7 @@ it('deduplicates the article URL when a title edit preserves the slug', () => {
 it('contains unexpected publication failures and logs only safe identifiers', async () => {
   const log = vi.spyOn(console, 'info').mockImplementation(() => {})
   vi.stubEnv('SITE_URL', 'private-invalid-url')
-  const result = updateContent({ section: '/news', source: 'xinhua' })
+  const result = await updateContent({ section: '/news', source: 'xinhua' })
   await expect(callbacks[0]()).resolves.toBeUndefined()
   expect(log).toHaveBeenCalledWith(expect.stringContaining(result.publicationId))
   expect(log).toHaveBeenCalledWith(expect.stringContaining('"publication":"failed"'))

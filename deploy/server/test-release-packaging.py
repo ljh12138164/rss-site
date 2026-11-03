@@ -77,6 +77,21 @@ esac
         self.assertNotEqual(status, 0)
         self.assertEqual(images, [])
 
+    def test_prewarm_failure_does_not_roll_back_a_healthy_release(self):
+        deploy = (ROOT / 'deploy/server/deploy-rss-site').read_text()
+        tail = deploy[deploy.rindex('trap - ERR'):]
+        script = '''set -eE
+STACK=/unused
+TAG=test-release
+docker() { return 7; }
+trap 'echo unexpected-rollback; exit 9' ERR
+''' + tail
+        result = subprocess.run(['bash', '-c', script], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0)
+        self.assertIn('Deployment healthy: test-release', result.stdout)
+        self.assertIn('list cache prewarm incomplete', result.stderr)
+        self.assertNotIn('unexpected-rollback', result.stdout)
+
 
 if __name__ == '__main__':
     unittest.main()
