@@ -1,5 +1,5 @@
 import { getSignalSource } from '@rss-site/signals'
-import { parseArticleFilter } from './home-articles'
+import { parseArticleFilter } from './article-filter'
 
 export const SEARCH_PAGE_SIZE = 20
 

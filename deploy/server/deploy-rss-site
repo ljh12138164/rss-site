@@ -81,4 +81,7 @@ install -m 755 "$TEMP/deploy/server/deploy-rss-site" /usr/local/sbin/deploy-rss-
 install -m 755 "$TEMP/deploy/server/rss-site-deploy-gate" /usr/local/bin/rss-site-deploy-gate
 install -m 440 "$TEMP/deploy/server/rss-site-deploy.sudoers" /etc/sudoers.d/rss-site-deploy
 trap - ERR
+if ! docker compose --project-directory "$STACK" exec -T web bun apps/web/scripts/prewarm-lists.mjs; then
+  echo 'Deployment healthy; list cache prewarm incomplete. Retry the prewarm command.' >&2
+fi
 echo "Deployment healthy: $TAG"

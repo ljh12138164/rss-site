@@ -1,3 +1,4 @@
+import { getCachedList } from './list-cache'
 import { readSkillsPreview } from './skill-detail'
 import { getPublicSupabaseClient } from './supabase'
 import {
@@ -106,11 +107,13 @@ async function querySectionFeeds(
         )
         .eq('section', section)
         .in('source', sourceIds)
-        .order('position', { ascending: true }),
+        .order('position', { ascending: true })
+        .abortSignal(AbortSignal.timeout(10000)),
       supabase
         .from('source_status')
         .select('source,item_count,last_success_at')
         .in('source', sourceIds)
+        .abortSignal(AbortSignal.timeout(10000))
     ])
 
     return {
@@ -171,7 +174,8 @@ function buildFeed(
 export async function getSectionFeeds<T extends SignalSourceId = SignalSourceId>(
   section: SignalSectionId,
   limitPerSource?: number,
-  query?: FeedCollectionQuery
+  query?: FeedCollectionQuery,
+  refresh = false
 ): Promise<Record<T, FeedResult>> {
   const sources = listSignalSources({ section })
   const defaultQuery = () =>
@@ -179,11 +183,64 @@ export async function getSectionFeeds<T extends SignalSourceId = SignalSourceId>
       section,
       sources.map((s) => s.id)
     )
-  const result = await (query ?? defaultQuery)()
+  let result: FeedCollectionQueryResult
+  if (section === 'skills' && !query && process.env.NODE_ENV !== 'development') {
+    try {
+      result = await getCachedList(
+        'skills',
+        isSkillCollection,
+        async () => {
+          const result = await defaultQuery()
+          if (result.error) throw new Error('Skills unavailable')
+          return result
+        },
+        refresh
+      )
+    } catch {
+      if (refresh) throw new Error('Skills cache refresh failed')
+      result = { items: null, statuses: null, error: 'Skills unavailable' }
+    }
+  } else result = await (query ?? defaultQuery)()
 
   return Object.fromEntries(
     sources.map((source) => [source.id, buildFeed(source.id, result, limitPerSource)])
   ) as Record<T, FeedResult>
+}
+
+function isSkillCollection(value: unknown): value is FeedCollectionQueryResult {
+  if (!value || typeof value !== 'object') return false
+  const result = value as FeedCollectionQueryResult
+  const ids = listSignalSources({ section: 'skills' }).map((source) => source.id as string)
+  return (
+    result.error === null &&
+    Array.isArray(result.items) &&
+    Array.isArray(result.statuses) &&
+    result.items.every(
+      (row) =>
+        row &&
+        ids.includes(row.source) &&
+        result.statuses?.some((status) => status.source === row.source) &&
+        typeof row.source_key === 'string' &&
+        typeof row.title === 'string' &&
+        typeof row.url === 'string' &&
+        (row.summary === null || typeof row.summary === 'string') &&
+        (row.author === null || typeof row.author === 'string') &&
+        (row.published_at === null ||
+          (typeof row.published_at === 'string' &&
+            Number.isFinite(Date.parse(row.published_at)))) &&
+        Number.isInteger(row.position) &&
+        row.position > 0
+    ) &&
+    result.statuses.every(
+      (row) =>
+        row &&
+        ids.includes(row.source) &&
+        Number.isInteger(row.item_count) &&
+        row.item_count >= 0 &&
+        typeof row.last_success_at === 'string' &&
+        Number.isFinite(Date.parse(row.last_success_at))
+    )
+  )
 }
 
 /**

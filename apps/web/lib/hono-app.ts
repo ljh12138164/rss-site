@@ -354,9 +354,18 @@ export const app = new Hono()
     }
 
     try {
-      const { paths } = updateContent({ section, source, eventSlugs, skillIds, publicationId })
+      const { paths, cacheInvalidated } = await updateContent({
+        section,
+        source,
+        eventSlugs,
+        skillIds,
+        publicationId
+      })
       c.header('Cache-Control', CACHE_HEADERS.NO_STORE['Cache-Control'])
-      return c.json({ revalidated: true, paths, publicationId })
+      return c.json(
+        { revalidated: cacheInvalidated, paths, publicationId },
+        cacheInvalidated ? 200 : 503
+      )
     } catch {
       return c.json({ error: 'Failed to revalidate' }, 500)
     }
@@ -427,7 +436,7 @@ export const app = new Hono()
       .single()
     if (error) return c.json({ error: '保存失败，请检查字段和管理员权限' }, 503)
     try {
-      updateContent({
+      await updateContent({
         section: `/${data.section}`,
         source: data.source,
         article: { id, previousTitle: previous.title, title: data.title }

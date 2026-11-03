@@ -20,7 +20,8 @@
       "dependsOn": ["^check-types"]
     },
     "test": {
-      "dependsOn": ["^test"]
+      "dependsOn": ["^test"],
+      "env": ["TEST_REDIS_URL"]
     },
     "dev": {
       "cache": false,

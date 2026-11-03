@@ -19,7 +19,7 @@ export async function publishSourceUpdate(
     const events = [...new Set(change.events)]
     const skills = [...new Set(change.skills ?? [])]
     for (let offset = 0; offset < Math.max(1, events.length, skills.length); offset += 100) {
-      const response = await fetch(new URL('/api/revalidate', siteUrl), {
+      const init: RequestInit = {
         method: 'POST',
         redirect: 'manual',
         headers: { Authorization: `Bearer ${secret}`, 'Content-Type': 'application/json' },
@@ -28,12 +28,29 @@ export async function publishSourceUpdate(
           events: events.slice(offset, offset + 100),
           ...(skills.length ? { skills: skills.slice(offset, offset + 100) } : {}),
           batchId: change.batchId
-        }),
-        signal: AbortSignal.timeout(5000)
-      })
-      if (!response.ok) return 'failed'
-      const result = (await response.json()) as { revalidated?: boolean }
-      if (result.revalidated !== true) return 'failed'
+        })
+      }
+      let delivered = false
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const response = await fetch(new URL('/api/revalidate', siteUrl), {
+            ...init,
+            signal: AbortSignal.timeout(5000)
+          })
+          if (response.ok) {
+            const result = (await response.json()) as { revalidated?: boolean }
+            delivered = result.revalidated === true
+            if (delivered) break
+          } else {
+            await response.body?.cancel()
+            if (response.status < 500 && response.status !== 429) return 'failed'
+          }
+        } catch {
+          // Retrying only this notification never repeats the committed ingestion.
+        }
+        if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 100 * (attempt + 1)))
+      }
+      if (!delivered) return 'failed'
     }
     return 'revalidated'
   } catch {

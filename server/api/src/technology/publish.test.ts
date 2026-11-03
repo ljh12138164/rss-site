@@ -62,6 +62,21 @@ it('reports a rejected notification without throwing after ingestion', async () 
   ).toBe('failed')
 })
 
+it('retries a transient cache invalidation failure without repeating ingestion or losing the batch', async () => {
+  const fetch = vi
+    .fn()
+    .mockResolvedValueOnce(new Response(null, { status: 503 }))
+    .mockRejectedValueOnce(new Error('network'))
+    .mockResolvedValueOnce(Response.json({ revalidated: true }))
+  vi.stubGlobal('fetch', fetch)
+  expect(
+    await publishSourceUpdate(getSignalSource('zhihu'), { changed: true, events: [], batchId })
+  ).toBe('revalidated')
+  expect(fetch).toHaveBeenCalledTimes(3)
+  expect(new Set(fetch.mock.calls.map((call) => call[1].body)).size).toBe(1)
+  expect(JSON.parse(fetch.mock.calls[2][1].body).batchId).toBe(batchId)
+})
+
 it('delivers every changed Skill ID in bounded notifications', async () => {
   const skills = Array.from({ length: 101 }, (_, index) => `owner/repo/skill-${index}`)
   expect(
