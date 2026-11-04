@@ -14,7 +14,8 @@
 - Online config: Workbench核对线上ai-base93bac43，网关地址与令牌存在；无ECS重启或业务日报部署。CF诊断版本22bc17d5-72a5-413d-b495-19011d7d2e82，Vercel诊断部署dpl_HXPaAEzHcKUPBreYgLWi89PTL3H5
 - Delivery: 用户要求PR与截图供审查；桌面截图已保存docs/development/assets/daily-report-desktop.png，开发文档附两仓master...feat/daily-report创建链接。2026-11-04重新运行API181、Web403、Agent76项通过；Gateway24项通过；提交推送当前实现供草稿PR审查，按仓库规则由用户创建/合并
 - Build repair: 用户提供Cloudflare日志确认AGENT_SERVICE_TOKEN未设置。撤掉整个Worker日报转发/额外Cron/新增密钥声明，恢复原有Worker配置；类型与dry-run通过。Nest内部调度替代外部触发，未更换任何令牌或重启服务
-- Next: 推送本轮简化并确认Cloudflare检查转绿；编辑质量、Bun镜像恢复、发布/CDN整链和自然08:00生产验收仍待完成，自动开关关闭
+- Redis: 按用户要求复用REDIS_URL，为最新/日期详情/往期加入300秒缓存；发布先切版本再刷新Next/CDN，失败503由持久通知重试，旧查询受原子版本校验保护，Redis读取故障回源。Web416项、类型、68页生产构建、9个文件Biome通过；本地Redis未启动，12项集成待CI（新增日报4项）
+- Next: 推送日报Redis增量至原feat/daily-report；上一提交89c4d69的Cloudflare检查已成功。编辑质量、Bun镜像恢复、发布/CDN整链和自然08:00生产验收仍待完成，自动开关关闭
 
 ## 2026-11-03 修正首屏缓存自动过期
 

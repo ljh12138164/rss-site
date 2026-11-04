@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it, vi } from 'vitest'
+import { getCachedDailyData } from './daily-report-cache'
 import { getDailyArchive, getDailyReport, parseDailyReport } from './daily-reports'
 
 const fixture = JSON.parse(
@@ -10,6 +11,12 @@ const { request, result } = vi.hoisted(() => ({
   result: { data: [] as unknown[], error: null as unknown }
 }))
 vi.mock('next/cache', () => ({ unstable_cache: (fn: unknown) => fn }))
+vi.mock('./daily-report-cache', () => ({
+  getCachedDailyData: vi.fn(
+    async (_key: string, parse: (value: unknown) => unknown, load: () => Promise<unknown>) =>
+      parse(await load())
+  )
+}))
 vi.mock('./supabase', () => ({
   getPublicSupabaseClient: () => ({
     from: (table: string) => {
@@ -70,10 +77,32 @@ describe('public daily report reads', () => {
     result.data = []
     result.error = null
     await getDailyArchive('2026-12-31')
+    expect(getCachedDailyData).toHaveBeenLastCalledWith(
+      'archive:2026-12-31',
+      expect.any(Function),
+      expect.any(Function)
+    )
     expect(request).toHaveBeenCalledWith('gte', 'report_date', '2026-12-01')
     expect(request).toHaveBeenCalledWith('lt', 'report_date', '2027-01-01')
     for (const call of request.mock.calls.filter((call) => call[0] === 'select')) {
       expect(call[1]).toBe('report_date,title,published_at')
     }
+  })
+  it('routes latest and dated reads through distinct Redis keys', async () => {
+    result.data = [row()]
+    result.error = null
+    expect((await getDailyReport())?.reportDate).toBe('2026-11-04')
+    expect(getCachedDailyData).toHaveBeenLastCalledWith(
+      'report:latest',
+      expect.any(Function),
+      expect.any(Function)
+    )
+    expect((await getDailyReport('2026-11-04'))?.reportDate).toBe('2026-11-04')
+    expect(getCachedDailyData).toHaveBeenLastCalledWith(
+      'report:2026-11-04',
+      expect.any(Function),
+      expect.any(Function)
+    )
+    await expect(getDailyReport('2026-11-03')).rejects.toThrow('Invalid daily report date')
   })
 })

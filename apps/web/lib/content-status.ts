@@ -1,21 +1,11 @@
 import { unstable_cache } from 'next/cache'
 import { articleSource } from './article-route'
+import { getDailyReport } from './daily-reports'
 import { getPublicSupabaseClient } from './supabase'
 
-export const getDailyReportStatus = unstable_cache(
-  async (date: string) => {
-    const { data, error } = await getPublicSupabaseClient()
-      .from('daily_reports')
-      .select('report_date')
-      .eq('report_date', date)
-      .abortSignal(AbortSignal.timeout(10000))
-      .maybeSingle()
-    if (error) throw new Error('Daily report status unavailable')
-    return data ? 200 : 404
-  },
-  ['daily-report-status-v1'],
-  { revalidate: 300, tags: ['daily-reports'] }
-)
+export async function getDailyReportStatus(date: string) {
+  return (await getDailyReport(date)) ? 200 : 404
+}
 
 export function getContentStatus(kind: 'event' | 'news', id: string, source: string) {
   return unstable_cache(
