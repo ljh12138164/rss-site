@@ -7,22 +7,14 @@
     "RSSHUB_BASE_URL": "https://rss.ljhboard.cn",
     "WEB_APP_URL": "https://news.ljhboard.cn",
     "ZHIHU_REFRESH_ENABLED": "true",
-    "DAILY_REPORT_ENABLED": "false",
-    "DAILY_REPORT_SERVICE_URL": "",
     "RSSHUB_VERCEL_PROJECT_ID": "prj_IrNy4UhevVBN7Z6Jt56vZ7cCa0oG",
     "RSSHUB_VERCEL_TEAM_ID": "team_o6xV8kVjRVVZ89JHKt353m3A"
   },
   "triggers": {
-    "crons": ["0 20 * * *", "0 0 * * *"]
+    "crons": ["0 20 * * *"]
   },
   "secrets": {
-    "required": [
-      "CRON_SECRET",
-      "REVALIDATE_SECRET",
-      "ZHIHU_COOKIES",
-      "VERCEL_API_TOKEN",
-      "AGENT_SERVICE_TOKEN"
-    ]
+    "required": ["CRON_SECRET", "REVALIDATE_SECRET", "ZHIHU_COOKIES", "VERCEL_API_TOKEN"]
   },
   "hyperdrive": [
     {

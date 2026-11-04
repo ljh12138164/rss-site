@@ -9,12 +9,13 @@
 - 用户已确认 `/daily` 最新日报与历史目录、`/daily/[date]` 单期详情、顶栏“日报”入口、桌面侧栏与手机单列、加载/无日报/读取失败状态
 - 最新视觉参考是 AIHOT 的往期目录、报头、日期统计、头条和“今日看点”；配色继续使用本站暖橙主题，沿用 Next.js / React / Tailwind / React Aria，不增加 UI 组件库
 - 用户随后明确要求开始实现；两仓库均在原目录的 feat/daily-report 实施，不新增工作区；自动开关在生产验收前保持关闭
+- 用户要求减少密钥配置后，调度收敛到ai-base已有常驻runner；移除Worker日报转发、额外Cron和服务令牌依赖，不新增公网入口
 
 ### 代码基线
 
 | 仓库 | 本轮同步结果 | 本轮边界 |
 | --- | --- | --- |
-| rss-site | feat/daily-report 基于最新 origin/master `42eb353` | 数据库迁移、调度入口、页面和发布刷新 |
+| rss-site | feat/daily-report 基于最新 origin/master `42eb353` | 数据库迁移、页面和发布刷新；Worker保持原有配置 |
 | ai-base | 从 `2675dcb` 快进至 origin/master `93bac43` 后创建 feat/daily-report | 模型调用、后台执行和恢复 |
 
 ai-base 当前已有 `deploy/server/deploy-agent-service` 的本地改动，本轮保留，不纳入日报设计或交付。
@@ -52,10 +53,8 @@ ai-base 当前已有 `deploy/server/deploy-agent-service` 的本地改动，本�
 
 ```mermaid
 flowchart TD
-    A[Cloudflare Cron<br/>每天北京时间08:00] --> B[rss-site API<br/>提交日报日期]
-    B -->|短HTTP / 服务鉴权| C[ai-base 日报接口]
-    C -->|持久化后返回202| D[(Supabase<br/>daily_report_jobs)]
-    E[ai-base 后台runner<br/>启动恢复 / 到期扫描] --> D
+    E[ai-base 后台runner<br/>08:00调度 / 每30秒扫描] -->|当天唯一任务| D[(Supabase<br/>daily_report_jobs)]
+    C[既有鉴权下的手动提交接口] -->|持久化后返回202| D
     E --> F[(signal_articles<br/>冻结材料快照)]
     F --> G[既有 Gemini Edge 网关]
     G --> H[Gemini 3.8 Flash]
@@ -73,15 +72,15 @@ flowchart TD
 
 | 组件 | 负责 | 不负责 |
 | --- | --- | --- |
-| rss-site Worker | 每日业务时间触发、鉴权手动补跑入口、可靠提交日期 | 不执行第二套模型调用，不等待全文生成 |
-| ai-base 日报模块 | 查库、冻结材料、模型主备、校验、持久化、恢复、发布通知 | 不采集新来源，不修改既有文章/Skill总结流程 |
+| rss-site Worker | 保留既有采集与知乎任务 | 不参与日报调度和生成，不持有ai-base服务令牌 |
+| ai-base 日报模块 | 北京08:00调度、查库、冻结材料、模型主备、校验、持久化、恢复、发布通知 | 不采集新来源，不修改既有文章/Skill总结流程 |
 | Gemini Edge | Google 凭据保管、模型白名单、固定上游代理 | 不做日报编排、数据库存储、GPT兜底 |
 | Supabase | 持久任务、并发互斥、输入快照、已发布日报 | 不新增第二个每日08:00业务调度 |
 | Next.js | 展示已发布日报、历史导航、来源跳转 | 浏览器不触发生成，不持有后端密钥 |
 
-选择异步提交的原因：现有网页总结总时限 120 秒、Gemma 主尝试 40 秒、网关全响应 60 秒，且客户端断开会取消生成。日报跨模型可能超过代理长连接期限，不能依赖浏览器、Worker 到 Nest 的单次长请求或进程内 `void promise` 保证完成。
+选择持久任务的原因：现有网页总结总时限120秒，且客户端断开会取消生成。日报跨模型可能超过代理长连接期限，不能依赖浏览器请求或进程内void promise保证完成；自动调度直接写库，不经过外部HTTP。
 
-后台 runner 是持久任务消费者，启动时和每 30 秒扫描到期任务；它不是第二个每天08:00的 Cron，也不引入 BullMQ、消息队列服务、Agents SDK 或新调度平台。任务持久化成功后才返回 202，提交进程崩溃也能从库中恢复。
+后台runner同时负责唯一的日报调度与持久任务消费，启动时和每30秒扫描。北京08:00后的首个空闲扫描创建当天任务；成功提交后进程内记住当天，数据库日期唯一约束保证重启/多实例不重复。错过整点则启动补跑当天，历史缺期手动指定。不引入消息队列或第二个Cron。
 
 ## 4. 时间和材料范围
 
@@ -91,7 +90,7 @@ flowchart TD
 - 报期 D 的任务在 D 日 08:00 触发，汇总 D-1 日 00:00 至 D 日 00:00 的完整自然日
 - 例如 `2026-11-04` 期使用 UTC `[2026-11-02T16:00:00Z, 2026-11-03T16:00:00Z)` 的材料
 - 发布日期与材料日期分别存储并在页面说明，避免用户将“今日出版”误解为只包含今天08:00前的新闻
-- 自动执行从 Cron 的 `scheduledTime` 换算报期，避免延迟执行跨日时取错日期；手动补跑显式传报期，不接受未来日期和非法公历日期
+- 自动执行按扫描时的上海日期创建当天报期；08:00是开始生成时间，正常空闲时扫描误差不超过30秒，不承诺整点已发布。手动补跑显式传报期，不接受未来日期和非法公历日期
 
 ### 数据选择
 
@@ -190,7 +189,7 @@ published + 通知失败 → 仅重试通知，不重新生成
 
 任务每报期最多自动执行 3 次，重试间隔 2 分钟、10 分钟。网络错误、限流、服务暂不可用可重试；请求协议/权限/数据库结构错误进入 failed，等待修正。显式手动补跑可额外执行一次，累计 attempt_count 不清零；trigger_kind=manual 的执行失败后不自动开启新一轮重试。模型双双不可用时页面继续显示最近一期已发布日报，并说明其真实日期。
 
-DAILY_REPORT_ENABLED=true 时恢复待执行和过期任务；只有 DAILY_REPORT_AUTO_ENABLED=true 才在启动时补建“今日已过08:00但没有任务”的报期。生产手动验收前两个自动开关均保持关闭；历史缺期由受鉴权的手动补跑显式指定
+DAILY_REPORT_ENABLED=true时恢复待执行和过期任务；只有DAILY_REPORT_AUTO_ENABLED=true才在每次扫描检查今日是否已到08:00，包含启动补建和常驻进程跨日触发。提交失败不记为已调度，下一次扫描重试；成功后不重复创建或自动重置失败终态。生产手动验收前自动开关保持关闭；历史缺期手动指定
 
 ## 7. 模型接入与兜底
 
@@ -383,13 +382,9 @@ type DailyReportDraft = {
 
 验收先检查硬事实：无未知引用、无不支持的人名 / 公司 / 数字、无阶段升级、无报内重复事件；再比较重要事件漏选、噪声入选、首句信息量、关键条件保留和导读是否空泛。用同一套样本调整提示词，并保留未参与调词的留出样本再验一次。未实际运行前，不认定“大模型都差不多”，也不靠更换模型代替选题标准的修正。
 
-## 9. HTTP契约与调度提交
+## 9. HTTP契约与内部调度
 
-### rss-site 调度入口（新增）
-
-`POST /cron/daily-report`，沿用服务器侧 `CRON_SECRET` Bearer鉴权，JSON请求体只允许可选 `date` 和布尔 `retry`。retry=true 必须显式给出日期，并转交 ai-base 的手动补跑语义。不允许客户端提交任意正文、provider URL、提示词或模型ID。
-
-无date时取北京时间当前报期；自动 Cron 通过内部函数传入 scheduledTime解析的报期。返回提交结果，不等整篇日报。
+自动调度由Nest已有runner直接调用repository.submit，不新增rss-site转发接口，不给Cloudflare增加服务令牌。手动补跑沿用ai-base已有鉴权和内部网络入口，不要求新的公网域名。
 
 ### ai-base 提交入口（新增）
 
@@ -407,15 +402,9 @@ type DailyReportDraft = {
 
 使用服务端鉴权的 `POST /v1/agents/daily-report/jobs/status`，请求只含date，返回 status/attempt_count/脱敏code/发布时间；只服务运维和生产验收，不新增管理UI，不暴露材料快照和密钥。选POST使其直接复用现有JSON鉴权guard，不为此次单点接口重构旧guard。
 
-### 跨网络可达性
+### 调度与网络边界
 
-rss-site Web 现有 `AGENT_SERVICE_URL` 可能是 Docker私网地址，Cloudflare Worker无法访问该地址。上线前必须明确部署现有 ai-base Nest 的公网HTTPS入口，并以 `DAILY_REPORT_SERVICE_URL` 配置到 Worker，不能把网页容器可达视为 Worker可达。
-
-该入口仍以服务令牌保护，固定服务域名，不接受客户端传URL；若采用现有反向代理，只开放所需日报路径，不为该功能公开无关管理端口。无需复制Google凭据，Worker只持有调用 ai-base 的服务令牌。
-
-Worker提交期限每次10秒，最多3次短重试，使用同一date，只有接收方已落库才视为提交成功；非暂态4xx不重试。自动任务记录HTTP状态和jobId，不声称202等于发布完成。
-
-Cloudflare Cron 使用 UTC，新日报表达式为 `0 0 * * *`；保留现有知乎 `0 20 * * *`。当前 scheduled 处理器忽略 controller.cron，必须改成按表达式分流，否则新增日报 Cron 会误触发知乎刷新。08:00 是开始提交生成的时间，页面用真实 published_at 表示完成时间，不承诺整点已出刊。依据：[Cron 时区与配置](https://developers.cloudflare.com/workers/configuration/cron-triggers/)、[现有 scheduled 入口](../../server/api/src/index.ts:58)、[现有 Worker 配置](../../server/api/wrangler.jsonc)。
+移除最初的Worker提交链路和0UTC日报Cron，保留知乎原有0 20 * * *配置。日报日期以Asia/Shanghai计算，与容器本地时区无关。ai-base继续通过既有模型网关生成、通过Web现有/api/revalidate通知发布，不暴露新的管理端口。
 
 ## 10. 配置清单与密钥归属
 
@@ -426,13 +415,11 @@ Cloudflare Cron 使用 UTC，新日报表达式为 `0 0 * * *`；保留现有知
 | ai-base | `GEMINI_EDGE_URL`、`GATEWAY_TOKEN` | 复用已有服务端接入配置 |
 | ai-base | `CLOUDFLARE_ACCOUNT_ID`、`CLOUDFLARE_API_TOKEN` | 复用既有账户/推理凭据，确认GPT120模型权限 |
 | ai-base | `DATABASE_URL` | 复用连接；确认新增表读写权限，禁止暴露连接串 |
-| ai-base | `AGENT_SERVICE_TOKEN` | 复用现有调用鉴权；部署时配置到Worker Secret |
+| ai-base | `AGENT_SERVICE_TOKEN` | 仅复用现有手动接口鉴权，不复制到Worker、不新增令牌 |
 | ai-base | `DAILY_REPORT_ENABLED` | 新增日报模块运行开关，默认false，迁移和接口探测后再启用 |
-| ai-base | `DAILY_REPORT_AUTO_ENABLED` | 默认false，控制服务启动时今日08:00漏调补偿；生产手动验收后才启用 |
+| ai-base | `DAILY_REPORT_AUTO_ENABLED` | 默认false，控制08:00内部调度和启动补偿；生产手动验收后才启用 |
 | ai-base | `WEB_APP_URL`、`REVALIDATE_SECRET` | 日报发布通知需要；若尚未配置则新增，不能沿用网关令牌代替 |
-| rss-site Worker | `DAILY_REPORT_SERVICE_URL` | 新增可达的Nest日报服务HTTPS基础地址 |
-| rss-site Worker | `AGENT_SERVICE_TOKEN` | Worker调用Nest用Secret，不作为普通vars提交 |
-| rss-site Worker | `DAILY_REPORT_ENABLED` | 日报业务调度开关，默认false，人工端到端验收后启用 |
+| rss-site Worker | 无新增配置 | 不参与日报，保持既有配置与密钥 |
 
 模型ID、协议版本、预算初期作为日报模块固定配置，不开放浏览器可选模型，也不创建多租户provider管理系统。Secret只经平台既有安全部署流程注入，验收日志不输出值。
 
@@ -444,7 +431,7 @@ GPT-OSS 120B的Cloudflare账户共享每天10,000 Neurons，UTC00:00即北京时
 
 参考 [Cloudflare计费](https://developers.cloudflare.com/workers-ai/platform/pricing/)、[GPT-OSS 120B模型](https://developers.cloudflare.com/workers-ai/models/gpt-oss-120b/)、[Gemini 3.8 Flash](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash)、[Gemini计费](https://ai.google.dev/gemini-api/docs/pricing)。模型价格和免费档位为2026-11-04核对结果，上线时复核。
 
-日志仅含jobId/date/attempt/provider/model/status/errorCode/候选与条目数/耗时/usage，不打印原文、提示词、思考内容、数据库URL或鉴权头。观察“08:00提交成功”“模型主备成功”“成品发布”“刷新通知成功”四个阶段，不能只看Cron返回202。
+日志仅含jobId/date/attempt/provider/model/status/errorCode/候选与条目数/耗时/usage，不打印原文、提示词、思考内容、数据库URL或鉴权头。观察“08:00任务入库”“模型主备成功”“成品发布”“刷新通知成功”四个阶段，不能只看任务创建成功。
 
 告警依据终态failed、预期出刊时间后仍无当天成品且并非已完成的no_news、primary配置错误和通知重试耗尽；no_news单独记“没有合格选题”，不能被计入模型错误或再次入队。未接入现有告警渠道前先保留结构化日志和受鉴权状态查询，不在本次额外创建通知平台。
 
@@ -456,7 +443,7 @@ GPT-OSS 120B的Cloudflare账户共享每天10,000 Neurons，UTC00:00即北京时
 
 1. Gemini网关白名单追加模型后，当前Google项目确实有Gemini3.8 Flash权限、配额和所需结构化输出能力
 2. 现有Cloudflare推理令牌可以调用GPT-OSS120B，响应格式、结束状态与usage适配正确
-3. Worker能访问经过鉴权的ai-base公网HTTPS提交入口；现有Docker私网URL不能直接复用
+3. ai-base内部定时扫描跨08:00和次日正确创建任务；手动接口继续通过现有私网与鉴权访问，不要求公网入口
 4. 链接云Supabase迁移完成，ai-base数据库角色可安全读写新表，RLS不泄露任务快照
 5. 日期窗内有足够真实材料，截断预算和实际输出质量通过人工样本验收
 6. Bun1.4.3生产镜像下，关停取消、lease恢复、长响应读取和定时扫描真实通过
@@ -564,8 +551,7 @@ ai-base 写入报告成功之后，向现有 Web 的 POST /api/revalidate 发出
 | rss-site `supabase/migrations/20261104074034_daily_reports.sql`、`20261104075018_daily_report_service_privileges.sql` | 两张表、检查约束、查询索引和 RLS；显式收敛默认权限，不修改文章保留语义 |
 | rss-site `shared/daily-report.ts` | 日期、公开报告类型及前端读取校验；使用协议版本和相同 fixture 对照 ai-base |
 | rss-site `server/api/src/daily-report.ts`（新增） | 固定服务地址、鉴权短请求、幂等日期提交与有限重试 |
-| rss-site `server/api/src/index.ts`、`http-app.ts` | 两个 Cron 分流、手动鉴权入口，不在 Worker 内重复实现模型调用 |
-| rss-site `server/api/wrangler.jsonc`、生成的 Worker Env | 日报开关、服务 URL / Secret 声明、验收后启用新 cron；Env 通过 cf-typegen 生成 |
+| rss-site `server/api` | 日报不修改此模块；撤回最初的转发接口、配置与Cron |
 | rss-site `apps/web/app/daily/page.tsx`、`[date]/page.tsx`、对应 loading/error/not-found 边界 | 已确认的日报页面和真实状态 |
 | rss-site `apps/web/components/daily-report/*`、`site-header.tsx` | 日报、往期、日历、重点、引用和顶栏入口；沿用 SiteShell |
 | rss-site `apps/web/lib/daily-reports.ts`、内容发布 / sitemap 模块 | Supabase 公开读取、缓存范围、发布路径与索引入口 |
@@ -590,7 +576,7 @@ ai-base 写入报告成功之后，向现有 Web 的 POST /api/revalidate 发出
 | 3. ai-base 日报 | 新增任务提交 / 查询、持久 runner、选材 / 快照、生成 / 兜底、原子发布、通知重试 | 请求返回 202 后断开或重启进程可恢复；重复提交不重复发布；旧执行者不能覆盖新结果 |
 | 4. Web | 实现已确认两条路由、导航、往期、日历、重点、来源、空 / 错误 / 加载状态；扩展缓存 / sitemap | 桌面、平板、手机和明暗主题下真实内容可读，发布前后缓存与日期目录一致 |
 | 5. 生产手动验收 | 先应用云迁移，部署兼容版本，手动提交目标发行日，检查数据库和公开页面 | 一份真实日报发布，记录 HTTP 状态、jobId、覆盖期、条目 / 来源数、实际模型、用量与发布结果 |
-| 6. 打开定时 | 仅在上一步通过后启用 Worker 08:00 调度开关 / cron，保留知乎调度 | 部署配置只存在一个日报入口；观察下一次自然触发与 ai-base 完成记录，日期正确且没有重复报告 |
+| 6. 打开定时 | 仅在上一步通过后启用Nest DAILY_REPORT_AUTO_ENABLED，保留知乎原调度 | 只有Nest负责日报调度；观察下一次自然触发与完成记录，日期正确且没有重复报告 |
 
 跨仓库交付在两个原目录的 feat/daily-report 分支进行，不创建 worktree。验证后推送，由用户创建指向各自 master 的 PR 并合并；不得通过网页 UI 代建或代合并 PR
 
@@ -598,7 +584,7 @@ ai-base 写入报告成功之后，向现有 Web 的 POST /api/revalidate 发出
 
 | 范围 | 必须覆盖的行为 |
 | --- | --- |
-| 日期 | 上海跨日、月底 / 年底 / 闰日；非法日期；scheduledTime 对应发行日；指定补跑日期不受当前时刻影响 |
+| 日期 | 上海跨日、月底 / 年底 / 闰日；非法日期；08:00前后、常驻跨日、启动补偿、提交失败次轮重试；指定补跑日期不受当前时刻影响 |
 | 选材 | 两个 UTC 边界、缺失 published_at、非文章来源、无正文 / 只有标题、重复 URL、正文过长、某分区无材料、源数据不齐 |
 | 快照 | 模型重试与兜底使用完全相同 source IDs / content hash；来源文章后续更新不改变已冻结输入 |
 | 模型 | Gemini 成功只调用一次；超时 / 429 / 5xx / 非 JSON / 引用越界触发兜底；GPT 失败不发布；合法空选题不兜底；内容安全拒答不通过换模型绕过 |
@@ -616,9 +602,9 @@ ai-base 写入报告成功之后，向现有 Web 的 POST /api/revalidate 发出
 
 1. 在 linked cloud Supabase 应用版本迁移并核对权限；本地数据库只作补充，不代替云验证
 2. 部署模型网关、ai-base 和兼容 Web；日报自动提交开关保持关闭
-3. 部署 rss Worker 新代码并验证旧 cron 仍按类型分流；注入所需 Secret，不将值写入任何文档或日志
+3. 核对rss Worker保持原有采集/知乎配置，无需为日报部署或新增Secret
 4. 手动调用鉴权入口，查询私有任务最终状态及公开报告，并实际访问页面 / sitemap / CDN
-5. 在开发文档记录非敏感证据后，再打开 08:00 cron；观察下一次自然触发
+5. 在开发文档记录非敏感证据后，再打开Nest内部08:00调度；观察下一次自然触发
 6. 如需回滚，先关闭日报自动提交与 runner 新任务领取，再回滚应用；保留报告和任务数据，不删除迁移或覆盖已发布正文。确认旧应用忽略新增表且既有采集 / 总结仍可运行
 
 日报复用现有来源，不新增或修改来源采集 cron；不能用 pnpm setup:cron 绕过仓库既有“先生产入库验证，再启用来源”的顺序。原有 Vault 来源秘密与 source_status 语义保持不变。
@@ -637,12 +623,12 @@ ai-base 写入报告成功之后，向现有 Web 的 POST /api/revalidate 发出
 ### 代码与数据库
 
 - rss-site 基于42eb353、ai-base基于93bac43；原目录各自 feat/daily-report，无新 worktree，保留 ai-base 原部署脚本改动
-- 已实现第15节协议、任务、选材、双模型、通知、Worker调度、页面、缓存与sitemap；Worker新cron表达式已写入但 DAILY_REPORT_ENABLED=false，未部署业务Worker
+- 已实现第15节协议、任务、选材、双模型、通知、Nest内部08:00调度、页面、缓存与sitemap；自动开关关闭，Worker恢复原有配置
 - 两条迁移已应用 linked cloud pnjsrihfpyvkhyidzgfq；迁移使用官方 Supabase CLI 创建，文件时间戳按云迁移历史对齐
 - 云库权限实查：两表RLS启用；任务表匿名/登录用户不可读写；成品表公开仅SELECT，service_role不能UPDATE/DELETE/TRUNCATE
 - 隔离随机测试schema中的4项真实PostgreSQL集成测试通过：并发提交/抢占、冻结恢复/旧token拒写/原子发布、三次自动+一次显式补跑、六次通知上限及终态语义；测试schema已清理，公开日报仍0条
 - Security Advisor 对私有任务表给出预期的[RLS无公开策略提示](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy)；另有既有Auth泄漏密码保护提醒，本次不改Auth配置
-- API181项、Web403项、Agent76项、Gateway24项测试通过；Web另有8项既有Redis集成测试因未配置测试Redis跳过，Agent常规运行跳过的4项数据库测试已另行在云库执行通过；两仓契约经统一格式化比较、fixture经JSON比较均一致
+- API164项、Web403项、Agent80项、Gateway24项测试通过；Agent日报回归26项含新增内部调度测试。Web另有8项既有Redis集成测试因未配置测试Redis跳过，Agent常规运行跳过的4项数据库测试已另行在云库执行通过；两仓契约经统一格式化比较、fixture经JSON比较均一致
 - 三包类型、Agent/Gateway类型、Nest与Web生产构建、变更文件格式检查通过；本地生产HTTP检查/daily返回200空态、非法日期404/noindex/no-store，合法未发布日期遇云库超时返回503/no-store，未冒充404。本地临时预览路径与示例数据已移除
 - Chrome已检查1440/1024/390 CSS像素、明暗主题、往期折叠、日期导航、长标题、空态与不存在日期；三个宽度均无页面横向溢出
 - 评审发现Next流式404返回200，已在proxy对日报日期和公开元数据做前置检查；未知日期404、查询失败503，状态缓存使用daily-reports标签随发布失效
@@ -660,9 +646,9 @@ ai-base 写入报告成功之后，向现有 Web 的 POST /api/revalidate 发出
 
 ### 发布门禁与评审结论
 
-代码标准与协议评审已修复：默认服务角色过宽权限、通知响应关联、no_news用量记录、响应体预算与无效响应重试、HTTP流式404。无新增已接受的范围外功能，不创建空roadmap
+代码标准与协议评审已修复：默认服务角色过宽权限、通知响应关联、no_news用量记录、HTTP流式404。2026-11-04用户提供构建日志确认AGENT_SERVICE_TOKEN缺失；按照减少配置要求移除整个Worker转发链路，Nest复用30秒扫描直接按08:00调度，不通过删除鉴权来修复。无新增已接受的范围外功能，不创建空roadmap
 
-当前不满足自动出刊上线条件：Gemini上游503，完整提示词质量/留出样本、Bun生产镜像恢复、Worker到Nest公网鉴权入口、Web发布/CDN缓存整链和自然08:00触发均待验证。这些是发布门禁，不能当作已完成或迁入“以后优化”。日报应用未上线，ECS服务未重启，自动任务保持关闭
+当前不满足自动出刊上线条件：Gemini上游503，完整提示词质量/留出样本、Bun生产镜像恢复、Web发布/CDN缓存整链和自然08:00触发均待验证。这些是发布门禁，不能当作已完成或迁入“以后优化”。日报应用未上线，ECS服务未重启，自动任务保持关闭
 
 按用户要求交付两仓库feat/daily-report供代码和UI审查，base均为master；建议先创建草稿PR，未完成上述门禁前不合并上线。真实模型和发布整链通过后才打开自动开关。Workbench技能要求ECS服务重启前明确确认实例与影响，届时执行前再确认，不因本地代码实现自动重启生产容器
 
