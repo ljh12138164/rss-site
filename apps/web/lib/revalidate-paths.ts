@@ -1,3 +1,4 @@
+import { isReportDate } from '../../../shared/daily-report'
 import { skillPath } from '../../../shared/skills'
 
 export interface RevalidationScope {
@@ -5,6 +6,7 @@ export interface RevalidationScope {
   source?: string
   eventSlugs?: string[]
   skillIds?: string[]
+  dailyReportDate?: string
 }
 
 export interface ResolvedRevalidation {
@@ -17,6 +19,21 @@ export interface ResolvedRevalidation {
  * Resolves static paths, dynamic page patterns, and cache tags to revalidate.
  */
 export function resolveRevalidation(scope: RevalidationScope): ResolvedRevalidation {
+  if (scope.dailyReportDate !== undefined) {
+    if (
+      !isReportDate(scope.dailyReportDate) ||
+      scope.section ||
+      scope.source ||
+      scope.eventSlugs?.length ||
+      scope.skillIds?.length
+    )
+      throw new Error('Invalid daily report scope')
+    return {
+      paths: ['/daily', `/daily/${scope.dailyReportDate}`, '/sitemap.xml'],
+      dynamicPages: ['/daily/[date]'],
+      tags: ['daily-reports', 'sitemap']
+    }
+  }
   const { section, source, eventSlugs = [], skillIds = [] } = scope
   const tags: string[] = ['sitemap']
 

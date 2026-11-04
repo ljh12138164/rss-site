@@ -2,6 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { resolveRevalidation } from './revalidate-paths'
 
 describe('resolveRevalidation', () => {
+  it('invalidates daily latest, dated issue, all archive-bearing pages and sitemap only', () => {
+    expect(resolveRevalidation({ dailyReportDate: '2026-11-04' })).toEqual({
+      paths: ['/daily', '/daily/2026-11-04', '/sitemap.xml'],
+      dynamicPages: ['/daily/[date]'],
+      tags: ['daily-reports', 'sitemap']
+    })
+    expect(() => resolveRevalidation({ dailyReportDate: '2026-02-30' })).toThrow()
+    expect(() => resolveRevalidation({ dailyReportDate: '2026-11-04', source: 'openai' })).toThrow()
+  })
   it('resolves standard section and source paths', () => {
     const result = resolveRevalidation({ section: '/news', source: 'xinhua' })
     expect(result.paths).toEqual(['/', '/latest', '/sitemap.xml', '/news', '/news/xinhua'])

@@ -79,7 +79,10 @@ describe('Zhihu maintenance entrypoints', () => {
     VERCEL_API_TOKEN: 'synthetic',
     RSSHUB_VERCEL_PROJECT_ID: 'prj_test',
     RSSHUB_VERCEL_TEAM_ID: 'team_test',
-    ZHIHU_REFRESH_ENABLED: 'true'
+    ZHIHU_REFRESH_ENABLED: 'true',
+    DAILY_REPORT_ENABLED: 'false',
+    DAILY_REPORT_SERVICE_URL: 'https://agent.example.com',
+    AGENT_SERVICE_TOKEN: 'synthetic'
   }
   const controller: ScheduledController = {
     cron: '0 20 * * *',
@@ -90,6 +93,36 @@ describe('Zhihu maintenance entrypoints', () => {
   it('does no work when native Cron is disabled', async () => {
     await worker.scheduled(controller, { ...env, ZHIHU_REFRESH_ENABLED: 'false' })
     expect(refreshCookieFromRuntime).not.toHaveBeenCalled()
+  })
+
+  it('does not refresh Zhihu from the disabled daily or unknown schedules', async () => {
+    await worker.scheduled({ ...controller, cron: '0 0 * * *' }, env)
+    await worker.scheduled({ ...controller, cron: '0 1 * * *' }, env)
+    expect(refreshCookieFromRuntime).not.toHaveBeenCalled()
+  })
+
+  it('submits the scheduled Shanghai issue date without running the Zhihu task', async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValue(
+        Response.json(
+          { jobId: '550e8400-e29b-41d4-a716-446655440000', date: '2026-11-04', status: 'queued' },
+          { status: 202 }
+        )
+      )
+    const log = vi.spyOn(console, 'info').mockImplementation(() => {})
+    vi.stubGlobal('fetch', fetcher)
+    try {
+      await worker.scheduled(
+        { ...controller, cron: '0 0 * * *', scheduledTime: Date.parse('2026-11-04T00:00:00Z') },
+        { ...env, DAILY_REPORT_ENABLED: 'true' }
+      )
+      expect(JSON.parse(fetcher.mock.calls[0]?.[1].body)).toEqual({ date: '2026-11-04' })
+      expect(refreshCookieFromRuntime).not.toHaveBeenCalled()
+    } finally {
+      vi.unstubAllGlobals()
+      log.mockRestore()
+    }
   })
 
   it('runs the shared refresh task from native Cron', async () => {

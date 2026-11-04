@@ -6,7 +6,13 @@ import {
   type SignalSourceId
 } from '@rss-site/signals'
 import type { Context, Hono } from 'hono'
+import { bodyLimit } from 'hono/body-limit'
 import { cors } from 'hono/cors'
+import {
+  type DailyReportSubmission,
+  parseDailySubmission,
+  type submitDailyReport
+} from './daily-report.js'
 import { RefreshError } from './maintenance/zhihu.js'
 import type { CookieRefreshResult } from './maintenance/zhihu-cookie.js'
 import { handleMcpJsonRpc } from './mcp/handler.js'
@@ -17,6 +23,7 @@ export interface AppDependencies {
   runIngestion(source: SignalSourceId): Promise<{ batchId: string; itemCount: number }>
   fetchNews?(options: { platform?: string; limit?: number }): Promise<McpNewsItem[]>
   refreshZhihuCookie?(): Promise<CookieRefreshResult>
+  submitDailyReport?(input: DailyReportSubmission): ReturnType<typeof submitDailyReport>
 }
 
 function matchesSecret(actual: string | undefined, expected: string): boolean {
@@ -29,6 +36,30 @@ function matchesSecret(actual: string | undefined, expected: string): boolean {
 
 export function configureApp(app: Hono, deps: AppDependencies) {
   app.get('/health', (context) => context.json({ status: 'ok' as const }))
+
+  app.use('/cron/daily-report', bodyLimit({ maxSize: 1024 }))
+  app.post('/cron/daily-report', async (context) => {
+    if (!matchesSecret(context.req.header('Authorization'), deps.cronSecret))
+      return context.json({ error: 'Unauthorized' }, 401)
+    if (
+      context.req.header('content-type')?.split(';')[0]?.trim().toLowerCase() !== 'application/json'
+    )
+      return context.json({ error: 'Use application/json' }, 415)
+    let input: DailyReportSubmission
+    try {
+      input = parseDailySubmission(await context.req.json())
+    } catch {
+      return context.json({ error: 'Invalid daily report input' }, 400)
+    }
+    if (!deps.submitDailyReport)
+      return context.json({ error: 'Daily reports are not configured' }, 503)
+    try {
+      const result = await deps.submitDailyReport(input)
+      return context.json(result.data, result.status)
+    } catch {
+      return context.json({ error: 'Daily report submission unavailable' }, 503)
+    }
+  })
 
   app.post('/cron/maintenance/zhihu-cookie', async (context) => {
     if (!matchesSecret(context.req.header('Authorization'), deps.cronSecret)) {

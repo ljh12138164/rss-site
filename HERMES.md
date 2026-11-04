@@ -1,5 +1,20 @@
 # HERMES
 
+## 2026-11-04 日报总结技术方案
+
+- Branch: feat/daily-report，rss-site 已同步 origin/master 42eb353；ai-base 在原目录快进到 origin/master 93bac43
+- Objective: 用户已确认文档并要求实施；基于 ai-base 新增持久日报，Gemini 3.8 Flash 主用、GPT-OSS 120B 兜底，北京时间每天 08:00 提交
+- Document: [日报总结技术方案](docs/development/daily-report.md)
+- Design: rss Worker 短请求提交持久任务，ai-base 后台 runner 冻结材料、生成和恢复，Supabase 保存成品，Web 展示 /daily 和 /daily/[date]；沿用已确认暖橙主题及 AIHOT 参考布局
+- Evidence: 两网关已追加 Gemini 3.8 Flash 白名单并部署脱敏诊断；Vercel 真实请求确认 Google 返回503/UNAVAILABLE/capacity，同凭据 Gemma 对照200；详见 ai-base/docs/research/gemini-upstream-503.md
+- Editorial: 按用户补充核对 AIHOT cd424b0 的真实提示词和日报编排；文档第8节新增可执行编辑提示词、同事件合并、近期排重、事实写作示例及固定样本对照；AIHOT 日报本身按规则成刊，首版采用每日报内一次编辑调用
+- Scope: 两仓均复用原目录 feat/daily-report；新增日报协议、持久 runner、双模型、调度、页面、发布缓存与 sitemap；保留 ai-base 既有 deploy/server/deploy-agent-service 本地改动
+- Verification: API181项、Agent76项、Gateway24项、Web403项测试通过；Web8项Redis测试跳过，Agent4项数据库测试已另在云库通过；类型、Nest与Web生产构建、1440/1024/390明暗UI验收通过；两仓协议及fixture一致
+- Cloud: 20261104074034与20261104075018两条迁移已应用；云库并发、租约、原子发布、通知上限验证通过；公开日报0条。GPT-OSS完整材料结构通过，仍存在倍率、最高值及相对日期事实错误，未发布草稿
+- Online config: Workbench核对线上ai-base93bac43，网关地址与令牌存在；无ECS重启或业务日报部署。CF诊断版本22bc17d5-72a5-413d-b495-19011d7d2e82，Vercel诊断部署dpl_HXPaAEzHcKUPBreYgLWi89PTL3H5
+- Delivery: 用户要求PR与截图供审查；桌面截图已保存docs/development/assets/daily-report-desktop.png，开发文档附两仓master...feat/daily-report创建链接。2026-11-04重新运行API181、Web403、Agent76项通过；Gateway24项通过；提交推送当前实现供草稿PR审查，按仓库规则由用户创建/合并
+- Next: 503调查完成；日报仍需解决编辑质量及留出样本、Bun镜像恢复、公网鉴权入口、发布/CDN整链和自然08:00验收。自动开关保持关闭，建议门禁完成后再合并上线
+
 ## 2026-11-03 修正首屏缓存自动过期
 
 - Branch: feat/keep-list-cache-warm，基于 origin/master 152a34d

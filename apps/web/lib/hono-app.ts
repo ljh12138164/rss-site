@@ -2,6 +2,7 @@ import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
 import { getSignalSource, isSignalSourceId, listSignalSources } from '@rss-site/signals'
 import { Hono } from 'hono'
 import { validator } from 'hono/validator'
+import { isReportDate, shanghaiDate } from '../../../shared/daily-report'
 import { validSkillId } from '../../../shared/skills'
 import { getAdminDataClient } from './admin-supabase'
 import { getEvent, getEventPage, parseEventCursor, validEventSlug } from './ai-events'
@@ -300,6 +301,7 @@ export const app = new Hono()
     let source: string | undefined
     let eventSlugs: string[] = []
     let skillIds: string[] = []
+    let dailyReportDate: string | undefined
     let publicationId = randomUUID()
     try {
       const input = await c.req.json()
@@ -308,7 +310,8 @@ export const app = new Hono()
         typeof input !== 'object' ||
         Array.isArray(input) ||
         Object.keys(input).some(
-          (key) => !['section', 'source', 'events', 'skills', 'batchId'].includes(key)
+          (key) =>
+            !['section', 'source', 'events', 'skills', 'batchId', 'dailyReportDate'].includes(key)
         )
       )
         throw new Error('Invalid scope')
@@ -319,6 +322,15 @@ export const app = new Hono()
         )
           throw new Error('Invalid batch')
         publicationId = input.batchId
+      }
+      if (input.dailyReportDate !== undefined) {
+        if (
+          !isReportDate(input.dailyReportDate) ||
+          input.dailyReportDate > shanghaiDate() ||
+          ['section', 'source', 'events', 'skills'].some((key) => key in input)
+        )
+          throw new Error('Invalid daily report scope')
+        dailyReportDate = input.dailyReportDate
       }
       if (input.events !== undefined) {
         if (
@@ -348,7 +360,7 @@ export const app = new Hono()
         source = signalSource.id
         if (skillIds.length && section !== '/skills') throw new Error('Invalid scope')
       } else if (skillIds.length) section = '/skills'
-      else if (!eventSlugs.length) throw new Error('Invalid scope')
+      else if (!eventSlugs.length && !dailyReportDate) throw new Error('Invalid scope')
     } catch {
       return c.json({ error: 'Invalid section or source' }, 400)
     }
@@ -359,6 +371,7 @@ export const app = new Hono()
         source,
         eventSlugs,
         skillIds,
+        dailyReportDate,
         publicationId
       })
       c.header('Cache-Control', CACHE_HEADERS.NO_STORE['Cache-Control'])

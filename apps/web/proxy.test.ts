@@ -1,9 +1,36 @@
 import { NextRequest } from 'next/server'
 import { describe, expect, it, vi } from 'vitest'
-import { getContentStatus } from './lib/content-status'
+import { getContentStatus, getDailyReportStatus } from './lib/content-status'
 import { proxy } from './proxy'
 
-vi.mock('./lib/content-status', () => ({ getContentStatus: vi.fn() }))
+vi.mock('./lib/content-status', () => ({
+  getContentStatus: vi.fn(),
+  getDailyReportStatus: vi.fn()
+}))
+
+describe('daily report HTTP visibility', () => {
+  it('rejects an impossible date before querying the database', async () => {
+    vi.mocked(getDailyReportStatus).mockClear()
+    expect((await proxy(new NextRequest('https://example.com/daily/2026-02-30'))).status).toBe(404)
+    expect(getDailyReportStatus).not.toHaveBeenCalled()
+  })
+  it.each([200, 404] as const)(
+    'checks published metadata before streaming (%s)',
+    async (status) => {
+      vi.mocked(getDailyReportStatus).mockResolvedValueOnce(status)
+      const response = await proxy(new NextRequest('https://example.com/daily/2026-11-04'))
+      expect(response.status).toBe(status)
+      expect(getDailyReportStatus).toHaveBeenLastCalledWith('2026-11-04')
+      if (status === 404) expect(response.headers.get('x-robots-tag')).toBe('noindex')
+    }
+  )
+  it('returns 503 instead of caching database failure as an absent report', async () => {
+    vi.mocked(getDailyReportStatus).mockRejectedValueOnce(new Error('unavailable'))
+    const response = await proxy(new NextRequest('https://example.com/daily/2026-11-04'))
+    expect(response.status).toBe(503)
+    expect(response.headers.get('cache-control')).toBe('no-store')
+  })
+})
 
 describe('technology source proxy', () => {
   it('lets the timeline archive validate its own cursor without an event lookup', async () => {
