@@ -3,12 +3,12 @@
 ## 2026-11-04 日报总结技术方案
 
 - Branch: feat/daily-report，rss-site 已同步 origin/master 42eb353；ai-base 在原目录快进到 origin/master 93bac43
-- Objective: 用户已确认文档并要求实施；基于 ai-base 新增持久日报，Gemini 3.8 Flash 主用、GPT-OSS 120B 兜底，北京时间每天 08:00 提交
+- Objective: 用户已确认文档并要求实施；基于 ai-base 新增持久日报，仅用 Gemini 3.5 Flash-Lite LOW，移除日报GPT，单轮最多3次请求，北京时间每天 08:00 提交
 - Document: [日报总结技术方案](docs/development/daily-report.md)
 - Design: ai-base已有常驻runner每30秒检查北京08:00并创建当天唯一任务，冻结材料、生成和恢复，Supabase保存成品，Web展示/daily和/daily/[date]；不新增Worker配置、令牌或公网入口
 - Evidence: 两网关已追加 Gemini 3.8 Flash 白名单并部署脱敏诊断；Vercel 真实请求确认 Google 返回503/UNAVAILABLE/capacity，同凭据 Gemma 对照200；详见 ai-base/docs/research/gemini-upstream-503.md
 - Editorial: 按用户补充核对 AIHOT cd424b0 的真实提示词和日报编排；文档第8节新增可执行编辑提示词、同事件合并、近期排重、事实写作示例及固定样本对照；AIHOT 日报本身按规则成刊，首版采用每日报内一次编辑调用
-- Scope: 两仓均复用原目录feat/daily-report；日报协议、持久runner、双模型、内部调度、页面、发布缓存与sitemap；保留ai-base既有部署脚本改动
+- Scope: 两仓均复用原目录feat/daily-report；日报协议、持久runner、Gemini有限重试、内部调度、页面、发布缓存与sitemap；保留ai-base既有部署脚本改动
 - Verification: API164项、Agent80项、Gateway24项、Web403项通过；Web8项Redis测试跳过，Agent4项数据库测试已另在云库通过；新增08:00前后、跨日、启动补跑、关闭开关与入库失败重试测试；两仓协议及fixture一致
 - Cloud: 20261104074034与20261104075018两条迁移已应用；云库并发、租约、原子发布、通知上限验证通过；公开日报0条。GPT-OSS完整材料结构通过，仍存在倍率、最高值及相对日期事实错误，未发布草稿
 - Online config: Workbench核对线上ai-base93bac43，网关地址与令牌存在；无ECS重启或业务日报部署。CF诊断版本22bc17d5-72a5-413d-b495-19011d7d2e82，Vercel诊断部署dpl_HXPaAEzHcKUPBreYgLWi89PTL3H5
@@ -16,7 +16,9 @@
 - Build repair: 用户提供Cloudflare日志确认AGENT_SERVICE_TOKEN未设置。撤掉整个Worker日报转发/额外Cron/新增密钥声明，恢复原有Worker配置；类型与dry-run通过。Nest内部调度替代外部触发，未更换任何令牌或重启服务
 - Redis: 按用户要求复用REDIS_URL，为最新/日期详情/往期加入300秒缓存；发布先切版本再刷新Next/CDN，失败503由持久通知重试，旧查询受原子版本校验保护，Redis读取故障回源。Web416项、类型、68页生产构建、9个文件Biome通过；本地Redis未启动，12项集成待CI（新增日报4项）
 - Regression: 20:00–20:05按用户要求真实回归：CF/Vercel Gemini最小请求仍503；相同25份冻结材料两次真实Provider调用均Gemini503后GPT200，但成稿校验失败。诊断复测明确OpenAI主来源3条超2条上限，仍有倍率/相对日期错误；未发布、未重启或改配置。日报26项测试通过，详见开发文档第18节
-- Next: Redis增量e737fff已推送；上一提交89c4d69的Cloudflare检查已成功。主模型恢复、兜底成稿质量、Bun镜像恢复、发布/CDN整链和自然08:00生产验收仍待完成，自动开关关闭
+- Gemini-only: 用户最新要求使用较低档Gemini并增加重试、不用GPT；日报已切gemini-3.5-flash-lite LOW，每轮最多3次45秒请求，2秒/5秒退避，持久任务自动最多3轮（最多9次请求）。鉴权/配置/安全拒答立即停止，取消中断退避；editor-v2优化选题、旧闻、倍率、归因与平台限额，Schema约束报内id。Flash-Lite已在CF网关83da4a5c-2c4f-43d6-82ae-e828e00e065a放行；未部署日报应用或启用自动任务
+- Gemini validation: 最终留出样本一次200、3条、26907ms，6项人工检查通过；完整25份材料两次45秒超时后第三次200、4条、120153ms，结构及平台配额通过，旧闻/导读越界仍未通过人工验收。Agent95、Gateway24通过，4项DB本轮跳过；类型/构建/根lint通过。完整证据见第18节，草稿未发布
+- Next: Redis增量e737fff已推送；上一提交89c4d69的Cloudflare检查已成功。Gemini完整成稿质量、Bun镜像恢复、发布/CDN整链和自然08:00生产验收仍待完成，自动开关关闭
 
 ## 2026-11-03 修正首屏缓存自动过期
 
