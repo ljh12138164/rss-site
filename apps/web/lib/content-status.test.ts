@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { getContentStatus } from './content-status'
+import { getContentStatus, getDailyReportStatus } from './content-status'
 
-const { from } = vi.hoisted(() => ({ from: vi.fn() }))
+const { from, dailyReport } = vi.hoisted(() => ({ from: vi.fn(), dailyReport: vi.fn() }))
+vi.mock('./daily-reports', () => ({ getDailyReport: dailyReport }))
 vi.mock('./supabase', () => ({ getPublicSupabaseClient: () => ({ from }) }))
 vi.mock('next/cache', () => ({ unstable_cache: (fn: () => unknown) => fn }))
 
@@ -20,6 +21,15 @@ function query(result: Promise<Result>) {
 beforeEach(() => vi.clearAllMocks())
 
 describe('content visibility precheck', () => {
+  it('shares the cached daily report read for 200/404 checks and propagates read failures', async () => {
+    dailyReport.mockResolvedValueOnce({ reportDate: '2026-11-04' }).mockResolvedValueOnce(null)
+    expect(await getDailyReportStatus('2026-11-04')).toBe(200)
+    expect(await getDailyReportStatus('2026-11-03')).toBe(404)
+    expect(dailyReport).toHaveBeenCalledWith('2026-11-04')
+    expect(from).not.toHaveBeenCalled()
+    dailyReport.mockRejectedValueOnce(new Error('DB unavailable'))
+    await expect(getDailyReportStatus('2026-11-04')).rejects.toThrow('DB unavailable')
+  })
   it('starts visibility and tombstone reads together on a cold request', async () => {
     let release: ((result: Result) => void) | undefined
     const removed = new Promise<Result>((resolve) => {

@@ -1,0 +1,32 @@
+{
+  "reportDate": "2026-11-04",
+  "sources": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "source": "cloudflare-blog",
+      "sourceName": "Cloudflare Blog",
+      "section": "technology",
+      "title": "测试材料：图片转换规则调整",
+      "url": "https://example.com/image-rules",
+      "imageUrl": null,
+      "publishedAt": "2026-11-03T08:00:00Z",
+      "firstSeenAt": "2026-11-03T09:00:00Z"
+    }
+  ],
+  "draft": {
+    "overview": {
+      "text": "Cloudflare 调整了图片转换规则，免费范围只覆盖指定操作。",
+      "sourceIds": ["550e8400-e29b-41d4-a716-446655440000"]
+    },
+    "headlineId": "s1",
+    "stories": [
+      {
+        "id": "s1",
+        "section": "technology",
+        "title": "测试：图片转换部分操作免费",
+        "summary": "材料说明部分图片转换操作免费，存储和其他操作仍按原有规则收费。该调整只适用于材料列明的套餐。",
+        "sourceIds": ["550e8400-e29b-41d4-a716-446655440000"]
+      }
+    ]
+  }
+}

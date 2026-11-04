@@ -1,7 +1,8 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
+import { isReportDate } from '../../shared/daily-report'
 import { articleSource, parseArticleIdFromSlug } from './lib/article-route'
-import { getContentStatus } from './lib/content-status'
+import { getContentStatus, getDailyReportStatus } from './lib/content-status'
 import {
   isAiSourceId,
   isFinanceSourceId,
@@ -13,6 +14,31 @@ import {
 
 export async function proxy(request: NextRequest) {
   const [section, sourceId, encodedSlug] = request.nextUrl.pathname.split('/').filter(Boolean)
+  if (section === 'daily') {
+    let status = 404
+    try {
+      if (isReportDate(sourceId) && !encodedSlug) status = await getDailyReportStatus(sourceId)
+    } catch {
+      return new NextResponse('日报暂时无法加载，请稍后重试。', {
+        status: 503,
+        headers: {
+          'Retry-After': '60',
+          'Cache-Control': 'no-store',
+          'Content-Type': 'text/plain; charset=utf-8'
+        }
+      })
+    }
+    return status === 200
+      ? NextResponse.next()
+      : new NextResponse('这一期日报不存在', {
+          status: 404,
+          headers: {
+            'X-Robots-Tag': 'noindex',
+            'Cache-Control': 'no-store',
+            'Content-Type': 'text/plain; charset=utf-8'
+          }
+        })
+  }
   if (section === 'ai' && sourceId === 'events' && (!encodedSlug || encodedSlug === 'archive'))
     return NextResponse.next()
   if (
@@ -75,6 +101,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/daily/:date',
     '/technology/:source',
     '/news/:source',
     '/ai/:source',

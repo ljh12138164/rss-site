@@ -1,5 +1,22 @@
 # HERMES
 
+## 2026-11-04 日报总结技术方案
+
+- Branch: feat/daily-report，rss-site 已同步 origin/master 42eb353；ai-base 在原目录快进到 origin/master 93bac43
+- Objective: 用户已确认文档并要求实施；基于 ai-base 新增持久日报，Gemini 3.8 Flash 主用、GPT-OSS 120B 兜底，北京时间每天 08:00 提交
+- Document: [日报总结技术方案](docs/development/daily-report.md)
+- Design: ai-base已有常驻runner每30秒检查北京08:00并创建当天唯一任务，冻结材料、生成和恢复，Supabase保存成品，Web展示/daily和/daily/[date]；不新增Worker配置、令牌或公网入口
+- Evidence: 两网关已追加 Gemini 3.8 Flash 白名单并部署脱敏诊断；Vercel 真实请求确认 Google 返回503/UNAVAILABLE/capacity，同凭据 Gemma 对照200；详见 ai-base/docs/research/gemini-upstream-503.md
+- Editorial: 按用户补充核对 AIHOT cd424b0 的真实提示词和日报编排；文档第8节新增可执行编辑提示词、同事件合并、近期排重、事实写作示例及固定样本对照；AIHOT 日报本身按规则成刊，首版采用每日报内一次编辑调用
+- Scope: 两仓均复用原目录feat/daily-report；日报协议、持久runner、双模型、内部调度、页面、发布缓存与sitemap；保留ai-base既有部署脚本改动
+- Verification: API164项、Agent80项、Gateway24项、Web403项通过；Web8项Redis测试跳过，Agent4项数据库测试已另在云库通过；新增08:00前后、跨日、启动补跑、关闭开关与入库失败重试测试；两仓协议及fixture一致
+- Cloud: 20261104074034与20261104075018两条迁移已应用；云库并发、租约、原子发布、通知上限验证通过；公开日报0条。GPT-OSS完整材料结构通过，仍存在倍率、最高值及相对日期事实错误，未发布草稿
+- Online config: Workbench核对线上ai-base93bac43，网关地址与令牌存在；无ECS重启或业务日报部署。CF诊断版本22bc17d5-72a5-413d-b495-19011d7d2e82，Vercel诊断部署dpl_HXPaAEzHcKUPBreYgLWi89PTL3H5
+- Delivery: 用户要求PR与截图供审查；桌面截图已保存docs/development/assets/daily-report-desktop.png，开发文档附两仓master...feat/daily-report创建链接。2026-11-04重新运行API181、Web403、Agent76项通过；Gateway24项通过；提交推送当前实现供草稿PR审查，按仓库规则由用户创建/合并
+- Build repair: 用户提供Cloudflare日志确认AGENT_SERVICE_TOKEN未设置。撤掉整个Worker日报转发/额外Cron/新增密钥声明，恢复原有Worker配置；类型与dry-run通过。Nest内部调度替代外部触发，未更换任何令牌或重启服务
+- Redis: 按用户要求复用REDIS_URL，为最新/日期详情/往期加入300秒缓存；发布先切版本再刷新Next/CDN，失败503由持久通知重试，旧查询受原子版本校验保护，Redis读取故障回源。Web416项、类型、68页生产构建、9个文件Biome通过；本地Redis未启动，12项集成待CI（新增日报4项）
+- Next: 推送日报Redis增量至原feat/daily-report；上一提交89c4d69的Cloudflare检查已成功。编辑质量、Bun镜像恢复、发布/CDN整链和自然08:00生产验收仍待完成，自动开关关闭
+
 ## 2026-11-03 修正首屏缓存自动过期
 
 - Branch: feat/keep-list-cache-warm，基于 origin/master 152a34d

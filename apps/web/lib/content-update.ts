@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import { after } from 'next/server'
 import { articleSource, createArticlePath } from './article-route'
 import { publishContent } from './content-publication'
+import { invalidateDailyReportCache } from './daily-report-cache'
 import { invalidateListCaches } from './list-cache'
 import { warmListCaches } from './list-cache-prewarm'
 import { affectedListScopes } from './list-cache-scopes'
@@ -15,7 +16,7 @@ interface ContentUpdate extends RevalidationScope {
 
 export async function updateContent(scope: ContentUpdate) {
   const publicationId = scope.publicationId ?? randomUUID()
-  const logFailure = (phase: 'revalidation' | 'publication' | 'listCache') =>
+  const logFailure = (phase: 'revalidation' | 'publication' | 'listCache' | 'dailyCache') =>
     console.info(
       JSON.stringify({
         publicationId,
@@ -26,9 +27,14 @@ export async function updateContent(scope: ContentUpdate) {
     )
   try {
     const listScopes = affectedListScopes(scope)
-    const cacheInvalidated = await invalidateListCaches(listScopes)
-    if (!cacheInvalidated) logFailure('listCache')
+    const listsInvalidated = await invalidateListCaches(listScopes)
+    if (!listsInvalidated) logFailure('listCache')
+    const dailyInvalidated = scope.dailyReportDate ? await invalidateDailyReportCache() : true
+    if (!dailyInvalidated) logFailure('dailyCache')
+    const cacheInvalidated = listsInvalidated && dailyInvalidated
     const { paths, dynamicPages, tags } = resolveRevalidation(scope)
+    // Let the durable publisher retry before pages can refill from an old daily cache.
+    if (!dailyInvalidated) return { paths, publicationId, cacheInvalidated }
     if (
       scope.article &&
       scope.source &&
@@ -50,7 +56,7 @@ export async function updateContent(scope: ContentUpdate) {
     after(async () => {
       try {
         if (listScopes.length && process.env.REDIS_URL) {
-          let invalidated = cacheInvalidated
+          let invalidated = listsInvalidated
           let failed = listScopes
           for (let attempt = 0; attempt < 2; attempt++) {
             if (!invalidated) invalidated = await invalidateListCaches(listScopes)

@@ -7,6 +7,7 @@ import {
   technologyArticleSources
 } from '@rss-site/signals'
 import { unstable_cache } from 'next/cache'
+import { isReportDate } from '../../../shared/daily-report'
 import { skillPath } from '../../../shared/skills'
 import { createArticlePath } from './article-route'
 import { siteUrl } from './site-url'
@@ -56,6 +57,7 @@ export function getBaseEntries(): SitemapEntry[] {
   const entries: SitemapEntry[] = [
     { url: siteUrl('/') },
     { url: siteUrl('/latest') },
+    { url: siteUrl('/daily') },
     { url: siteUrl('/about') },
     { url: siteUrl('/privacy') },
     { url: siteUrl('/ai/events') },
@@ -163,17 +165,44 @@ export async function getSkillEntries(): Promise<SitemapEntry[]> {
   return entries
 }
 
+export async function getDailyReportEntries(): Promise<SitemapEntry[]> {
+  const entries: SitemapEntry[] = []
+  let after: string | undefined
+  for (;;) {
+    let query = getPublicSupabaseClient()
+      .from('daily_reports')
+      .select('report_date,published_at')
+      .order('report_date')
+      .limit(1000)
+    if (after) query = query.gt('report_date', after)
+    const { data, error } = await query.abortSignal(AbortSignal.timeout(10_000))
+    if (error) throw new Error('Sitemap daily reports unavailable')
+    if (!data?.length) break
+    for (const report of data) {
+      if (!isReportDate(report.report_date)) throw new Error('Invalid sitemap report date')
+      entries.push({
+        url: siteUrl(`/daily/${report.report_date}`),
+        lastModified: report.published_at
+      })
+    }
+    if (data.length < 1000) break
+    after = data[data.length - 1].report_date
+  }
+  return entries
+}
+
 const getSitemapCatalog = unstable_cache(
   async (_origin: string) => {
-    const [events, skills, articleCount] = await Promise.all([
+    const [events, skills, dailyReports, articleCount] = await Promise.all([
       getAiEventEntries(),
       getSkillEntries(),
+      getDailyReportEntries(),
       getSignalArticlesCount()
     ])
-    const entries = [...getBaseEntries(), ...events, ...skills]
+    const entries = [...getBaseEntries(), ...events, ...skills, ...dailyReports]
     return { entries, total: entries.length + articleCount }
   },
-  ['sitemap-catalog-v3'],
+  ['sitemap-catalog-v4'],
   { revalidate: 7200, tags: ['sitemap'] }
 )
 
@@ -196,7 +225,7 @@ export const getSitemapXml = unstable_cache(
     if (chunk === null && chunks > 1) return renderSitemapIndexXml(chunks)
     return renderUrlSetXml(await getChunkSitemapEntries(chunk ?? 0))
   },
-  ['sitemap-xml-v3'],
+  ['sitemap-xml-v4'],
   { revalidate: 7200, tags: ['sitemap'] }
 )
 

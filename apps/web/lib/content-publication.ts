@@ -1,3 +1,4 @@
+import { isReportDate } from '../../../shared/daily-report'
 import { skillPath } from '../../../shared/skills'
 import { validEventSlug } from './ai-events'
 import { articleSource, parseArticleIdFromSlug } from './article-route'
@@ -18,6 +19,7 @@ export function indexNowKey(): string | undefined {
 function validatePaths(paths: string[]): void {
   if (!paths.length || paths.length > 105) throw new Error('Invalid publication path')
   for (const path of paths) {
+    if (path === '/daily' || (path.startsWith('/daily/') && isReportDate(path.slice(7)))) continue
     if (path.startsWith('/skills/') && skillPath(path.slice(8)) === path) continue
     if (
       path === '/' ||

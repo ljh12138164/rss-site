@@ -1,6 +1,11 @@
 import { unstable_cache } from 'next/cache'
 import { articleSource } from './article-route'
+import { getDailyReport } from './daily-reports'
 import { getPublicSupabaseClient } from './supabase'
+
+export async function getDailyReportStatus(date: string) {
+  return (await getDailyReport(date)) ? 200 : 404
+}
 
 export function getContentStatus(kind: 'event' | 'news', id: string, source: string) {
   return unstable_cache(

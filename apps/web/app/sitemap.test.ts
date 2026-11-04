@@ -54,6 +54,11 @@ vi.mock('../lib/supabase', () => ({
           if (mockError) return { data: null, count: null, error: { message: 'DB down' } }
           if (head) return { count: mockArticleCount, error: null }
           if (table === 'skill_details') return { data: mockSkills, error: null }
+          if (table === 'daily_reports')
+            return {
+              data: [{ report_date: '2026-11-04', published_at: '2026-11-04T00:05:00Z' }],
+              error: null
+            }
           if (table === 'ai_events')
             return {
               data: [{ id: '1', slug: 'test-event', updated_at: '2026-01-01' }],
@@ -122,6 +127,8 @@ it('within limit: /sitemap.xml returns full urlset XML with all platform article
   expect(xml).toContain('<loc>https://news.ljhboard.cn/privacy</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/github</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/skills</loc>')
+  expect(xml).toContain('<loc>https://news.ljhboard.cn/daily</loc>')
+  expect(xml).toContain('<loc>https://news.ljhboard.cn/daily/2026-11-04</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/skills/mattpocock/skills/tdd</loc>')
   expect(xml).toContain('<lastmod>2026-10-14T00:00:00Z</lastmod>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/mcp</loc>')
