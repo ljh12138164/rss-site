@@ -637,6 +637,23 @@ ai-base 写入报告成功之后，向现有 Web 的 POST /api/revalidate 发出
 
 ## 18. 实现验证与上线门禁
 
+### 2026-11-04 20:00–20:05 真实模型回归
+
+按用户“回归一下”要求，在现有 ECS agent-service 容器内复用已有凭据执行；令牌未离开容器。使用分支编译产物中的原始 `DailyReportProvider.generate`，仅打包临时只读生成脚本；没有提交持久任务、写公开表、重启服务或打开自动开关
+
+| 请求 | Gemini | GPT-OSS 120B | 结果 |
+| --- | --- | --- | --- |
+| 主网关最小提示 `Reply OK` | gemini.ljhboard.cn：503，6087ms | 未调用 | 主模型仍失败 |
+| Vercel网关相同最小提示 | gemini-vercel.ljhboard.cn：503，44568ms | 未调用 | 请求 sin1::iad1::ftkgz-1793793635487-5e88ae73fa1a |
+| 完整生成第一次 | 主网关503，7839ms | 200，36134ms | 共43987ms；本地校验抛Error，该次脚本未记录具体校验消息，不能指定原因 |
+| 完整生成诊断复测 | 主网关503，6613ms | 200，13485ms | 共20118ms；6条草稿被 `Too many stories from one representative source` 拒绝 |
+
+两次完整生成均重放相同25份冻结材料，inputHash=`1e66b3e5e23f6385c98ccb477621e13e311bda865a8ba697d473978dac06eeb0`。诊断复测的OpenAI主来源共3条，超过已确认的2条上限；GPT返回stop，20098输入/1662输出tokens。导读仍擅加“本周”，GPU/AI“最高提升至”仍被正文改为“最高提升”，因此也不满足编辑质量要求；没有裁剪结果或降低校验门槛
+
+结论：已实测“配置完整的Gemini请求失败后，原Provider自动调用GPT”的真实顺序，不再只是缺少主模型配置的GPT单独试跑；主模型恢复和兜底成稿验收均未通过。本轮只观测到网关503，未读取新的Google错误诊断，不能把16:14的capacity分类当作20:00请求的新证据
+
+`pnpm --filter @ai-base/agent-service exec vitest run test/daily-report.test.ts --reporter=dot`：26项通过；其中published/no_news日志来自mock，不代表生产发布。原始脱敏结果保存在本地临时目录 `daily-regression-20261104`，未将完整来源文章或模型草稿提交入库
+
 ### 日报 Redis 增量验证
 
 - 继续在原目录 `feat/daily-report` 增量实现，只改 Web 读取/发布和本文档，不改 ai-base 或部署配置
