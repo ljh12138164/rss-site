@@ -1,6 +1,7 @@
 import type { SQL } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
+import * as schema from '../../../server/api/src/db/schema'
 
 // Only imported by server data modules. Never import this module from a client component.
 const state = globalThis as typeof globalThis & {
@@ -26,7 +27,13 @@ function connect() {
       date: { to: 1082, from: [1082], serialize: (v: string) => v, parse: (v: string) => v }
     }
   })
-  return { client, db: drizzle(client) }
+  const db = drizzle({ client, schema })
+  // Drizzle replaces postgres-js parsers during construction. Raw SQL readers
+  // share this client and require ISO timestamps for API responses and cursors.
+  client.options.parsers[1184] = (value: string) => new Date(value).toISOString()
+  client.options.serializers[1184] = (value: Date | string) =>
+    value instanceof Date ? value.toISOString() : value
+  return { client, db }
 }
 
 export function getBusinessDatabase() {

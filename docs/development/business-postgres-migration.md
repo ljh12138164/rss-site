@@ -30,7 +30,7 @@
 
 ## Implementation
 
-进行中。源库、线上应用与现有 Cron 尚未切换。
+进行中。最终快照已导入，PostgreSQL 18 数据卷已由 Compose 接管，Next 和 agent 已切换；新业务 timer 尚未启用。
 
 ### Supabase 每小时保活
 
@@ -99,6 +99,26 @@
 ### 尚未完成的切换条件
 
 - 源库仅 44 个活跃来源，代码注册 45 个来源；chatgpt 未在源库启用，迁移时不得未经门禁直接启用
-- 完成两个应用的 Linux 镜像构建；用户已要求跳过镜像演练。outbox 失败重试、同步发布与内部日报传输回归已经通过
-- 停止旧 Cron、旧 Worker、后台编辑及 agent-service 写入，等待在途任务结束后导入最终快照，再接管 Compose 数据卷并部署两个应用
-- 替代采集/MCP/维护入口验收后移除旧 rss-site API Worker 和 Hyperdrive；目前旧生产写入与调度继续运行
+- 两个应用的 Linux 镜像已构建成功并加载到 ECS；用户已要求跳过镜像演练。outbox 失败重试、同步发布与内部日报传输回归已经通过
+- 旧 Cron、旧 Worker 访问入口、后台编辑及 agent-service 写入均已停止；最终快照导出中，完成后接管 Compose 数据卷并部署两个应用
+- 替代采集/MCP/维护入口验收后移除旧 rss-site API Worker 和 Hyperdrive；新业务 timer 尚未启用
+
+### 生产切换记录
+
+- 发布镜像：rss-site `6da91d7`，ai-base `dbc3ae2`；两个 GitHub build-only 工作流均 success，服务器加载完成，传输 SHA-256 与本机一致
+- 旧 Supabase 46 项 Cron 全部 inactive；运行中任务 0、pg_net 待发请求 0
+- 旧 rss-site-api 的 Cron 列表为空，workers.dev 与预览入口关闭，原 rss-api.ljhboard.cn 自定义域名已解绑；Worker 暂留供切换前回退
+- 旧 Next 与 agent-service 已停止；服务器受保护目录 migration/production-before-cutover 保存原运行配置、Compose、版本标签及部署脚本
+- 最终导出、导入与目标调度仍在进行，不将演练快照记为生产同步结果
+- 最终快照导入完成，14 张业务表逐表行数一致：signal_articles 60,239、hot_items 1,051、ingestion_runs 6,443、source_status 44；Cookie 状态复用已有密钥重新加密同步
+- 首次接续调用了服务器残留 PostgreSQL 17 演练脚本，在导出完成后的 schema 提取阶段失败；没有导入旧目标。改用明确 PostgreSQL 18 导入脚本接续已有完整快照，未重新导出
+- Next、PostgreSQL 18、agent 容器 healthy；公网首页 200，内部接口未鉴权 401；每日加密备份 timer 已启用，切换后首份备份 service 执行成功
+- 发现 Drizzle 构造器覆盖 postgres-js 的 timestamp parser，原始时间字符串含空格，游标 ISO 校验使 39/50 个列表刷新失败。改为只初始化一次带 schema 的共享 ORM，并在构造后恢复 ISO parser；4 项针对性回归与类型检查通过，修复后的预热脚本在真实生产库完成 50/50
+- 服务器本地受鉴权的目标库验收及日报 status 请求均 200；相同请求走公网域名被 Cloudflare 返回 403。agent 改用 Docker 内网 Next 地址，部署验收走服务器内网；不新增令牌或数据库直连方
+- 正在生成包含时间解析修复的新正式镜像；完成替换和所有配置来源验收后启用业务 timer
+
+### 回退边界
+
+- 新 PostgreSQL 尚未接受业务写入时，可停止新服务及新 timer，恢复受保护备份中的原配置和版本，重新绑定旧 Worker 域名、恢复其 Cron 和原 Supabase Cron，再启动旧服务
+- 新库开始接受写入后，禁止只恢复旧数据库连接；必须先冻结新写入，再导出并核对新库增量或从加密备份恢复。优先修复新服务，保留旧 Supabase 数据供核对
+- 不自动删除旧 Supabase 业务表；观察期至少覆盖一个完整 24 小时周期。source_status 保活表、Auth、私有 Storage 桶继续保留

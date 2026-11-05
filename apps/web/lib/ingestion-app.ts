@@ -1,8 +1,6 @@
 import { getSignalSource } from '@rss-site/signals'
-import { drizzle } from 'drizzle-orm/postgres-js'
 import { Hono } from 'hono'
 import { bodyLimit } from 'hono/body-limit'
-import * as schema from '../../../server/api/src/db/schema'
 import { configureApp } from '../../../server/api/src/http-app'
 import { runIngestionPipeline } from '../../../server/api/src/ingestion/pipeline'
 import { fetchMcpNews } from '../../../server/api/src/mcp/service'
@@ -16,7 +14,7 @@ import {
 import { matchesServiceToken } from './service-auth'
 
 function database() {
-  return drizzle({ client: getBusinessDatabase().client, schema })
+  return getBusinessDatabase().db
 }
 
 export function ingestionApp() {

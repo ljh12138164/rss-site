@@ -11,8 +11,8 @@
 - 用户选定 Supabase 私有 Storage 桶；加密备份脚本和每日北京时间 03:00 timer 已写入仓库。服务器本地加密/解密与独立 PostgreSQL 18 恢复通过，16 张表行数一致，91,040,955 字节、5 个加密分块；此验证不包含 Storage 上传
 - Supabase 连接已恢复；私有 Storage 真实上传、下载、解密和独立 PostgreSQL 18 恢复全部通过，16 张表行数一致，快照 20261105T035659Z-ccb5b024f74e。备份程序及 timer 已安装；正式切换后启用
 - 密钥已独立保存在本机受保护目录；按用户要求减少变量，备份配置仅含 SUPABASE_STORAGE_KEY，复用现有项目 URL；桶名及 Vercel 项目/团队 ID 固定，不新增变量
-- 未切换生产流量，旧 Supabase 采集和调度仍在运行；演练容器尚未由 Compose 接管
-- Next: 使用只构建的 GitHub 工作流生成两个 Linux 镜像，再冻结旧写入、最终同步、接管 Compose 并切流量；用户已要求跳过剩余镜像演练。新旧调度必须互斥，未在线启用的 chatgpt 不因迁移自动开启
+- 两个 Linux 镜像已构建并加载到 ECS。旧 Supabase 46 项 Cron 全部 inactive、运行中 0、pg_net 队列 0；Worker 定时任务、域名及预览已关闭，旧 Next 与 agent 已停止。受保护配置已备份到 migration/production-before-cutover
+- 当前正在导出最终一致业务快照，之后接管 PostgreSQL 18 Compose 数据卷并部署新镜像。用户已要求跳过剩余镜像演练；最新 AGENTS 的生产来源验收门禁仍适用于启用 timer。chatgpt 不因迁移自动开启
 
 
 ## 2026-11-04 日报总结技术方案
