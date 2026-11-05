@@ -6,6 +6,9 @@ const batchId = '12345678-1234-4234-8234-123456789abc'
 const result = () => Response.json({ batchId, itemCount: 12 })
 
 describe('normalizeIngestUrl', () => {
+  it('allows protected server operations to use the production loopback endpoint', () => {
+    expect(normalizeIngestUrl('http://127.0.0.1:18104')).toBe('http://127.0.0.1:18104/cron/signals')
+  })
   it.each([
     '',
     '/cron/juejin/',

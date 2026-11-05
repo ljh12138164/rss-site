@@ -106,9 +106,10 @@ export function normalizeIngestUrl(value: string): string {
   try {
     const url = new URL(value.trim())
     const path = url.pathname.replace(/\/+$/, '')
+    const loopback = url.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(url.hostname)
 
     if (
-      url.protocol !== 'https:' ||
+      (url.protocol !== 'https:' && !loopback) ||
       url.username ||
       url.password ||
       url.search ||
@@ -131,7 +132,7 @@ export function normalizeIngestUrl(value: string): string {
     url.pathname = '/cron/signals'
     return url.toString().replace(/\/$/, '')
   } catch {
-    throw new Error('API 地址必须是有效的 HTTPS 地址，例如 https://api.example.com')
+    throw new Error('API 地址必须使用 HTTPS，服务器本地验收可使用 HTTP loopback 地址')
   }
 }
 

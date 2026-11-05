@@ -117,6 +117,7 @@
 - 服务器本地受鉴权的目标库验收及日报 status 请求均 200；相同请求走公网域名被 Cloudflare 返回 403。agent 改用 Docker 内网 Next 地址，部署验收走服务器内网；不新增令牌或数据库直连方
 - 正在生成包含时间解析修复的新正式镜像；完成替换和所有配置来源验收后启用业务 timer
 - `/api/revalidate` 的服务器公网请求也被 Cloudflare 返回 403；Next 采集后的发布通知改走自身 loopback 地址，复用现有 PORT 和密钥。新增回归通过，时间解析与采集入口针对性测试合计 5 项通过
+- setup:cron 允许仅 localhost/127.0.0.1 使用 HTTP，其他地址仍强制 HTTPS；服务器验收可临时设置 SITE_URL 为 loopback 地址，避免内部操作依赖公网 CDN，不增加配置变量。CLI 27 项针对性回归通过
 
 ### 回退边界
 
