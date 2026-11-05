@@ -1,0 +1,289 @@
+{
+  "database_major": 18,
+  "old_writers_disabled": true,
+  "verified_at": "2026-11-05T06:58:15.669Z",
+  "verified_jobs": [
+    "openai",
+    "anthropic",
+    "deepseek",
+    "glm",
+    "google-ai",
+    "qwen",
+    "github",
+    "hacker-news",
+    "juejin",
+    "ithome",
+    "36kr",
+    "xinhua",
+    "cctv",
+    "chinanews",
+    "thepaper",
+    "jiemian",
+    "baidu",
+    "bilibili",
+    "zhihu",
+    "coolapk",
+    "hupu",
+    "sspai",
+    "toutiao",
+    "wallstreetcn",
+    "cls",
+    "jin10",
+    "yicai",
+    "3dmgame",
+    "gcores",
+    "gamersky",
+    "ali213",
+    "indienova",
+    "github-blog",
+    "skills-all-time",
+    "skills-trending",
+    "geekpark",
+    "chuapp",
+    "lilian-weng",
+    "simon-willison",
+    "cloudflare-blog",
+    "nvidia",
+    "amd",
+    "retention",
+    "publication-outbox",
+    "zhihu-cookie"
+  ],
+  "results": [
+    {
+      "source": "openai",
+      "batchId": "ace06227-c7ac-4cf3-8dfa-edf6924e8beb",
+      "itemCount": 20
+    },
+    {
+      "source": "anthropic",
+      "batchId": "65fb5f95-a28a-4185-831e-b5212d0d5f57",
+      "itemCount": 20
+    },
+    {
+      "source": "deepseek",
+      "batchId": "4e0997fd-ef34-4a0d-b56f-985ba92b832e",
+      "itemCount": 19
+    },
+    {
+      "source": "glm",
+      "batchId": "e96d3669-3a3a-48de-a10a-63bbb1ef308e",
+      "itemCount": 15
+    },
+    {
+      "source": "google-ai",
+      "batchId": "2df55481-32e7-4409-9850-f7f6c62d5667",
+      "itemCount": 20
+    },
+    {
+      "source": "qwen",
+      "batchId": "9a215a34-c17a-432e-89f3-838ddc04301f",
+      "itemCount": 20
+    },
+    {
+      "source": "github",
+      "batchId": "e356dcec-2ece-40da-8e4d-273c7a1057f7",
+      "itemCount": 20
+    },
+    {
+      "source": "hacker-news",
+      "batchId": "3005eb1a-21d5-42a9-89e7-ee7ca548abde",
+      "itemCount": 30
+    },
+    {
+      "source": "juejin",
+      "batchId": "54582bc7-ffe6-4526-a890-7bb6b34ce1dc",
+      "itemCount": 20
+    },
+    {
+      "source": "ithome",
+      "batchId": "1db263ff-6d0b-430a-b938-98d7f9e888af",
+      "itemCount": 12
+    },
+    {
+      "source": "36kr",
+      "batchId": "c27cec5a-3d50-4ab5-a7ff-fede23409f66",
+      "itemCount": 8
+    },
+    {
+      "source": "xinhua",
+      "batchId": "c807f7e9-0104-4e44-904e-d0a57e319ee7",
+      "itemCount": 30
+    },
+    {
+      "source": "cctv",
+      "batchId": "3ed40905-fdda-45b9-bcca-f7d7c77b8e8e",
+      "itemCount": 30
+    },
+    {
+      "source": "chinanews",
+      "batchId": "216c5b98-24ca-4028-bc58-cb6c6ace7d97",
+      "itemCount": 30
+    },
+    {
+      "source": "thepaper",
+      "batchId": "c484ba24-1b36-4f89-b2b4-ba71d6c0d59d",
+      "itemCount": 20
+    },
+    {
+      "source": "jiemian",
+      "batchId": "17bc8a06-7a9a-4b60-888e-9c7924598b54",
+      "itemCount": 20
+    },
+    {
+      "source": "baidu",
+      "batchId": "10908805-6b15-45aa-8510-5c13de5971d4",
+      "itemCount": 30
+    },
+    {
+      "source": "bilibili",
+      "batchId": "373ddfcf-d8a9-45aa-ab65-019eb3a77c61",
+      "itemCount": 20
+    },
+    {
+      "source": "zhihu",
+      "batchId": "6a9042e8-396f-40d9-8732-ec940a7b326c",
+      "itemCount": 30
+    },
+    {
+      "source": "coolapk",
+      "batchId": "2b23b7de-94f0-4fcf-9d43-1326451c23cd",
+      "itemCount": 14
+    },
+    {
+      "source": "hupu",
+      "batchId": "36f3352d-3dcd-41d7-af94-1b6113b31033",
+      "itemCount": 30
+    },
+    {
+      "source": "sspai",
+      "batchId": "884a1da1-acff-4eee-8d71-855d28a57dea",
+      "itemCount": 20
+    },
+    {
+      "source": "toutiao",
+      "batchId": "6a997550-8a06-4d92-a3e5-117ffb43eefe",
+      "itemCount": 15
+    },
+    {
+      "source": "wallstreetcn",
+      "batchId": "6b05e10d-543c-418f-bb33-0631a41a184d",
+      "itemCount": 10
+    },
+    {
+      "source": "cls",
+      "batchId": "32f955f5-beef-461b-a9cc-42eacef24bf2",
+      "itemCount": 13
+    },
+    {
+      "source": "jin10",
+      "batchId": "8e226307-76bb-4df1-bd3e-9c2af7e8694f",
+      "itemCount": 10
+    },
+    {
+      "source": "yicai",
+      "batchId": "8003059b-cf84-4649-b6c3-b4f16669e7e2",
+      "itemCount": 30
+    },
+    {
+      "source": "3dmgame",
+      "batchId": "12eb4def-8b31-4543-87f0-ff76aad0138f",
+      "itemCount": 20
+    },
+    {
+      "source": "gcores",
+      "batchId": "eefb8cdd-74d9-4a9d-8a12-f6be4b05a3a2",
+      "itemCount": 20
+    },
+    {
+      "source": "gamersky",
+      "batchId": "03603ce4-dea9-4270-be94-be56b9ac8a0c",
+      "itemCount": 20
+    },
+    {
+      "source": "ali213",
+      "batchId": "c9359657-b660-4f6c-a62c-3ea7d21abb35",
+      "itemCount": 20
+    },
+    {
+      "source": "indienova",
+      "batchId": "df7a06f4-983d-4cf0-8c3c-bff763acdd14",
+      "itemCount": 12
+    },
+    {
+      "source": "github-blog",
+      "batchId": "0818e884-8de2-48cb-9431-553d1a083cb3",
+      "itemCount": 10
+    },
+    {
+      "source": "skills-all-time",
+      "batchId": "b710e167-6da1-4bd7-9303-3a95da2fc8aa",
+      "itemCount": 100
+    },
+    {
+      "source": "skills-trending",
+      "batchId": "b80e9e07-985e-48f9-bba7-e70c61986166",
+      "itemCount": 100
+    },
+    {
+      "source": "geekpark",
+      "batchId": "9b0a213d-446d-468b-83e8-f340737a39d9",
+      "itemCount": 30
+    },
+    {
+      "source": "chuapp",
+      "batchId": "4935334b-c0eb-4313-96b0-1b4c88c9c501",
+      "itemCount": 30
+    },
+    {
+      "source": "lilian-weng",
+      "batchId": "980bdcc4-0771-4b25-ae5e-16bb81baf3c8",
+      "itemCount": 20
+    },
+    {
+      "source": "simon-willison",
+      "batchId": "49fa53fd-82c6-45ac-abf9-b11c0106ce30",
+      "itemCount": 15
+    },
+    {
+      "source": "cloudflare-blog",
+      "batchId": "3a3638ed-2415-4e58-bfcd-a60cdded69ee",
+      "itemCount": 20
+    },
+    {
+      "source": "nvidia",
+      "batchId": "82bd2bb7-2b5b-492c-b2d7-fc3fd715665a",
+      "itemCount": 30
+    },
+    {
+      "source": "amd",
+      "batchId": "1983729b-221c-4dd0-9f58-83e10f1f1a55",
+      "itemCount": 16
+    }
+  ],
+  "maintenance": [
+    {
+      "source": "retention",
+      "http_status": 200,
+      "status": "retained"
+    },
+    {
+      "source": "publication-outbox",
+      "http_status": 200,
+      "processed": 0,
+      "accepted": 0
+    },
+    {
+      "source": "zhihu-cookie",
+      "http_status": 200,
+      "status": "published"
+    }
+  ],
+  "paused_sources": ["stcn", "antigravity"],
+  "worker_retirement": {
+    "worker_deleted": true,
+    "hyperdrive_deleted": true,
+    "worker": "rss-site-api",
+    "retired_at": "2026-11-05T06:58:39.480992+00:00"
+  }
+}

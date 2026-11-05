@@ -30,7 +30,7 @@
 
 ## Implementation
 
-进行中。最终快照已导入，PostgreSQL 18 数据卷已由 Compose 接管，Next 和 agent 已切换；新业务 timer 尚未启用。
+生产切换完成，进入观察期。最终快照已导入，PostgreSQL 18 数据卷由 Compose 接管，Next 和 agent 已切换；42 个来源和 3 项维护 timer 已启用，两个故障来源按用户决定暂停。
 
 ### Supabase 每小时保活
 
@@ -55,7 +55,7 @@
 - 数据卷 rss-site-postgres18-data 显式标记 external，防止 Compose 删除数据卷；postgres 仅连接内部 database 网络，web 连接该网络，不发布 5432 端口
 - postgres.env 仅用于数据库初始化凭据；runtime.env 的 DATABASE_URL 使用独立应用角色，主机名 postgres；两类真实凭据均忽略提交
 - 发布包同时携带 PostgreSQL 镜像；部署前检查受保护凭据文件和现有数据卷
-- 现有演练容器仍独立运行，正式接管前必须停用演练容器，再由 Compose 挂载同一数据卷，禁止两个实例同时挂载
+- 演练容器已停止，Compose 独占生产 PostgreSQL 18 数据卷；禁止两个实例同时挂载
 - 演练快照 14 张业务表逐表行数一致，包括 signal_articles 60,157 行、hot_items 1,051 行、source_status 44 行；源库仍在正常写入，正式切换需重新冻结并同步
 - Web 查询改造相关 8 个测试文件共 39 项通过，类型检查通过；Compose 静态配置校验通过
 
@@ -96,26 +96,27 @@
 - 按用户要求减少变量：备份只需 SUPABASE_STORAGE_KEY，复用 runtime.env 的公开 Supabase 地址，桶名固定；Vercel 项目和团队 ID 固定，采集复用 SITE_URL；只新增必要的业务连接与状态加密密钥，其余密钥从原服务迁入
 - setup:cron 已改为通过 Next 采集与受保护的目标库验收接口生成证据，不持有数据库凭据，不操作 Supabase 扩展或 Vault；ECS 门禁回归 8 项通过
 
-### 尚未完成的切换条件
+### 仍需观察与后续清理
 
-- 源库仅 44 个活跃来源，代码注册 45 个来源；chatgpt 未在源库启用，迁移时不得未经门禁直接启用
-- 两个应用的 Linux 镜像已构建成功并加载到 ECS；用户已要求跳过镜像演练。outbox 失败重试、同步发布与内部日报传输回归已经通过
-- 旧 Cron、旧 Worker 访问入口、后台编辑及 agent-service 写入均已停止；最终快照导出中，完成后接管 Compose 数据卷并部署两个应用
-- 替代采集/MCP/维护入口验收后移除旧 rss-site API Worker 和 Hyperdrive；新业务 timer 尚未启用
+- 保留完整 24 小时观察窗口，核对调度、每日备份、内存和错误率；尚未完成该周期
+- 暂停的 stcn、antigravity 必须修复上游并重新通过生产来源门禁后，才能加入清单并启用 timer
+- chatgpt 原先未在源库启用，迁移没有自动启用
+- 旧 Supabase 业务数据保留供观察与回退核对，之后再清理容量；Auth、Storage、source_status 静态保活元数据继续保留
+- 尚无同条件性能对比，不宣称具体提速幅度
 
 ### 生产切换记录
 
-- 发布镜像：rss-site `6da91d7`，ai-base `dbc3ae2`；两个 GitHub build-only 工作流均 success，服务器加载完成，传输 SHA-256 与本机一致
+- 初次构建镜像：rss-site `6da91d7`，ai-base `dbc3ae2`，后被下述修复版本替换；两个 GitHub build-only 工作流均 success，服务器加载完成，传输 SHA-256 与本机一致
 - 旧 Supabase 46 项 Cron 全部 inactive；运行中任务 0、pg_net 待发请求 0
 - 旧 rss-site-api 的 Cron 列表为空，workers.dev 与预览入口关闭，原 rss-api.ljhboard.cn 自定义域名已解绑；Worker 暂留供切换前回退
 - 旧 Next 与 agent-service 已停止；服务器受保护目录 migration/production-before-cutover 保存原运行配置、Compose、版本标签及部署脚本
-- 最终导出、导入与目标调度仍在进行，不将演练快照记为生产同步结果
+- 最终导出与导入完成；目标调度等待生产来源验收，不将演练快照记为生产同步结果
 - 最终快照导入完成，14 张业务表逐表行数一致：signal_articles 60,239、hot_items 1,051、ingestion_runs 6,443、source_status 44；Cookie 状态复用已有密钥重新加密同步
 - 首次接续调用了服务器残留 PostgreSQL 17 演练脚本，在导出完成后的 schema 提取阶段失败；没有导入旧目标。改用明确 PostgreSQL 18 导入脚本接续已有完整快照，未重新导出
 - Next、PostgreSQL 18、agent 容器 healthy；公网首页 200，内部接口未鉴权 401；每日加密备份 timer 已启用，切换后首份备份 service 执行成功
 - 发现 Drizzle 构造器覆盖 postgres-js 的 timestamp parser，原始时间字符串含空格，游标 ISO 校验使 39/50 个列表刷新失败。改为只初始化一次带 schema 的共享 ORM，并在构造后恢复 ISO parser；4 项针对性回归与类型检查通过，修复后的预热脚本在真实生产库完成 50/50
 - 服务器本地受鉴权的目标库验收及日报 status 请求均 200；相同请求走公网域名被 Cloudflare 返回 403。agent 改用 Docker 内网 Next 地址，部署验收走服务器内网；不新增令牌或数据库直连方
-- 正在生成包含时间解析修复的新正式镜像；完成替换和所有配置来源验收后启用业务 timer
+- 包含时间解析与内部通知修复的正式镜像已部署，启动预热 50/50 成功；目标调度等待配置来源验收
 - `/api/revalidate` 的服务器公网请求也被 Cloudflare 返回 403；Next 采集后的发布通知改走自身 loopback 地址，复用现有 PORT 和密钥。新增回归通过，时间解析与采集入口针对性测试合计 5 项通过
 - setup:cron 允许仅 localhost/127.0.0.1 使用 HTTP，其他地址仍强制 HTTPS；服务器验收可临时设置 SITE_URL 为 loopback 地址，避免内部操作依赖公网 CDN，不增加配置变量。CLI 27 项针对性回归通过
 
@@ -124,3 +125,18 @@
 - 新 PostgreSQL 尚未接受业务写入时，可停止新服务及新 timer，恢复受保护备份中的原配置和版本，重新绑定旧 Worker 域名、恢复其 Cron 和原 Supabase Cron，再启动旧服务
 - 新库开始接受写入后，禁止只恢复旧数据库连接；必须先冻结新写入，再导出并核对新库增量或从加密备份恢复。优先修复新服务，保留旧 Supabase 数据供核对
 - 不自动删除旧 Supabase 业务表；观察期至少覆盖一个完整 24 小时周期。source_status 保活表、Auth、私有 Storage 桶继续保留
+
+### 当前生产版本与来源暂停决策
+
+- Web 镜像：`rss-site-web:sha-c8efb7538d6694785545fada60b45ef083ce74cb`；agent 镜像：`agent-service:sha-f78f84e657ee7b9ace93e62649931d732fb0ebad`，均已部署且健康
+- 数据库内部网络仅有 Next 与 PostgreSQL；agent 已移除 DATABASE_URL，WEB_APP_URL 使用 Docker 内网地址
+- 切换后的异机加密备份成功：`20261105T062100Z-b9196791503b`，91,169,951 字节、5 个分块；每日北京时间 03:00 备份 timer 已启用
+- 三项维护入口真实验收均 HTTP 200：retention、publication-outbox、zhihu-cookie；证据 `migration/maintenance-acceptance.json`
+- 证券时报在源库已连续超时，生产验收仍失败；用户明确同意暂时停用 stcn timer、保留数据
+- Antigravity 上游 RSSHub 返回 503，错误为 language loader not found；源库最近 4 次也均 503。用户明确同意暂时停用 antigravity timer、保留来源配置和数据
+- 任务清单仅移除这两个暂停来源，剩余 42 个来源及 3 项维护；chatgpt 原先未启用，迁移不新增启用
+- 42 来源完整生产验收于 2026-11-05 14:58:15 北京时间完成，42/42 采集和目标库验证成功，共返回 1,019 条。逐来源 batchId、itemCount 和验收时间见 [非秘密证据](evidence/business-postgres-cutover-2026-11-05.json)。每个来源均通过 run、source_status、hot_items 及字段质量检查
+
+- 2026-11-05 14:58:39 北京时间，Cloudflare 已成功删除 rss-site-api 和对应 Hyperdrive；旧自定义域名此前已解绑，旧 Supabase 46 项 Cron 保持 inactive，启用前复核旧请求队列为 0
+- 门禁结合完整来源证据、3 项维护 HTTP 200 和旧写入方关闭证据后启用 ECS 调度；45/45 timer active，stcn 与 antigravity timer 均 disabled
+- 启用后 `/healthz` 返回 200，systemd 无失败服务；备份和 Supabase 保活 timer 均 enabled。资源快照：可用内存 524 MiB、Swap 已用 410 MiB、磁盘剩余 16 GB；不替代 24 小时观察
