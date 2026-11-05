@@ -12,6 +12,7 @@ import { type RevalidationScope, resolveRevalidation } from './revalidate-paths'
 interface ContentUpdate extends RevalidationScope {
   publicationId?: string
   article?: { id: string; previousTitle: string; title: string }
+  durablePublication?: boolean
 }
 
 export async function updateContent(scope: ContentUpdate) {
@@ -53,6 +54,13 @@ export async function updateContent(scope: ContentUpdate) {
       for (const path of dynamicPages) revalidatePath(path, 'page')
     }
     invalidatePages()
+    if (scope.durablePublication) {
+      const publication = await publishContent(paths, publicationId)
+      const publicationAccepted = Object.values(publication).every(
+        (step) => step.status !== 'failed'
+      )
+      return { paths, publicationId, cacheInvalidated, publicationAccepted }
+    }
     after(async () => {
       try {
         if (listScopes.length && process.env.REDIS_URL) {

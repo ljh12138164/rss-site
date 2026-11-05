@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily PostgreSQL offsite backup
+
+[Timer]
+OnCalendar=*-*-* 19:00:00 UTC
+Persistent=true
+Unit=rss-site-postgres-backup.service
+
+[Install]
+WantedBy=timers.target

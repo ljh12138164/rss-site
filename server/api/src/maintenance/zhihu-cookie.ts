@@ -1,4 +1,4 @@
-import { assertZhihuCookie, cookieValue, RefreshError } from './zhihu.js'
+import { assertZhihuCookie, cookieValue, RefreshError } from './zhihu'
 
 export interface CookieState {
   cookie: string

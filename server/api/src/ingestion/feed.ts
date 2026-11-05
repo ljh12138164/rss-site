@@ -1,6 +1,6 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser'
-import { cleanCmsTemplateTags, cleanFeedArticleHtml } from '../../../../shared/openai-content.js'
-import { readSkillJsonFeed, type SkillDetail } from '../../../../shared/skills.js'
+import { cleanCmsTemplateTags, cleanFeedArticleHtml } from '../../../../shared/openai-content'
+import { readSkillJsonFeed, type SkillDetail } from '../../../../shared/skills'
 
 export interface SignalFeedItem {
   skillDetail?: SkillDetail

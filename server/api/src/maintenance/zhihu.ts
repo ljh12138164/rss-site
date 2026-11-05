@@ -1,4 +1,4 @@
-import { encryptZseV4 } from './zse-v4.js'
+import { encryptZseV4 } from './zse-v4'
 
 const origin = 'https://www.zhihu.com'
 const userAgent =

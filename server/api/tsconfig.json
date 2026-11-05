@@ -2,12 +2,12 @@
   "compilerOptions": {
     "target": "ES2022",
     "lib": ["ES2022", "DOM"],
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
-    "types": ["node", "vitest/globals", "./worker-configuration.d.ts"]
+    "types": ["node", "vitest/globals"]
   },
-  "include": ["src/**/*.ts", "drizzle.config.ts", "vitest.config.ts", "worker-configuration.d.ts"]
+  "include": ["src/**/*.ts", "drizzle.config.ts", "vitest.config.ts"]
 }

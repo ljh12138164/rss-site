@@ -1,6 +1,6 @@
 import type { SignalSource } from '@rss-site/signals'
-import { parseSignalFeed, type SignalFeedItem } from './feed.js'
-import type { FailedIngestion, SignalStore, SuccessfulIngestion } from './store.js'
+import { parseSignalFeed, type SignalFeedItem } from './feed'
+import type { FailedIngestion, SignalStore, SuccessfulIngestion } from './store'
 
 export type { FailedIngestion, SignalStore, SuccessfulIngestion }
 

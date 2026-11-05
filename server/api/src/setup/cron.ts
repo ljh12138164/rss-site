@@ -7,62 +7,6 @@ import {
 
 export { SIGNAL_CRON_JOBS }
 
-export const LEGACY_SIGNAL_CRON_JOB_NAMES = [
-  'github-hot-feed-every-five-hours',
-  'hacker-news-hot-feed-every-five-hours',
-  'juejin-hot-feed-every-five-hours',
-  'v2ex-hot-feed-every-five-hours',
-  'signal-ingest-v2ex',
-  'ithome-hot-feed-every-five-hours',
-  '36kr-hot-feed-every-five-hours',
-  'xinhua-news-feed-every-five-hours',
-  'cctv-news-feed-every-five-hours',
-  'chinanews-feed-every-five-hours',
-  'thepaper-hot-feed-every-five-hours',
-  'jiemian-news-feed-every-five-hours',
-  'baidu-hot-feed-every-five-hours',
-  'openai-news-feed-every-five-hours',
-  'anthropic-news-feed-every-five-hours',
-  'deepseek-news-feed-every-five-hours',
-  'glm-release-feed-every-five-hours',
-  'google-ai-feed-every-five-hours',
-  'qwen-blog-feed-every-five-hours',
-  'bilibili-popular-feed-every-five-hours',
-  'zhihu-hot-feed-every-five-hours',
-  'coolapk-hot-feed-every-five-hours',
-  'hupu-topic-feed-every-five-hours',
-  'sspai-matrix-feed-every-five-hours',
-  'toutiao-hot-feed-every-five-hours',
-  'signal-ingest-10jqka',
-  'signal-ingest-steam',
-  'signal-ingest-skills-hot'
-] as const
-
-export const RETENTION_JOB_NAME = 'ingestion-runs-retention-daily'
-export const RETENTION_SCHEDULE = '30 5 * * *'
-
-export function createCronCommand(source: SignalSourceId): string {
-  return `
-select net.http_post(
-  url := (
-    select rtrim(decrypted_secret, '/')
-    from vault.decrypted_secrets
-    where name = 'signal_ingest_base_url'
-  ) || '/${source}',
-  headers := jsonb_build_object(
-    'Authorization', 'Bearer ' || (
-      select decrypted_secret
-      from vault.decrypted_secrets
-      where name = 'signal_cron_secret'
-    ),
-    'Content-Type', 'application/json'
-  ),
-  body := jsonb_build_object('scheduled_at', now(), 'source', '${source}'),
-  timeout_milliseconds := ${getSignalSource(source).section === 'skills' ? 120000 : 45000}
-) as request_id;
-`.trim()
-}
-
 export const RETENTION_COMMAND = `
 with expired_articles as (
   select article.id
@@ -107,25 +51,20 @@ where model.last_seen_at < now() - interval '90 days';
 `.trim()
 
 export interface CronRepository {
-  installExtensions(): Promise<unknown>
-  upsertSecret(name: string, value: string): Promise<unknown>
   verifyIngestion(input: {
     source: SignalSourceId
     section: SignalSection
     batchId: string
     itemCount: number
   }): Promise<unknown>
-  unschedule(name: string): Promise<unknown>
-  schedule(name: string, schedule: string, command: string): Promise<unknown>
 }
 
 interface SetupSignalCronOptions {
-  webUrl?: string
-  revalidateSecret?: string
   apiUrl: string
   cronSecret: string
   repository: CronRepository
   request?: typeof fetch
+  sources?: readonly SignalSourceId[]
   retryDelaysMs?: readonly number[]
 }
 
@@ -202,43 +141,40 @@ function parseIngestionResult(value: unknown): IngestionResult {
     value !== null &&
     'batchId' in value &&
     typeof value.batchId === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value.batchId) &&
     'itemCount' in value &&
-    typeof value.itemCount === 'number'
+    typeof value.itemCount === 'number' &&
+    Number.isInteger(value.itemCount)
   ) {
     return { batchId: value.batchId, itemCount: value.itemCount }
   }
 
-  throw new Error('配置已保存，但测试采集返回了无法识别的响应')
+  throw new Error('采集返回了无法识别的响应，未生成调度验收证据')
 }
 
 export async function setupSignalCron({
-  webUrl,
-  revalidateSecret,
   apiUrl,
   cronSecret,
   repository,
   request = fetch,
+  sources = SIGNAL_CRON_JOBS.map((job) => job.source),
   retryDelaysMs = DEFAULT_TRANSIENT_RETRY_DELAYS_MS
 }: SetupSignalCronOptions): Promise<SourceIngestionResult[]> {
   const ingestBaseUrl = normalizeIngestUrl(apiUrl)
   if (!cronSecret) throw new Error('CRON_SECRET 不能为空')
-  if (Boolean(webUrl) !== Boolean(revalidateSecret))
-    throw new Error('WEB_APP_URL 与 REVALIDATE_SECRET 必须同时配置')
-  let webOrigin: string | undefined
-  if (webUrl) {
-    const parsed = new URL(webUrl)
-    if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password)
-      throw new Error('WEB_APP_URL 无效')
-    webOrigin = parsed.origin
-  }
+  if (!sources.length || new Set(sources).size !== sources.length)
+    throw new Error('Invalid configured sources')
+  for (const source of sources) getSignalSource(source)
 
   const verifiedSources: SourceIngestionResult[] = []
-  for (const { source } of SIGNAL_CRON_JOBS) {
+  for (const source of sources) {
     const response = await requestWithTransientRetries(
       request,
       `${ingestBaseUrl}/${source}`,
       {
         method: 'POST',
+        redirect: 'error',
+        signal: AbortSignal.timeout(180_000),
         headers: {
           Authorization: `Bearer ${cronSecret}`,
           'Content-Type': 'application/json'
@@ -249,12 +185,14 @@ export async function setupSignalCron({
     )
 
     if (!response.ok) {
-      throw new Error(`来源 ${source} 云端采集验证失败（HTTP ${response.status}），未更新 Cron`)
+      throw new Error(
+        `来源 ${source} 生产采集验证失败（HTTP ${response.status}），未生成调度验收证据`
+      )
     }
 
     const result = parseIngestionResult(await response.json())
     if (result.itemCount < 1) {
-      throw new Error(`来源 ${source} 未写入任何热点，未更新 Cron`)
+      throw new Error(`来源 ${source} 未写入任何热点，未生成调度验收证据`)
     }
     await repository.verifyIngestion({
       source,
@@ -265,21 +203,7 @@ export async function setupSignalCron({
     verifiedSources.push({ source, ...result })
   }
 
-  await repository.installExtensions()
-  await repository.upsertSecret('signal_ingest_base_url', ingestBaseUrl)
-  await repository.upsertSecret('signal_cron_secret', cronSecret)
-  if (webOrigin && revalidateSecret) {
-    await repository.upsertSecret('signal_web_url', webOrigin)
-    await repository.upsertSecret('signal_revalidate_secret', revalidateSecret)
-  }
-
-  for (const name of LEGACY_SIGNAL_CRON_JOB_NAMES) {
-    await repository.unschedule(name)
-  }
-  for (const job of SIGNAL_CRON_JOBS) {
-    await repository.schedule(job.name, job.schedule, createCronCommand(job.source))
-  }
-  await repository.schedule(RETENTION_JOB_NAME, RETENTION_SCHEDULE, RETENTION_COMMAND)
-
+  // Emit evidence only after the caller has verified every configured source.
+  // ECS owns scheduling; no Supabase extensions, Vault, or Cron writes occur here.
   return verifiedSources
 }

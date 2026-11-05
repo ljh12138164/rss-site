@@ -20,7 +20,7 @@ vi.mock('./list-cache', () => ({
     return value
   }
 }))
-vi.mock('./supabase', () => ({ getPublicSupabaseClient: () => ({ from }) }))
+vi.mock('./business-db', () => ({ readBusinessRows: from }))
 
 beforeEach(() => {
   cache.clear()
@@ -41,24 +41,8 @@ beforeEach(() => {
       position: i + 1,
       batch_id: '550e8400-e29b-41d4-a716-446655440000'
     }))
-    const query = {
-      select: () => query,
-      eq: () => query,
-      in: () => query,
-      lte: () => query,
-      order: () => query,
-      limit: () => query,
-      or: () => query,
-      gt: () => query,
-      abortSignal: (signal: AbortSignal) => {
-        signals.push(signal)
-        return Promise.resolve({
-          data: rows,
-          error: error.value ? new Error('db') : null
-        })
-      }
-    }
-    return query
+    if (error.value) throw new Error('db')
+    return Promise.resolve(rows)
   })
 })
 afterEach(() => vi.restoreAllMocks())
@@ -79,7 +63,7 @@ it('leaves personalized lists uncached and does not bind shared fills to visitor
   const controller = new AbortController()
   controller.abort()
   await getHomeArticles(null, controller.signal, { section: '/social' })
-  expect(signals[0].aborted).toBe(false)
+  expect(from).toHaveBeenCalledTimes(1)
   await getHomeArticles(null, undefined, { sources: ['zhihu'] })
   await getHomeArticles(null, undefined, { sources: ['zhihu'] })
   expect(from).toHaveBeenCalledTimes(3)

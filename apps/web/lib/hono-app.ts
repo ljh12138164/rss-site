@@ -1,5 +1,6 @@
 import { createHash, randomUUID, timingSafeEqual } from 'node:crypto'
 import { getSignalSource, isSignalSourceId, listSignalSources } from '@rss-site/signals'
+import { sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { validator } from 'hono/validator'
 import { isReportDate, shanghaiDate } from '../../../shared/daily-report'
@@ -7,11 +8,11 @@ import { validSkillId } from '../../../shared/skills'
 import { getAdminDataClient } from './admin-supabase'
 import { getEvent, getEventPage, parseEventCursor, validEventSlug } from './ai-events'
 import { articleSource } from './article-route'
+import type { SearchArticle } from './article-search'
 import {
   parseSearchScope,
   SEARCH_PAGE_SIZE,
   searchExcerpt,
-  searchFilter,
   searchValidation
 } from './article-search'
 import {
@@ -24,6 +25,8 @@ import {
   translateArticleOnce,
   translateEventOnce
 } from './article-translation'
+import { editAdminArticle, listAdminArticles, readIngestionHealth } from './business-admin'
+import { readBusinessRows } from './business-db'
 import { CACHE_HEADERS } from './cache'
 import { updateContent } from './content-update'
 import {
@@ -32,9 +35,7 @@ import {
   parseArticleFilter,
   parseHomeCursor
 } from './home-articles'
-import type { IngestionHealth } from './ingestion-health'
 import { getNewsArticle } from './signal-article'
-import { getPublicSupabaseClient } from './supabase'
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -253,25 +254,21 @@ export const app = new Hono()
       return c.json({ error: '搜索筛选条件无效' }, 400)
     }
     try {
-      let request = getPublicSupabaseClient()
-        .from('signal_articles')
-        .select('id,title,summary,source,section,url,published_at')
-        .in(
-          'source',
-          listSignalSources({ isArticle: true }).map((source) => source.id)
-        )
-        .or(searchFilter(query))
-      if (scope.section) request = request.eq('section', scope.section.slice(1))
-      if (scope.source) request = request.eq('source', scope.source)
-      if (c.req.query('at')) request = request.lte('first_seen_at', scope.at)
-      if (scope.since)
-        request = request.gte('published_at', scope.since).lte('published_at', scope.at)
-      const { data, error } = await request
-        .order('published_at', { ascending: false, nullsFirst: false })
-        .order('id')
-        .range(page * SEARCH_PAGE_SIZE, (page + 1) * SEARCH_PAGE_SIZE)
-        .abortSignal(AbortSignal.any([c.req.raw.signal, AbortSignal.timeout(5000)]))
-      if (error) throw error
+      const sourceIds = listSignalSources({ isArticle: true }).map((source) => source.id)
+      const pattern = `%${query.replace(/[\\%_]/g, '\\$&')}%`
+      c.req.raw.signal.throwIfAborted()
+      const data = await readBusinessRows<SearchArticle>(sql`
+        select id,title,summary,source,section,url,published_at from signal_articles
+        where source in (${sql.join(
+          sourceIds.map((id) => sql`${id}`),
+          sql`, `
+        )})
+          and (title ilike ${pattern} or summary ilike ${pattern})
+          ${scope.section ? sql`and section=${scope.section.slice(1)}` : sql``}
+          ${scope.source ? sql`and source=${scope.source}` : sql``}
+          ${c.req.query('at') ? sql`and first_seen_at<=${scope.at}::timestamptz` : sql``}
+          ${scope.since ? sql`and published_at between ${scope.since}::timestamptz and ${scope.at}::timestamptz` : sql``}
+        order by published_at desc nulls last,id limit ${SEARCH_PAGE_SIZE + 1} offset ${page * SEARCH_PAGE_SIZE}`)
       c.header('Cache-Control', 'public, max-age=30, s-maxage=30')
       return c.json({
         items: (data ?? []).slice(0, SEARCH_PAGE_SIZE).map((item) => ({
@@ -388,11 +385,7 @@ export const app = new Hono()
     try {
       const client = await getAdminDataClient(c.req.header('authorization'))
       if (!client) return c.json({ error: 'Unauthorized' }, 401)
-      const { data, error } = await client
-        .rpc('get_ingestion_health')
-        .abortSignal(AbortSignal.any([c.req.raw.signal, AbortSignal.timeout(10000)]))
-      if (error) return c.json({ error: '采集统计读取失败，请重试' }, 503)
-      return c.json({ items: (data ?? []) as IngestionHealth[] })
+      return c.json({ items: await readIngestionHealth() })
     } catch {
       return c.json({ error: '采集统计读取失败，请重试' }, 503)
     }
@@ -404,17 +397,12 @@ export const app = new Hono()
     const search = (c.req.query('q') ?? '').trim()
     if (!Number.isInteger(page) || page < 0 || page > 999) return c.json({ error: '页码无效' }, 400)
     if (search.length > 80) return c.json({ error: '搜索词过长' }, 400)
-    let query = client
-      .from('signal_articles')
-      .select(
-        'id,section,source,title,url,image_url,summary,content_html,author,published_at,is_pinned,editorial_locked,first_seen_at'
-      )
-    if (search) query = query.ilike('title', `%${search}%`)
-    const { data, error } = await query
-      .order('first_seen_at', { ascending: false })
-      .order('id', { ascending: false })
-      .range(page * 30, page * 30 + 30)
-    if (error) return c.json({ error: '文章加载失败' }, 503)
+    let data: Awaited<ReturnType<typeof listAdminArticles>>
+    try {
+      data = await listAdminArticles(page, search)
+    } catch {
+      return c.json({ error: '文章加载失败' }, 503)
+    }
     c.header('Cache-Control', 'no-store')
     return c.json({ items: (data ?? []).slice(0, 30), hasMore: (data?.length ?? 0) > 30 })
   })
@@ -424,35 +412,19 @@ export const app = new Hono()
     const id = c.req.param('id')
     if (!uuidPattern.test(id)) return c.json({ error: '文章 ID 无效' }, 400)
     const input = c.req.valid('json')
-    const { data: previous, error: previousError } = await client
-      .from('signal_articles')
-      .select('title')
-      .eq('id', id)
-      .single()
-    if (previousError) return c.json({ error: '文章不存在或无法读取' }, 404)
-    const { data, error } = await client
-      .from('signal_articles')
-      .update({
-        title: input.title,
-        summary: input.summary,
-        content_html: input.contentHtml,
-        image_url: input.imageUrl,
-        author: input.author,
-        published_at: input.publishedAt,
-        is_pinned: input.isPinned,
-        editorial_locked: true
-      })
-      .eq('id', id)
-      .select(
-        'id,section,source,title,url,image_url,summary,content_html,author,published_at,is_pinned,editorial_locked,first_seen_at'
-      )
-      .single()
-    if (error) return c.json({ error: '保存失败，请检查字段和管理员权限' }, 503)
+    let saved: Awaited<ReturnType<typeof editAdminArticle>>
+    try {
+      saved = await editAdminArticle(id, input)
+    } catch {
+      return c.json({ error: '保存失败，请检查字段和管理员权限' }, 503)
+    }
+    if (!saved) return c.json({ error: '文章不存在或无法读取' }, 404)
+    const data = saved.article
     try {
       await updateContent({
         section: `/${data.section}`,
         source: data.source,
-        article: { id, previousTitle: previous.title, title: data.title }
+        article: { id, previousTitle: saved.previousTitle, title: data.title }
       })
     } catch {
       // The edit is already saved; invalidation failure must not invite a duplicate save.

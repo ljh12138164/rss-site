@@ -1,7 +1,26 @@
 import { readFile } from 'node:fs/promises'
+import { sql } from 'drizzle-orm'
 import { cache } from 'react'
 import { type SkillDetail, validSkillId } from '../../../shared/skills'
-import { getPublicSupabaseClient } from './supabase'
+import { readBusinessRows } from './business-db'
+
+type SkillRecord = {
+  skill_id: string
+  name: string
+  source: string
+  source_type: StoredSkill['sourceType']
+  upstream_url: string
+  install_url: string | null
+  description: string | null
+  skill_markdown: string | null
+  content_html: string | null
+  total_installs: number | null
+  content_hash: string | null
+  detail_state: StoredSkill['detailState']
+  first_seen_at: string
+  last_seen_at: string
+  content_synced_at: string | null
+}
 
 export interface StoredSkill extends SkillDetail {
   firstSeenAt: string
@@ -36,13 +55,8 @@ export const getSkillDetail = cache(async (id: string): Promise<StoredSkill | nu
   if (!validSkillId(id)) return null
   const preview = await readSkillsPreview()
   if (preview) return preview.details.find((item) => item.skillId === id) ?? null
-  const { data, error } = await getPublicSupabaseClient()
-    .from('skill_details')
-    .select('*')
-    .eq('skill_id', id)
-    .abortSignal(AbortSignal.timeout(10000))
-    .maybeSingle()
-  if (error) throw new Error('Unable to load Skill details')
+  const [data] = await readBusinessRows<SkillRecord>(sql`
+    select * from skill_details where skill_id=${id} limit 1`)
   if (!data) return null
   return {
     skillId: data.skill_id,
@@ -69,15 +83,9 @@ export async function getRelatedSkills(source: string, id: string) {
     return preview.details
       .filter((item) => item.source === source && item.skillId !== id)
       .slice(0, 4)
-  const { data, error } = await getPublicSupabaseClient()
-    .from('skill_details')
-    .select('skill_id,name')
-    .eq('source', source)
-    .neq('skill_id', id)
-    .order('name')
-    .limit(4)
-    .abortSignal(AbortSignal.timeout(10000))
-  if (error) return []
+  const data = await readBusinessRows<{ skill_id: string; name: string }>(sql`
+    select skill_id,name from skill_details where source=${source} and skill_id<>${id}
+    order by name limit 4`).catch(() => [])
   return (data ?? []).map((item) => ({
     skillId: item.skill_id as string,
     name: item.name as string

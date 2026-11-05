@@ -8,12 +8,13 @@ import {
   technologyArticleSources,
   technologySources
 } from '@rss-site/signals'
+import { sql } from 'drizzle-orm'
 import { type ArticleFilter, articleSections } from './article-filter'
+import { readBusinessRows } from './business-db'
 import type { HotItem } from './hot-feed'
 import { getCachedList } from './list-cache'
 import { articleListScope } from './list-cache-scopes'
 import type { OutboundReturnPath } from './outbound-link'
-import { getPublicSupabaseClient } from './supabase'
 
 export type { ArticleFilter } from './article-filter'
 export { parseArticleFilter } from './article-filter'
@@ -134,18 +135,19 @@ async function queryHomeArticles(
   if (!selectedSources.length) return { items: [], nextCursor: null }
   if (filter.source === 'github') {
     if (cursor && cursor.position === undefined) throw new Error('Invalid ranking cursor')
-    let ranking = getPublicSupabaseClient()
-      .from('hot_items')
-      .select('article_id,source_key,title,url,summary,position,batch_id')
-      .eq('source', 'github')
-      .order('position', { ascending: true })
-      .limit(PAGE_SIZE + 1)
-    if (cursor) ranking = ranking.eq('batch_id', cursor.batchId).gt('position', cursor.position)
-    const timeout = AbortSignal.timeout(10000)
-    const { data, error } = await ranking.abortSignal(
-      signal ? AbortSignal.any([signal, timeout]) : timeout
-    )
-    if (error) throw error
+    signal?.throwIfAborted()
+    const data = await readBusinessRows<{
+      article_id: string
+      source_key: string
+      title: string
+      url: string
+      summary: string | null
+      position: number
+      batch_id: string
+    }>(sql`select article_id,source_key,title,url,summary,position,batch_id
+      from hot_items where source='github'
+      ${cursor ? sql`and batch_id=${cursor.batchId}::uuid and position>${cursor.position}` : sql``}
+      order by position limit ${PAGE_SIZE + 1}`)
     const rows = (data ?? []).slice(0, PAGE_SIZE)
     const last = rows.at(-1)
     return {
@@ -174,31 +176,34 @@ async function queryHomeArticles(
     }
   }
   if (cursor?.position !== undefined) throw new Error('Invalid article cursor')
-  let query = getPublicSupabaseClient()
-    .from('signal_articles')
-    .select('id,source,source_key,title,url,image_url,summary,published_at')
-    .in(
-      'source',
-      selectedSources.filter(({ source }) => source.id !== 'github').map(({ source }) => source.id)
-    )
-    .lte('first_seen_at', snapshot)
-    .order('published_at', { ascending: false, nullsFirst: false })
-    .order('id', { ascending: true })
-    .limit(PAGE_SIZE + 1)
-  if (filter.section) query = query.eq('section', filter.section.slice(1))
-  if (cursor) {
-    query =
-      cursor.publishedAt === null
-        ? query.is('published_at', null).gt('id', cursor.id)
-        : query.or(
-            `published_at.lt.${cursor.publishedAt},and(published_at.eq.${cursor.publishedAt},id.gt.${cursor.id}),published_at.is.null`
-          )
-  }
-  const timeout = AbortSignal.timeout(10000)
-  const { data, error } = await query.abortSignal(
-    signal ? AbortSignal.any([signal, timeout]) : timeout
-  )
-  if (error) throw error
+  signal?.throwIfAborted()
+  const sourceIds = selectedSources
+    .filter(({ source }) => source.id !== 'github')
+    .map(({ source }) => source.id)
+  if (!sourceIds.length) return { items: [], nextCursor: null }
+  const after = !cursor
+    ? sql``
+    : cursor.publishedAt === null
+      ? sql`and published_at is null and id>${cursor.id}::uuid`
+      : sql`and (published_at<${cursor.publishedAt}::timestamptz or
+        (published_at=${cursor.publishedAt}::timestamptz and id>${cursor.id}::uuid) or published_at is null)`
+  const data = await readBusinessRows<{
+    id: string
+    source: string
+    source_key: string
+    title: string
+    url: string
+    image_url: string | null
+    summary: string | null
+    published_at: string | null
+  }>(sql`select id,source,source_key,title,url,image_url,summary,published_at from signal_articles
+    where source in (${sql.join(
+      sourceIds.map((id) => sql`${id}`),
+      sql`, `
+    )})
+      and first_seen_at<=${snapshot}::timestamptz
+      ${filter.section ? sql`and section=${filter.section.slice(1)}` : sql``}
+      ${after} order by published_at desc nulls last,id limit ${PAGE_SIZE + 1}`)
   const rows = (data ?? []).slice(0, PAGE_SIZE)
   const last = rows.at(-1)
   return {
@@ -261,19 +266,23 @@ async function fetchLatestBySection(
   limit: number,
   signal?: AbortSignal
 ): Promise<HomeArticle[]> {
-  const timeout = AbortSignal.timeout(10000)
-  let query = getPublicSupabaseClient()
-    .from('signal_articles')
-    .select('id,source,source_key,title,url,image_url,summary,published_at')
-    .in('source', sourceIds)
-    .order('published_at', { ascending: false, nullsFirst: false })
-    .order('id', { ascending: true })
-    .limit(limit)
-  if (section) query = query.eq('section', section)
-  const { data, error } = await query.abortSignal(
-    signal ? AbortSignal.any([signal, timeout]) : timeout
-  )
-  if (error) throw error
+  signal?.throwIfAborted()
+  if (!sourceIds.length) return []
+  const data = await readBusinessRows<{
+    id: string
+    source: string
+    source_key: string
+    title: string
+    url: string
+    image_url: string | null
+    published_at: string | null
+  }>(sql`select id,source,source_key,title,url,image_url,published_at from signal_articles
+    where source in (${sql.join(
+      sourceIds.map((id) => sql`${id}`),
+      sql`, `
+    )})
+    ${section ? sql`and section=${section}` : sql``}
+    order by published_at desc nulls last,id limit ${limit}`)
   return (data ?? []).map((row, index) => {
     const platform = sources.find(({ source }) => source.id === row.source)
     if (!platform) throw new Error(`Unknown article source: ${row.source}`)

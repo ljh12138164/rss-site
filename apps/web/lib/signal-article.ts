@@ -1,6 +1,6 @@
 import { getSignalSource, type SignalSourceId } from '@rss-site/signals'
 import { unstable_cache } from 'next/cache'
-import { getPublicSupabaseClient } from './supabase'
+import { readArticle, readSameSource } from './business-queries'
 
 export interface SignalArticleRow {
   id: string
@@ -44,21 +44,9 @@ export type NewsArticleQuery = SignalArticleQuery
 const querySignalArticle: SignalArticleQuery = async (id, source) => {
   try {
     const signalSource = getSignalSource(source)
-    const result = await getPublicSupabaseClient()
-      .from('signal_articles')
-      .select('*')
-      .eq('id', id)
-      .eq('section', signalSource.section)
-      .eq('source', source)
-      .abortSignal(AbortSignal.timeout(10000))
-      .maybeSingle()
-
-    return {
-      data: result.data as SignalArticleRow | null,
-      error: result.error?.message ?? null
-    }
+    return { data: await readArticle(id, signalSource.section, source), error: null }
   } catch {
-    return { data: null, error: 'Supabase is unavailable' }
+    return { data: null, error: 'Business database is unavailable' }
   }
 }
 
@@ -93,17 +81,11 @@ export const getNewsArticle = getSignalArticle
 export async function getSameSourceArticles(id: string, source: SignalSourceId) {
   const articles = await unstable_cache(
     async () => {
-      const { data, error } = await getPublicSupabaseClient()
-        .from('signal_articles')
-        .select('id,title,source')
-        .eq('source', source)
-        .eq('is_indexable', true)
-        .order('published_at', { ascending: false, nullsFirst: false })
-        .order('id')
-        .limit(5)
-        .abortSignal(AbortSignal.timeout(5000))
-      if (error) throw new Error('Unable to load same-source articles')
-      return (data ?? []) as { id: string; title: string; source: SignalSourceId }[]
+      return (await readSameSource(source)) as {
+        id: string
+        title: string
+        source: SignalSourceId
+      }[]
     },
     ['same-source-articles', source],
     { revalidate: 21600, tags: [`news-status:${source}`] }

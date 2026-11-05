@@ -17,7 +17,7 @@ interface ClientSnippet {
   tip?: string
 }
 
-const MCP_ENDPOINT = 'https://rss-api.ljhboard.cn/mcp'
+const MCP_ENDPOINT = 'https://news.ljhboard.cn/api/mcp'
 
 const snippets: ClientSnippet[] = [
   {

@@ -6,12 +6,13 @@ import {
   socialSources,
   technologyArticleSources
 } from '@rss-site/signals'
+import { sql } from 'drizzle-orm'
 import { unstable_cache } from 'next/cache'
 import { isReportDate } from '../../../shared/daily-report'
 import { skillPath } from '../../../shared/skills'
 import { createArticlePath } from './article-route'
+import { readBusinessRows } from './business-db'
 import { siteUrl } from './site-url'
-import { getPublicSupabaseClient } from './supabase'
 
 // Keep cached XML documents below Next's 2 MB data-cache limit.
 export const SITEMAP_CHUNK_SIZE = 2000
@@ -43,14 +44,14 @@ function escapeXml(str: string): string {
 }
 
 export async function getSignalArticlesCount(): Promise<number> {
-  const { count, error } = await getPublicSupabaseClient()
-    .from('signal_articles')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_indexable', true)
-    .in('source', readerSources)
-    .abortSignal(AbortSignal.timeout(10000))
-  if (error || typeof count !== 'number' || count < 0) throw new Error('Sitemap count unavailable')
-  return count
+  const [row] = await readBusinessRows<{ count: number }>(sql`select count(*)::integer as count
+    from signal_articles where is_indexable=true and source in (
+      ${sql.join(
+        readerSources.map((id) => sql`${id}`),
+        sql`, `
+      )}
+    )`)
+  return row.count
 }
 
 export function getBaseEntries(): SitemapEntry[] {
@@ -90,16 +91,9 @@ export async function getAiEventEntries(): Promise<SitemapEntry[]> {
   let afterEventId: string | null = null
 
   for (;;) {
-    let query = getPublicSupabaseClient()
-      .from('ai_events')
-      .select('id,slug,updated_at')
-      .eq('status', 'published')
-      .order('id')
-      .limit(1000)
-
-    if (afterEventId) query = query.gt('id', afterEventId)
-    const { data, error } = await query.abortSignal(AbortSignal.timeout(10000))
-    if (error) throw new Error('Sitemap events unavailable')
+    const data: { id: string; slug: string; updated_at: string }[] = await readBusinessRows(sql`
+      select id,slug,updated_at from ai_events where status='published'
+      ${afterEventId ? sql`and id>${afterEventId}::uuid` : sql``} order by id limit 1000`)
     if (!data || data.length === 0) break
 
     for (const event of data) {
@@ -121,16 +115,20 @@ export async function getArticleEntries(offset: number, limit: number): Promise<
     Array.from({ length: Math.ceil(limit / 1000) }, async (_, index) => {
       const start = offset + index * 1000
       const end = Math.min(start + 999, offset + limit - 1)
-      const { data, error } = await getPublicSupabaseClient()
-        .from('signal_articles')
-        .select('id,source,title,published_at,last_seen_at,content_updated_at')
-        .eq('is_indexable', true)
-        .in('source', readerSources)
-        .order('published_at', { ascending: false, nullsFirst: false })
-        .order('id', { ascending: false })
-        .range(start, end)
-        .abortSignal(AbortSignal.timeout(10000))
-      if (error) throw new Error('Sitemap articles unavailable')
+      const data = await readBusinessRows<{
+        id: string
+        source: string
+        title: string
+        published_at: string | null
+        last_seen_at: string
+        content_updated_at: string | null
+      }>(sql`select id,source,title,published_at,last_seen_at,content_updated_at
+        from signal_articles where is_indexable=true and source in (
+          ${sql.join(
+            readerSources.map((id) => sql`${id}`),
+            sql`, `
+          )})
+        order by published_at desc nulls last,id desc limit ${end - start + 1} offset ${start}`)
       return (data ?? []).map((article) => ({
         url: siteUrl(createArticlePath(article.source, article.title, article.id)),
         lastModified: article.content_updated_at ?? article.published_at ?? article.last_seen_at
@@ -144,15 +142,10 @@ export async function getSkillEntries(): Promise<SitemapEntry[]> {
   const entries: SitemapEntry[] = []
   let afterId: string | null = null
   for (;;) {
-    let query = getPublicSupabaseClient()
-      .from('skill_details')
-      .select('skill_id,content_synced_at')
-      .not('skill_markdown', 'is', null)
-      .order('skill_id')
-      .limit(1000)
-    if (afterId) query = query.gt('skill_id', afterId)
-    const { data, error } = await query.abortSignal(AbortSignal.timeout(10000))
-    if (error) throw new Error('Sitemap Skills unavailable')
+    const data: { skill_id: string; content_synced_at: string | null }[] =
+      await readBusinessRows(sql`
+      select skill_id,content_synced_at from skill_details where skill_markdown is not null
+      ${afterId ? sql`and skill_id>${afterId}` : sql``} order by skill_id limit 1000`)
     if (!data?.length) break
     for (const skill of data) {
       const path = skillPath(skill.skill_id)
@@ -169,14 +162,9 @@ export async function getDailyReportEntries(): Promise<SitemapEntry[]> {
   const entries: SitemapEntry[] = []
   let after: string | undefined
   for (;;) {
-    let query = getPublicSupabaseClient()
-      .from('daily_reports')
-      .select('report_date,published_at')
-      .order('report_date')
-      .limit(1000)
-    if (after) query = query.gt('report_date', after)
-    const { data, error } = await query.abortSignal(AbortSignal.timeout(10_000))
-    if (error) throw new Error('Sitemap daily reports unavailable')
+    const data = await readBusinessRows<{ report_date: string; published_at: string }>(sql`
+      select report_date,published_at from daily_reports
+      ${after ? sql`where report_date>${after}::date` : sql``} order by report_date limit 1000`)
     if (!data?.length) break
     for (const report of data) {
       if (!isReportDate(report.report_date)) throw new Error('Invalid sitemap report date')

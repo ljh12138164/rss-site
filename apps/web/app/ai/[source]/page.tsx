@@ -12,7 +12,7 @@ import {
   isAiSourceId
 } from '../../../lib/technology-sources'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 export const revalidate = 7200
 export const dynamicParams = true
 

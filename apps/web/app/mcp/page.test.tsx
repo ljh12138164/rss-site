@@ -21,7 +21,7 @@ describe('MCP Page (/mcp)', () => {
     expect(html).toContain('Model Context Protocol')
 
     // Endpoint
-    expect(html).toContain('https://rss-api.ljhboard.cn/mcp')
+    expect(html).toContain('https://news.ljhboard.cn/api/mcp')
 
     // Tool name and default 100 rule
     expect(html).toContain('get_news')

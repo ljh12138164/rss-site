@@ -2,56 +2,24 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { getEventPage } from './ai-events'
 
 const { readLinks } = vi.hoisted(() => ({ readLinks: vi.fn() }))
-vi.mock('./supabase', () => ({
-  getPublicSupabaseClient: () => ({
-    from: (table: string) => {
-      const query = {
-        select: () => query,
-        eq: () => query,
-        lte: () => query,
-        order: () => query,
-        limit: () => query,
-        in: (_key: string, ids: string[]) => {
-          readLinks(ids)
-          return query
-        },
-        // biome-ignore lint/suspicious/noThenProperty: Supabase query builders are intentionally thenable.
-        then: (resolve: (value: unknown) => unknown) =>
-          resolve(
-            table === 'ai_events'
-              ? {
-                  data: Array.from({ length: 21 }, (_, i) => ({
-                    id: `550e8400-e29b-41d4-a716-${String(i).padStart(12, '0')}`,
-                    title: '事件',
-                    slug: `event-${i}`,
-                    summary: '摘要',
-                    occurred_at: '2026-10-01T00:00:00Z'
-                  })),
-                  error: null
-                }
-              : {
-                  data: [
-                    {
-                      event_id: '550e8400-e29b-41d4-a716-000000000000',
-                      signal_articles: { source: 'openai' }
-                    },
-                    {
-                      event_id: '550e8400-e29b-41d4-a716-000000000000',
-                      signal_articles: { source: 'simon-willison' }
-                    },
-                    {
-                      event_id: '550e8400-e29b-41d4-a716-000000000000',
-                      signal_articles: { source: 'openai' }
-                    }
-                  ],
-                  error: null
-                }
-          )
-      }
-      return query
-    }
-  })
+vi.mock('./business-queries', () => ({
+  readEvents: async () =>
+    Array.from({ length: 21 }, (_, i) => ({
+      id: `550e8400-e29b-41d4-a716-${String(i).padStart(12, '0')}`,
+      title: '事件',
+      slug: `event-${i}`,
+      summary: '摘要',
+      occurred_at: '2026-10-01T00:00:00Z'
+    })),
+  readEventLinks: async (ids: string[]) => {
+    readLinks(ids)
+    return ['openai', 'simon-willison', 'openai'].map((source) => ({
+      event_id: '550e8400-e29b-41d4-a716-000000000000',
+      signal_articles: { source }
+    }))
+  }
 }))
+
 afterEach(() => vi.clearAllMocks())
 
 it('loads publishers for the current page in one query and preserves pagination', async () => {

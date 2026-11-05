@@ -1,4 +1,4 @@
-import type { SignalFeedItem } from './feed.js'
+import type { SignalFeedItem } from './feed'
 
 export function changedSourceKeys(previous: SignalFeedItem[], next: SignalFeedItem[]): string[] {
   const old = new Map(previous.map((item) => [item.sourceKey, item]))

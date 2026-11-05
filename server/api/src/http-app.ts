@@ -7,10 +7,10 @@ import {
 } from '@rss-site/signals'
 import type { Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { RefreshError } from './maintenance/zhihu.js'
-import type { CookieRefreshResult } from './maintenance/zhihu-cookie.js'
-import { handleMcpJsonRpc } from './mcp/handler.js'
-import type { McpNewsItem } from './mcp/service.js'
+import { RefreshError } from './maintenance/zhihu'
+import type { CookieRefreshResult } from './maintenance/zhihu-cookie'
+import { handleMcpJsonRpc } from './mcp/handler'
+import type { McpNewsItem } from './mcp/service'
 
 export interface AppDependencies {
   cronSecret: string

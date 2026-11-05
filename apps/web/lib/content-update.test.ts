@@ -33,6 +33,44 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+it('awaits durable publication before acknowledging an outbox delivery', async () => {
+  let finish: (() => void) | undefined
+  const blocked = new Promise<void>((resolve) => {
+    finish = resolve
+  })
+  const fetch = vi.fn(async () => {
+    await blocked
+    return new Response(null, { status: 202 })
+  })
+  vi.stubGlobal('fetch', fetch)
+  vi.spyOn(console, 'info').mockImplementation(() => {})
+  let settled = false
+  const delivery = updateContent({
+    section: '/ai',
+    source: 'openai',
+    durablePublication: true
+  }).then((result) => {
+    settled = true
+    return result
+  })
+  await vi.waitFor(() => expect(fetch).toHaveBeenCalled())
+  expect(settled).toBe(false)
+  expect(callbacks).toHaveLength(0)
+  finish?.()
+  expect((await delivery).publicationAccepted).toBe(true)
+})
+
+it('rejects a durable publication acknowledgment when the publisher fails', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => new Response(null, { status: 400 }))
+  )
+  vi.spyOn(console, 'info').mockImplementation(() => {})
+  const result = await updateContent({ section: '/ai', source: 'openai', durablePublication: true })
+  expect(result.publicationAccepted).toBe(false)
+  expect(callbacks).toHaveLength(0)
+})
+
 it('invalidates tags, concrete pages and dynamic pages before scheduling concrete publication', async () => {
   const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 202 }))
   vi.stubGlobal('fetch', fetch)

@@ -1,4 +1,4 @@
-import { RefreshError, type Request, requestJson } from './zhihu.js'
+import { RefreshError, type Request, requestJson } from './zhihu'
 
 export interface VercelConfig {
   token: string

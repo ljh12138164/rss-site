@@ -1,5 +1,5 @@
-import type { McpNewsItem } from './service.js'
-import { formatMcpNewsResponse } from './service.js'
+import type { McpNewsItem } from './service'
+import { formatMcpNewsResponse } from './service'
 
 export interface JsonRpcRequest {
   jsonrpc: '2.0'

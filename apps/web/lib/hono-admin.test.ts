@@ -1,14 +1,22 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { app } from './hono-app'
 
-const { getAdminDataClient, update, revalidatePath, publication, callbacks } = vi.hoisted(() => ({
-  getAdminDataClient: vi.fn(),
-  update: vi.fn(),
-  revalidatePath: vi.fn(),
-  publication: vi.fn(),
-  callbacks: [] as (() => Promise<void>)[]
-}))
+const { getAdminDataClient, update, health, revalidatePath, publication, callbacks } = vi.hoisted(
+  () => ({
+    getAdminDataClient: vi.fn(),
+    update: vi.fn(),
+    health: vi.fn(),
+    revalidatePath: vi.fn(),
+    publication: vi.fn(),
+    callbacks: [] as (() => Promise<void>)[]
+  })
+)
 vi.mock('./admin-supabase', () => ({ getAdminDataClient }))
+vi.mock('./business-admin', () => ({
+  editAdminArticle: update,
+  readIngestionHealth: health,
+  listAdminArticles: vi.fn()
+}))
 vi.mock('next/cache', () => ({ revalidatePath, revalidateTag: vi.fn() }))
 vi.mock('next/server', () => ({
   after: (callback: () => Promise<void>) => callbacks.push(callback)
@@ -31,21 +39,12 @@ const article = {
   editorial_locked: true,
   first_seen_at: '2026-09-28T00:00:00Z'
 }
-const query = {
-  update,
-  eq: vi.fn(),
-  select: vi.fn(),
-  single: vi.fn()
-}
-
 beforeEach(() => {
   vi.clearAllMocks()
   callbacks.length = 0
-  getAdminDataClient.mockResolvedValue({ from: () => query })
-  update.mockReturnValue(query)
-  query.eq.mockReturnValue(query)
-  query.select.mockReturnValue(query)
-  query.single.mockResolvedValue({ data: article, error: null })
+  getAdminDataClient.mockResolvedValue({})
+  update.mockResolvedValue({ previousTitle: article.title, article })
+  health.mockResolvedValue([])
 })
 afterEach(() => vi.restoreAllMocks())
 
@@ -88,15 +87,14 @@ it('saves only editorial fields, locks them against ingestion, and invalidates p
     isPinned: true
   })
   expect(response.status).toBe(200)
-  expect(update).toHaveBeenCalledWith({
+  expect(update).toHaveBeenCalledWith(id, {
     title: '修正标题',
     summary: '修正摘要',
-    content_html: '<p>正文</p>',
-    image_url: null,
+    contentHtml: '<p>正文</p>',
+    imageUrl: null,
     author: null,
-    published_at: null,
-    is_pinned: true,
-    editorial_locked: true
+    publishedAt: null,
+    isPinned: true
   })
   expect(revalidatePath).toHaveBeenCalledWith('/news/xinhua')
   expect((await response.json()).article.id).toBe(id)
@@ -113,8 +111,10 @@ const edit = {
 }
 
 it('invalidates and publishes old and new URLs after saving a title edit', async () => {
-  query.single.mockResolvedValueOnce({ data: { title: 'Old title' }, error: null })
-  query.single.mockResolvedValueOnce({ data: { ...article, title: 'New title' }, error: null })
+  update.mockResolvedValueOnce({
+    previousTitle: 'Old title',
+    article: { ...article, title: 'New title' }
+  })
   const response = await request(edit)
   expect(response.status).toBe(200)
   const oldPath = `/news/xinhua/old-title--${id}`
@@ -160,22 +160,17 @@ it('denies ingestion stats before calling the database and keeps the response pr
 })
 
 it('reads aggregated metrics with the administrator token and hides database errors', async () => {
-  const abortSignal = vi.fn().mockResolvedValue({
-    data: [{ source: 'openai', sample_count: 100, body_count: 80 }],
-    error: null
-  })
-  const rpc = vi.fn(() => ({ abortSignal }))
-  getAdminDataClient.mockResolvedValue({ rpc })
+  health.mockResolvedValue([{ source: 'openai', sample_count: 100, body_count: 80 }])
   const response = await app.request('/api/admin/ingestion', {
     headers: { Authorization: 'Bearer admin-token' }
   })
   expect(response.status).toBe(200)
   expect(getAdminDataClient).toHaveBeenCalledWith('Bearer admin-token')
-  expect(rpc).toHaveBeenCalledWith('get_ingestion_health')
+  expect(health).toHaveBeenCalledTimes(1)
   expect(await response.json()).toEqual({
     items: [{ source: 'openai', sample_count: 100, body_count: 80 }]
   })
-  abortSignal.mockResolvedValueOnce({ data: null, error: { message: 'private secret' } })
+  health.mockRejectedValueOnce(new Error('private secret'))
   const failure = await app.request('/api/admin/ingestion')
   expect(failure.status).toBe(503)
   expect(await failure.text()).not.toContain('secret')

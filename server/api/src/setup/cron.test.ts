@@ -1,268 +1,182 @@
-import { getSignalSource, signalSources } from '@rss-site/signals'
-import { describe, expect, it } from 'vitest'
-import {
-  type CronRepository,
-  createCronCommand,
-  LEGACY_SIGNAL_CRON_JOB_NAMES,
-  normalizeIngestUrl,
-  SIGNAL_CRON_JOBS,
-  setupSignalCron
-} from './cron.js'
+import { getSignalSource } from '@rss-site/signals'
+import { describe, expect, it, vi } from 'vitest'
+import { normalizeIngestUrl, SIGNAL_CRON_JOBS, setupSignalCron } from './cron'
+
+const batchId = '12345678-1234-4234-8234-123456789abc'
+const result = () => Response.json({ batchId, itemCount: 12 })
 
 describe('normalizeIngestUrl', () => {
   it.each([
-    ['https://api.example.com/', 'https://api.example.com/cron/signals'],
-    ['https://api.example.com/cron/juejin/', 'https://api.example.com/cron/signals'],
-    ['https://api.example.com/cron/technology/', 'https://api.example.com/cron/signals'],
-    ['https://api.example.com/cron/news/', 'https://api.example.com/cron/signals'],
-    ['https://api.example.com/cron/ai/', 'https://api.example.com/cron/signals'],
-    ['https://api.example.com/cron/social/', 'https://api.example.com/cron/signals'],
-    ['https://api.example.com/cron/finance/', 'https://api.example.com/cron/signals'],
-    ['https://api.example.com/cron/games/', 'https://api.example.com/cron/signals'],
-    ['https://api.example.com/cron/signals/', 'https://api.example.com/cron/signals']
-  ])('normalizes %s', (value, expected) => {
-    expect(normalizeIngestUrl(value)).toBe(expected)
+    '',
+    '/cron/juejin/',
+    '/cron/technology/',
+    '/cron/news/',
+    '/cron/ai/',
+    '/cron/social/',
+    '/cron/finance/',
+    '/cron/games/',
+    '/cron/signals/'
+  ])('normalizes the deployed Next address %s', (path) => {
+    expect(normalizeIngestUrl(`https://news.example.com${path}`)).toBe(
+      'https://news.example.com/cron/signals'
+    )
   })
-
-  it.each(['http://api.example.com', 'https://user:pass@example.com', 'not-a-url'])(
-    'rejects an unsafe API address: %s',
-    (value) => {
-      expect(() => normalizeIngestUrl(value)).toThrow('有效的 HTTPS 地址')
-    }
-  )
+  it.each([
+    'http://example.com',
+    'https://user:pass@example.com',
+    'not-a-url',
+    'https://example.com?token=private',
+    'https://example.com/api/unknown'
+  ])('rejects an unsafe address %s', (value) => expect(() => normalizeIngestUrl(value)).toThrow())
 })
 
-describe('setupSignalCron', () => {
-  it('allows the Skill snapshot window while retaining other job timeouts', () => {
-    expect(createCronCommand('skills-all-time')).toContain('timeout_milliseconds := 120000')
-    expect(createCronCommand('skills-trending')).toContain('timeout_milliseconds := 120000')
-    expect(createCronCommand('openai')).toContain('timeout_milliseconds := 45000')
-  })
-  it('verifies every source before replacing legacy jobs with forty-five staggered jobs', async () => {
+describe('ECS source acceptance gate', () => {
+  it('validates every registered source before returning acceptance evidence', async () => {
     const calls: string[] = []
-    const scheduledJobs: Array<{ name: string; schedule: string; command: string }> = []
-    const repository: CronRepository = {
-      installExtensions: async () => calls.push('extensions'),
-      upsertSecret: async (name, value) => calls.push(`secret:${name}:${value}`),
-      verifyIngestion: async ({ source, section, batchId, itemCount }) =>
-        calls.push(`verify:${source}:${section}:${batchId}:${itemCount}`),
-      unschedule: async (name) => calls.push(`unschedule:${name}`),
-      schedule: async (name, schedule, command) => {
-        scheduledJobs.push({ name, schedule, command })
-      }
-    }
-
-    const result = await setupSignalCron({
-      apiUrl: 'https://api.example.com',
+    const verified = await setupSignalCron({
+      apiUrl: 'https://news.example.com',
       cronSecret: 'test-secret',
-      repository,
+      repository: {
+        verifyIngestion: async (input) => {
+          expect(input).toMatchObject({
+            section: getSignalSource(input.source).section,
+            batchId,
+            itemCount: 12
+          })
+          calls.push(`verify:${input.source}`)
+        }
+      },
       request: async (url, init) => {
-        calls.push(`request:${url}:${new Headers(init?.headers).get('Authorization')}`)
-        const source = new URL(String(url)).pathname.split('/').at(-1)
-        return Response.json({ batchId: `batch-${source}`, itemCount: 12 })
+        expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer test-secret')
+        expect(init?.redirect).toBe('error')
+        const source = String(url).split('/').at(-1)
+        calls.push(`request:${source}`)
+        return result()
       }
     })
-
-    expect(calls.slice(0, SIGNAL_CRON_JOBS.length * 2)).toEqual(
-      SIGNAL_CRON_JOBS.flatMap(({ source }) => [
-        `request:https://api.example.com/cron/signals/${source}:Bearer test-secret`,
-        `verify:${source}:${getSignalSource(source).section}:batch-${source}:12`
-      ])
+    expect(calls).toEqual(
+      SIGNAL_CRON_JOBS.flatMap(({ source }) => [`request:${source}`, `verify:${source}`])
     )
-    const postVerificationOffset = SIGNAL_CRON_JOBS.length * 2
-    expect(calls.slice(postVerificationOffset, postVerificationOffset + 3)).toEqual([
-      'extensions',
-      'secret:signal_ingest_base_url:https://api.example.com/cron/signals',
-      'secret:signal_cron_secret:test-secret'
-    ])
-    expect(calls.slice(postVerificationOffset + 3)).toEqual(
-      LEGACY_SIGNAL_CRON_JOB_NAMES.map((name) => `unschedule:${name}`)
-    )
-    expect(scheduledJobs).toHaveLength(46)
-    expect(scheduledJobs.slice(0, 45).map(({ name, schedule }) => ({ name, schedule }))).toEqual(
-      SIGNAL_CRON_JOBS.map(({ name, schedule }) => ({ name, schedule }))
-    )
-    expect(scheduledJobs[0]?.command).toContain("'/openai'")
-    expect(scheduledJobs[5]?.command).toContain("'/qwen'")
-    expect(scheduledJobs[6]?.command).toContain("'/chatgpt'")
-    expect(scheduledJobs[7]?.command).toContain("'/github'")
-    expect(scheduledJobs[11]?.command).toContain("'/36kr'")
-    expect(scheduledJobs[12]?.command).toContain("'/xinhua'")
-    expect(scheduledJobs[23]?.command).toContain("'/toutiao'")
-    expect(scheduledJobs[24]?.command).toContain("'/wallstreetcn'")
-    expect(scheduledJobs[28]?.command).toContain("'/stcn'")
-    expect(scheduledJobs[29]?.command).toContain("'/3dmgame'")
-    expect(scheduledJobs[34]?.command).toContain("'/github-blog'")
-    expect(scheduledJobs[35]?.command).toContain("'/skills-all-time'")
-    expect(scheduledJobs[36]?.command).toContain("'/skills-trending'")
-    expect(scheduledJobs[37]?.command).toContain("'/geekpark'")
-    expect(scheduledJobs[38]?.command).toContain("'/chuapp'")
-    expect(scheduledJobs[39]?.command).toContain("'/lilian-weng'")
-    expect(scheduledJobs[40]?.command).toContain("'/simon-willison'")
-    expect(scheduledJobs[41]).toMatchObject({
-      name: 'signal-ingest-cloudflare-blog',
-      schedule: '30 4,10,16,22 * * *'
-    })
-    expect(scheduledJobs[41]?.command).toContain("'/cloudflare-blog'")
-    expect(scheduledJobs[41]?.command).toContain('vault.decrypted_secrets')
-    expect(scheduledJobs[42]).toMatchObject({
-      name: 'signal-ingest-antigravity',
-      schedule: '35 4,10,16,22 * * *'
-    })
-    expect(scheduledJobs[42]?.command).toContain("'/antigravity'")
-    expect(scheduledJobs[42]?.command).toContain('vault.decrypted_secrets')
-    expect(scheduledJobs[45]).toMatchObject({
-      name: 'ingestion-runs-retention-daily',
-      schedule: '30 5 * * *'
-    })
-    expect(scheduledJobs[45]?.command).toContain("interval '180 days'")
-    expect(scheduledJobs[45]?.command).toContain("interval '90 days'")
-    expect(scheduledJobs[45]?.command).toContain('limit 1000')
-    expect(scheduledJobs[45]?.command).toContain("interval '30 days'")
-    expect(result).toEqual(
-      SIGNAL_CRON_JOBS.map(({ source }) => ({
-        source,
-        batchId: `batch-${source}`,
-        itemCount: 12
-      }))
+    expect(verified).toEqual(
+      SIGNAL_CRON_JOBS.map(({ source }) => ({ source, batchId, itemCount: 12 }))
     )
   })
 
-  it('keeps AI on two-hour windows and every auxiliary source on six-hour windows', () => {
-    expect(SIGNAL_CRON_JOBS.slice(0, 7).every(({ schedule }) => schedule.includes('*/2'))).toBe(
-      true
+  it('verifies only explicitly configured production sources without enabling a new source', async () => {
+    const request = vi.fn<typeof fetch>(async () => result())
+    const sources = SIGNAL_CRON_JOBS.filter((job) => job.source !== 'chatgpt').map(
+      (job) => job.source
     )
+    const verified = await setupSignalCron({
+      apiUrl: 'https://news.example.com',
+      cronSecret: 'test-secret',
+      sources,
+      repository: { verifyIngestion: async () => undefined },
+      request
+    })
+    expect(verified).toHaveLength(44)
+    expect(request.mock.calls.some((call) => String(call[0]).endsWith('/chatgpt'))).toBe(false)
+  })
+
+  it.each([{ sources: [] }, { sources: ['openai', 'openai'] }])(
+    'rejects empty or duplicate job sets',
+    async ({ sources }) => {
+      const request = vi.fn()
+      await expect(
+        setupSignalCron({
+          apiUrl: 'https://news.example.com',
+          cronSecret: 'test-secret',
+          sources: sources as Array<'openai'>,
+          repository: { verifyIngestion: async () => undefined },
+          request
+        })
+      ).rejects.toThrow('Invalid configured sources')
+      expect(request).not.toHaveBeenCalled()
+    }
+  )
+
+  it('does not return partial evidence when an upstream source fails', async () => {
+    const verify = vi.fn()
+    await expect(
+      setupSignalCron({
+        apiUrl: 'https://news.example.com',
+        cronSecret: 'test-secret',
+        retryDelaysMs: [],
+        repository: { verifyIngestion: verify },
+        request: async (url) =>
+          String(url).endsWith('/openai') ? result() : new Response(null, { status: 502 })
+      })
+    ).rejects.toThrow('来源 anthropic')
+    expect(verify).toHaveBeenCalledTimes(1)
+  })
+
+  it('retries transient upstream failures before verifying the batch', async () => {
+    const attempts = new Map<string, number>()
+    const verified = await setupSignalCron({
+      apiUrl: 'https://news.example.com',
+      cronSecret: 'test-secret',
+      sources: ['openai', 'anthropic'],
+      retryDelaysMs: [0],
+      repository: { verifyIngestion: async () => undefined },
+      request: async (url) => {
+        const source = String(url).split('/').at(-1) ?? ''
+        const count = (attempts.get(source) ?? 0) + 1
+        attempts.set(source, count)
+        return source === 'anthropic' && count === 1
+          ? new Response(null, { status: 503 })
+          : result()
+      }
+    })
+    expect(attempts.get('anthropic')).toBe(2)
+    expect(verified).toHaveLength(2)
+  })
+
+  it.each([0, -1, 1.5, null])('rejects missing or invalid item count %s', async (itemCount) => {
+    const verify = vi.fn()
+    await expect(
+      setupSignalCron({
+        apiUrl: 'https://news.example.com',
+        cronSecret: 'test-secret',
+        repository: { verifyIngestion: verify },
+        request: async () => Response.json({ batchId, itemCount })
+      })
+    ).rejects.toThrow()
+    expect(verify).not.toHaveBeenCalled()
+  })
+
+  it('does not accept an HTTP success when target rows fail verification', async () => {
+    await expect(
+      setupSignalCron({
+        apiUrl: 'https://news.example.com',
+        cronSecret: 'test-secret',
+        repository: {
+          verifyIngestion: async () => {
+            throw new Error('target batch mismatch')
+          }
+        },
+        request: async () => result()
+      })
+    ).rejects.toThrow('target batch mismatch')
+  })
+
+  it('preserves staggered two-hour AI and six-hour auxiliary schedules', () => {
+    expect(SIGNAL_CRON_JOBS.slice(0, 7).every((job) => job.schedule.includes('*/2'))).toBe(true)
     expect(
-      SIGNAL_CRON_JOBS.slice(7).every(({ schedule }) =>
-        /\d (?:0,6,12,18|1,7,13,19|2,8,14,20|3,9,15,21|4,10,16,22) \* \* \*/.test(schedule)
+      SIGNAL_CRON_JOBS.slice(7).every((job) =>
+        /\d (?:0,6,12,18|1,7,13,19|2,8,14,20|3,9,15,21|4,10,16,22) \* \* \*/.test(job.schedule)
       )
     ).toBe(true)
-    expect(new Set(SIGNAL_CRON_JOBS.map(({ name }) => name)).size).toBe(45)
-
-    expect(SIGNAL_CRON_JOBS.map(({ source }) => source).sort()).toEqual(
-      signalSources.map(({ id }) => id).sort()
-    )
-
-    const runMinutes = SIGNAL_CRON_JOBS.flatMap(({ schedule }) => {
-      const [minuteValue, hourValue] = schedule.split(' ')
+    const minutes = SIGNAL_CRON_JOBS.flatMap((job) => {
+      const [minute, hour] = job.schedule.split(' ')
       const hours =
-        hourValue === '*/2'
+        hour === '*/2'
           ? Array.from({ length: 12 }, (_, index) => index * 2)
-          : hourValue.split(',').map(Number)
-      return hours.map((hour) => hour * 60 + Number(minuteValue))
+          : hour.split(',').map(Number)
+      return hours.map((value) => value * 60 + Number(minute))
     }).sort((left, right) => left - right)
-
-    expect(runMinutes).toHaveLength(236)
-    expect(new Set(runMinutes).size).toBe(runMinutes.length)
-    expect(
-      runMinutes.every((minute, index) => {
-        const previous = runMinutes[index - 1]
-        return previous === undefined || minute - previous >= 5
-      })
-    ).toBe(true)
-  })
-
-  it('does not schedule any jobs when a source fails cloud ingestion', async () => {
-    const mutations: string[] = []
-    const repository: CronRepository = {
-      installExtensions: async () => mutations.push('extensions'),
-      upsertSecret: async (name) => mutations.push(`secret:${name}`),
-      verifyIngestion: async () => undefined,
-      unschedule: async (name) => mutations.push(`unschedule:${name}`),
-      schedule: async (name) => mutations.push(name)
-    }
-
-    await expect(
-      setupSignalCron({
-        apiUrl: 'https://api.example.com',
-        cronSecret: 'test-secret',
-        repository,
-        request: async (url) =>
-          String(url).endsWith('/openai')
-            ? Response.json({ batchId: 'batch-openai', itemCount: 12 })
-            : new Response(null, { status: 502 }),
-        retryDelaysMs: []
-      })
-    ).rejects.toThrow('来源 anthropic 云端采集验证失败（HTTP 502），未更新 Cron')
-
-    expect(mutations).toEqual([])
-  })
-
-  it('retries a transient ingestion response before continuing the production gate', async () => {
-    const attempts = new Map<string, number>()
-    const repository: CronRepository = {
-      installExtensions: async () => undefined,
-      upsertSecret: async () => undefined,
-      verifyIngestion: async () => undefined,
-      unschedule: async () => undefined,
-      schedule: async () => undefined
-    }
-
-    const result = await setupSignalCron({
-      apiUrl: 'https://api.example.com',
-      cronSecret: 'test-secret',
-      repository,
-      retryDelaysMs: [0],
-      request: async (url) => {
-        const source = new URL(String(url)).pathname.split('/').at(-1) ?? ''
-        const attempt = (attempts.get(source) ?? 0) + 1
-        attempts.set(source, attempt)
-        if (source === 'anthropic' && attempt === 1) return new Response(null, { status: 503 })
-        return Response.json({ batchId: `batch-${source}`, itemCount: 12 })
-      }
-    })
-
-    expect(attempts.get('openai')).toBe(1)
-    expect(attempts.get('anthropic')).toBe(2)
-    expect(result).toHaveLength(45)
-  })
-
-  it('does not schedule any jobs when a source writes zero items', async () => {
-    const mutations: string[] = []
-    const repository: CronRepository = {
-      installExtensions: async () => mutations.push('extensions'),
-      upsertSecret: async (name) => mutations.push(`secret:${name}`),
-      verifyIngestion: async () => undefined,
-      unschedule: async (name) => mutations.push(`unschedule:${name}`),
-      schedule: async (name) => mutations.push(name)
-    }
-
-    await expect(
-      setupSignalCron({
-        apiUrl: 'https://api.example.com',
-        cronSecret: 'test-secret',
-        repository,
-        request: async () => Response.json({ batchId: 'batch-empty', itemCount: 0 })
-      })
-    ).rejects.toThrow('来源 openai 未写入任何热点，未更新 Cron')
-
-    expect(mutations).toEqual([])
-  })
-
-  it('does not schedule any jobs when cloud rows do not match the API batch', async () => {
-    const mutations: string[] = []
-    const repository: CronRepository = {
-      installExtensions: async () => mutations.push('extensions'),
-      upsertSecret: async (name) => mutations.push(`secret:${name}`),
-      verifyIngestion: async ({ source }) => {
-        if (source === 'bilibili') throw new Error('云端数据核验失败')
-      },
-      unschedule: async (name) => mutations.push(`unschedule:${name}`),
-      schedule: async (name) => mutations.push(name)
-    }
-
-    await expect(
-      setupSignalCron({
-        apiUrl: 'https://api.example.com',
-        cronSecret: 'test-secret',
-        repository,
-        request: async (url) => {
-          const source = new URL(String(url)).pathname.split('/').at(-1)
-          return Response.json({ batchId: `batch-${source}`, itemCount: 12 })
-        }
-      })
-    ).rejects.toThrow('云端数据核验失败')
-
-    expect(mutations).toEqual([])
+    expect(new Set(minutes).size).toBe(minutes.length)
+    expect(minutes.every((minute, index) => index === 0 || minute - minutes[index - 1] >= 5)).toBe(
+      true
+    )
   })
 })

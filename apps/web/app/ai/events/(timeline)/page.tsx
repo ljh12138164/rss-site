@@ -4,7 +4,7 @@ import { SiteShell } from '../../../../components/site-shell'
 import { getEventPage } from '../../../../lib/ai-events'
 import { createPageMetadata } from '../../../../lib/seo'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 export const revalidate = 7200
 export function generateMetadata() {
   return createPageMetadata({

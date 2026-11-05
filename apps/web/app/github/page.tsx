@@ -2,7 +2,7 @@ import { PaginatedArticleFeed } from '../../components/paginated-article-feed'
 import { SiteShell } from '../../components/site-shell'
 import { createPageMetadata } from '../../lib/seo'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 export const revalidate = 21600
 
 export const metadata = createPageMetadata({

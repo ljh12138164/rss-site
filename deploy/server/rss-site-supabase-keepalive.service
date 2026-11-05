@@ -1,0 +1,15 @@
+[Unit]
+Description=Read Supabase metadata to keep the retained Auth project active
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/sbin/rss-site-supabase-keepalive.py
+TimeoutStartSec=45
+StandardOutput=null
+StandardError=null
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true

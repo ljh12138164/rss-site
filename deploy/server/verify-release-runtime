@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IMAGE=${1:?Pass the release image}
+ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
+PREFIX="rss-verify-${RANDOM}-${RANDOM}"
+NETWORK="${PREFIX}-network"
+POSTGRES="${PREFIX}-postgres"
+WEB="${PREFIX}-web"
+cleanup() {
+  status=$?
+  if [[ $status -ne 0 ]]; then docker logs --tail 100 "$WEB" || true; fi
+  docker rm -f "$WEB" "$POSTGRES" >/dev/null 2>&1 || true
+  docker network rm "$NETWORK" >/dev/null 2>&1 || true
+  exit "$status"
+}
+trap cleanup EXIT
+docker network create "$NETWORK" >/dev/null
+# These credentials belong only to an isolated, disposable CI database.
+docker run -d --name "$POSTGRES" --network "$NETWORK" --network-alias postgres \
+  --memory 256m -e POSTGRES_PASSWORD=ci-admin-only -e POSTGRES_DB=rss_site \
+  postgres:18-alpine >/dev/null
+for _ in {1..60}; do
+  if docker exec "$POSTGRES" pg_isready -U postgres -d rss_site >/dev/null 2>&1; then break; fi
+  sleep 1
+done
+docker exec -i "$POSTGRES" psql -U postgres -d rss_site -v ON_ERROR_STOP=1 \
+  < "$ROOT/deploy/postgres/baseline.sql" >/dev/null
+docker exec -i "$POSTGRES" psql -U postgres -d rss_site -v ON_ERROR_STOP=1 >/dev/null <<'SQL'
+create role rss_site_app login password 'ci-app-only' nosuperuser nocreatedb nocreaterole noreplication;
+grant usage on schema public, private to rss_site_app;
+grant select, insert, update, delete on all tables in schema public, private to rss_site_app;
+grant usage, select on all sequences in schema public, private to rss_site_app;
+grant execute on all functions in schema public to rss_site_app;
+SQL
+docker run -d --name "$WEB" --network "$NETWORK" -p 127.0.0.1:18101:3000 \
+  -e SITE_URL -e NEXT_PUBLIC_SUPABASE_URL -e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
+  -e DATABASE_URL=postgres://rss_site_app:ci-app-only@postgres:5432/rss_site \
+  -e CRON_SECRET=ci-cron-only -e AGENT_SERVICE_TOKEN=ci-agent-only "$IMAGE" >/dev/null
+curl --fail --silent --show-error --retry 150 --retry-all-errors --retry-delay 2 \
+  --connect-timeout 3 --max-time 5 --retry-max-time 300 http://127.0.0.1:18101/healthz
+curl -fsS http://127.0.0.1:18101/ | grep -F 'news.ljhboard.cn' >/dev/null
+curl -fsS http://127.0.0.1:18101/admin | grep -F '文章管理' >/dev/null
+curl -fsS http://127.0.0.1:18101/icon.svg >/dev/null
+docker exec "$WEB" bun apps/web/scripts/prewarm-lists.mjs
+curl -fsS http://127.0.0.1:18101/ads.txt | grep -F 'pub-7441827328189379'
+curl -fsI http://127.0.0.1:18101/ | grep -i '^link:.*rel=preload.*as=style'
+test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:18101/cron/signals/openai)" = 401
+test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:18101/api/internal/agent \
+  -H 'Content-Type: application/json' -d '{"operation":"claim"}')" = 401
+curl -fsS -X POST http://127.0.0.1:18101/api/internal/agent \
+  -H 'Authorization: Bearer ci-agent-only' -H 'Content-Type: application/json' \
+  -d '{"operation":"status","date":"2001-01-01"}' | grep -F 'result'
