@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ingestionApp } from './ingestion-app'
 
-const { verify } = vi.hoisted(() => ({ verify: vi.fn() }))
-vi.mock('./business-db', () => ({ getBusinessDatabase: () => ({ client: {} }) }))
+const { verify, ingest } = vi.hoisted(() => ({ verify: vi.fn(), ingest: vi.fn() }))
+vi.mock('./business-db', () => ({ getBusinessDatabase: () => ({ client: {}, db: {} }) }))
+vi.mock('../../../server/api/src/ingestion/pipeline', () => ({ runIngestionPipeline: ingest }))
 vi.mock('./business-maintenance', () => ({
   drainPublicationOutbox: vi.fn(),
   refreshBusinessCookie: vi.fn(),
@@ -31,6 +32,19 @@ describe('production ingestion acceptance endpoint', () => {
     })
   }
   const body = { batchId: '550e8400-e29b-41d4-a716-446655440000', itemCount: 12 }
+  it('publishes ingestion changes to the local Next server without traversing the public CDN', async () => {
+    vi.stubEnv('PORT', '3000')
+    ingest.mockResolvedValue({ ...body, source: 'openai' })
+    const response = await ingestionApp().request('/cron/signals/openai', {
+      method: 'POST',
+      headers: { authorization: 'Bearer test-cron' }
+    })
+    expect(response.status).toBe(200)
+    expect(ingest).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'openai' }),
+      expect.objectContaining({ webAppUrl: 'http://127.0.0.1:3000' })
+    )
+  })
   it('requires the existing Cron secret before accessing the business database', async () => {
     expect((await request('openai', body, 'wrong')).status).toBe(401)
     expect(verify).not.toHaveBeenCalled()

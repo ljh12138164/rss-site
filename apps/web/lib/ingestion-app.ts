@@ -73,7 +73,7 @@ export function ingestionApp() {
       runIngestionPipeline(getSignalSource(id), {
         db: database(),
         rsshubBaseUrl: process.env.RSSHUB_BASE_URL ?? 'https://rss.ljhboard.cn',
-        webAppUrl: process.env.SITE_URL ?? 'https://news.ljhboard.cn',
+        webAppUrl: `http://127.0.0.1:${process.env.PORT ?? '3000'}`,
         revalidateSecret: process.env.REVALIDATE_SECRET
       })
   })
