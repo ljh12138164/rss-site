@@ -25,7 +25,9 @@
 
 ## Verification
 
-完整 GitHub Actions 验收待执行；本机 Docker 引擎未运行。
+- 提交 2b1ca5a 的完整 [GitHub Actions 验收](https://github.com/ljh12138164/rss-site/actions/runs/41986658759)成功：测试、类型、部署脚本检查、镜像构建及 PostgreSQL 18 应用角色运行时验收全部通过
+- 镜像验收成功导入 schema、启动 Web，并通过健康、页面、列表预热和内部接口鉴权检查
+- 功能分支 workflow_dispatch 未触发生产部署；本机 Docker 引擎未运行，真实 Docker 验收在 GitHub runner 完成
 
 ## Risks
 

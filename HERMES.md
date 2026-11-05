@@ -5,7 +5,7 @@
 - Branch: feat/fix-postgres-runtime-readiness，原目录操作
 - Document: [验收启动竞态](docs/development/fix-postgres-runtime-readiness.md)
 - 镜像验收误判初始化临时 socket 服务器就绪；改为 TCP 探测及明确超时，并在失败时输出 PostgreSQL 日志
-- Next: 完整 CI 验收通过后推送记录，由用户创建并合并修复 PR
+- Verification: 完整 CI 41986658759 success，PostgreSQL 18 应用角色镜像验收成功；由用户从 feat/fix-postgres-runtime-readiness 创建并合并到 master 的修复 PR
 
 ## 2026-11-05 业务 PostgreSQL 迁移（已切换，观察中）
 
