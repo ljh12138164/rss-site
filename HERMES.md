@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-11-05 修复 PostgreSQL 镜像验收竞态
+
+- Branch: feat/fix-postgres-runtime-readiness，原目录操作
+- Document: [验收启动竞态](docs/development/fix-postgres-runtime-readiness.md)
+- 镜像验收误判初始化临时 socket 服务器就绪；改为 TCP 探测及明确超时，并在失败时输出 PostgreSQL 日志
+- Verification: 完整 CI 41986658759 success，PostgreSQL 18 应用角色镜像验收成功；由用户从 feat/fix-postgres-runtime-readiness 创建并合并到 master 的修复 PR
+
 ## 2026-11-05 业务 PostgreSQL 迁移（已切换，观察中）
 
 - Branch: feat/business-postgres-migration，全部修改保留在原 rss-site 目录，不创建其他工作区

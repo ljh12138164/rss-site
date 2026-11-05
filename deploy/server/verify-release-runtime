@@ -8,7 +8,10 @@ POSTGRES="${PREFIX}-postgres"
 WEB="${PREFIX}-web"
 cleanup() {
   status=$?
-  if [[ $status -ne 0 ]]; then docker logs --tail 100 "$WEB" || true; fi
+  if [[ $status -ne 0 ]]; then
+    docker logs --tail 100 "$POSTGRES" || true
+    docker logs --tail 100 "$WEB" 2>/dev/null || true
+  fi
   docker rm -f "$WEB" "$POSTGRES" >/dev/null 2>&1 || true
   docker network rm "$NETWORK" >/dev/null 2>&1 || true
   exit "$status"
@@ -20,9 +23,14 @@ docker run -d --name "$POSTGRES" --network "$NETWORK" --network-alias postgres \
   --memory 256m -e POSTGRES_PASSWORD=ci-admin-only -e POSTGRES_DB=rss_site \
   postgres:18-alpine >/dev/null
 for _ in {1..60}; do
-  if docker exec "$POSTGRES" pg_isready -U postgres -d rss_site >/dev/null 2>&1; then break; fi
+  if docker exec "$POSTGRES" pg_isready -h 127.0.0.1 -U postgres -d rss_site >/dev/null 2>&1; then break; fi
   sleep 1
 done
+# Initialization uses a temporary socket-only server; wait for the final TCP listener.
+if ! docker exec "$POSTGRES" pg_isready -h 127.0.0.1 -U postgres -d rss_site >/dev/null 2>&1; then
+  echo 'PostgreSQL did not become ready within 60 seconds' >&2
+  exit 1
+fi
 docker exec -i "$POSTGRES" psql -U postgres -d rss_site -v ON_ERROR_STOP=1 \
   < "$ROOT/deploy/postgres/baseline.sql" >/dev/null
 docker exec -i "$POSTGRES" psql -U postgres -d rss_site -v ON_ERROR_STOP=1 >/dev/null <<'SQL'
