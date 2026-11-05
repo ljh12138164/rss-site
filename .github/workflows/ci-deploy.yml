@@ -4,6 +4,11 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+    inputs:
+      build_only:
+        description: Build an image artifact without verification or deployment
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -34,18 +39,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
         with:
           version: 11.23.0
       - uses: actions/setup-node@v4
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
       - name: Initialize isolated PostgreSQL 18 test schema
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
         run: docker exec -i "${{ job.services.postgres.id }}" psql -U postgres -d rss_site -v ON_ERROR_STOP=1 < deploy/postgres/baseline.sql
       - run: pnpm test
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
       - run: pnpm check-types
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
       - name: Check deployment shell scripts
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
         run: |
           python3 deploy/server/test-release-packaging.py
           python3 -m pip install cryptography==49.0.0
@@ -64,10 +76,21 @@ jobs:
             --build-arg NEXT_PUBLIC_SUPABASE_URL \
             --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY .
       - name: Verify runtime with PostgreSQL 18 and the application role
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
         run: bash deploy/server/verify-release-runtime "rss-site-web:sha-${GITHUB_SHA}"
+      - name: Package migration image
+        if: github.event_name == 'workflow_dispatch' && inputs.build_only
+        run: docker save "rss-site-web:sha-${GITHUB_SHA}" | gzip -1 > migration-image.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch' && inputs.build_only
+        with:
+          name: migration-image-linux
+          path: migration-image.tar.gz
+          compression-level: 0
+          retention-days: 1
   deploy:
     needs: verify
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && !inputs.build_only
     runs-on: ubuntu-latest
     environment: production
     concurrency:
