@@ -4,6 +4,9 @@
 **/.env*
 **/.skills-preview.json
 **/runtime.env
+**/postgres.env
+**/postgres-backup.env
+**/postgres-backup.key
 .vercel
 .cache
 .turbo

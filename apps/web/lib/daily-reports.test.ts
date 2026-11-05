@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import { PgDialect } from 'drizzle-orm/pg-core'
 import { describe, expect, it, vi } from 'vitest'
 import { getCachedDailyData } from './daily-report-cache'
 import { getDailyArchive, getDailyReport, parseDailyReport } from './daily-reports'
@@ -17,23 +18,12 @@ vi.mock('./daily-report-cache', () => ({
       parse(await load())
   )
 }))
-vi.mock('./supabase', () => ({
-  getPublicSupabaseClient: () => ({
-    from: (table: string) => {
-      request('from', table)
-      const query: Record<string, (...args: unknown[]) => unknown> = Object.fromEntries(
-        ['select', 'eq', 'order', 'limit', 'gte', 'gt', 'lt', 'in'].map((key) => [
-          key,
-          (...args: unknown[]) => {
-            request(key, ...args)
-            return query
-          }
-        ])
-      )
-      query.abortSignal = () => Promise.resolve(result)
-      return query
-    }
-  })
+vi.mock('./business-db', () => ({
+  readBusinessRows: async (statement: Parameters<PgDialect['sqlToQuery']>[0]) => {
+    request(new PgDialect().sqlToQuery(statement))
+    if (result.error) throw new Error('Daily reports unavailable')
+    return result.data
+  }
 }))
 
 const row = () => ({
@@ -82,10 +72,10 @@ describe('public daily report reads', () => {
       expect.any(Function),
       expect.any(Function)
     )
-    expect(request).toHaveBeenCalledWith('gte', 'report_date', '2026-12-01')
-    expect(request).toHaveBeenCalledWith('lt', 'report_date', '2027-01-01')
-    for (const call of request.mock.calls.filter((call) => call[0] === 'select')) {
-      expect(call[1]).toBe('report_date,title,published_at')
+    expect(request.mock.calls[0][0].params).toEqual(['2026-12-01', '2027-01-01'])
+    for (const [query] of request.mock.calls) {
+      expect(query.sql).toMatch(/select report_date,title,published_at/)
+      expect(query.sql).not.toContain('content,')
     }
   })
   it('routes latest and dated reads through distinct Redis keys', async () => {

@@ -1,92 +1,41 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { PgDialect } from 'drizzle-orm/pg-core'
+import { beforeEach, expect, it, vi } from 'vitest'
 import { getContentStatus, getDailyReportStatus } from './content-status'
 
-const { from, dailyReport } = vi.hoisted(() => ({ from: vi.fn(), dailyReport: vi.fn() }))
+const { read, dailyReport } = vi.hoisted(() => ({ read: vi.fn(), dailyReport: vi.fn() }))
+vi.mock('./business-db', () => ({ readBusinessRows: read }))
 vi.mock('./daily-reports', () => ({ getDailyReport: dailyReport }))
-vi.mock('./supabase', () => ({ getPublicSupabaseClient: () => ({ from }) }))
 vi.mock('next/cache', () => ({ unstable_cache: (fn: () => unknown) => fn }))
-
-type Result = { data: { id?: string; key?: string } | null; error: unknown }
-const visible: Result = { data: { id: 'article-id' }, error: null }
-const absent: Result = { data: null, error: null }
-function query(result: Promise<Result>) {
-  const chain = {
-    select: () => chain,
-    eq: vi.fn(() => chain),
-    abortSignal: () => chain,
-    maybeSingle: () => result
-  }
-  return chain
-}
-beforeEach(() => vi.clearAllMocks())
-
-describe('content visibility precheck', () => {
-  it('shares the cached daily report read for 200/404 checks and propagates read failures', async () => {
-    dailyReport.mockResolvedValueOnce({ reportDate: '2026-11-04' }).mockResolvedValueOnce(null)
-    expect(await getDailyReportStatus('2026-11-04')).toBe(200)
-    expect(await getDailyReportStatus('2026-11-03')).toBe(404)
-    expect(dailyReport).toHaveBeenCalledWith('2026-11-04')
-    expect(from).not.toHaveBeenCalled()
-    dailyReport.mockRejectedValueOnce(new Error('DB unavailable'))
-    await expect(getDailyReportStatus('2026-11-04')).rejects.toThrow('DB unavailable')
-  })
-  it('starts visibility and tombstone reads together on a cold request', async () => {
-    let release: ((result: Result) => void) | undefined
-    const removed = new Promise<Result>((resolve) => {
-      release = resolve
-    })
-    from.mockImplementation((table) =>
-      query(table === 'content_tombstones' ? removed : Promise.resolve(visible))
-    )
-    const pending = getContentStatus('news', 'article-id', 'juejin')
-    const started = from.mock.calls.map(([table]) => table)
-    release?.(absent)
-    await expect(pending).resolves.toBe(200)
-    expect(started).toEqual(['content_tombstones', 'signal_articles'])
-  })
-
-  it('keeps tombstone precedence even if the article still exists or its read fails', async () => {
-    for (const result of [visible, { data: null, error: { message: 'unavailable' } }]) {
-      from.mockImplementation((table) =>
-        query(
-          Promise.resolve(
-            table === 'content_tombstones'
-              ? { data: { key: 'juejin/article-id' }, error: null }
-              : result
-          )
-        )
-      )
-      await expect(getContentStatus('news', 'article-id', 'juejin')).resolves.toBe(410)
-    }
-  })
-
-  it('returns 404 for a missing article and fails closed on either database error', async () => {
-    from.mockImplementation(() => query(Promise.resolve(absent)))
-    await expect(getContentStatus('news', 'article-id', 'juejin')).resolves.toBe(404)
-    for (const failingTable of ['content_tombstones', 'signal_articles']) {
-      from.mockImplementation((table) =>
-        query(
-          Promise.resolve(
-            table === failingTable
-              ? { data: null, error: { message: 'unavailable' } }
-              : table === 'content_tombstones'
-                ? absent
-                : visible
-          )
-        )
-      )
-      await expect(getContentStatus('news', 'article-id', 'juejin')).rejects.toThrow(
-        'Content status unavailable'
-      )
-    }
-  })
-
-  it('still checks event publication status', async () => {
-    const event = query(Promise.resolve(visible))
-    from.mockImplementation((table) =>
-      table === 'ai_events' ? event : query(Promise.resolve(absent))
-    )
-    await expect(getContentStatus('event', 'event-slug', 'events')).resolves.toBe(200)
-    expect(event.eq).toHaveBeenCalledWith('status', 'published')
-  })
+beforeEach(() => vi.resetAllMocks())
+it('shares the daily report read and propagates failures', async () => {
+  dailyReport
+    .mockResolvedValueOnce({})
+    .mockResolvedValueOnce(null)
+    .mockRejectedValueOnce(new Error('unavailable'))
+  expect(await getDailyReportStatus('2026-11-04')).toBe(200)
+  expect(await getDailyReportStatus('2026-11-03')).toBe(404)
+  await expect(getDailyReportStatus('2026-11-02')).rejects.toThrow('unavailable')
+})
+it('reads visibility and tombstones in one snapshot, with tombstone precedence', async () => {
+  read
+    .mockResolvedValueOnce([{ removed: false, visible: true }])
+    .mockResolvedValueOnce([{ removed: true, visible: true }])
+  expect(await getContentStatus('news', '550e8400-e29b-41d4-a716-446655440000', 'juejin')).toBe(200)
+  const query = new PgDialect().sqlToQuery(read.mock.calls[0][0])
+  expect(query.sql).toContain('content_tombstones')
+  expect(query.sql).toContain('signal_articles')
+  expect(read).toHaveBeenCalledTimes(1)
+  expect(await getContentStatus('news', '550e8400-e29b-41d4-a716-446655440000', 'juejin')).toBe(410)
+})
+it('returns 404 for absence and never turns database failure into a 404', async () => {
+  read
+    .mockResolvedValueOnce([{ removed: false, visible: false }])
+    .mockRejectedValueOnce(new Error('offline'))
+  expect(await getContentStatus('event', 'missing-event', 'events')).toBe(404)
+  await expect(getContentStatus('event', 'missing-event', 'events')).rejects.toThrow()
+})
+it('requires event publication', async () => {
+  read.mockResolvedValue([{ removed: false, visible: true }])
+  expect(await getContentStatus('event', 'published-event', 'events')).toBe(200)
+  expect(new PgDialect().sqlToQuery(read.mock.calls[0][0]).sql).toContain("status='published'")
 })

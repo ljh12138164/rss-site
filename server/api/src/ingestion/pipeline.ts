@@ -1,9 +1,9 @@
 import { resolveSignalFeedUrls, type SignalSource } from '@rss-site/signals'
-import type { Database } from '../db/client.js'
-import { fetchSignalFeed } from './fetch.js'
-import { ingestSignal } from './ingest.js'
-import { type PublicationStatus, publishSourceUpdate } from './publish.js'
-import { DrizzleSignalStore } from './store.js'
+import type { Database } from '../db/client'
+import { fetchSignalFeed } from './fetch'
+import { ingestSignal } from './ingest'
+import { type PublicationStatus, publishSourceUpdate } from './publish'
+import { DrizzleSignalStore } from './store'
 
 export interface IngestionPipelineOptions {
   db: Database

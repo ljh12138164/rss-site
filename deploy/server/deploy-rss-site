@@ -4,6 +4,8 @@ STACK=/opt/stacks/rss-site
 TAG=${1:-}
 [[ $# -eq 1 && "$TAG" =~ ^sha-[0-9a-f]{40}$ ]] || exit 2
 test -f "$STACK/runtime.env"
+test -s "$STACK/postgres.env"
+docker volume inspect rss-site-postgres18-data >/dev/null
 exec 9>/run/lock/rss-site-deploy.lock
 flock -n 9 || exit 3
 TEMP=$(mktemp -d /tmp/rss-site-release.XXXXXX)
@@ -73,8 +75,9 @@ rollback() {
 trap rollback ERR
 install -m 644 "$TEMP/compose.yaml" "$STACK/compose.yaml"
 write_tag "$TAG"
-# The release bundle carries Redis so the host needs no registry access.
+# The release bundle carries database images so the host needs no registry access.
 docker image inspect redis:7.4-alpine >/dev/null
+docker image inspect postgres:18-alpine >/dev/null
 docker compose --project-directory "$STACK" up -d --pull never web
 healthy
 install -m 755 "$TEMP/deploy/server/deploy-rss-site" /usr/local/sbin/deploy-rss-site

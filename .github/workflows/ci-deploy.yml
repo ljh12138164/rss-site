@@ -4,6 +4,11 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+    inputs:
+      build_only:
+        description: Build an image artifact without verification or deployment
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -12,6 +17,14 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: rss_site
+          POSTGRES_PASSWORD: ci-admin-only
+        ports:
+          - 5432:5432
+        options: --health-cmd "pg_isready -U postgres -d rss_site" --health-interval 5s --health-timeout 3s --health-retries 12
       redis:
         image: redis:7.4-alpine
         ports:
@@ -19,28 +32,42 @@ jobs:
         options: --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
     env:
       TEST_REDIS_URL: redis://127.0.0.1:6379
+      DAILY_REPORT_TEST_DATABASE_URL: postgres://postgres:ci-admin-only@127.0.0.1:5432/rss_site
       SITE_URL: https://news.ljhboard.cn
       NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
         with:
           version: 11.23.0
       - uses: actions/setup-node@v4
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
+      - name: Initialize isolated PostgreSQL 18 test schema
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
+        run: docker exec -i "${{ job.services.postgres.id }}" psql -U postgres -d rss_site -v ON_ERROR_STOP=1 < deploy/postgres/baseline.sql
       - run: pnpm test
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
       - run: pnpm check-types
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
       - name: Check deployment shell scripts
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
         run: |
           python3 deploy/server/test-release-packaging.py
+          python3 -m pip install cryptography==49.0.0
+          python3 -B deploy/server/test-postgres-backup.py
+          python3 -B deploy/server/test-business-timers.py
+          bash -n deploy/server/verify-release-runtime
           bash -n deploy/server/deploy-rss-site
           sh -n deploy/server/rss-site-deploy-gate
           bash -n deploy/server/bootstrap-rss-site
-          shellcheck deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/bootstrap-rss-site
+          shellcheck deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/bootstrap-rss-site deploy/server/verify-release-runtime
       - name: Build release image
         run: |
           test -n "$NEXT_PUBLIC_SUPABASE_URL"
@@ -48,31 +75,22 @@ jobs:
           docker build --tag "rss-site-web:sha-${GITHUB_SHA}" \
             --build-arg NEXT_PUBLIC_SUPABASE_URL \
             --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY .
-      - name: Verify runtime
-        run: |
-          cleanup() {
-            status=$?
-            if [ "$status" -ne 0 ]; then
-              docker logs --tail 100 news-verify || true
-            fi
-            docker rm -f news-verify >/dev/null 2>&1 || true
-            exit "$status"
-          }
-          trap cleanup EXIT
-          docker run -d --name news-verify -p 127.0.0.1:18101:3000 \
-            -e SITE_URL -e NEXT_PUBLIC_SUPABASE_URL -e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
-            "rss-site-web:sha-${GITHUB_SHA}"
-          curl --fail --silent --show-error --retry 150 --retry-all-errors --retry-delay 2 \
-            --connect-timeout 3 --max-time 5 --retry-max-time 300 http://127.0.0.1:18101/healthz
-          curl -fsS http://127.0.0.1:18101/ > /tmp/news-home.html
-          grep -Fq 'news.ljhboard.cn' /tmp/news-home.html
-          curl -fsS http://127.0.0.1:18101/icon.svg > /dev/null
-          docker exec news-verify bun apps/web/scripts/prewarm-lists.mjs
-          curl -fsS http://127.0.0.1:18101/ads.txt | grep -F 'pub-7441827328189379'
-          curl -fsI http://127.0.0.1:18101/ | grep -i '^link:.*rel=preload.*as=style'
+      - name: Verify runtime with PostgreSQL 18 and the application role
+        if: github.event_name != 'workflow_dispatch' || !inputs.build_only
+        run: bash deploy/server/verify-release-runtime "rss-site-web:sha-${GITHUB_SHA}"
+      - name: Package migration image
+        if: github.event_name == 'workflow_dispatch' && inputs.build_only
+        run: docker save "rss-site-web:sha-${GITHUB_SHA}" | gzip -1 > migration-image.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch' && inputs.build_only
+        with:
+          name: migration-image-linux
+          path: migration-image.tar.gz
+          compression-level: 0
+          retention-days: 1
   deploy:
     needs: verify
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master' && !inputs.build_only
     runs-on: ubuntu-latest
     environment: production
     concurrency:
@@ -91,28 +109,13 @@ jobs:
           docker build --tag "rss-site-web:sha-${GITHUB_SHA}" \
             --build-arg NEXT_PUBLIC_SUPABASE_URL \
             --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY .
-      - name: Verify release image
-        run: |
-          cleanup() {
-            status=$?
-            if [ "$status" -ne 0 ]; then
-              docker logs --tail 100 news-deploy-verify || true
-            fi
-            docker rm -f news-deploy-verify >/dev/null 2>&1 || true
-            exit "$status"
-          }
-          trap cleanup EXIT
-          docker run -d --name news-deploy-verify -p 127.0.0.1:18101:3000 \
-            -e SITE_URL -e NEXT_PUBLIC_SUPABASE_URL -e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
-            "rss-site-web:sha-${GITHUB_SHA}"
-          curl --fail --silent --show-error --retry 150 --retry-all-errors --retry-delay 2 \
-            --connect-timeout 3 --max-time 5 --retry-max-time 300 http://127.0.0.1:18101/healthz
-          curl -fsS http://127.0.0.1:18101/admin | grep -Fq '文章管理'
-          docker exec news-deploy-verify bun apps/web/scripts/prewarm-lists.mjs
+      - name: Verify release image with PostgreSQL 18
+        run: bash deploy/server/verify-release-runtime "rss-site-web:sha-${GITHUB_SHA}"
       - name: Package release image
         run: |
           docker pull redis:7.4-alpine
-          docker save "rss-site-web:sha-${GITHUB_SHA}" redis:7.4-alpine -o image.tar
+          docker pull postgres:18-alpine
+          docker save "rss-site-web:sha-${GITHUB_SHA}" redis:7.4-alpine postgres:18-alpine -o image.tar
           tar -czf release.tar.gz image.tar compose.yaml \
             deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers
       - name: Install SSH credentials

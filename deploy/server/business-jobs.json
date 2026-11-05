@@ -1,0 +1,269 @@
+[
+  {
+    "source": "openai",
+    "name": "signal-ingest-openai",
+    "schedule": "0 */2 * * *",
+    "path": "/cron/signals/openai"
+  },
+  {
+    "source": "anthropic",
+    "name": "signal-ingest-anthropic",
+    "schedule": "5 */2 * * *",
+    "path": "/cron/signals/anthropic"
+  },
+  {
+    "source": "deepseek",
+    "name": "signal-ingest-deepseek",
+    "schedule": "10 */2 * * *",
+    "path": "/cron/signals/deepseek"
+  },
+  {
+    "source": "glm",
+    "name": "signal-ingest-glm",
+    "schedule": "15 */2 * * *",
+    "path": "/cron/signals/glm"
+  },
+  {
+    "source": "google-ai",
+    "name": "signal-ingest-google-ai",
+    "schedule": "20 */2 * * *",
+    "path": "/cron/signals/google-ai"
+  },
+  {
+    "source": "qwen",
+    "name": "signal-ingest-qwen",
+    "schedule": "25 */2 * * *",
+    "path": "/cron/signals/qwen"
+  },
+  {
+    "source": "github",
+    "name": "signal-ingest-github",
+    "schedule": "30 0,6,12,18 * * *",
+    "path": "/cron/signals/github"
+  },
+  {
+    "source": "hacker-news",
+    "name": "signal-ingest-hacker-news",
+    "schedule": "35 0,6,12,18 * * *",
+    "path": "/cron/signals/hacker-news"
+  },
+  {
+    "source": "juejin",
+    "name": "signal-ingest-juejin",
+    "schedule": "40 0,6,12,18 * * *",
+    "path": "/cron/signals/juejin"
+  },
+  {
+    "source": "ithome",
+    "name": "signal-ingest-ithome",
+    "schedule": "50 0,6,12,18 * * *",
+    "path": "/cron/signals/ithome"
+  },
+  {
+    "source": "36kr",
+    "name": "signal-ingest-36kr",
+    "schedule": "55 0,6,12,18 * * *",
+    "path": "/cron/signals/36kr"
+  },
+  {
+    "source": "xinhua",
+    "name": "signal-ingest-xinhua",
+    "schedule": "0 1,7,13,19 * * *",
+    "path": "/cron/signals/xinhua"
+  },
+  {
+    "source": "cctv",
+    "name": "signal-ingest-cctv",
+    "schedule": "5 1,7,13,19 * * *",
+    "path": "/cron/signals/cctv"
+  },
+  {
+    "source": "chinanews",
+    "name": "signal-ingest-chinanews",
+    "schedule": "10 1,7,13,19 * * *",
+    "path": "/cron/signals/chinanews"
+  },
+  {
+    "source": "thepaper",
+    "name": "signal-ingest-thepaper",
+    "schedule": "15 1,7,13,19 * * *",
+    "path": "/cron/signals/thepaper"
+  },
+  {
+    "source": "jiemian",
+    "name": "signal-ingest-jiemian",
+    "schedule": "20 1,7,13,19 * * *",
+    "path": "/cron/signals/jiemian"
+  },
+  {
+    "source": "baidu",
+    "name": "signal-ingest-baidu",
+    "schedule": "25 1,7,13,19 * * *",
+    "path": "/cron/signals/baidu"
+  },
+  {
+    "source": "bilibili",
+    "name": "signal-ingest-bilibili",
+    "schedule": "30 1,7,13,19 * * *",
+    "path": "/cron/signals/bilibili"
+  },
+  {
+    "source": "zhihu",
+    "name": "signal-ingest-zhihu",
+    "schedule": "35 1,7,13,19 * * *",
+    "path": "/cron/signals/zhihu"
+  },
+  {
+    "source": "coolapk",
+    "name": "signal-ingest-coolapk",
+    "schedule": "40 1,7,13,19 * * *",
+    "path": "/cron/signals/coolapk"
+  },
+  {
+    "source": "hupu",
+    "name": "signal-ingest-hupu",
+    "schedule": "45 1,7,13,19 * * *",
+    "path": "/cron/signals/hupu"
+  },
+  {
+    "source": "sspai",
+    "name": "signal-ingest-sspai",
+    "schedule": "50 1,7,13,19 * * *",
+    "path": "/cron/signals/sspai"
+  },
+  {
+    "source": "toutiao",
+    "name": "signal-ingest-toutiao",
+    "schedule": "55 1,7,13,19 * * *",
+    "path": "/cron/signals/toutiao"
+  },
+  {
+    "source": "wallstreetcn",
+    "name": "signal-ingest-wallstreetcn",
+    "schedule": "30 2,8,14,20 * * *",
+    "path": "/cron/signals/wallstreetcn"
+  },
+  {
+    "source": "cls",
+    "name": "signal-ingest-cls",
+    "schedule": "35 2,8,14,20 * * *",
+    "path": "/cron/signals/cls"
+  },
+  {
+    "source": "jin10",
+    "name": "signal-ingest-jin10",
+    "schedule": "40 2,8,14,20 * * *",
+    "path": "/cron/signals/jin10"
+  },
+  {
+    "source": "yicai",
+    "name": "signal-ingest-yicai",
+    "schedule": "50 2,8,14,20 * * *",
+    "path": "/cron/signals/yicai"
+  },
+  {
+    "source": "3dmgame",
+    "name": "signal-ingest-3dmgame",
+    "schedule": "0 3,9,15,21 * * *",
+    "path": "/cron/signals/3dmgame"
+  },
+  {
+    "source": "gcores",
+    "name": "signal-ingest-gcores",
+    "schedule": "5 3,9,15,21 * * *",
+    "path": "/cron/signals/gcores"
+  },
+  {
+    "source": "gamersky",
+    "name": "signal-ingest-gamersky",
+    "schedule": "10 3,9,15,21 * * *",
+    "path": "/cron/signals/gamersky"
+  },
+  {
+    "source": "ali213",
+    "name": "signal-ingest-ali213",
+    "schedule": "15 3,9,15,21 * * *",
+    "path": "/cron/signals/ali213"
+  },
+  {
+    "source": "indienova",
+    "name": "signal-ingest-indienova",
+    "schedule": "20 3,9,15,21 * * *",
+    "path": "/cron/signals/indienova"
+  },
+  {
+    "source": "github-blog",
+    "name": "signal-ingest-github-blog",
+    "schedule": "30 3,9,15,21 * * *",
+    "path": "/cron/signals/github-blog"
+  },
+  {
+    "source": "skills-all-time",
+    "name": "signal-ingest-skills-all-time",
+    "schedule": "40 3,9,15,21 * * *",
+    "path": "/cron/signals/skills-all-time"
+  },
+  {
+    "source": "skills-trending",
+    "name": "signal-ingest-skills-trending",
+    "schedule": "50 3,9,15,21 * * *",
+    "path": "/cron/signals/skills-trending"
+  },
+  {
+    "source": "geekpark",
+    "name": "signal-ingest-geekpark",
+    "schedule": "35 3,9,15,21 * * *",
+    "path": "/cron/signals/geekpark"
+  },
+  {
+    "source": "chuapp",
+    "name": "signal-ingest-chuapp",
+    "schedule": "25 3,9,15,21 * * *",
+    "path": "/cron/signals/chuapp"
+  },
+  {
+    "source": "lilian-weng",
+    "name": "signal-ingest-lilian-weng",
+    "schedule": "45 3,9,15,21 * * *",
+    "path": "/cron/signals/lilian-weng"
+  },
+  {
+    "source": "simon-willison",
+    "name": "signal-ingest-simon-willison",
+    "schedule": "55 3,9,15,21 * * *",
+    "path": "/cron/signals/simon-willison"
+  },
+  {
+    "source": "cloudflare-blog",
+    "name": "signal-ingest-cloudflare-blog",
+    "schedule": "30 4,10,16,22 * * *",
+    "path": "/cron/signals/cloudflare-blog"
+  },
+  {
+    "source": "nvidia",
+    "name": "signal-ingest-nvidia",
+    "schedule": "40 4,10,16,22 * * *",
+    "path": "/cron/signals/nvidia"
+  },
+  {
+    "source": "amd",
+    "name": "signal-ingest-amd",
+    "schedule": "50 4,10,16,22 * * *",
+    "path": "/cron/signals/amd"
+  },
+  {
+    "source": "retention",
+    "schedule": "30 5 * * *",
+    "path": "/cron/maintenance/retention"
+  },
+  {
+    "source": "zhihu-cookie",
+    "schedule": "0 20 * * *",
+    "path": "/cron/maintenance/zhihu-cookie"
+  },
+  {
+    "source": "publication-outbox",
+    "schedule": "*/5 * * * *",
+    "path": "/cron/maintenance/publication-outbox"
+  }
+]

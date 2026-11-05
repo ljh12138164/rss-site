@@ -1,3 +1,4 @@
+import { PgDialect } from 'drizzle-orm/pg-core'
 import { afterEach, expect, it, vi } from 'vitest'
 import { GET as getChildSitemap } from './sitemap/[id]/route'
 import { GET as getSitemapXml } from './sitemap.xml/route'
@@ -23,69 +24,36 @@ vi.mock('next/cache', () => ({
     }
 }))
 
-vi.mock('../lib/supabase', () => ({
-  getPublicSupabaseClient: () => ({
-    from: (table: string) => {
-      let head = false
-      let start = 0
-      let end = 999
-      const query = {
-        select: (fields: string, options?: { head?: boolean }) => {
-          expect(fields).not.toContain('content_html')
-          head = options?.head === true
-          return query
-        },
-        eq: (key: string, value: unknown) => {
-          if (table === 'signal_articles') articleFilters(key, value)
-          return query
-        },
-        order: () => query,
-        in: () => query,
-        not: () => query,
-        limit: () => query,
-        gt: () => query,
-        range: (from: number, to: number) => {
-          start = from
-          end = to
-          return query
-        },
-        abortSignal: async () => {
-          databaseCalls(table)
-          if (mockError) return { data: null, count: null, error: { message: 'DB down' } }
-          if (head) return { count: mockArticleCount, error: null }
-          if (table === 'skill_details') return { data: mockSkills, error: null }
-          if (table === 'daily_reports')
-            return {
-              data: [{ report_date: '2026-11-04', published_at: '2026-11-04T00:05:00Z' }],
-              error: null
-            }
-          if (table === 'ai_events')
-            return {
-              data: [{ id: '1', slug: 'test-event', updated_at: '2026-01-01' }],
-              error: null
-            }
-          return {
-            data: Array.from(
-              { length: Math.max(0, Math.min(end + 1, mockArticleCount) - start) },
-              (_, i) => ({
-                id:
-                  start + i === 0
-                    ? '550e8400-e29b-41d4-a716-446655440000'
-                    : `550e8400-e29b-41d4-a716-${String(start + i).padStart(12, '0')}`,
-                source: 'xinhua',
-                title: '测试新闻标题',
-                published_at: '2026-09-01T00:00:00Z',
-                last_seen_at: '2026-09-01T01:00:00Z',
-                content_updated_at: '2026-09-02T03:00:00Z'
-              })
-            ),
-            error: null
-          }
-        }
-      }
-      return query
-    }
-  })
+vi.mock('../lib/business-db', () => ({
+  readBusinessRows: async (statement: Parameters<PgDialect['sqlToQuery']>[0]) => {
+    const query = new PgDialect().sqlToQuery(statement)
+    const table = query.sql.match(/from (\w+)/)?.[1]
+    databaseCalls(table)
+    expect(query.sql.split('from')[0]).not.toContain('content_html')
+    if (mockError) throw new Error('DB down')
+    if (query.sql.includes('count(*)')) return [{ count: mockArticleCount }]
+    if (table === 'skill_details') return mockSkills
+    if (table === 'daily_reports')
+      return [{ report_date: '2026-11-04', published_at: '2026-11-04T00:05:00Z' }]
+    if (table === 'ai_events') return [{ id: '1', slug: 'test-event', updated_at: '2026-01-01' }]
+    expect(query.sql).toContain('is_indexable=true')
+    articleFilters('is_indexable', true)
+    const [limit, offset] = query.params.slice(-2) as number[]
+    return Array.from(
+      { length: Math.max(0, Math.min(offset + limit, mockArticleCount) - offset) },
+      (_, i) => ({
+        id:
+          offset + i === 0
+            ? '550e8400-e29b-41d4-a716-446655440000'
+            : `550e8400-e29b-41d4-a716-${String(offset + i).padStart(12, '0')}`,
+        source: 'xinhua',
+        title: '测试新闻标题',
+        published_at: '2026-09-01T00:00:00Z',
+        last_seen_at: '2026-09-01T01:00:00Z',
+        content_updated_at: '2026-09-02T03:00:00Z'
+      })
+    )
+  }
 }))
 
 afterEach(() => {

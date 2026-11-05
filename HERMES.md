@@ -1,5 +1,22 @@
 # HERMES
 
+## 2026-11-05 业务 PostgreSQL 迁移（已切换，观察中）
+
+- Branch: feat/business-postgres-migration，全部修改保留在原 rss-site 目录，不创建其他工作区
+- Document: [迁移开发文档](docs/development/business-postgres-migration.md)
+- 已完成：Web 原 Data API 查询转 Drizzle SQL；Next 采集/MCP/维护和内部日报接口；ai-base 改为鉴权 HTTP；PostgreSQL 18 导入与真实库行为验证；每小时 Supabase 保活已部署
+- Docker: 迁移目标已按用户要求改为 PostgreSQL 18，根 compose.yaml 加入 PostgreSQL，与 Redis 同部署；内部数据库网络、独立应用凭据、外部持久化卷，发布包携带数据库镜像
+- Verification: Web 429 项通过、16 跳过，API 165 项、ai-base 94 项，类型与 Web/Nest 构建通过；备份回归 7 项、ECS 调度门禁 8 项通过。用户后续明确要求跳过剩余验证，不再重复测试或镜像演练
+- PostgreSQL 18 健康运行，14 张业务表行数一致；真实库验证了普通应用角色、编辑锁、采集事务、日报抢占、失效租约、原子发布和通知
+- 用户选定 Supabase 私有 Storage 桶；加密备份脚本和每日北京时间 03:00 timer 已写入仓库。服务器本地加密/解密与独立 PostgreSQL 18 恢复通过，16 张表行数一致，91,040,955 字节、5 个加密分块；此验证不包含 Storage 上传
+- Supabase 连接已恢复；私有 Storage 真实上传、下载、解密和独立 PostgreSQL 18 恢复全部通过，16 张表行数一致，快照 20261105T035659Z-ccb5b024f74e。每日备份 timer 已启用，切换后首份备份 20261105T062100Z-b9196791503b 成功
+- 密钥已独立保存在本机受保护目录；按用户要求减少变量，备份配置仅含 SUPABASE_STORAGE_KEY，复用现有项目 URL；桶名及 Vercel 项目/团队 ID 固定，不新增变量
+- 两个 Linux 镜像已构建并加载到 ECS。旧 Supabase 46 项 Cron 全部 inactive、运行中 0、pg_net 队列 0；Worker 定时任务、域名及预览已关闭，旧 Next 与 agent 已停止。受保护配置已备份到 migration/production-before-cutover
+- 最终一致快照已导入（signal_articles 60,239），Compose PostgreSQL 18、Next 和 agent 已切换且健康。用户已要求跳过剩余镜像演练；最新 AGENTS 的生产来源验收门禁仍适用于启用 timer。chatgpt 不因迁移自动开启
+
+- 用户批准暂时暂停 stcn 与 antigravity 定时器，保留来源配置和数据；其余 42/42 个来源验收通过（1,019 条），3 项维护 HTTP 200；45 个 timer 已 active，旧 Worker/Hyperdrive 已删除。完整证据见开发文档，24 小时观察与旧 Supabase 数据清理待完成
+
+
 ## 2026-11-04 日报总结技术方案
 
 - Branch: feat/daily-report，rss-site 已同步 origin/master 42eb353；ai-base 在原目录快进到 origin/master 93bac43

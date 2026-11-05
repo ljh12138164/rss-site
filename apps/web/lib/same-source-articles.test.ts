@@ -5,7 +5,7 @@ const { from, entries } = vi.hoisted(() => ({
   from: vi.fn(),
   entries: new Map<string, Promise<unknown>>()
 }))
-vi.mock('./supabase', () => ({ getPublicSupabaseClient: () => ({ from }) }))
+vi.mock('./business-queries', () => ({ readSameSource: from }))
 vi.mock('next/cache', () => ({
   unstable_cache: (fn: () => Promise<unknown>, key: string[]) => () => {
     const cacheKey = JSON.stringify(key)
@@ -21,29 +21,7 @@ const rows = Array.from({ length: 5 }, (_, index) => ({
 beforeEach(() => {
   entries.clear()
   from.mockClear()
-  from.mockImplementation(() => {
-    let excluded: string | undefined
-    let limit = 4
-    const chain = {
-      select: () => chain,
-      eq: () => chain,
-      neq: (_field: string, id: string) => {
-        excluded = id
-        return chain
-      },
-      order: () => chain,
-      limit: (value: number) => {
-        limit = value
-        return chain
-      },
-      abortSignal: () =>
-        Promise.resolve({
-          data: rows.filter((row) => row.id !== excluded).slice(0, limit),
-          error: null
-        })
-    }
-    return chain
-  })
+  from.mockResolvedValue(rows)
 })
 describe('same-source article data', () => {
   it('shares one recent-article read across cold pages but excludes each current article', async () => {

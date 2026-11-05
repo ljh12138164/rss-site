@@ -3,7 +3,7 @@ import { SkillLeaderboard } from '../../components/skill-leaderboard'
 import { getSkillFeeds } from '../../lib/hot-feed'
 import { createPageMetadata } from '../../lib/seo'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 export const revalidate = 21600
 
 export const metadata = createPageMetadata({

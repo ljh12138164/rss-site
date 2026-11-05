@@ -5,6 +5,7 @@ import { SiteShell } from '../../components/site-shell'
 import { getDailyArchive, getDailyArticleLinks, getDailyReport } from '../../lib/daily-reports'
 
 export const revalidate = 300
+export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: '每日要闻 · 日报',
   description: '每天精选值得关注的 AI、科技及其他重要消息，附原文来源与往期归档',

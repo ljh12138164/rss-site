@@ -66,11 +66,11 @@ esac
                     images = archive.extractfile('image.tar').read().decode().splitlines()
             return result.returncode, images, (root / 'redis-loaded').exists()
 
-    def test_existing_loader_receives_web_and_redis(self):
+    def test_existing_loader_receives_web_and_databases(self):
         status, images, pulled = self.run_packaging()
         self.assertEqual(status, 0)
         self.assertTrue(pulled)
-        self.assertEqual(images, ['rss-site-web:sha-' + 'a' * 40, 'redis:7.4-alpine'])
+        self.assertEqual(images, ['rss-site-web:sha-' + 'a' * 40, 'redis:7.4-alpine', 'postgres:18-alpine'])
 
     def test_pull_failure_stops_packaging(self):
         status, images, _ = self.run_packaging(fail_pull=True)

@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm'
 import { unstable_cache } from 'next/cache'
 import {
   type DailyReport,
@@ -9,8 +10,8 @@ import {
   validateDailyDraft
 } from '../../../shared/daily-report'
 import { articleSource, createArticlePath } from './article-route'
+import { readBusinessRows } from './business-db'
 import { getCachedDailyData } from './daily-report-cache'
-import { getPublicSupabaseClient } from './supabase'
 
 export type DailyArchiveEntry = { report_date: string; title: string; published_at: string }
 export type DailyArchive = {
@@ -20,9 +21,8 @@ export type DailyArchive = {
   previous?: DailyArchiveEntry
   next?: DailyArchiveEntry
 }
-const fields =
-  'report_date,title,content,sources,window_start,window_end,published_at,story_count,source_count'
-const metadataFields = 'report_date,title,published_at'
+const fields = sql`report_date,title,content,sources,window_start,window_end,published_at,story_count,source_count`
+const metadataFields = sql`report_date,title,published_at`
 
 export function parseDailyReport(row: Record<string, unknown>): DailyReport {
   if (
@@ -96,13 +96,9 @@ export const getDailyReport = unstable_cache(
         return report
       },
       async () => {
-        let query = getPublicSupabaseClient().from('daily_reports').select(fields)
-        if (date) query = query.eq('report_date', date)
-        const { data, error } = await query
-          .order('report_date', { ascending: false })
-          .limit(1)
-          .abortSignal(AbortSignal.timeout(10_000))
-        if (error) throw new Error('Daily reports unavailable')
+        const data = await readBusinessRows<Record<string, unknown>>(sql`
+          select ${fields} from daily_reports ${date ? sql`where report_date=${date}::date` : sql``}
+          order by report_date desc limit 1`)
         return data?.[0] ?? null
       }
     )
@@ -119,50 +115,24 @@ export const getDailyArchive = unstable_cache(
       const next = new Date(`${start}T00:00:00Z`)
       next.setUTCMonth(next.getUTCMonth() + 1)
       const end = next.toISOString().slice(0, 10)
-      const client = getPublicSupabaseClient()
-      const queries = [
-        client
-          .from('daily_reports')
-          .select(metadataFields)
-          .gte('report_date', start)
-          .lt('report_date', end)
-          .order('report_date', { ascending: false })
-          .limit(31),
-        client
-          .from('daily_reports')
-          .select(metadataFields)
-          .lt('report_date', start)
-          .order('report_date', { ascending: false })
-          .limit(1),
-        client
-          .from('daily_reports')
-          .select(metadataFields)
-          .gte('report_date', end)
-          .order('report_date')
-          .limit(1),
-        client
-          .from('daily_reports')
-          .select(metadataFields)
-          .lt('report_date', date)
-          .order('report_date', { ascending: false })
-          .limit(1),
-        client
-          .from('daily_reports')
-          .select(metadataFields)
-          .gt('report_date', date)
-          .order('report_date')
-          .limit(1)
-      ]
-      const results = await Promise.all(
-        queries.map((query) => query.abortSignal(AbortSignal.timeout(10_000)))
-      )
-      if (results.some((result) => result.error)) throw new Error('Daily archive unavailable')
+      const results = await Promise.all([
+        readBusinessRows<DailyArchiveEntry>(sql`select ${metadataFields} from daily_reports
+          where report_date>=${start}::date and report_date<${end}::date order by report_date desc limit 31`),
+        readBusinessRows<DailyArchiveEntry>(sql`select ${metadataFields} from daily_reports
+          where report_date<${start}::date order by report_date desc limit 1`),
+        readBusinessRows<DailyArchiveEntry>(sql`select ${metadataFields} from daily_reports
+          where report_date>=${end}::date order by report_date limit 1`),
+        readBusinessRows<DailyArchiveEntry>(sql`select ${metadataFields} from daily_reports
+          where report_date<${date}::date order by report_date desc limit 1`),
+        readBusinessRows<DailyArchiveEntry>(sql`select ${metadataFields} from daily_reports
+          where report_date>${date}::date order by report_date limit 1`)
+      ])
       return {
-        entries: (results[0]?.data ?? []) as DailyArchiveEntry[],
-        previousMonth: results[1]?.data?.[0] as DailyArchiveEntry | undefined,
-        nextMonth: results[2]?.data?.[0] as DailyArchiveEntry | undefined,
-        previous: results[3]?.data?.[0] as DailyArchiveEntry | undefined,
-        next: results[4]?.data?.[0] as DailyArchiveEntry | undefined
+        entries: (results[0] ?? []) as DailyArchiveEntry[],
+        previousMonth: results[1]?.[0] as DailyArchiveEntry | undefined,
+        nextMonth: results[2]?.[0] as DailyArchiveEntry | undefined,
+        previous: results[3]?.[0] as DailyArchiveEntry | undefined,
+        next: results[4]?.[0] as DailyArchiveEntry | undefined
       }
     })
   },
@@ -173,15 +143,11 @@ export const getDailyArchive = unstable_cache(
 export const getDailyArticleLinks = unstable_cache(
   async (sources: DailySource[]) => {
     if (!sources.length) return {}
-    const { data, error } = await getPublicSupabaseClient()
-      .from('signal_articles')
-      .select('id')
-      .in(
-        'id',
-        sources.map((source) => source.id)
-      )
-      .abortSignal(AbortSignal.timeout(10_000))
-    if (error) throw new Error('Daily citations unavailable')
+    const data = await readBusinessRows<{ id: string }>(sql`select id from signal_articles
+      where id in (${sql.join(
+        sources.map((source) => sql`${source.id}::uuid`),
+        sql`, `
+      )})`)
     const existing = new Set((data ?? []).map((row) => row.id as string))
     return Object.fromEntries(
       sources

@@ -11,6 +11,10 @@ node_modules
 .env.development.local
 .env.test.local
 .env.production.local
+runtime.env
+postgres.env
+postgres-backup.env
+postgres-backup.key
 
 # Testing
 coverage

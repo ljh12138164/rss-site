@@ -4,7 +4,7 @@ import type { SocialFeeds } from '../../lib/hot-feed'
 import { createPageMetadata } from '../../lib/seo'
 import { socialSources } from '../../lib/technology-sources'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 export const revalidate = 21600
 
 export const metadata = createPageMetadata({

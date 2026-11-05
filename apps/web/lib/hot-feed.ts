@@ -1,6 +1,6 @@
+import { readSectionFeed } from './business-queries'
 import { getCachedList } from './list-cache'
 import { readSkillsPreview } from './skill-detail'
-import { getPublicSupabaseClient } from './supabase'
 import {
   type AiSourceId,
   type FinanceSourceId,
@@ -98,31 +98,9 @@ async function querySectionFeeds(
     if (preview) return { items: preview.items, statuses: preview.statuses, error: null }
   }
   try {
-    const supabase = getPublicSupabaseClient()
-    const [itemsResult, statusesResult] = await Promise.all([
-      supabase
-        .from('hot_items')
-        .select(
-          'article_id,source,source_key,title,url,image_url,summary,author,published_at,position'
-        )
-        .eq('section', section)
-        .in('source', sourceIds)
-        .order('position', { ascending: true })
-        .abortSignal(AbortSignal.timeout(10000)),
-      supabase
-        .from('source_status')
-        .select('source,item_count,last_success_at')
-        .in('source', sourceIds)
-        .abortSignal(AbortSignal.timeout(10000))
-    ])
-
-    return {
-      items: itemsResult.data as HotItemRow[] | null,
-      statuses: statusesResult.data as SourceStatusRow[] | null,
-      error: itemsResult.error?.message ?? statusesResult.error?.message ?? null
-    }
+    return await readSectionFeed(section, sourceIds)
   } catch {
-    return { items: null, statuses: null, error: 'Supabase is unavailable' }
+    return { items: null, statuses: null, error: 'Business database is unavailable' }
   }
 }
 

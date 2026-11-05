@@ -6,33 +6,15 @@ type Sql = ReturnType<typeof postgres>
 export class PostgresCronRepository implements CronRepository {
   constructor(private readonly sql: Sql) {}
 
-  async installExtensions() {
-    await this.sql`create extension if not exists pg_cron with schema pg_catalog`
-    await this.sql`create extension if not exists pg_net with schema extensions`
-  }
-
-  async upsertSecret(name: string, value: string) {
-    const [existing] = await this.sql<{ id: string }[]>`
-      select id::text
-      from vault.secrets
-      where name = ${name}
-      limit 1
-    `
-
-    if (existing) {
-      await this.sql`select vault.update_secret(${existing.id}::uuid, ${value})`
-      return
-    }
-
-    await this.sql`select vault.create_secret(${value}, ${name})`
-  }
-
   async verifyIngestion({
     source,
     section,
     batchId,
     itemCount
   }: Parameters<CronRepository['verifyIngestion']>[0]) {
+    const [version] = await this.sql<{ server_version_num: string }[]>`show server_version_num`
+    if (Math.trunc(Number(version.server_version_num) / 10000) !== 18)
+      throw new Error('Cron verification requires the PostgreSQL 18 target')
     const [verification] = await this.sql<
       Array<{
         run_status: string | null
@@ -92,18 +74,7 @@ export class PostgresCronRepository implements CronRepository {
       !requiresPublicationTime || (verification?.published_item_count ?? 0) > 0
 
     if (!matchesBatch || !hasPlausiblePublicationTime) {
-      throw new Error(`来源 ${source} 云端数据核验失败，未更新 Cron`)
+      throw new Error(`来源 ${source} 目标库数据核验失败，未生成调度验收证据`)
     }
-  }
-
-  async schedule(name: string, schedule: string, command: string) {
-    await this.sql`select cron.schedule(${name}, ${schedule}, ${command})`
-  }
-
-  async unschedule(name: string) {
-    await this.sql`
-      select cron.unschedule(${name})
-      where exists (select 1 from cron.job where jobname = ${name})
-    `
   }
 }

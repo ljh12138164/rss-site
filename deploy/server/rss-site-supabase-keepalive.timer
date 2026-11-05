@@ -1,0 +1,10 @@
+[Unit]
+Description=Hourly Supabase database keepalive
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+Unit=rss-site-supabase-keepalive.service
+
+[Install]
+WantedBy=timers.target

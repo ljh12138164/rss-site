@@ -1,6 +1,6 @@
 import type { SignalSection, SignalSourceId } from '@rss-site/signals'
 import { and, eq, inArray, ne, sql } from 'drizzle-orm'
-import type { Database } from '../db/client.js'
+import type { Database } from '../db/client'
 import {
   aiEventArticles,
   aiEvents,
@@ -9,9 +9,9 @@ import {
   signalArticles,
   skillDetails,
   sourceStatus
-} from '../db/schema.js'
-import { changedSourceKeys } from './content-change.js'
-import type { SignalFeedItem } from './feed.js'
+} from '../db/schema'
+import { changedSourceKeys } from './content-change'
+import type { SignalFeedItem } from './feed'
 
 export interface SuccessfulIngestion {
   batchId: string

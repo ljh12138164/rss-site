@@ -2,7 +2,7 @@ import { HomeView } from '../../components/latest-overview'
 import { getHomeDigest } from '../../lib/home-articles'
 import { createPageMetadata, SITE_DESCRIPTION } from '../../lib/seo'
 
-export const dynamic = 'force-static'
+export const dynamic = 'force-dynamic'
 export const revalidate = 7200
 export const metadata = {
   ...createPageMetadata({
