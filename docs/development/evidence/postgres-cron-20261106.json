@@ -1,0 +1,378 @@
+{
+  "verified_at": "2026-11-06T04:22:46.925Z",
+  "web_release": "658e09faa87121aeb8e062017c33a5907d2d6c82",
+  "ci": {
+    "conclusion": "success",
+    "headSha": "d374c2a24ac4d56727d68d89412cddcdbbea336a",
+    "url": "https://github.com/ljh12138164/rss-site/actions/runs/42161537738"
+  },
+  "activation_time": "2026-11-06T11:59:17+08:00",
+  "scheduler": {
+    "total": 49,
+    "active": 49,
+    "verified_business_jobs": 47,
+    "failed_cron_runs": 0,
+    "failed_http_requests": 0,
+    "application_can_read_secret": false,
+    "application_can_dispatch": false
+  },
+  "legacy_business_timers": 0,
+  "legacy_business_python_removed": true,
+  "legacy_supabase": {
+    "active_jobs": 0,
+    "running_jobs": 0,
+    "queued_requests": 0
+  },
+  "cutover_counts_before": {
+    "signal_articles": 61553,
+    "hot_items": 1052,
+    "daily_reports": 2
+  },
+  "cutover_counts_after": {
+    "signal_articles": 61553,
+    "hot_items": 1052,
+    "daily_reports": 2
+  },
+  "source_acceptance": {
+    "verified_at": "2026-11-06T03:52:57.576Z",
+    "source_count": 44,
+    "total_items": 1053,
+    "all_http_and_target_database_checks_passed": true,
+    "results": [
+      {
+        "source": "openai",
+        "batchId": "92a59321-78ee-4738-92b8-2b935163db73",
+        "itemCount": 20
+      },
+      {
+        "source": "anthropic",
+        "batchId": "7312d29d-7597-40f7-9127-3648cceb2617",
+        "itemCount": 20
+      },
+      {
+        "source": "deepseek",
+        "batchId": "e43e547b-a221-4b90-aaa1-ee8df3134b68",
+        "itemCount": 19
+      },
+      {
+        "source": "glm",
+        "batchId": "df9442bb-86f0-4be0-934c-6c71080148ca",
+        "itemCount": 15
+      },
+      {
+        "source": "google-ai",
+        "batchId": "c6c5abf5-20c8-458b-92da-9f5e6137a1eb",
+        "itemCount": 20
+      },
+      {
+        "source": "antigravity",
+        "batchId": "c9ea1bc2-fb12-4781-89d3-8aa5adbc63b7",
+        "itemCount": 20
+      },
+      {
+        "source": "qwen",
+        "batchId": "20f541e3-5938-45fd-870f-56a5f845a883",
+        "itemCount": 20
+      },
+      {
+        "source": "github",
+        "batchId": "03e59ba8-5e9d-4781-9946-8fa27f99d912",
+        "itemCount": 22
+      },
+      {
+        "source": "hacker-news",
+        "batchId": "f1a19650-e019-4f26-b525-ef3dd04cf7b8",
+        "itemCount": 30
+      },
+      {
+        "source": "juejin",
+        "batchId": "68304f02-d31c-4e4e-9093-040ed7364417",
+        "itemCount": 20
+      },
+      {
+        "source": "ithome",
+        "batchId": "c9852d59-33ce-40da-897c-40e5cd20c5b1",
+        "itemCount": 12
+      },
+      {
+        "source": "36kr",
+        "batchId": "2af05f4a-be59-49c7-a91f-26d9060d710e",
+        "itemCount": 8
+      },
+      {
+        "source": "xinhua",
+        "batchId": "624460c0-1a01-469b-be01-de83e692675a",
+        "itemCount": 30
+      },
+      {
+        "source": "cctv",
+        "batchId": "13fdec48-7c8c-4c81-98fd-b208c1a5a884",
+        "itemCount": 30
+      },
+      {
+        "source": "chinanews",
+        "batchId": "69fa9e06-a66e-4a67-a087-42a4454577a0",
+        "itemCount": 30
+      },
+      {
+        "source": "thepaper",
+        "batchId": "190e2d36-4dd2-498a-be65-1bf233faab3b",
+        "itemCount": 20
+      },
+      {
+        "source": "jiemian",
+        "batchId": "b896298f-38fa-4621-8631-929f8ad33856",
+        "itemCount": 20
+      },
+      {
+        "source": "baidu",
+        "batchId": "cc07a1ff-9afe-4ebc-9e8b-c6557aee6d7d",
+        "itemCount": 30
+      },
+      {
+        "source": "bilibili",
+        "batchId": "fc780c06-8f9f-402f-a438-c51dbc961f5e",
+        "itemCount": 20
+      },
+      {
+        "source": "zhihu",
+        "batchId": "f4de3bbd-c1fc-436c-b56a-298a20204ceb",
+        "itemCount": 30
+      },
+      {
+        "source": "coolapk",
+        "batchId": "750e1e46-2ebe-4a43-bc0a-ab90df502aba",
+        "itemCount": 18
+      },
+      {
+        "source": "hupu",
+        "batchId": "e86cdf9d-3ad0-4ffb-8e48-472be0b9849e",
+        "itemCount": 30
+      },
+      {
+        "source": "sspai",
+        "batchId": "99ff915a-fa9e-4a93-88a1-de08955c186a",
+        "itemCount": 20
+      },
+      {
+        "source": "toutiao",
+        "batchId": "423998b9-955b-49e5-bdb8-ed9d3683cee3",
+        "itemCount": 14
+      },
+      {
+        "source": "wallstreetcn",
+        "batchId": "a1b83fc5-fd5a-407b-a7ef-178b40660f1e",
+        "itemCount": 10
+      },
+      {
+        "source": "cls",
+        "batchId": "91631416-b73c-49f7-9e61-2c75fc86d643",
+        "itemCount": 13
+      },
+      {
+        "source": "jin10",
+        "batchId": "49d227ae-987f-400c-b831-efcb5b59d5b3",
+        "itemCount": 10
+      },
+      {
+        "source": "yicai",
+        "batchId": "9ce7a86d-23a8-4e2d-8b9f-3002e80fee8c",
+        "itemCount": 30
+      },
+      {
+        "source": "stcn",
+        "batchId": "1e0dc420-86c1-42c3-b60f-2abe17d85575",
+        "itemCount": 9
+      },
+      {
+        "source": "3dmgame",
+        "batchId": "6998a00a-934c-4e2e-9f23-febc2a1208d2",
+        "itemCount": 20
+      },
+      {
+        "source": "gcores",
+        "batchId": "90d4d52b-85cb-4811-a906-8f63d95e25ad",
+        "itemCount": 20
+      },
+      {
+        "source": "gamersky",
+        "batchId": "010d5aa2-f9ad-4d16-b130-7582c2472528",
+        "itemCount": 20
+      },
+      {
+        "source": "ali213",
+        "batchId": "dab3315b-2467-4476-b598-cee3d18753de",
+        "itemCount": 20
+      },
+      {
+        "source": "indienova",
+        "batchId": "21b9606d-a79c-4de1-a60f-bdc65b8cfbde",
+        "itemCount": 12
+      },
+      {
+        "source": "github-blog",
+        "batchId": "4b99c894-c7f4-4485-acb6-72142730b1b5",
+        "itemCount": 10
+      },
+      {
+        "source": "skills-all-time",
+        "batchId": "5a80f85e-54dc-4d34-8cd1-22ec36c8ea96",
+        "itemCount": 100
+      },
+      {
+        "source": "skills-trending",
+        "batchId": "44716908-4ed0-475d-9c65-78cd9896aebe",
+        "itemCount": 100
+      },
+      {
+        "source": "geekpark",
+        "batchId": "0320816f-a183-4176-bd94-74a437cb4450",
+        "itemCount": 30
+      },
+      {
+        "source": "chuapp",
+        "batchId": "7f2d8518-41c1-429e-a878-a0f06bf6bad1",
+        "itemCount": 30
+      },
+      {
+        "source": "lilian-weng",
+        "batchId": "22181f77-35f4-4247-9712-5d59679fb537",
+        "itemCount": 20
+      },
+      {
+        "source": "simon-willison",
+        "batchId": "ff94ed94-8ce4-40f9-b0fe-c825dbb9b09b",
+        "itemCount": 15
+      },
+      {
+        "source": "cloudflare-blog",
+        "batchId": "d5cd3fb5-6e81-4282-ac50-d94318e06862",
+        "itemCount": 20
+      },
+      {
+        "source": "nvidia",
+        "batchId": "94ab706f-95ba-48d5-85f5-7c6ae5e95870",
+        "itemCount": 30
+      },
+      {
+        "source": "amd",
+        "batchId": "187c946e-2278-4d5e-9f86-41573fda7ded",
+        "itemCount": 16
+      }
+    ]
+  },
+  "maintenance_acceptance": {
+    "verified_at": "2026-11-06T03:49:23.132Z",
+    "results": [
+      {
+        "source": "retention",
+        "status": 200,
+        "attempt": 1
+      },
+      {
+        "source": "zhihu-cookie",
+        "status": 200,
+        "attempt": 1
+      },
+      {
+        "source": "publication-outbox",
+        "status": 200,
+        "attempt": 1
+      }
+    ]
+  },
+  "manual_pg_net_ingestion": {
+    "request_id": 2,
+    "source": "xinhua",
+    "http_status": 200,
+    "batch_id": "59926f04-fe3e-4893-b11f-c6d92c3ac98e",
+    "run_status": "succeeded",
+    "item_count": 30,
+    "stored_count": 30,
+    "valid_count": 30,
+    "published_count": 30,
+    "first_published": "2026-11-06T01:36:52+00:00",
+    "last_published": "2026-11-06T03:34:24+00:00",
+    "source_status_matches": true
+  },
+  "natural_scheduled_ingestion": {
+    "request_id": 3,
+    "source": "openai",
+    "requested_at": "2026-11-06T04:00:00.023282+00:00",
+    "http_status": 200,
+    "batch_id": "9d178343-c0bd-425a-b26b-fe57ed420cab",
+    "run_status": "succeeded",
+    "item_count": 20,
+    "stored_count": 20,
+    "valid_count": 20,
+    "published_count": 20,
+    "source_status_matches": true
+  },
+  "backup": {
+    "snapshot": "20261106T041124Z-0ea35d78509a",
+    "parts": 5,
+    "encrypted_bytes": 93462667,
+    "private_storage": true,
+    "download_decrypt_restore_verified": true,
+    "business_counts_before": {
+      "private.maintenance_state": 1,
+      "private.publication_outbox": 0,
+      "public.ai_event_articles": 199,
+      "public.ai_events": 199,
+      "public.ai_leaderboard_ranks": 138,
+      "public.ai_model_evidences": 2202,
+      "public.ai_model_prices": 84,
+      "public.ai_models": 30,
+      "public.content_tombstones": 656,
+      "public.daily_report_jobs": 2,
+      "public.daily_reports": 2,
+      "public.hot_items": 1053,
+      "public.ingestion_runs": 6662,
+      "public.signal_articles": 61735,
+      "public.skill_details": 230,
+      "public.source_status": 44
+    },
+    "business_counts_after": {
+      "private.maintenance_state": 1,
+      "private.publication_outbox": 0,
+      "public.ai_event_articles": 199,
+      "public.ai_events": 199,
+      "public.ai_leaderboard_ranks": 138,
+      "public.ai_model_evidences": 2202,
+      "public.ai_model_prices": 84,
+      "public.ai_models": 30,
+      "public.content_tombstones": 656,
+      "public.daily_report_jobs": 2,
+      "public.daily_reports": 2,
+      "public.hot_items": 1053,
+      "public.ingestion_runs": 6663,
+      "public.signal_articles": 61735,
+      "public.skill_details": 230,
+      "public.source_status": 44
+    },
+    "restored_business_counts": {
+      "private.maintenance_state": 1,
+      "private.publication_outbox": 0,
+      "public.ai_event_articles": 199,
+      "public.ai_events": 199,
+      "public.ai_leaderboard_ranks": 138,
+      "public.ai_model_evidences": 2202,
+      "public.ai_model_prices": 84,
+      "public.ai_models": 30,
+      "public.content_tombstones": 656,
+      "public.daily_report_jobs": 2,
+      "public.daily_reports": 2,
+      "public.hot_items": 1053,
+      "public.ingestion_runs": 6662,
+      "public.signal_articles": 61735,
+      "public.skill_details": 230,
+      "public.source_status": 44
+    },
+    "cron_configuration_and_application_privileges_verified": true,
+    "request_sequence_recovery_verified": true,
+    "temporary_database_and_plaintext_removed": true
+  },
+  "invalid_backup_removed": {
+    "removed_invalid_snapshot": "20261106T035349Z-b06f75ce350b"
+  }
+}

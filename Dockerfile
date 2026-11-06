@@ -15,6 +15,7 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 RUN pnpm --filter @rss-site/web build
 RUN bun build apps/web/scripts/prewarm-lists.ts --target=bun --outfile=/list-cache/prewarm-lists.mjs
+RUN bun build server/api/src/setup/cli.ts --target=bun --outfile=/cron/cli.mjs
 # The preparation script is outside Next's route tracing. Install its complete
 # dependency tree separately so it does not depend on standalone's pnpm links.
 RUN npm install --prefix /mtran-runtime --omit=dev --ignore-scripts --no-audit --no-fund mtranserver@4.0.33
@@ -31,6 +32,10 @@ COPY --from=builder --chown=bun:bun /app/apps/web/.next/static ./apps/web/.next/
 COPY --from=builder --chown=bun:bun /app/apps/web/public ./apps/web/public
 COPY --from=builder --chown=bun:bun /app/apps/web/scripts/prepare-translation.mjs ./apps/web/scripts/prepare-translation.mjs
 COPY --from=builder --chown=bun:bun /list-cache/prewarm-lists.mjs ./apps/web/scripts/prewarm-lists.mjs
+COPY --from=builder --chown=bun:bun /cron/cli.mjs ./server/api/src/setup/cli.mjs
+COPY --from=builder --chown=bun:bun /app/apps/web/scripts/render-cron-sql.mjs ./apps/web/scripts/render-cron-sql.mjs
+COPY --from=builder --chown=bun:bun /app/deploy/server/business-jobs.json ./deploy/server/business-jobs.json
+COPY --from=builder --chown=bun:bun /app/deploy/postgres/migrations ./deploy/postgres/migrations
 COPY --from=builder --chown=bun:bun /mtran-runtime/node_modules ./translation/node_modules
 RUN mkdir -p /app/apps/web/node_modules && \
     ln -sfn /app/translation/node_modules/mtranserver /app/apps/web/node_modules/mtranserver

@@ -105,9 +105,12 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
       expect((await repository.submit('2001-01-01', true))?.status).toBe('published')
       const [count] = await sql`select count(*)::int as count from daily_reports`
       expect(count?.count).toBe(1)
-      const [report] = await sql`select sources from daily_reports`
+      const [report] = await sql`select sources,content from daily_reports`
       expect(report?.sources[0]).not.toHaveProperty('text')
       expect(report?.sources[0]).not.toHaveProperty('isExcerpt')
+      expect(report?.content).toEqual(fixture.draft)
+      const [published] = await sql`select metrics from daily_report_jobs`
+      expect(published?.metrics).toEqual({ model: 'test-fixture' })
     }, 30_000)
 
     it('claims persisted notifications independently of inference, with bounded retries', async () => {
@@ -139,12 +142,15 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
         const job = await repository.claim()
         if (!job) throw new Error('No retry job')
         expect(job.attempt_count).toBe(attempt)
-        await repository.finish(job, 'failed', 'test_failure', true)
+        await repository.finish(job, 'failed', 'test_failure', true, { attempt })
         expect((await repository.status(job.report_date))?.status).toBe(
           attempt === 3 ? 'failed' : 'retry_wait'
         )
         await sql`update daily_report_jobs set next_attempt_at=now() where report_date=${job.report_date}`
       }
+      const [failed] =
+        await sql`select metrics from daily_report_jobs where report_date='2001-01-02'`
+      expect(failed?.metrics).toEqual({ attempt: 3 })
       expect(await repository.claim()).toBeUndefined()
       await repository.submit('2001-01-02', true)
       const manual = await repository.claim()

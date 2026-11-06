@@ -5,6 +5,55 @@ import { fetchStcnFeed } from './stcn'
 afterEach(() => vi.unstubAllGlobals())
 
 describe('STCN server ingestion', () => {
+  it('recovers from one transient upstream timeout', async () => {
+    const fetcher = vi
+      .fn()
+      .mockRejectedValueOnce(new DOMException('The operation timed out.', 'TimeoutError'))
+      .mockResolvedValueOnce(
+        new Response(
+          '<ul class="infinite-list"><li><div class="tt"><a href="/article/detail/123.html">新闻</a></div></li></ul>'
+        )
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          '<div class="detail-title">新闻标题</div><div class="detail-content"><p>完整正文</p></div>'
+        )
+      )
+    vi.stubGlobal('fetch', fetcher)
+    expect(parseSignalFeed(await fetchStcnFeed(), '证券时报')).toHaveLength(1)
+    expect(fetcher).toHaveBeenCalledTimes(3)
+    expect(fetcher.mock.calls[0][0]).toBe(fetcher.mock.calls[1][0])
+  })
+
+  it('stops after two attempts when upstream timeouts persist', async () => {
+    const fetcher = vi
+      .fn()
+      .mockRejectedValue(new DOMException('The operation timed out.', 'TimeoutError'))
+    vi.stubGlobal('fetch', fetcher)
+    await expect(fetchStcnFeed()).rejects.toThrow('The operation timed out.')
+    expect(fetcher).toHaveBeenCalledTimes(2)
+  })
+
+  it('retries a timed out article without re-fetching its list', async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          '<ul class="infinite-list"><li><div class="tt"><a href="/article/detail/123.html">新闻</a></div></li></ul>'
+        )
+      )
+      .mockRejectedValueOnce(new DOMException('The operation timed out.', 'TimeoutError'))
+      .mockResolvedValueOnce(
+        new Response(
+          '<div class="detail-title">新闻标题</div><div class="detail-content"><p>完整正文</p></div>'
+        )
+      )
+    vi.stubGlobal('fetch', fetcher)
+    expect(parseSignalFeed(await fetchStcnFeed(), '证券时报')).toHaveLength(1)
+    expect(fetcher).toHaveBeenCalledTimes(3)
+    expect(fetcher.mock.calls[1][0]).toBe(fetcher.mock.calls[2][0])
+  })
+
   it('preserves the canonical URL, full content and Shanghai publication time', async () => {
     const fetcher = vi
       .fn()

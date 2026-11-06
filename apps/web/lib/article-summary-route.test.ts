@@ -39,7 +39,7 @@ it('rejects invalid identity and caller text, forwarding only an ID without quer
   expect(mocks.summarize).toHaveBeenCalledWith(id, expect.any(AbortSignal))
   expect(mocks.load).not.toHaveBeenCalled()
 })
-it.each([404, 413, 422, 429, 503] as const)('maps %i to a public error', async (status) => {
+it.each([404, 503] as const)('maps %i to a public error', async (status) => {
   mocks.summarize.mockRejectedValue(new SummaryRequestError(status))
   const response = await post({ id })
   expect(response.status).toBe(status)

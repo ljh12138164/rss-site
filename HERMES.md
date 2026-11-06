@@ -1,5 +1,22 @@
 # HERMES
 
+## 2026-11-06 PostgreSQL Cron 自动发布
+
+- Branch: feat/postgres-cron；原目录，继承已交付测试精简和已部署采集修复
+- Document: [PostgreSQL Cron](docs/development/postgres-cron.md)
+- Objective: 按用户要求以 pg_cron/pg_net 替换 Python/systemd 业务调度，SQL 与计划随 CI/CD 更新
+- Delivered: 44 来源与 3 维护全部验收通过，1,053 条；旧业务 Python/systemd 已撤下，47 业务 + 2 内部 Cron 共 49 active，12:00 自然调度及业务入库通过，失败记录 0
+- Verification: lint、313 测试、最终 CI 与真实加密异地备份恢复通过；16 业务表及 61,735 篇文章核对，恢复后密钥权限、请求序号恢复通过；[非敏感证据](docs/development/evidence/postgres-cron-20261106.json)
+- Next: 按仓库规则由用户从 feat/postgres-cron 创建并合并到 master，CI/CD 自动同步 SQL 与任务清单；[创建 PR](https://github.com/ljh12138164/rss-site/compare/master...feat/postgres-cron?expand=1)
+
+## 2026-11-06 精简测试套件与修复 lint
+
+- Branch: feat/simplify-test-suite；沿用原目录，继承 feat/fix-feed-upstreams
+- Document: [测试精简](docs/development/simplify-test-suite.md)
+- Objective: 按用户要求删除重复和展示层测试，修复全仓 lint，提交并推送可审阅分支
+- Verification: Vitest 634 → 313 项，297 通过、16 项原有服务集成测试跳过；全仓 lint 无错误或警告，类型与差异检查通过；复查无阻塞项或接受的范围外跟进
+- Delivery: 本地验证完成；head 为 feat/simplify-test-suite，base 为 feat/fix-feed-upstreams；由用户创建并合并 PR，上游修复合入 master 后可切换 base；未部署
+
 ## 2026-11-06 修复采集上游链路
 
 - Branch: feat/fix-feed-upstreams；RSSHub 配套 feat/fix-stcn-antigravity-feeds，均使用原目录
@@ -10,6 +27,8 @@
 - 完整 CI 42146370008 success，包含 PostgreSQL 18 镜像运行验收；镜像 9136314 已部署，Next/PostgreSQL/agent healthy，50/50 列表预热通过
 - 2026-11-06 09:59:21 上海时间，44/44 来源全部验收通过，共 1,053 条；两个暂停 timer 已恢复，44 来源加 3 维护共 47 timer active；旧 Supabase Cron=0、队列=0、旧 Worker 已删除
 - Delivery: 两个分支已推送；由用户分别创建并合并到 master 的 PR，保证后续常规发布包含本次修复；原迁移观察/旧库清理仍另行保留
+- Regression: 实际 systemd 任务复现 STCN 10 秒超时，增加仅一次超时重试；补齐 Turbo 既有数据库变量后修复日报 JSONB 重复序列化。完整 CI 42149942016 的 634 项测试全部通过、0 跳过
+- Final online: 代码 b0a0473 已部署，10:29–10:30 四路生产采集/数据库核验全部 200（9+20+20+15，共 64 条）；10:30:55 两个 systemd 实际任务均退出 0。旧 DeepSeek/Google AI 失败 unit 在 10:32 新版复跑均成功，当前业务失败 unit=0，47 timer active，三服务 healthy
 
 ## 2026-11-05 修复 PostgreSQL 镜像验收竞态
 

@@ -63,6 +63,21 @@ STCN 官网链接限制、全文缺失处理、时区、去重和既有 pipeline
 
 配套 RSSHub 提交 3989abdd6，仅修改三个动态入口匹配并记录真实线上证据；没有改写正常解析的 STCN RSSHub handler。
 
+## 2026-11-06 regression
+
+- 最终线上代码版本：b0a0473488ee73c24cc8c5eda66b63d629de859e；ECS Docker inspect 已确认使用该镜像，Next/PostgreSQL/agent healthy，50/50 列表预热成功
+- 10:29:55–10:30:18（Asia/Shanghai）对新版本重新执行四路真实采集和目标 PostgreSQL 核验，全部 HTTP 200；STCN 9、Antigravity 20、Google AI 20、Simon Willison 15，共 64 条；标题、原 URL、来源、专区、连续排名、发布时间和非空内容检查错误 0
+- 最终四路批次：STCN 4c3cb536-e1d1-45b1-91dd-3ad6311b1da1；Antigravity b3f2af11-810b-48ae-8097-e5747d0a7f89；Google AI 2be77041-9e9d-4147-9c67-600d1b972a04；Simon 22955ab8-d7e3-4a17-a424-c1d2295b6cad
+- 10:30:55 实际启动 STCN 和 Antigravity systemd service，两者均于 10:30:56 退出 0，数据库 succeeded；并非只检查 timer 为 active。47 timer 全部 active，自然触发时间仍为 10:55、12:35
+- 最后检查发现旧版本 10:10 DeepSeek、10:20 Google AI 留下的失败 unit；在新版本实际复跑两者均退出 0（10:32:28 / 10:32:24），新批次 succeeded，当前失败的业务 unit 为 0。历史失败记录保留
+- 四个来源公开页面均 HTTP 200；11 月 5、6 日日报已发布，线上既有 input_snapshot/metrics/content 为 object、sources 为 array
+- [完整 CI 42149942016](https://github.com/ljh12138164/rss-site/actions/runs/42149942016) success：Signals 8、API 179、Web 447，共 634 项，0 跳过；包含 PostgreSQL 18 的 4 项日报数据库测试、12 项真实 Redis 测试、类型、脚本、构建及镜像运行验收
+- 线上回归证据：`/opt/stacks/rss-site/migration/feed-regression-20261106-1025.json`；部署日志 `regression-deploy.log`；systemd 的真实执行时间/退出码已核对
+- Coverage defect found: CI already provisions PostgreSQL 18 and DAILY_REPORT_TEST_DATABASE_URL, but Turbo test.env omitted that existing variable. Prior CI logs confirmed 4 daily repository database tests skipped while 12 Redis integration tests ran. Forward the existing test variable; no new runtime configuration
+- Enabling those tests exposed JSONB parameter double serialization: JSON.stringify output was inferred as jsonb and serialized again. Explicit text-to-jsonb conversion preserves JSON objects/arrays in freeze, publish, and metrics; existing real database tests now also assert draft and metrics values
+- Actual systemd execution reproduced one STCN 10-second upstream TimeoutError (2026-11-06 10:18 Shanghai); Antigravity completed successfully. The deterministic timeout test failed before the fix. STCN now retries only TimeoutError once per page, retaining the existing timeout and concurrency; persistent errors still fail. List recovery, article recovery and bounded attempts are covered
+- 新增修复已部署并完成上述线上复测；未放宽数据库约束、未重新生成已发布日报、未更改运行时凭据
+
 ## Delivery
 
 修复已直接部署并验收。按仓库规则，由用户创建并合并两个 PR，确保以后常规发布包含修复：

@@ -9,7 +9,7 @@ AI 每 2 小时、其他分区每 6 小时错峰采集。迁移目标是单个 N
 ## Architecture
 
 ```text
-ECS systemd timers → Next /cron → RSSHub / official RSS
+PostgreSQL pg_cron + pg_net → Next /cron → RSSHub / official RSS
                          ↓ Drizzle
                   PostgreSQL 18 + Redis
                          ↑
@@ -126,7 +126,7 @@ pnpm setup:cron --output /protected/path/cron-verification.json
 
 命令依次调用 Next 采集入口，再调用受保护的 `/cron/verify/:source`，由 Next 核对 PostgreSQL 18 中的 run、source_status、hot_items 和持久文章。CLI 不持有数据库凭据，不安装 Supabase 扩展，不修改 Vault 或调度。任一来源失败都不会生成新的验收证据。
 
-ECS 使用 `install-business-timers.py` 生成禁用状态的任务；启用还要求全部配置来源验证通过、证据不超过两小时，并确认旧写入已停止。单独验证部分来源不能开启任何任务。维护任务分别验收后加入 verified_jobs；Cookie 维护沿用北京时间 04:00，备份为 03:00。
+业务调度使用 PostgreSQL `pg_cron` 与 `pg_net`。CI/CD 构建扩展镜像，并通过 `sync-business-cron` 自动应用仓库 SQL、同步任务清单；固定名称更新，不重复创建任务。新来源默认禁用；启用还要求全部配置来源验证通过、证据不超过两小时，并确认旧写入已停止，再调用 `private.activate_business_jobs(jsonb)`。维护任务分别验收后加入 verified_jobs；Cookie 维护沿用北京时间 04:00，备份为 03:00。查询计划与 HTTP 执行结果见 [Cron 运维说明](deploy/postgres/README.md)。
 
 保留策略不变：普通文章 90 天、AI 文章 180 天；当前热点、置顶文章和 AI 事件引用不清理；采集运行记录保留 30 天。删除通知通过持久 outbox 重试。Supabase 每小时只读保活运行在 ECS，不额外保存执行日志。
 

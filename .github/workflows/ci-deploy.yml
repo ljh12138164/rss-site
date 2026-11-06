@@ -62,12 +62,13 @@ jobs:
           python3 deploy/server/test-release-packaging.py
           python3 -m pip install cryptography==49.0.0
           python3 -B deploy/server/test-postgres-backup.py
-          python3 -B deploy/server/test-business-timers.py
           bash -n deploy/server/verify-release-runtime
           bash -n deploy/server/deploy-rss-site
           sh -n deploy/server/rss-site-deploy-gate
           bash -n deploy/server/bootstrap-rss-site
-          shellcheck deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/bootstrap-rss-site deploy/server/verify-release-runtime
+          shellcheck deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/bootstrap-rss-site deploy/server/verify-release-runtime deploy/server/sync-business-cron
+      - name: Build PostgreSQL Cron image
+        run: docker build -t rss-site-postgres:18-cron-v1 -f deploy/postgres/Dockerfile .
       - name: Build release image
         run: |
           test -n "$NEXT_PUBLIC_SUPABASE_URL"
@@ -81,6 +82,19 @@ jobs:
       - name: Package migration image
         if: github.event_name == 'workflow_dispatch' && inputs.build_only
         run: docker save "rss-site-web:sha-${GITHUB_SHA}" | gzip -1 > migration-image.tar.gz
+      - name: Package verified manual release
+        if: github.event_name == 'workflow_dispatch' && !inputs.build_only
+        run: |
+          docker save "rss-site-web:sha-${GITHUB_SHA}" rss-site-postgres:18-cron-v1 redis:7.4-alpine -o image.tar
+          tar -czf release.tar.gz image.tar compose.yaml \
+            deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers deploy/server/sync-business-cron
+      - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch' && !inputs.build_only
+        with:
+          name: verified-release-linux
+          path: release.tar.gz
+          compression-level: 0
+          retention-days: 1
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'workflow_dispatch' && inputs.build_only
         with:
@@ -102,6 +116,8 @@ jobs:
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
     steps:
       - uses: actions/checkout@v4
+      - name: Build PostgreSQL Cron image
+        run: docker build -t rss-site-postgres:18-cron-v1 -f deploy/postgres/Dockerfile .
       - name: Build release image
         run: |
           test -n "$NEXT_PUBLIC_SUPABASE_URL"
@@ -114,10 +130,9 @@ jobs:
       - name: Package release image
         run: |
           docker pull redis:7.4-alpine
-          docker pull postgres:18-alpine
-          docker save "rss-site-web:sha-${GITHUB_SHA}" redis:7.4-alpine postgres:18-alpine -o image.tar
+          docker save "rss-site-web:sha-${GITHUB_SHA}" rss-site-postgres:18-cron-v1 redis:7.4-alpine -o image.tar
           tar -czf release.tar.gz image.tar compose.yaml \
-            deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers
+            deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers deploy/server/sync-business-cron
       - name: Install SSH credentials
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}

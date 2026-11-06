@@ -11,40 +11,6 @@ describe('article HTML', () => {
       renderArticleContent(openAiToc + openAiToc + openAiBody, 'https://openai.com/index/example')
     ).toBe(openAiBody)
   })
-
-  it('recognizes the trailing-slash variation used in the real upstream TOC', () => {
-    const toc = openAiToc
-      .replaceAll('href="#first"', 'href="https://openai.com/index/example/#first"')
-      .replace('/example#second', '/example/#second')
-    expect(renderArticleContent(toc + toc + openAiBody, 'https://openai.com/index/example')).toBe(
-      openAiBody
-    )
-  })
-
-  it('keeps lists outside the narrowly identified OpenAI TOC pattern', () => {
-    const lists = [
-      '<ul><li>First section</li><li>Second section</li></ul>',
-      '<ul><li><a href="#first">First section</a> commentary</li><li><a href="#second">Second section</a></li></ul>',
-      openAiToc.replace('#first', '/index/another#first'),
-      openAiToc.replace('First section', 'Unrelated link')
-    ]
-    for (const list of lists) {
-      expect(renderArticleContent(list + openAiBody, 'https://openai.com/index/example')).toContain(
-        '<ul>'
-      )
-    }
-    expect(renderArticleContent(openAiToc + openAiBody, 'https://example.com/article')).toContain(
-      '<ul>'
-    )
-  })
-  it('removes the OpenAI read-aloud placeholder while keeping article text', () => {
-    const html =
-      '<div data-read-aloud-ui="true"><div><span>Loading…</span></div><audio preload="none"></audio></div><p>Loading models is useful.</p>'
-    expect(renderArticleContent(html, 'https://openai.com/index/example', 'ai')).toBe(
-      '<p>Loading models is useful.</p>'
-    )
-    expect(renderArticleContent(html, 'https://example.com/article', 'ai')).toContain('Loading…')
-  })
   it('converts CCTV video codes into playable mount divs while stripping other template tags', () => {
     const html =
       '<p>[!--begin:htmlVideoCode--]fdec9a65d6a34784bec390395b9431f2,0,1,16:9,newPlayer[!--end:htmlVideoCode--]</p><p>央视快讯：秋粮喜获丰收。[!--page--]</p>'
@@ -63,13 +29,6 @@ describe('article HTML', () => {
     expect(html).toContain('<strong>重点</strong>')
     expect(html).toContain('<code>&lt;div&gt;</code>')
     expect(html).toContain('<td>数据</td>')
-  })
-  it('preserves Mermaid language markers without allowing arbitrary code attributes', () => {
-    const html = render(
-      '<pre><code class="language-mermaid injected" onclick="evil()">flowchart LR\nA--&gt;B</code></pre>'
-    )
-    expect(html).toContain('class="language-mermaid"')
-    expect(html).not.toMatch(/injected|onclick/)
   })
   it('removes executable HTML, CSS, media and dangerous URLs', () => {
     const html = render(

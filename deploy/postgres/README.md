@@ -1,6 +1,22 @@
 # PostgreSQL deployment
 
-The root `compose.yaml` manages `web`, `redis`, and `postgres`. PostgreSQL uses the official `postgres:18-alpine` image, an internal network shared with `web`, and the external volume `rss-site-postgres18-data`. Port 5432 is not published.
+The root `compose.yaml` manages `web`, `redis`, and `postgres`. PostgreSQL uses `rss-site-postgres:18-cron-v1`, built from `postgres:18-alpine` with pinned pg_cron and pg_net extensions, an internal network shared with `web`, and the external volume `rss-site-postgres18-data`. The database image reference is independent of the application commit; a rebuilt database image or changed configuration can recreate PostgreSQL during a release. Port 5432 is not published.
+
+## Business scheduling
+
+Edit `deploy/server/business-jobs.json` to change UTC schedules or remove jobs. CI builds and tests the PostgreSQL image with the application. The release bundle carries both images and `sync-business-cron`; deployment applies `migrations/001-business-cron.sql` and synchronizes the current manifest through a private SQL pipe. No manual server edits or Python scheduler are needed.
+
+Existing verified jobs retain enablement on repeated releases. New jobs and changed paths are disabled until fresh complete source acceptance and old-writer shutdown evidence are supplied to `private.activate_business_jobs(jsonb)`. Deleting a manifest entry removes the corresponding managed Cron job. Backup and Supabase keepalive timers are separate infrastructure tasks; the daily report remains scheduled by the existing ai-base runner.
+
+```sql
+select jobid,jobname,schedule,active from cron.job order by jobname;
+select jobid,start_time,end_time,status,return_message
+from cron.job_run_details order by start_time desc limit 50;
+select request_id,source,requested_at,status_code,status
+from private.business_cron_history order by requested_at desc limit 50;
+```
+
+Cron execution means an HTTP request was queued. Check HTTP history and `ingestion_runs`/`source_status` for actual business success. A 202 maintenance response is polled every 30 seconds for at most eight attempts. HTTP response history expires after six hours; local Cron bookkeeping is retained seven days. Credentials are restricted to the database administrator and never embedded in `cron.job.command`.
 
 ## Configuration
 
@@ -36,6 +52,8 @@ Daily backups and retention must be configured and restore-tested before product
 
 `deploy/server/postgres-backup.py` streams `pg_dump` into authenticated AES-256-GCM chunks of at most 20 MiB before uploading to the private Supabase Storage bucket `postgres-backups`. The manifest is uploaded last. Failed dumps remove their partial uploads; existing complete snapshots are retained. Keep the latest five complete snapshots and refuse uploads exceeding an 800 MiB combined archive budget. No plaintext dump is written during backup.
 
+The archive covers the complete business database, including extension definitions and Cron configuration. A dump filtered to `public`/`private` omits dependencies needed by Cron views and cannot replace this full archive.
+
 Install `deploy/postgres-backup.env.example` as `/etc/rss-site/postgres-backup.env` with mode 600. Fill the server-only Storage secret in this file. It must never be a `NEXT_PUBLIC_` environment variable or be included in the application image. Create the bucket as private before running a backup. A new bucket requires no public object policies.
 
 Generate a random 32-byte key, base64-encode it, and store it in `/etc/rss-site/postgres-backup.key` with mode 600. Copy this key to an independent, protected location outside ECS before enabling the timer. The database and the Storage archive do not contain the encryption key; losing it makes every backup unreadable. The encrypted `private.maintenance_state` additionally needs the existing `MAINTENANCE_ENCRYPTION_KEY` for application recovery, so preserve that configuration independently as well.
@@ -46,10 +64,12 @@ Before enabling automation:
 
 1. Run a backup and retain its non-secret snapshot identifier
 2. Download and decrypt that snapshot with `--restore SNAPSHOT --output /protected/path/restore.dump`; the output path must not exist
-3. Restore it into a separate, empty PostgreSQL 18 test database with `pg_restore --exit-on-error --no-owner --no-acl`; compare all business table counts and verify the application role can read the restored data
+3. Start a separate empty database using `rss-site-postgres:18-cron-v1`, preload `pg_cron,pg_net`, set both extension database names to `rss_site`, and set `cron.launch_active_jobs=off`. Keep its network isolated so restored schedules cannot call production. Run `pg_restore --clean --if-exists --exit-on-error --no-owner --no-acl` against this disposable database; it handles archives that recreate the default `public` schema. Compare all business table counts and verify the application role can read the restored data
 4. Remove only the disposable restore database and plaintext test archive after verification
 5. Install the service and timer in `/etc/systemd/system`, then run `systemctl daemon-reload` and `systemctl enable --now rss-site-postgres-backup.timer`
 
 The timer runs at 03:00 Asia/Shanghai (19:00 UTC the preceding day). A successful upload is not a restore test. Repeat the download and isolated restore after schema changes. Monitor the service exit status; a failed backup or a full storage budget must not be treated as success.
+
+Because recovery uses `--no-acl`, reapply the versioned Cron migration before application access or scheduling is enabled; this revokes the extensions' default public privileges. Grant the application role access only to business tables, excluding `private.business_cron_*` tables and administrative functions. Verify it cannot read scheduler credentials or access the `net` schema. Keep `cron.launch_active_jobs=off` until the restored application and source acceptance have passed.
 
 `python deploy/server/test-postgres-backup.py` checks multipart encryption/decryption, ciphertext corruption, authentication failure, output overwrite protection, incomplete dump cleanup, five-snapshot retention, and storage-budget enforcement. These tests do not replace the real Storage upload and PostgreSQL restore gate.

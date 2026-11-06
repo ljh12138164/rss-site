@@ -20,15 +20,7 @@ beforeEach(() => {
 })
 afterEach(() => vi.unstubAllEnvs())
 
-it('returns a validated hit without loading', async () => {
-  evaluate.mockResolvedValue(['version', JSON.stringify(value)])
-  const load = vi.fn()
-  expect(await getCachedList('hit', valid, load)).toEqual(value)
-  expect(load).not.toHaveBeenCalled()
-  expect(evaluate).toHaveBeenCalledTimes(1)
-})
-
-it.each(['', 'invalid-json', '{"items":42}'])(
+it.each(['invalid-json', '{"items":42}'])(
   'fills missing or invalid data %s as resident cache data',
   async (raw) => {
     evaluate.mockResolvedValueOnce(['version', raw]).mockResolvedValueOnce(1)

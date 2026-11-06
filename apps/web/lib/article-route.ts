@@ -19,7 +19,7 @@ export function articleSource(sourceId: string) {
   const source = findSignalSource(sourceId)
   if (!source) return null
   const section = findSignalSection(source.section)
-  if (!section || !section.hasArticles) return null
+  if (!section?.hasArticles) return null
   return { source, section: { id: section.id, title: section.shortTitle } }
 }
 

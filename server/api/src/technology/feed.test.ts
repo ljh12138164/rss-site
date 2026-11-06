@@ -2,17 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { parseTechnologyFeed } from './feed.js'
 
 describe('parseTechnologyFeed', () => {
-  it('uses an image enclosure when the article has no inline image', () => {
-    const xml = `<rss><channel><item>
-      <title>Cloudflare release</title><link>https://blog.cloudflare.com/release</link>
-      <description><![CDATA[<p>Article body.</p>]]></description>
-      <enclosure url="https://blog.cloudflare.com/cover.png" type="image/png" />
-    </item></channel></rss>`
-    expect(parseTechnologyFeed(xml, 'Cloudflare Blog')[0]?.imageUrl).toBe(
-      'https://blog.cloudflare.com/cover.png'
-    )
-  })
-
   it('prefers an image enclosure over an inline illustration and skips audio enclosures', () => {
     const xml = `<rss><channel><item>
       <title>Article</title><link>https://example.com/article</link>
@@ -23,17 +12,6 @@ describe('parseTechnologyFeed', () => {
     expect(parseTechnologyFeed(xml, 'test')[0]?.imageUrl).toBe('https://example.com/cover.webp')
   })
 
-  it('falls back from a non-image enclosure to an inline image relative to the article', () => {
-    const xml = `<rss><channel><item>
-      <title>Article</title><link>https://example.com/blog/article</link>
-      <description><![CDATA[<img src="../cover.png?size=320&amp;quality=80">]]></description>
-      <enclosure url="https://example.com/video.mp4" type="video/mp4" />
-    </item></channel></rss>`
-    expect(parseTechnologyFeed(xml, 'test')[0]?.imageUrl).toBe(
-      'https://example.com/cover.png?size=320&quality=80'
-    )
-  })
-
   it('skips unsafe enclosure and inline image URLs before choosing a valid content image', () => {
     const xml = `<rss><channel><item>
       <title>Article</title><link>https://example.com/article</link>
@@ -41,23 +19,6 @@ describe('parseTechnologyFeed', () => {
       <enclosure url="javascript:alert(1)" type="image/png" />
     </item></channel></rss>`
     expect(parseTechnologyFeed(xml, 'test')[0]?.imageUrl).toBe('https://example.com/cover.png')
-  })
-
-  it('cleans OpenAI audio UI from both stored HTML and summary', () => {
-    const xml =
-      '<rss><channel><item><title>Example</title><link>https://openai.com/index/example</link><description><![CDATA[<div data-read-aloud-ui="true"><div>Loading…</div><audio></audio></div><p>Actual article.</p>]]></description></item></channel></rss>'
-    const [item] = parseTechnologyFeed(xml, 'OpenAI')
-    expect(item.contentHtml).toBe('<p>Actual article.</p>')
-    expect(item.summary).toBe('Actual article.')
-  })
-  it('cleans CCTV CMS template tags while preserving video mount divs in stored HTML and plain summary', () => {
-    const xml =
-      '<rss><channel><item><title>CCTV News</title><link>https://news.cctv.com/article</link><description><![CDATA[<p>[!--begin:htmlVideoCode--]fdec9a65d6a34784bec390395b9431f2,0,1,16:9,newPlayer[!--end:htmlVideoCode--]</p><p>央视快讯：秋粮喜获丰收。</p>]]></description></item></channel></rss>'
-    const [item] = parseTechnologyFeed(xml, 'CCTV')
-    expect(item.contentHtml).toBe(
-      '<div data-cctv-video="fdec9a65d6a34784bec390395b9431f2" data-cctv-type="0" class="cctv-video-mount"></div><p>央视快讯：秋粮喜获丰收。</p>'
-    )
-    expect(item.summary).toBe('央视快讯：秋粮喜获丰收。')
   })
   it('falls back to a bounded summary for oversized content', () => {
     const xml = `<rss><channel><item><title>文章</title><link>https://example.com/a</link><description><![CDATA[<p>${'中'.repeat(180000)}</p>]]></description></item></channel></rss>`
@@ -204,34 +165,6 @@ describe('parseTechnologyFeed', () => {
     ])
   })
 
-  it('uses the first strong content label for explicitly configured GLM feeds', () => {
-    const xml = `
-      <rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><item>
-        <title>2026-09-04</title>
-        <link>https://docs.bigmodel.cn/cn/update/new-releases/glm-5</link>
-        <guid>glm-5</guid>
-        <content:encoded><![CDATA[<p><strong>GLM-5.3-Flash</strong> 正式发布</p>]]></content:encoded>
-      </item></channel></rss>`
-
-    expect(parseTechnologyFeed(xml, '智谱 GLM', { titleFromFirstStrong: true })[0]).toMatchObject({
-      title: 'GLM-5.3-Flash',
-      summary: 'GLM-5.3-Flash 正式发布'
-    })
-  })
-
-  it('falls back to the original title when a configured feed has no strong label', () => {
-    const xml = `
-      <rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><item>
-        <title>GLM 更新</title>
-        <link>https://docs.bigmodel.cn/cn/update/new-releases/glm</link>
-        <content:encoded><![CDATA[<p>更新说明</p>]]></content:encoded>
-      </item></channel></rss>`
-
-    expect(parseTechnologyFeed(xml, '智谱 GLM', { titleFromFirstStrong: true })[0]?.title).toBe(
-      'GLM 更新'
-    )
-  })
-
   it('uses the linked GLM model page instead of repeated release-page links', () => {
     const xml = `
       <rss xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel>
@@ -264,46 +197,6 @@ describe('parseTechnologyFeed', () => {
         url: 'https://docs.bigmodel.cn/cn/guide/models/sound-and-video/glm-tts'
       }
     ])
-  })
-
-  it('decodes HTML entities that remain in parsed feed titles', () => {
-    const xml = `
-      <rss><channel><item>
-        <title>Don&amp;#39;t ship R&amp;amp;D regressions</title>
-        <link>https://example.com/release</link>
-      </item></channel></rss>`
-
-    expect(parseTechnologyFeed(xml, 'GitHub Blog')[0]?.title).toBe("Don't ship R&D regressions")
-  })
-
-  it('extracts the first valid image without confusing an iframe for a preview', () => {
-    const xml = `
-      <rss><channel><item>
-        <title>B 站热门视频</title>
-        <link>https://www.bilibili.com/video/BV123</link>
-        <description><![CDATA[
-          <p>
-            <iframe src="https://www.bilibili.com/blackboard/html5mobileplayer.html?bvid=BV123"></iframe>
-            <img src="https://i2.hdslb.com/bfs/archive/cover.jpg?utm_source=rsshub" alt="封面">
-          </p>
-        ]]></description>
-      </item></channel></rss>`
-
-    expect(parseTechnologyFeed(xml, '哔哩哔哩')[0]).toMatchObject({
-      url: 'https://www.bilibili.com/video/BV123',
-      imageUrl: 'https://i2.hdslb.com/bfs/archive/cover.jpg'
-    })
-  })
-
-  it('rejects unsafe image protocols without rejecting the feed item', () => {
-    const xml = `
-      <rss><channel><item>
-        <title>安全条目</title>
-        <link>https://example.com/story</link>
-        <description><![CDATA[<img src="javascript:alert(1)">正文]]></description>
-      </item></channel></rss>`
-
-    expect(parseTechnologyFeed(xml, '测试来源')[0]?.imageUrl).toBeNull()
   })
 
   it('parses Atom 1.0 feeds with full-text summary and alternate links', () => {

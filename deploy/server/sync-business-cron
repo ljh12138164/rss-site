@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Called by deployment after the new application and PostgreSQL are healthy.
+set -euo pipefail
+STACK=${STACK:-/opt/stacks/rss-site}
+compose() { docker compose --project-directory "$STACK" "$@"; }
+compose exec -T web bun apps/web/scripts/render-cron-sql.mjs |
+  compose exec -T postgres psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 >/dev/null
+echo 'PostgreSQL Cron configuration synchronized; unverified sources remain disabled'

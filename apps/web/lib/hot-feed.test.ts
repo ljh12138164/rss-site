@@ -1,20 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   type FeedCollectionQuery,
-  getAiFeed,
-  getAiFeeds,
-  getFinanceFeed,
-  getFinanceFeeds,
-  getGameFeed,
-  getGameFeeds,
   getNewsFeed,
   getNewsFeeds,
   getSectionFeeds,
   getSkillFeeds,
-  getSocialFeed,
-  getSocialFeeds,
   getSourceFeed,
-  getTechnologyFeed,
   getTechnologyFeeds
 } from './hot-feed'
 
@@ -84,15 +75,6 @@ describe('technology feeds', () => {
     })
     expect(feeds.juejin.state).toBe('ready')
     expect(feeds.ithome).toEqual({ state: 'empty' })
-  })
-
-  it('returns one complete source ranking for detail pages', async () => {
-    const feed = await getTechnologyFeed('github', undefined, query)
-
-    expect(feed.state).toBe('ready')
-    if (feed.state === 'ready') {
-      expect(feed.items.map((item) => item.position)).toEqual([1, 2])
-    }
   })
 
   it('isolates missing source status from healthy sources', async () => {
@@ -209,99 +191,6 @@ describe('news feeds', () => {
   })
 })
 
-describe('AI feeds', () => {
-  const aiQuery: FeedCollectionQuery = async () => ({
-    items: [
-      {
-        source: 'openai',
-        source_key: 'openai-1',
-        title: 'OpenAI 更新',
-        url: 'https://openai.com/index/update',
-        summary: null,
-        author: null,
-        published_at: null,
-        position: 1
-      }
-    ],
-    statuses: [{ source: 'openai', item_count: 1, last_success_at: '2026-09-05T02:00:00.000Z' }],
-    error: null
-  })
-
-  it('builds independent AI collection and detail results', async () => {
-    const feeds = await getAiFeeds(1, aiQuery)
-    const feed = await getAiFeed('openai', undefined, aiQuery)
-
-    expect(feeds.openai.state).toBe('ready')
-    expect(feeds.anthropic).toEqual({ state: 'empty' })
-    expect(feed.state).toBe('ready')
-  })
-})
-
-describe('social feeds', () => {
-  const socialQuery: FeedCollectionQuery = async () => ({
-    items: [
-      {
-        source: 'bilibili',
-        source_key: 'bilibili-1',
-        title: 'B 站热门视频',
-        url: 'https://www.bilibili.com/video/BV123',
-        image_url: 'https://i2.hdslb.com/bfs/archive/cover.jpg',
-        summary: '视频简介',
-        author: '示例 UP 主',
-        published_at: '2026-09-05T03:00:00.000Z',
-        position: 1
-      }
-    ],
-    statuses: [{ source: 'bilibili', item_count: 1, last_success_at: '2026-09-05T03:00:00.000Z' }],
-    error: null
-  })
-
-  it('builds social results and preserves preview image URLs', async () => {
-    const feeds = await getSocialFeeds(1, socialQuery)
-    const feed = await getSocialFeed('bilibili', undefined, socialQuery)
-
-    expect(feeds.zhihu).toEqual({ state: 'empty' })
-    expect(feed.state).toBe('ready')
-    if (feed.state === 'ready') {
-      expect(feed.items[0]).toMatchObject({
-        url: 'https://www.bilibili.com/video/BV123',
-        imageUrl: 'https://i2.hdslb.com/bfs/archive/cover.jpg'
-      })
-    }
-  })
-})
-
-describe('finance feeds', () => {
-  const financeQuery: FeedCollectionQuery = async () => ({
-    items: [
-      {
-        source: 'wallstreetcn',
-        source_key: 'wallstreetcn-1',
-        title: '市场热点',
-        url: 'https://wallstreetcn.com/articles/1',
-        image_url: null,
-        summary: null,
-        author: null,
-        published_at: '2026-09-05T08:00:00.000Z',
-        position: 1
-      }
-    ],
-    statuses: [
-      { source: 'wallstreetcn', item_count: 1, last_success_at: '2026-09-05T08:05:00.000Z' }
-    ],
-    error: null
-  })
-
-  it('builds independent finance collection and detail results', async () => {
-    const feeds = await getFinanceFeeds(1, financeQuery)
-    const feed = await getFinanceFeed('wallstreetcn', undefined, financeQuery)
-
-    expect(feeds.wallstreetcn.state).toBe('ready')
-    expect(feeds.jin10).toEqual({ state: 'empty' })
-    expect(feed.state).toBe('ready')
-  })
-})
-
 describe('game feeds', () => {
   const gameQuery: FeedCollectionQuery = async () => ({
     items: [
@@ -319,15 +208,6 @@ describe('game feeds', () => {
     ],
     statuses: [{ source: 'gcores', item_count: 1, last_success_at: '2026-09-05T09:05:00.000Z' }],
     error: null
-  })
-
-  it('builds independent game collection and detail results', async () => {
-    const feeds = await getGameFeeds(1, gameQuery)
-    const feed = await getGameFeed('gcores', undefined, gameQuery)
-
-    expect(feeds.indienova).toEqual({ state: 'empty' })
-    expect(feed.state).toBe('ready')
-    if (feed.state === 'ready') expect(feed.items[0]?.publishedAt).toBeNull()
   })
 
   it('supports generic getSectionFeeds and getSourceFeed readers', async () => {

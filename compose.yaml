@@ -27,10 +27,11 @@ services:
         max-file: "3"
 
   postgres:
-    image: postgres:18-alpine
+    image: rss-site-postgres:18-cron-v1
+    pull_policy: never
     restart: unless-stopped
     env_file: postgres.env
-    command: ["postgres", "-c", "shared_buffers=32MB", "-c", "max_connections=20", "-c", "work_mem=2MB", "-c", "maintenance_work_mem=32MB"]
+    command: ["postgres", "-c", "shared_buffers=32MB", "-c", "max_connections=20", "-c", "work_mem=2MB", "-c", "maintenance_work_mem=32MB", "-c", "shared_preload_libraries=pg_cron,pg_net", "-c", "cron.database_name=rss_site", "-c", "pg_net.database_name=rss_site", "-c", "cron.timezone=UTC", "-c", "cron.use_background_workers=on", "-c", "cron.max_running_jobs=3"]
     networks:
       - database
     volumes:

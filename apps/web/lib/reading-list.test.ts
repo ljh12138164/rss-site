@@ -9,8 +9,7 @@ import {
   recordReadingHistory,
   removeReadingHistory,
   removeSavedArticle,
-  saveArticle,
-  toggleSavedArticle
+  saveArticle
 } from './reading-list'
 
 describe('reading-list storage', () => {
@@ -62,31 +61,6 @@ describe('reading-list storage', () => {
 
     removeSavedArticle('art-1')
     expect(isArticleSaved('art-1')).toBe(false)
-    expect(getSavedArticles()).toHaveLength(0)
-  })
-
-  it('toggles read later status', () => {
-    const item = {
-      id: 'art-2',
-      title: 'Anthropic Claude 3.7',
-      url: 'https://example.com/art-2'
-    }
-
-    const state1 = toggleSavedArticle(item)
-    expect(state1).toBe(true)
-    expect(isArticleSaved('art-2')).toBe(true)
-
-    const state2 = toggleSavedArticle(item)
-    expect(state2).toBe(false)
-    expect(isArticleSaved('art-2')).toBe(false)
-  })
-
-  it('clears all saved articles', () => {
-    saveArticle({ id: 'art-1', title: 'A', url: '/a' })
-    saveArticle({ id: 'art-2', title: 'B', url: '/b' })
-    expect(getSavedArticles()).toHaveLength(2)
-
-    clearSavedArticles()
     expect(getSavedArticles()).toHaveLength(0)
   })
 

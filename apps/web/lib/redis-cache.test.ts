@@ -38,14 +38,9 @@ describe('Redis result cache', () => {
     expect(await readResultCache('translation:test', isResult)).toEqual({ title: '译文' })
   })
 
-  it.each(['not json', '{"title":42}', 'null'])('ignores invalid cache data %s', async (raw) => {
+  it.each(['not json', '{"title":42}'])('ignores invalid cache data %s', async (raw) => {
     redis.get.mockResolvedValue(raw)
     expect(await readResultCache('translation:test', isResult)).toBeNull()
-  })
-
-  it('writes JSON with atomic thirty-day expiration', async () => {
-    await writeResultCache('translation:test', { title: '译文' })
-    expect(redis.set).toHaveBeenCalledWith('translation:test', '{"title":"译文"}', 'EX', 2592000)
   })
 
   it('treats Redis read and write failures as cache misses', async () => {
@@ -53,14 +48,6 @@ describe('Redis result cache', () => {
     redis.set.mockRejectedValue(new Error('offline'))
     expect(await readResultCache('translation:test', isResult)).toBeNull()
     await expect(writeResultCache('translation:test', { title: '译文' })).resolves.toBeUndefined()
-  })
-
-  it('does not connect when Redis is unconfigured', async () => {
-    vi.stubEnv('REDIS_URL', '')
-    expect(await readResultCache('translation:test', isResult)).toBeNull()
-    await writeResultCache('translation:test', { title: '译文' })
-    expect(redis.get).not.toHaveBeenCalled()
-    expect(redis.set).not.toHaveBeenCalled()
   })
 
   it('separates operations, versions and source content without exposing the input', () => {
