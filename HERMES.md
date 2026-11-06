@@ -10,7 +10,8 @@
 - 完整 CI 42146370008 success，包含 PostgreSQL 18 镜像运行验收；镜像 9136314 已部署，Next/PostgreSQL/agent healthy，50/50 列表预热通过
 - 2026-11-06 09:59:21 上海时间，44/44 来源全部验收通过，共 1,053 条；两个暂停 timer 已恢复，44 来源加 3 维护共 47 timer active；旧 Supabase Cron=0、队列=0、旧 Worker 已删除
 - Delivery: 两个分支已推送；由用户分别创建并合并到 master 的 PR，保证后续常规发布包含本次修复；原迁移观察/旧库清理仍另行保留
-- Regression: 用户要求线上回归，四路重新采集/写库通过；实际 systemd 任务复现 STCN 10 秒超时，增加仅一次超时重试。补齐 Turbo 既有数据库测试变量后暴露日报 JSONB 重复序列化，修复参数转换并增加真实值断言；后续镜像上线复测中
+- Regression: 实际 systemd 任务复现 STCN 10 秒超时，增加仅一次超时重试；补齐 Turbo 既有数据库变量后修复日报 JSONB 重复序列化。完整 CI 42149942016 的 634 项测试全部通过、0 跳过
+- Final online: 代码 b0a0473 已部署，10:29–10:30 四路生产采集/数据库核验全部 200（9+20+20+15，共 64 条）；10:30:55 两个 systemd 实际任务均退出 0。旧 DeepSeek/Google AI 失败 unit 在 10:32 新版复跑均成功，当前业务失败 unit=0，47 timer active，三服务 healthy
 
 ## 2026-11-05 修复 PostgreSQL 镜像验收竞态
 
