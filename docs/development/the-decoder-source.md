@@ -50,7 +50,7 @@ The Decoder 全文路由已合入自建 RSSHub master，用户要求继续接入
 - [完整 CI](https://github.com/ljh12138164/rss-site/actions/runs/42175281206) 验证代码 `9b915617adee4e775a9a763d91711e8cc44061d8`：313 项测试全部通过、0 跳过，类型检查、Shell 检查、PostgreSQL Cron 镜像及应用镜像构建通过
 - CI 的真实 PostgreSQL 18 镜像运行验收通过：两次 SQL/任务同步、48 项业务任务默认禁用、实际定时 HTTP、权限隔离、逻辑恢复及请求编号恢复均通过；验证产物已打包。该分支的部署步骤按既有条件跳过，没有改动生产
 
-生产门禁尚未执行：需用户创建并合并分支后，由 CI/CD 发布包含本来源的 Next API 和迁移，再手动采集、核对业务数据库并完成全部来源验收。不能把本地验证记作生产通过，不能提前启用新 Cron。
+生产采集和业务数据库回归已执行，详见下方结果。完整来源门禁与新 Cron 启用暂缓：发现作者字段遗漏，需先合并部署修复再重新采集。
 
 ## Review
 
@@ -58,7 +58,17 @@ The Decoder 全文路由已合入自建 RSSHub master，用户要求继续接入
 
 ## Delivery
 
-分支 `feat/the-decoder-source` 已推送，base 为 `master`。按仓库要求，由用户[创建并合并 PR](https://github.com/ljh12138164/rss-site/compare/master...feat/the-decoder-source?expand=1)。没有创建 PR 或部署生产；合并后的发布自动应用迁移、注册禁用任务。生产 `POST /cron/signals/the-decoder` 和业务库核验、完整来源验收仍需在发布后完成，再启用新任务。
+用户已合并 [PR #74](https://github.com/ljh12138164/rss-site/pull/74)，[生产发布](https://github.com/ljh12138164/rss-site/actions/runs/42175990869)成功，运行镜像 `5db97d56104f120af4c6f6f45918da04fb3eeba9`，Web/PostgreSQL/Redis 均 healthy。迁移已生效，新任务保持禁用。
+
+## Production regression
+
+2026-11-06 15:01 上海时间，使用受保护容器环境中的服务端 secret 调用生产 `POST /cron/signals/the-decoder`：HTTP 200，30 篇，批次 `b5571388-23d3-4dd8-af25-b62621c1baaf`，publication=revalidated。鉴权数据库核验接口返回 200、PostgreSQL 18 verified=true。
+
+业务 PostgreSQL 确认 succeeded、source_status 指向相同批次、30 条热点及正文归档，标题、URL、technology 分区、排名 1–30 和原始日期均正确。实际 Feed 与存储正文逐篇核对，30/30 文字一致；16 张图片、4 个视频/嵌入全部保留。来源页、详情页、归档、科技 RSS 与独立来源 RSS 均为 HTTP 200。
+
+发现作者 0/30：Feed 使用 `dc:creator`，现有解析器未识别。已在独立 `feat/fix-rsshub-authors` 分支修复并验证实际 30 篇作者；[修复记录](fix-rsshub-authors.md)。修复部署前不将回归标为全部通过，也未启用新 Cron。当前 50 个 Cron 中 49 active，新来源 inactive/unverified，旧 ECS 业务 timer 为 0。
+
+[生产非敏感证据](evidence/the-decoder-production-20261106.json)。本次服务器核验使用 [alibabacloud-workbench-cli](C:/Users/PC/.agents/skills/alibabacloud-workbench-cli/SKILL.md)，凭据仅在生产容器中使用，没有输出、下载或提交。
 
 ## Risks
 

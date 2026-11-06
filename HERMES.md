@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-11-06 The Decoder 生产回归与作者修复
+
+- Branch: feat/fix-rsshub-authors，基于已部署 master 5db97d56；Document: [RSSHub 作者修复](docs/development/fix-rsshub-authors.md)
+- Production: PR #74 与发布 42175990869 success；生产手动采集/鉴权数据库核验均 200，30 篇文字、日期、排名、16 图片和 4 视频逐项通过；来源/详情/归档/RSS 均 200
+- Finding: 生产作者 0/30，RSSHub 使用 dc:creator；已补回退，修复前回归测试失败，修复后 API 114 项、全仓类型/lint 和实际 Feed 30/30 作者通过
+- Next: 推送修复分支，由用户创建并合并 PR；部署后重新采集回填作者，再做完整来源门禁并启用 The Decoder Cron；目前新任务 inactive/unverified，旧 49 Cron active，未改调度
+
 ## 2026-11-06 The Decoder 全文来源
 
 - Branch: feat/the-decoder-source，原目录，基于已合入 PostgreSQL Cron 的 origin/master 28c8c090
