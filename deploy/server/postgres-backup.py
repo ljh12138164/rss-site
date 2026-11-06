@@ -125,8 +125,7 @@ def backup(storage, key, container):
     uploaded = []
     total = sum(size for _, size in existing)
     process = subprocess.Popen(['docker', 'exec', container, 'pg_dump', '-U', 'postgres',
-        '-d', 'rss_site', '--format=custom', '--no-owner', '--no-acl',
-        '--schema=public', '--schema=private'], stdout=subprocess.PIPE)
+        '-d', 'rss_site', '--format=custom', '--no-owner', '--no-acl'], stdout=subprocess.PIPE)
     try:
         while True:
             plaintext = process.stdout.read(CHUNK_SIZE)

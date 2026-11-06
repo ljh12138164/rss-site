@@ -130,11 +130,8 @@ for _ in {1..60}; do
   if docker exec "$RESTORE" pg_isready -h 127.0.0.1 -U postgres -d rss_site >/dev/null 2>&1; then break; fi
   sleep 1
 done
-# Exercise explicit CREATE SCHEMA, as emitted by the production archive.
-docker exec "$POSTGRES" psql -U postgres -d rss_site -X -q -c 'alter schema public owner to postgres'
-docker exec "$RESTORE" psql -U postgres -d rss_site -X -q -c 'drop schema public'
-docker exec "$POSTGRES" pg_dump -U postgres -d rss_site -Fc |
-  docker exec -i "$RESTORE" pg_restore -U postgres -d rss_site --exit-on-error --no-owner --no-acl
+docker exec "$POSTGRES" pg_dump -U postgres -d rss_site --format=custom --no-owner --no-acl |
+  docker exec -i "$RESTORE" pg_restore -U postgres -d rss_site --clean --if-exists --exit-on-error --no-owner --no-acl
 docker exec -i "$RESTORE" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
 do $$ begin
   if current_setting('cron.launch_active_jobs')<>'off'

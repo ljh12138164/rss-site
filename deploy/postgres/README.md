@@ -52,6 +52,8 @@ Daily backups and retention must be configured and restore-tested before product
 
 `deploy/server/postgres-backup.py` streams `pg_dump` into authenticated AES-256-GCM chunks of at most 20 MiB before uploading to the private Supabase Storage bucket `postgres-backups`. The manifest is uploaded last. Failed dumps remove their partial uploads; existing complete snapshots are retained. Keep the latest five complete snapshots and refuse uploads exceeding an 800 MiB combined archive budget. No plaintext dump is written during backup.
 
+The archive covers the complete business database, including extension definitions and Cron configuration. A dump filtered to `public`/`private` omits dependencies needed by Cron views and cannot replace this full archive.
+
 Install `deploy/postgres-backup.env.example` as `/etc/rss-site/postgres-backup.env` with mode 600. Fill the server-only Storage secret in this file. It must never be a `NEXT_PUBLIC_` environment variable or be included in the application image. Create the bucket as private before running a backup. A new bucket requires no public object policies.
 
 Generate a random 32-byte key, base64-encode it, and store it in `/etc/rss-site/postgres-backup.key` with mode 600. Copy this key to an independent, protected location outside ECS before enabling the timer. The database and the Storage archive do not contain the encryption key; losing it makes every backup unreadable. The encrypted `private.maintenance_state` additionally needs the existing `MAINTENANCE_ENCRYPTION_KEY` for application recovery, so preserve that configuration independently as well.
@@ -62,7 +64,7 @@ Before enabling automation:
 
 1. Run a backup and retain its non-secret snapshot identifier
 2. Download and decrypt that snapshot with `--restore SNAPSHOT --output /protected/path/restore.dump`; the output path must not exist
-3. Start a separate empty database using `rss-site-postgres:18-cron-v1`, preload `pg_cron,pg_net`, set both extension database names to `rss_site`, and set `cron.launch_active_jobs=off`. Keep its network isolated so restored schedules cannot call production. Drop the new empty database's default `public` schema before restoring this production archive, then run `pg_restore --exit-on-error --no-owner --no-acl`; compare all business table counts and verify the application role can read the restored data
+3. Start a separate empty database using `rss-site-postgres:18-cron-v1`, preload `pg_cron,pg_net`, set both extension database names to `rss_site`, and set `cron.launch_active_jobs=off`. Keep its network isolated so restored schedules cannot call production. Run `pg_restore --clean --if-exists --exit-on-error --no-owner --no-acl` against this disposable database; it handles archives that recreate the default `public` schema. Compare all business table counts and verify the application role can read the restored data
 4. Remove only the disposable restore database and plaintext test archive after verification
 5. Install the service and timer in `/etc/systemd/system`, then run `systemctl daemon-reload` and `systemctl enable --now rss-site-postgres-backup.timer`
 
