@@ -132,11 +132,18 @@ for _ in {1..60}; do
 done
 docker exec "$POSTGRES" pg_dump -U postgres -d rss_site --format=custom --no-owner --no-acl |
   docker exec -i "$RESTORE" pg_restore -U postgres -d rss_site --clean --if-exists --exit-on-error --no-owner --no-acl
+# --no-acl requires reapplying the migration's extension privilege boundary.
+docker exec "$WEB" bun apps/web/scripts/render-cron-sql.mjs |
+  docker exec -i "$RESTORE" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 >/dev/null
+docker exec "$RESTORE" psql -U postgres -d rss_site -X -q -c 'create role rss_site_app'
 docker exec -i "$RESTORE" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
 do $$ begin
   if current_setting('cron.launch_active_jobs')<>'off'
     or (select count(*) from private.business_cron_jobs)<>47
-    or (select count(*) from cron.job)<>49 then
+    or (select count(*) from cron.job)<>49
+    or has_table_privilege('rss_site_app','private.business_cron_settings','select')
+    or has_function_privilege('rss_site_app','private.dispatch_business_job(text,integer)','execute')
+    or has_schema_privilege('rss_site_app','net','usage') then
     raise exception 'Restored Cron configuration failed';
   end if;
   -- net's unlogged sequence restarts at 1; old request metadata must not block it.

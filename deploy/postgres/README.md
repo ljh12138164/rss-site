@@ -70,4 +70,6 @@ Before enabling automation:
 
 The timer runs at 03:00 Asia/Shanghai (19:00 UTC the preceding day). A successful upload is not a restore test. Repeat the download and isolated restore after schema changes. Monitor the service exit status; a failed backup or a full storage budget must not be treated as success.
 
+Because recovery uses `--no-acl`, reapply the versioned Cron migration before application access or scheduling is enabled; this revokes the extensions' default public privileges. Grant the application role access only to business tables, excluding `private.business_cron_*` tables and administrative functions. Verify it cannot read scheduler credentials or access the `net` schema. Keep `cron.launch_active_jobs=off` until the restored application and source acceptance have passed.
+
 `python deploy/server/test-postgres-backup.py` checks multipart encryption/decryption, ciphertext corruption, authentication failure, output overwrite protection, incomplete dump cleanup, five-snapshot retention, and storage-budget enforcement. These tests do not replace the real Storage upload and PostgreSQL restore gate.
