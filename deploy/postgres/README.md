@@ -1,6 +1,6 @@
 # PostgreSQL deployment
 
-The root `compose.yaml` manages `web`, `redis`, and `postgres`. PostgreSQL uses `rss-site-postgres:18-cron-v1`, built from `postgres:18-alpine` with pinned pg_cron and pg_net extensions, an internal network shared with `web`, and the external volume `rss-site-postgres18-data`. The database image reference remains stable across application releases to avoid recreating PostgreSQL for every app commit. Port 5432 is not published.
+The root `compose.yaml` manages `web`, `redis`, and `postgres`. PostgreSQL uses `rss-site-postgres:18-cron-v1`, built from `postgres:18-alpine` with pinned pg_cron and pg_net extensions, an internal network shared with `web`, and the external volume `rss-site-postgres18-data`. The database image reference is independent of the application commit; a rebuilt database image or changed configuration can recreate PostgreSQL during a release. Port 5432 is not published.
 
 ## Business scheduling
 
@@ -62,7 +62,7 @@ Before enabling automation:
 
 1. Run a backup and retain its non-secret snapshot identifier
 2. Download and decrypt that snapshot with `--restore SNAPSHOT --output /protected/path/restore.dump`; the output path must not exist
-3. Start a separate empty database using `rss-site-postgres:18-cron-v1`, preload `pg_cron,pg_net`, set both extension database names to `rss_site`, and set `cron.launch_active_jobs=off`. Keep its network isolated so restored schedules cannot call production. Restore with `pg_restore --exit-on-error --no-owner --no-acl`; compare all business table counts and verify the application role can read the restored data
+3. Start a separate empty database using `rss-site-postgres:18-cron-v1`, preload `pg_cron,pg_net`, set both extension database names to `rss_site`, and set `cron.launch_active_jobs=off`. Keep its network isolated so restored schedules cannot call production. Drop the new empty database's default `public` schema before restoring this production archive, then run `pg_restore --exit-on-error --no-owner --no-acl`; compare all business table counts and verify the application role can read the restored data
 4. Remove only the disposable restore database and plaintext test archive after verification
 5. Install the service and timer in `/etc/systemd/system`, then run `systemctl daemon-reload` and `systemctl enable --now rss-site-postgres-backup.timer`
 
