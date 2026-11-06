@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 IMAGE=${1:?Pass the release image}
+POSTGRES_IMAGE=rss-site-postgres:18-cron-v1
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 PREFIX="rss-verify-${RANDOM}-${RANDOM}"
 NETWORK="${PREFIX}-network"
@@ -21,7 +22,9 @@ docker network create "$NETWORK" >/dev/null
 # These credentials belong only to an isolated, disposable CI database.
 docker run -d --name "$POSTGRES" --network "$NETWORK" --network-alias postgres \
   --memory 256m -e POSTGRES_PASSWORD=ci-admin-only -e POSTGRES_DB=rss_site \
-  postgres:18-alpine >/dev/null
+  "$POSTGRES_IMAGE" postgres -c shared_preload_libraries=pg_cron,pg_net \
+  -c cron.database_name=rss_site -c pg_net.database_name=rss_site \
+  -c cron.use_background_workers=on -c cron.timezone=UTC >/dev/null
 for _ in {1..60}; do
   if docker exec "$POSTGRES" pg_isready -h 127.0.0.1 -U postgres -d rss_site >/dev/null 2>&1; then break; fi
   sleep 1
@@ -40,7 +43,7 @@ grant select, insert, update, delete on all tables in schema public, private to 
 grant usage, select on all sequences in schema public, private to rss_site_app;
 grant execute on all functions in schema public to rss_site_app;
 SQL
-docker run -d --name "$WEB" --network "$NETWORK" -p 127.0.0.1:18101:3000 \
+docker run -d --name "$WEB" --network "$NETWORK" --network-alias web -p 127.0.0.1:18101:3000 \
   -e SITE_URL -e NEXT_PUBLIC_SUPABASE_URL -e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY \
   -e DATABASE_URL=postgres://rss_site_app:ci-app-only@postgres:5432/rss_site \
   -e CRON_SECRET=ci-cron-only -e AGENT_SERVICE_TOKEN=ci-agent-only "$IMAGE" >/dev/null
@@ -58,3 +61,61 @@ test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:18101/ap
 curl -fsS -X POST http://127.0.0.1:18101/api/internal/agent \
   -H 'Authorization: Bearer ci-agent-only' -H 'Content-Type: application/json' \
   -d '{"operation":"status","date":"2001-01-01"}' | grep -F 'result'
+
+# Exercise real extensions, repeated deployment, HTTP execution and the source gate.
+for _ in 1 2; do
+  docker exec "$WEB" bun apps/web/scripts/render-cron-sql.mjs |
+    docker exec -i "$POSTGRES" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 >/dev/null
+done
+docker exec -i "$POSTGRES" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
+do $$ begin
+  if (select count(*) from private.business_cron_jobs)<>47
+    or exists (select 1 from private.business_cron_jobs where verified)
+    or exists (select 1 from cron.job where jobname like 'rss-site-%'
+      and jobname not in ('rss-site-cron-history-cleanup','rss-site-cron-pending') and active)
+    or has_table_privilege('rss_site_app','private.business_cron_settings','select')
+    or has_function_privilege('rss_site_app','private.dispatch_business_job(text,integer)','execute') then
+    raise exception 'Cron configuration, idempotency or privilege boundary failed';
+  end if;
+  begin
+    perform private.activate_business_jobs('{}');
+    raise exception 'Empty acceptance was allowed';
+  exception when raise_exception then
+    if sqlerrm='Empty acceptance was allowed' then raise; end if;
+  end;
+  -- Exercise activation/update/removal inside a rolled-back subtransaction.
+  begin
+    perform private.sync_business_jobs('[{"source":"test-source","schedule":"0 0 * * *","path":"/cron/signals/test-source"}]');
+    if (select count(*) from private.business_cron_jobs)<>1
+      or exists (select 1 from cron.job where jobname='rss-site-openai') then
+      raise exception 'Removed jobs survived synchronization';
+    end if;
+    perform private.activate_business_jobs(jsonb_build_object('database_major',18,
+      'old_writers_disabled',true,'verified_at',now(),'verified_jobs',jsonb_build_array('test-source')));
+    perform private.sync_business_jobs('[{"source":"test-source","schedule":"30 0 * * *","path":"/cron/signals/test-source"}]');
+    if not exists (select 1 from cron.job where jobname='rss-site-test-source' and active and schedule='30 0 * * *') then
+      raise exception 'Verified schedule update lost enablement';
+    end if;
+    perform private.sync_business_jobs('[{"source":"test-source","schedule":"30 0 * * *","path":"/cron/maintenance/retention"}]');
+    if exists (select 1 from cron.job where jobname='rss-site-test-source' and active) then
+      raise exception 'Changed endpoint bypassed acceptance';
+    end if;
+    raise exception 'rollback-smoke';
+  exception when raise_exception then
+    if sqlerrm<>'rollback-smoke' then raise; end if;
+  end;
+end $$;
+select cron.schedule('rss-cron-smoke','1 second',
+  $job$select private.dispatch_business_job('publication-outbox')$job$);
+SQL
+for _ in {1..30}; do
+  if [[ $(docker exec "$POSTGRES" psql -U postgres -d rss_site -X -Atc \
+    "select count(*) from private.business_cron_history where source='publication-outbox' and status='succeeded'") -gt 0 ]]; then
+    break
+  fi
+  sleep 1
+done
+test "$(docker exec "$POSTGRES" psql -U postgres -d rss_site -X -Atc \
+  "select count(*) from private.business_cron_history where source='publication-outbox' and status='succeeded'")" -gt 0
+docker exec "$POSTGRES" psql -U postgres -d rss_site -X -q -c "select cron.unschedule('rss-cron-smoke')" >/dev/null
+echo 'PostgreSQL Cron: idempotency, default-disabled sources, credentials isolation and scheduled HTTP passed'

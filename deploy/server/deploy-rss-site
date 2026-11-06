@@ -12,7 +12,7 @@ TEMP=$(mktemp -d /tmp/rss-site-release.XXXXXX)
 trap 'rm -rf "$TEMP"' EXIT
 cat > "$TEMP/bundle.tar.gz"
 # Extract only expected regular files, never archive paths or symlinks.
-FILES=(compose.yaml image.tar deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers)
+FILES=(compose.yaml image.tar deploy/server/deploy-rss-site deploy/server/rss-site-deploy-gate deploy/server/rss-site-deploy.sudoers deploy/server/sync-business-cron)
 tar -tzf "$TEMP/bundle.tar.gz" | sort > "$TEMP/entries"
 printf '%s\n' "${FILES[@]}" | sort | cmp -s - "$TEMP/entries"
 tar -tvzf "$TEMP/bundle.tar.gz" | awk 'substr($0,1,1)!="-" {bad=1} END {exit bad}'
@@ -21,10 +21,12 @@ for file in "${FILES[@]}"; do
   tar -xOzf "$TEMP/bundle.tar.gz" "$file" > "$TEMP/$file"
 done
 bash -n "$TEMP/deploy/server/deploy-rss-site"
+bash -n "$TEMP/deploy/server/sync-business-cron"
 sh -n "$TEMP/deploy/server/rss-site-deploy-gate"
 visudo -cf "$TEMP/deploy/server/rss-site-deploy.sudoers"
 docker load -i "$TEMP/image.tar"
 docker image inspect "rss-site-web:$TAG" >/dev/null
+docker image inspect rss-site-postgres:18-cron-v1 >/dev/null
 # Keep configuration and privileged entrypoints together for rollback.
 BACKUP=$(mktemp -d "$STACK/backup-${TAG}.XXXXXX")
 chmod 700 "$BACKUP"
@@ -62,7 +64,7 @@ rollback() {
   if test -n "$PREVIOUS"; then
     cp "$BACKUP/previous.compose" "$STACK/compose.yaml"
     cp "$BACKUP/previous.env" "$STACK/.env"
-    docker compose --project-directory "$STACK" up -d --pull never web
+    docker compose --project-directory "$STACK" up -d --pull never postgres web
     healthy || { echo 'Rollback health check failed' >&2; exit 5; }
     echo "Rolled back to $PREVIOUS" >&2
   else
@@ -77,9 +79,10 @@ install -m 644 "$TEMP/compose.yaml" "$STACK/compose.yaml"
 write_tag "$TAG"
 # The release bundle carries database images so the host needs no registry access.
 docker image inspect redis:7.4-alpine >/dev/null
-docker image inspect postgres:18-alpine >/dev/null
-docker compose --project-directory "$STACK" up -d --pull never web
+docker compose --project-directory "$STACK" up -d --pull never postgres web
 healthy
+# Failure rolls the application and database image back together. SQL changes are additive.
+STACK="$STACK" bash "$TEMP/deploy/server/sync-business-cron"
 install -m 755 "$TEMP/deploy/server/deploy-rss-site" /usr/local/sbin/deploy-rss-site
 install -m 755 "$TEMP/deploy/server/rss-site-deploy-gate" /usr/local/bin/rss-site-deploy-gate
 install -m 440 "$TEMP/deploy/server/rss-site-deploy.sudoers" /etc/sudoers.d/rss-site-deploy

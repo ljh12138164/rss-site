@@ -1,6 +1,22 @@
 # PostgreSQL deployment
 
-The root `compose.yaml` manages `web`, `redis`, and `postgres`. PostgreSQL uses the official `postgres:18-alpine` image, an internal network shared with `web`, and the external volume `rss-site-postgres18-data`. Port 5432 is not published.
+The root `compose.yaml` manages `web`, `redis`, and `postgres`. PostgreSQL uses `rss-site-postgres:18-cron-v1`, built from `postgres:18-alpine` with pinned pg_cron and pg_net extensions, an internal network shared with `web`, and the external volume `rss-site-postgres18-data`. The database image reference remains stable across application releases to avoid recreating PostgreSQL for every app commit. Port 5432 is not published.
+
+## Business scheduling
+
+Edit `deploy/server/business-jobs.json` to change UTC schedules or remove jobs. CI builds and tests the PostgreSQL image with the application. The release bundle carries both images and `sync-business-cron`; deployment applies `migrations/001-business-cron.sql` and synchronizes the current manifest through a private SQL pipe. No manual server edits or Python scheduler are needed.
+
+Existing verified jobs retain enablement on repeated releases. New jobs and changed paths are disabled until fresh complete source acceptance and old-writer shutdown evidence are supplied to `private.activate_business_jobs(jsonb)`. Deleting a manifest entry removes the corresponding managed Cron job. Backup and Supabase keepalive timers are separate infrastructure tasks; the daily report remains scheduled by the existing ai-base runner.
+
+```sql
+select jobid,jobname,schedule,active from cron.job order by jobname;
+select jobid,start_time,end_time,status,return_message
+from cron.job_run_details order by start_time desc limit 50;
+select request_id,source,requested_at,status_code,status
+from private.business_cron_history order by requested_at desc limit 50;
+```
+
+Cron execution means an HTTP request was queued. Check HTTP history and `ingestion_runs`/`source_status` for actual business success. A 202 maintenance response is polled every 30 seconds for at most eight attempts. HTTP response history expires after six hours; local Cron bookkeeping is retained seven days. Credentials are restricted to the database administrator and never embedded in `cron.job.command`.
 
 ## Configuration
 

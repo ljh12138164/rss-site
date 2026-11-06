@@ -52,7 +52,8 @@ esac
 ''')
             docker.chmod(0o755)
             for name in ['compose.yaml', 'deploy/server/deploy-rss-site',
-                         'deploy/server/rss-site-deploy-gate', 'deploy/server/rss-site-deploy.sudoers']:
+                         'deploy/server/rss-site-deploy-gate', 'deploy/server/rss-site-deploy.sudoers',
+                         'deploy/server/sync-business-cron']:
                 destination = root / name
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 destination.write_text('fixture')
@@ -70,7 +71,8 @@ esac
         status, images, pulled = self.run_packaging()
         self.assertEqual(status, 0)
         self.assertTrue(pulled)
-        self.assertEqual(images, ['rss-site-web:sha-' + 'a' * 40, 'redis:7.4-alpine', 'postgres:18-alpine'])
+        self.assertEqual(images, ['rss-site-web:sha-' + 'a' * 40,
+                                 'rss-site-postgres:18-cron-v1', 'redis:7.4-alpine'])
 
     def test_pull_failure_stops_packaging(self):
         status, images, _ = self.run_packaging(fail_pull=True)

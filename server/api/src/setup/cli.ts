@@ -50,7 +50,7 @@ async function main() {
     flag: 'wx',
     mode: 0o600
   })
-  console.log(`Verified ${results.length} sources against PostgreSQL 18; no timers enabled`)
+  console.log(`Verified ${results.length} sources against PostgreSQL 18; no jobs enabled`)
 }
 
 main().catch(() => {

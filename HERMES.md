@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-11-06 PostgreSQL Cron 自动发布
+
+- Branch: feat/postgres-cron；原目录，继承已交付测试精简和已部署采集修复
+- Document: [PostgreSQL Cron](docs/development/postgres-cron.md)
+- Objective: 按用户要求以 pg_cron/pg_net 替换 Python/systemd 业务调度，SQL 与计划随 CI/CD 更新
+- Next: 验证 PostgreSQL 18 扩展镜像、真实 HTTP、权限与验收门禁，再切换生产唯一调度
+
 ## 2026-11-06 精简测试套件与修复 lint
 
 - Branch: feat/simplify-test-suite；沿用原目录，继承 feat/fix-feed-upstreams
