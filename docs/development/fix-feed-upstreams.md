@@ -65,6 +65,16 @@ STCN 官网链接限制、全文缺失处理、时区、去重和既有 pipeline
 
 ## Delivery
 
+## 2026-11-06 regression
+
+- Local: Signals 8, API 176, Web 431 passed; 16 environment-dependent integration tests skipped; types, changed-file Biome, RSSHub route lint, and 8 timer gate tests passed
+- Production: four fresh ingestion and verification requests HTTP 200; STCN 10, Antigravity 20, Google AI 20, Simon Willison 15 rows; all run/status/batch, original URL, title, section, rank, date and nonempty-content checks passed
+- STCN and Antigravity public pages HTTP 200; 47 timers active; restored timers next run at 10:55 and 12:35 Shanghai time respectively, with no natural trigger yet
+- Coverage defect found: CI already provisions PostgreSQL 18 and DAILY_REPORT_TEST_DATABASE_URL, but Turbo test.env omitted that existing variable. Prior CI logs confirmed 4 daily repository database tests skipped while 12 Redis integration tests ran. Forward the existing test variable; no new runtime configuration
+- Re-run CI including the previously skipped database tests before closing regression
+
+## Delivery
+
 修复已直接部署并验收。按仓库规则，由用户创建并合并两个 PR，确保以后常规发布包含修复：
 
 - [rss-site master...feat/fix-feed-upstreams](https://github.com/ljh12138164/rss-site/compare/master...feat/fix-feed-upstreams?expand=1)
