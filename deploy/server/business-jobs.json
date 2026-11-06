@@ -264,6 +264,12 @@
     "path": "/cron/signals/amd"
   },
   {
+    "source": "the-decoder",
+    "name": "signal-ingest-the-decoder",
+    "schedule": "0 5,11,17,23 * * *",
+    "path": "/cron/signals/the-decoder"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

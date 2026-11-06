@@ -22,16 +22,16 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 45 sources', () => {
+  it('defines 7 sections and 46 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(45)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(45)
+    expect(signalSources).toHaveLength(46)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(46)
   })
 
   it('correctly maps all section counts', () => {
-    expect(technologySources).toHaveLength(10)
-    expect(technologyArticleSources).toHaveLength(9)
+    expect(technologySources).toHaveLength(11)
+    expect(technologyArticleSources).toHaveLength(10)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
     expect(aiSources).toHaveLength(10)
@@ -67,7 +67,7 @@ describe('@rss-site/signals', () => {
 
   it('filters sources by section and isArticle', () => {
     const techArticles = listSignalSources({ section: 'technology', isArticle: true })
-    expect(techArticles).toHaveLength(9)
+    expect(techArticles).toHaveLength(10)
     expect(techArticles.some((s) => s.id === 'github')).toBe(false)
 
     const allSkills = listSignalSources({ section: 'skills' })

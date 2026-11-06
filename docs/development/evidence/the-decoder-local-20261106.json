@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-11-06T06:32:25.386Z",
+  "feedUrl": "https://rss.ljhboard.cn/the-decoder/news",
+  "parsedItems": 30,
+  "fullBodyMatches": 30,
+  "displayedFullBodyMatches": 30,
+  "publicationDatesVerified": 30,
+  "images": 16,
+  "videos": 4,
+  "ingestedItems": 30,
+  "uniqueUrls": 30,
+  "consecutiveRanks": true,
+  "manifestMatchesRegistry": true,
+  "releaseSqlIncludesSourceMigration": true,
+  "automaticActivation": false,
+  "productionDatabaseVerified": false,
+  "localPageStatus": 200,
+  "ci": {
+    "url": "https://github.com/ljh12138164/rss-site/actions/runs/42175281206",
+    "commit": "9b915617adee4e775a9a763d91711e8cc44061d8",
+    "conclusion": "success",
+    "testsPassed": 313,
+    "testsSkipped": 0,
+    "postgres18RuntimeVerified": true,
+    "repeatedMigrationAndDefaultDisabledJobsVerified": true,
+    "isolatedRestoreVerified": true,
+    "productionDeployment": false
+  }
+}

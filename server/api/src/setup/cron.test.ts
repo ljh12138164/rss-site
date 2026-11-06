@@ -70,7 +70,7 @@ describe('ECS source acceptance gate', () => {
       repository: { verifyIngestion: async () => undefined },
       request
     })
-    expect(verified).toHaveLength(44)
+    expect(verified).toHaveLength(sources.length)
     expect(request.mock.calls.some((call) => String(call[0]).endsWith('/chatgpt'))).toBe(false)
   })
 

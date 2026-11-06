@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 
 // Stdout is a private pipe to psql, never a deployment log or artifact.
 try {
@@ -18,10 +18,12 @@ try {
     names.add(job.source)
   }
   const quote = (value) => `'${value.replaceAll("'", "''")}'`
-  const migration = readFileSync(
-    new URL('deploy/postgres/migrations/001-business-cron.sql', root),
-    'utf8'
-  )
+  const migrations = new URL('deploy/postgres/migrations/', root)
+  const migration = readdirSync(migrations)
+    .filter((name) => name.endsWith('.sql'))
+    .sort()
+    .map((name) => readFileSync(new URL(name, migrations), 'utf8'))
+    .join('\n')
   process.stdout.write(`
 set log_statement='none';
 set log_min_error_statement='panic';

@@ -4,7 +4,7 @@ The root `compose.yaml` manages `web`, `redis`, and `postgres`. PostgreSQL uses 
 
 ## Business scheduling
 
-Edit `deploy/server/business-jobs.json` to change UTC schedules or remove jobs. CI builds and tests the PostgreSQL image with the application. The release bundle carries both images and `sync-business-cron`; deployment applies `migrations/001-business-cron.sql` and synchronizes the current manifest through a private SQL pipe. No manual server edits or Python scheduler are needed.
+Edit `deploy/server/business-jobs.json` to change UTC schedules or remove jobs. CI builds and tests the PostgreSQL image with the application. The release bundle carries both images and `sync-business-cron`; deployment applies the SQL files in `migrations/` in filename order and synchronizes the current manifest through a private SQL pipe. Migrations must be safe to reapply on repeated releases and restores. No manual server edits or Python scheduler are needed.
 
 Existing verified jobs retain enablement on repeated releases. New jobs and changed paths are disabled until fresh complete source acceptance and old-writer shutdown evidence are supplied to `private.activate_business_jobs(jsonb)`. Deleting a manifest entry removes the corresponding managed Cron job. Backup and Supabase keepalive timers are separate infrastructure tasks; the daily report remains scheduled by the existing ai-base runner.
 
