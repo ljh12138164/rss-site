@@ -46,13 +46,19 @@ The Decoder 全文路由已合入自建 RSSHub master，用户要求继续接入
 - 实际 Feed 经现有解析器和采集函数处理，30/30 正文及原始发布时间一致、URL 唯一、排名连续，存储 HTML 保留 16 张图片和 4 个视频/嵌入；既有阅读器输出的文字与原文一致，不改变其媒体展示策略
 - 注册表与生产任务清单的来源、名称及计划一致；发布 SQL 已包含新来源约束，未输出启用调用；Shell 语法与 diff 检查通过
 - [本地非敏感证据](evidence/the-decoder-local-20261106.json)
-- Docker Desktop 当前未运行，本机无法执行真实数据库镜像检查；CI 的 PostgreSQL 18 与镜像验收仍是必需发布检查
+- 本地 `/technology/the-decoder` 返回 HTTP 200，页面包含来源名；预览 `http://127.0.0.1:3085/technology/the-decoder`
+- [完整 CI](https://github.com/ljh12138164/rss-site/actions/runs/42175281206) 验证代码 `9b915617adee4e775a9a763d91711e8cc44061d8`：313 项测试全部通过、0 跳过，类型检查、Shell 检查、PostgreSQL Cron 镜像及应用镜像构建通过
+- CI 的真实 PostgreSQL 18 镜像运行验收通过：两次 SQL/任务同步、48 项业务任务默认禁用、实际定时 HTTP、权限隔离、逻辑恢复及请求编号恢复均通过；验证产物已打包。该分支的部署步骤按既有条件跳过，没有改动生产
 
 生产门禁尚未执行：需用户创建并合并分支后，由 CI/CD 发布包含本来源的 Next API 和迁移，再手动采集、核对业务数据库并完成全部来源验收。不能把本地验证记作生产通过，不能提前启用新 Cron。
 
 ## Review
 
-已按仓库要求和验收标准复核：新来源只占用科技分区，既有来源/任务保持不变；迁移只扩展来源白名单，版本 SQL 在现有事务内按顺序重放；新 Cron 沿用默认禁用门禁。无剩余实现阻塞项或接受的范围外跟进，不新增空 roadmap。真实数据库镜像验证由 CI 执行，生产门禁待合并部署后完成。
+已按仓库要求和验收标准复核：新来源只占用科技分区，既有来源/任务保持不变；迁移只扩展来源白名单，版本 SQL 在现有事务内按顺序重放；新 Cron 沿用默认禁用门禁。无剩余实现阻塞项或接受的范围外跟进，不新增空 roadmap。真实数据库镜像验证已由 CI 完成，生产门禁待合并部署后完成。
+
+## Delivery
+
+分支 `feat/the-decoder-source` 已推送，base 为 `master`。按仓库要求，由用户[创建并合并 PR](https://github.com/ljh12138164/rss-site/compare/master...feat/the-decoder-source?expand=1)。没有创建 PR 或部署生产；合并后的发布自动应用迁移、注册禁用任务。生产 `POST /cron/signals/the-decoder` 和业务库核验、完整来源验收仍需在发布后完成，再启用新任务。
 
 ## Risks
 

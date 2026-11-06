@@ -5,8 +5,9 @@
 - Branch: feat/the-decoder-source，原目录，基于已合入 PostgreSQL Cron 的 origin/master 28c8c090
 - Document: [The Decoder](docs/development/the-decoder-source.md)
 - Objective: 科技分区接入自建 RSSHub 的英文全文，复用来源页、归档和详情
-- State: 注册、默认禁用 Cron 清单与 PostgreSQL 来源约束迁移已实现；全仓 lint/类型、297 项测试和 Web 构建通过，16 项服务测试因本地服务未启动跳过；线上 30 篇全文、日期、媒体和解析验证通过
-- Delivery: 提交并推送分支，由用户创建和合并 PR；发布后完成生产数据库和全部来源验收再启用新 Cron
+- State: 注册、默认禁用 Cron 清单与 PostgreSQL 来源约束迁移已实现；全仓 lint/类型和 Web 构建通过；线上 30 篇全文、日期、媒体和解析验证通过；本地来源页 200（http://127.0.0.1:3085/technology/the-decoder，session 72953）
+- CI: [42175281206](https://github.com/ljh12138164/rss-site/actions/runs/42175281206) success，代码 9b91561；313 项测试全部通过、0 跳过，真实 PostgreSQL 18 镜像的 SQL 重放、48 项业务默认禁用、权限、实际 HTTP 与逻辑恢复均通过；部署步骤跳过
+- Delivery: 分支已推送，[由用户创建和合并 PR](https://github.com/ljh12138164/rss-site/compare/master...feat/the-decoder-source?expand=1)；发布后完成生产数据库和全部来源验收再启用新 Cron，未操作生产或创建 PR
 
 ## 2026-11-06 PostgreSQL Cron 自动发布
 
