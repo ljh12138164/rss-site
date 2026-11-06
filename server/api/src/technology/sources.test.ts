@@ -79,7 +79,7 @@ describe('technologySources', () => {
       urlFromFirstAnchor: true
     })
     expect(getAiSource('google-ai')).toMatchObject({
-      feedUrl: 'https://blog.google/innovation-and-ai/technology/ai/rss/'
+      feedUrl: 'https://feeds.ljhboard.cn/google-ai'
     })
     expect(getAiSource('openai')).toMatchObject({ rsshubPath: '/openai/news?limit=20' })
     expect(getAiSource('chatgpt')).toMatchObject({
@@ -119,12 +119,12 @@ describe('technologySources', () => {
   })
 
   it('registers five anonymous finance feeds with publication times', () => {
-    expect(financeSources.map(({ id, rsshubPath }) => [id, rsshubPath])).toEqual([
+    expect(financeSources.map((source) => [source.id, resolveSignalFeedUrl(source, '')])).toEqual([
       ['wallstreetcn', '/wallstreetcn/hot/day'],
       ['cls', '/cls/hot?limit=20'],
       ['jin10', '/jin10/topic/343'],
       ['yicai', '/yicai/headline'],
-      ['stcn', '/stcn/article/list/yw']
+      ['stcn', 'https://www.stcn.com/article/list/yw.html']
     ])
     expect(financeSources.every((source) => source.section === 'finance')).toBe(true)
     expect(getFinanceSource('wallstreetcn').name).toBe('华尔街见闻')

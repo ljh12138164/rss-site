@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@rss-site/signals": "workspace:*",
+    "cheerio": "1.2.0",
     "drizzle-orm": "0.45.2",
     "fast-xml-parser": "5.11.1",
     "hono": "4.13.5",

@@ -415,7 +415,7 @@ export const aiSources = [
     description: '官方文章',
     section: 'ai',
     itemLimit: 20,
-    feedUrl: 'https://blog.google/innovation-and-ai/technology/ai/rss/',
+    feedUrl: 'https://feeds.ljhboard.cn/google-ai',
     isArticle: true,
     cronSchedule: '20 */2 * * *',
     cronJobName: 'signal-ingest-google-ai'
@@ -467,7 +467,7 @@ export const aiSources = [
     description: 'LLM 与 AI 开发者前沿专栏',
     section: 'ai',
     itemLimit: 20,
-    feedUrl: 'https://simonwillison.net/atom/entries/',
+    feedUrl: 'https://feeds.ljhboard.cn/simon-willison',
     isArticle: true,
     cronSchedule: '55 3,9,15,21 * * *',
     cronJobName: 'signal-ingest-simon-willison'
@@ -618,7 +618,7 @@ export const financeSources = [
     description: '证券市场要闻',
     section: 'finance',
     itemLimit: 30,
-    rsshubPath: '/stcn/article/list/yw',
+    feedUrl: 'https://www.stcn.com/article/list/yw.html',
     isArticle: true,
     cronSchedule: '55 2,8,14,20 * * *',
     cronJobName: 'signal-ingest-stcn'

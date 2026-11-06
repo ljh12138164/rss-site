@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "rss-site-feed-relay",
+  "main": "index.ts",
+  "account_id": "24d22867b0eba3cae0de0cc8890fcfd5",
+  "compatibility_date": "2026-11-06",
+  "workers_dev": true,
+  "routes": [{ "pattern": "feeds.ljhboard.cn", "custom_domain": true }],
+  "observability": {
+    "enabled": true,
+    "traces": { "enabled": true }
+  }
+}

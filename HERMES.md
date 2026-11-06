@@ -1,5 +1,16 @@
 # HERMES
 
+## 2026-11-06 修复采集上游链路
+
+- Branch: feat/fix-feed-upstreams；RSSHub 配套 feat/fix-stcn-antigravity-feeds，均使用原目录
+- Document: [采集上游修复](docs/development/fix-feed-upstreams.md)
+- 证券时报改为 Next 在 ECS 请求官网列表和正文；Antigravity 修正官网语言入口；Google AI、Simon Willison 使用仅含固定公开目标的 CF 转发器
+- Antigravity 生产 dpl_BcKv7pErkoaoN2VLwcCZ1KmiPCpc READY，公开路由 HTTP 200，28 篇中文内容
+- CF 已修复 redirect=error 的 Workers 兼容问题，版本 6189d483-91c1-40be-aa3a-e62ef33f9166；生产 Next 真实采集 Google 20、Antigravity 20、STCN 10、Simon 15 条，run/status/hot_items 和内容核验全部通过
+- 完整 CI 42146370008 success，包含 PostgreSQL 18 镜像运行验收；镜像 9136314 已部署，Next/PostgreSQL/agent healthy，50/50 列表预热通过
+- 2026-11-06 09:59:21 上海时间，44/44 来源全部验收通过，共 1,053 条；两个暂停 timer 已恢复，44 来源加 3 维护共 47 timer active；旧 Supabase Cron=0、队列=0、旧 Worker 已删除
+- Delivery: 两个分支已推送；由用户分别创建并合并到 master 的 PR，保证后续常规发布包含本次修复；原迁移观察/旧库清理仍另行保留
+
 ## 2026-11-05 修复 PostgreSQL 镜像验收竞态
 
 - Branch: feat/fix-postgres-runtime-readiness，原目录操作
