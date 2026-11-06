@@ -1,5 +1,5 @@
 FROM postgres:18-alpine AS extensions
-RUN apk add --no-cache build-base curl-dev git
+RUN apk add --no-cache build-base curl-dev git icu-dev
 # Pin source commits so extension binaries are reproducible across releases.
 RUN git clone https://github.com/citusdata/pg_cron.git /tmp/pg_cron && \
     git -C /tmp/pg_cron checkout 465b38c737f584d520229f5a1d69d1d44649e4e5 && \
