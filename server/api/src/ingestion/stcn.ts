@@ -5,8 +5,17 @@ import { fetchSignalFeed } from './fetch'
 const origin = 'https://www.stcn.com'
 const listUrl = `${origin}/article/list/yw.html`
 
+async function fetchPage(url: string): Promise<string> {
+  try {
+    return await fetchSignalFeed(url, { timeoutMs: 10_000 })
+  } catch (error) {
+    if (!(error instanceof Error) || error.name !== 'TimeoutError') throw error
+    return fetchSignalFeed(url, { timeoutMs: 10_000 })
+  }
+}
+
 export async function fetchStcnFeed(): Promise<string> {
-  const $ = load(await fetchSignalFeed(listUrl, { timeoutMs: 10_000 }))
+  const $ = load(await fetchPage(listUrl))
   const links = [
     ...new Set(
       $('ul.infinite-list li div.tt a')
@@ -26,7 +35,7 @@ export async function fetchStcnFeed(): Promise<string> {
     items.push(
       ...(await Promise.all(
         links.slice(offset, offset + 3).map(async (link) => {
-          const detail = load(await fetchSignalFeed(link, { timeoutMs: 10_000 }))
+          const detail = load(await fetchPage(link))
           const title = detail('div.detail-title').text().trim()
           const content = detail('div.detail-content').first()
           if (!title || !content.text().trim()) throw new Error('STCN article content is missing')

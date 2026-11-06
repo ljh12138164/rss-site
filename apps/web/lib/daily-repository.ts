@@ -110,7 +110,7 @@ export class DailyReportRepository {
   async freeze(job: JobHandle, input: FrozenInput, snapshotAt: Date) {
     const sql = this.sql()
     const rows =
-      await sql`update daily_report_jobs set input_snapshot=${JSON.stringify(input)}::jsonb, input_hash=${input.hash},
+      await sql`update daily_report_jobs set input_snapshot=${JSON.stringify(input)}::text::jsonb, input_hash=${input.hash},
       prompt_snapshot=${input.prompt}, prompt_version=${input.promptVersion}, snapshot_at=${snapshotAt.toISOString()}, updated_at=now()
       where report_date=${job.report_date} and run_token=${job.run_token} and status='running' and lease_until>now()
       and input_snapshot is null returning id`
@@ -128,7 +128,7 @@ export class DailyReportRepository {
     await sql`update daily_report_jobs set
       status=case when ${retry} and attempt_count<attempt_limit then 'retry_wait' else ${status} end,
       next_attempt_at=now()+case when attempt_count=1 then interval '2 minutes' else interval '10 minutes' end,
-      last_error_code=${code}, metrics=coalesce(${metrics ? JSON.stringify(metrics) : null}::jsonb,metrics),
+      last_error_code=${code}, metrics=coalesce(${metrics ? JSON.stringify(metrics) : null}::text::jsonb,metrics),
       run_token=null, lease_until=null, finished_at=now(), updated_at=now()
       where report_date=${job.report_date} and run_token=${job.run_token} and status='running' and lease_until>now()`
   }
@@ -158,11 +158,11 @@ export class DailyReportRepository {
       const { windowStart, windowEnd } = reportWindow(job.report_date)
       await tx`insert into daily_reports (report_date,job_id,title,content,sources,window_start,window_end,
         input_hash,candidate_count,story_count,source_count,prompt_version)
-        values (${job.report_date},${job.id},${firstStory.title},${JSON.stringify(draft)}::jsonb,${JSON.stringify(sources)}::jsonb,
+        values (${job.report_date},${job.id},${firstStory.title},${JSON.stringify(draft)}::text::jsonb,${JSON.stringify(sources)}::text::jsonb,
         ${windowStart},${windowEnd},${input.hash},${input.materials.length},${draft.stories.length},
         ${new Set(sources.map((source) => source.source)).size},${input.promptVersion})`
       await tx`update daily_report_jobs set status='published',run_token=null,lease_until=null,finished_at=now(),
-        updated_at=now(),metrics=${JSON.stringify(metrics)}::jsonb,last_error_code=null,
+        updated_at=now(),metrics=${JSON.stringify(metrics)}::text::jsonb,last_error_code=null,
         notification_status='pending',notification_next_at=now() where report_date=${job.report_date}`
     })
   }

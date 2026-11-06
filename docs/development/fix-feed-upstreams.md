@@ -63,15 +63,15 @@ STCN 官网链接限制、全文缺失处理、时区、去重和既有 pipeline
 
 配套 RSSHub 提交 3989abdd6，仅修改三个动态入口匹配并记录真实线上证据；没有改写正常解析的 STCN RSSHub handler。
 
-## Delivery
-
 ## 2026-11-06 regression
 
 - Local: Signals 8, API 176, Web 431 passed; 16 environment-dependent integration tests skipped; types, changed-file Biome, RSSHub route lint, and 8 timer gate tests passed
 - Production: four fresh ingestion and verification requests HTTP 200; STCN 10, Antigravity 20, Google AI 20, Simon Willison 15 rows; all run/status/batch, original URL, title, section, rank, date and nonempty-content checks passed
 - STCN and Antigravity public pages HTTP 200; 47 timers active; restored timers next run at 10:55 and 12:35 Shanghai time respectively, with no natural trigger yet
 - Coverage defect found: CI already provisions PostgreSQL 18 and DAILY_REPORT_TEST_DATABASE_URL, but Turbo test.env omitted that existing variable. Prior CI logs confirmed 4 daily repository database tests skipped while 12 Redis integration tests ran. Forward the existing test variable; no new runtime configuration
-- Re-run CI including the previously skipped database tests before closing regression
+- Enabling those tests exposed JSONB parameter double serialization: JSON.stringify output was inferred as jsonb and serialized again. Explicit text-to-jsonb conversion preserves JSON objects/arrays in freeze, publish, and metrics; existing real database tests now also assert draft and metrics values
+- Actual systemd execution reproduced one STCN 10-second upstream TimeoutError (2026-11-06 10:18 Shanghai); Antigravity completed successfully. The deterministic timeout test failed before the fix. STCN now retries only TimeoutError once per page, retaining the existing timeout and concurrency; persistent errors still fail. List recovery, article recovery and bounded attempts are covered
+- Deploy the follow-up image and re-run actual systemd jobs and production ingestion before closing regression
 
 ## Delivery
 
