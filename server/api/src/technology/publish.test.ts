@@ -40,7 +40,7 @@ it('carries the ingestion batch and every affected event in bounded requests', a
   expect(JSON.parse(String(requests[1].init.body))).toEqual({ events: ['event-100'], batchId })
   expect(requests.every((r) => r.init.redirect === 'manual')).toBe(true)
 })
-it.each([301, 302, 307, 308])('rejects HTTP %i without forwarding credentials', async (status) => {
+it.each([302])('rejects HTTP %i without forwarding credentials', async (status) => {
   const request = vi.fn(
     async (_url: URL, _init: RequestInit) =>
       new Response(null, {

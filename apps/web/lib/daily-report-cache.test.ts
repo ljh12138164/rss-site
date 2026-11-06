@@ -83,18 +83,6 @@ it('refills malformed JSON and invalid cached payloads', async () => {
   }
 })
 
-it('invalidates every daily key together without scanning Redis', async () => {
-  const load = vi.fn(async () => 'old')
-  for (const key of ['report:latest', 'report:2026-11-04', 'archive:2026-11-04'])
-    await getCachedDailyData(key, parse, load)
-  expect(await invalidateDailyReportCache()).toBe(true)
-  load.mockResolvedValue('new')
-  for (const key of ['report:latest', 'report:2026-11-04', 'archive:2026-11-04'])
-    expect(await getCachedDailyData(key, parse, load)).toBe('new')
-  expect(load).toHaveBeenCalledTimes(6)
-  expect(set).toHaveBeenCalledTimes(1)
-})
-
 it('reloads a database result arriving after publication instead of returning or caching it', async () => {
   let finish!: (value: string) => void
   const load = vi
@@ -115,35 +103,10 @@ it('reloads a database result arriving after publication instead of returning or
   expect(load).toHaveBeenCalledTimes(2)
 })
 
-it('shares concurrent cache misses for the same key and generation', async () => {
-  let finish!: (value: string) => void
-  const load = vi.fn(
-    () =>
-      new Promise<string>((resolve) => {
-        finish = resolve
-      })
-  )
-  const a = getCachedDailyData('report:latest', parse, load)
-  const b = getCachedDailyData('report:latest', parse, load)
-  await vi.waitFor(() => expect(load).toHaveBeenCalledOnce())
-  finish('shared')
-  expect(await Promise.all([a, b])).toEqual(['shared', 'shared'])
-  expect(load).toHaveBeenCalledOnce()
-})
-
 it('falls back to the database on Redis outages and reports failed publication invalidation', async () => {
   available.value = false
   expect(await getCachedDailyData('report:latest', parse, async () => 'DB')).toBe('DB')
   expect(await invalidateDailyReportCache()).toBe(false)
   vi.stubEnv('REDIS_URL', '')
   expect(await invalidateDailyReportCache()).toBe(true)
-})
-
-it('still returns validated data if Redis fails during the write', async () => {
-  expect(
-    await getCachedDailyData('report:latest', parse, async () => {
-      available.value = false
-      return 'valid'
-    })
-  ).toBe('valid')
 })

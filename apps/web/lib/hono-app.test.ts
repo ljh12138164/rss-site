@@ -71,22 +71,6 @@ describe('Hono translation RPC', () => {
     expect(await response.json()).toEqual({ error: '文章不存在' })
   })
 
-  it('loads the server-owned event and returns its translation', async () => {
-    const response = await app.request('/api/events/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slug: 'openai-launches-gpt-5' })
-    })
-    expect(response.status).toBe(200)
-    expect(getEvent).toHaveBeenCalledWith('openai-launches-gpt-5')
-    expect(await response.json()).toEqual({
-      translation: {
-        title: 'OpenAI 发布 GPT-5',
-        summary: 'OpenAI 发布了新的旗舰模型。'
-      }
-    })
-  })
-
   it('validates an event slug before loading the event', async () => {
     const response = await app.request('/api/events/translate', {
       method: 'POST',

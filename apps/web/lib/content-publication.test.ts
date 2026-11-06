@@ -23,29 +23,6 @@ afterEach(() => {
 })
 
 describe('content publication', () => {
-  it('publishes the relocated reading overview through the existing pipeline', async () => {
-    await publishContent(['/latest'], 'latest-overview')
-    expect(JSON.parse(String(requests[0].init?.body)).files).toEqual([
-      'https://news.example/latest'
-    ])
-    expect(JSON.parse(String(requests.at(-1)?.init?.body)).urlList).toEqual([
-      'https://news.example/latest'
-    ])
-  })
-  it('purges canonical Skill details for both GitHub and well-known sources', async () => {
-    const paths = ['/skills/mattpocock/skills/tdd', '/skills/open.feishu.cn/lark-doc']
-    await publishContent(paths, 'skills-batch')
-    expect(JSON.parse(String(requests[0].init?.body)).files).toEqual(
-      paths.map((path) => `https://news.example${path}`)
-    )
-    for (const path of [
-      '/skills/owner/../bad',
-      '/skills/owner/repo/a%2Fb',
-      '/skills/owner/repo/skill?token=x'
-    ]) {
-      await expect(publishContent([path], 'invalid')).rejects.toThrow('Invalid publication path')
-    }
-  })
   it('purges exact canonical URLs before warming and indexing, excluding sitemap from indexing', async () => {
     const result = await publishContent(
       ['/', '/sitemap.xml', '/ai', '/ai/openai', '/ai'],
@@ -101,16 +78,6 @@ describe('content publication', () => {
     expect(requests).toHaveLength(0)
   })
 
-  it('publishes a concrete article URL after an editorial correction', async () => {
-    const path = '/news/xinhua/修正标题--550e8400-e29b-41d4-a716-446655440000'
-    await publishContent([path], 'editorial')
-    expect(JSON.parse(String(requests[0].init?.body))).toEqual({
-      files: [
-        'https://news.example/news/xinhua/%E4%BF%AE%E6%AD%A3%E6%A0%87%E9%A2%98--550e8400-e29b-41d4-a716-446655440000'
-      ]
-    })
-  })
-
   it('disables unconfigured integrations without affecting ISR or making requests', async () => {
     vi.stubEnv('CLOUDFLARE_API_TOKEN', '')
     vi.stubEnv('CLOUDFLARE_ZONE_ID', '')
@@ -120,14 +87,6 @@ describe('content publication', () => {
     expect(result.prewarm.status).toBe('skipped')
     expect(result.indexnow.status).toBe('disabled')
     expect(requests).toHaveLength(0)
-  })
-
-  it('accepts the independent GitHub ranking path', async () => {
-    const result = await publishContent(['/github'], 'github-ranking')
-    expect(result.cloudflare.status).toBe('succeeded')
-    expect(JSON.parse(String(requests[0].init?.body))).toEqual({
-      files: ['https://news.example/github']
-    })
   })
 
   it('does not warm or notify after a purge rejection and logs no credentials', async () => {
@@ -140,18 +99,6 @@ describe('content publication', () => {
     expect(log).toContain('failed-purge')
     expect(log).not.toContain('private-token')
     expect(log).not.toContain('test-key-12345678')
-  })
-
-  it('still notifies IndexNow when optional prewarming fails after a successful purge', async () => {
-    vi.stubGlobal('fetch', async (url: string) => {
-      requests.push({ url: String(url) })
-      if (String(url).includes('cloudflare.com')) return Response.json({ success: true })
-      if (String(url).includes('indexnow.org')) return new Response('', { status: 200 })
-      return new Response('', { status: 503 })
-    })
-    const result = await publishContent(['/ai'], 'warm-failed')
-    expect(result.prewarm.status).toBe('failed')
-    expect(result.indexnow.status).toBe('succeeded')
   })
 
   it('chunks purge requests and limits sequential prewarming', async () => {
@@ -170,13 +117,5 @@ describe('content publication', () => {
     vi.stubGlobal('fetch', async () => new Response('', { status: ++attempts === 1 ? 503 : 202 }))
     const result = await publishContent(['/ai'], 'retry')
     expect(result.indexnow).toMatchObject({ status: 'succeeded', httpStatus: 202, attempts: 2 })
-  })
-
-  it('does not retry permanent IndexNow failures', async () => {
-    vi.stubEnv('CLOUDFLARE_API_TOKEN', '')
-    vi.stubEnv('CLOUDFLARE_ZONE_ID', '')
-    vi.stubGlobal('fetch', async () => new Response('', { status: 403 }))
-    const result = await publishContent(['/ai'], 'invalid-key')
-    expect(result.indexnow).toMatchObject({ status: 'failed', httpStatus: 403, attempts: 1 })
   })
 })

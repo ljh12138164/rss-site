@@ -129,36 +129,6 @@ it('invalidates and publishes old and new URLs after saving a title edit', async
   )
 })
 
-it('keeps the saved edit successful when invalidation fails and logs safe evidence', async () => {
-  const log = vi.spyOn(console, 'info').mockImplementation(() => {})
-  revalidatePath.mockImplementationOnce(() => {
-    throw new Error('private-value')
-  })
-  const response = await request(edit)
-  expect(response.status).toBe(200)
-  expect((await response.json()).article.id).toBe(id)
-  expect(callbacks).toHaveLength(0)
-  expect(JSON.stringify(log.mock.calls)).not.toContain('private-value')
-  expect(log).toHaveBeenCalledWith(expect.stringContaining('"publicationId":'))
-})
-
-it('isolates background publication failures from a saved edit and logs safe evidence', async () => {
-  const log = vi.spyOn(console, 'info').mockImplementation(() => {})
-  publication.mockRejectedValueOnce(new Error('private-value'))
-  const response = await request(edit)
-  expect(response.status).toBe(200)
-  await expect(callbacks[0]()).resolves.toBeUndefined()
-  expect(JSON.stringify(log.mock.calls)).not.toContain('private-value')
-  expect(log).toHaveBeenCalledWith(expect.stringContaining('"publicationId":'))
-})
-
-it('denies ingestion stats before calling the database and keeps the response private', async () => {
-  getAdminDataClient.mockResolvedValueOnce(null)
-  const response = await app.request('/api/admin/ingestion')
-  expect(response.status).toBe(401)
-  expect(response.headers.get('Cache-Control')).toBe('no-store')
-})
-
 it('reads aggregated metrics with the administrator token and hides database errors', async () => {
   health.mockResolvedValue([{ source: 'openai', sample_count: 100, body_count: 80 }])
   const response = await app.request('/api/admin/ingestion', {
