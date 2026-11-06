@@ -34,7 +34,9 @@
 
 ## Verification
 
-待实现后记录。
+- 本地 lint、类型检查通过，Vitest 297 通过、16 项服务集成测试因未启动本地服务跳过；发布打包 3 项检查通过
+- CI 已使用真实 PostgreSQL 18 与 Redis 通过全部测试、类型和 Shell 检查
+- 镜像演练发现 ICU 编译头文件缺失及 pg_net 0.20.0 与新 curl 头文件兼容问题；补齐 icu-dev，并固定到包含上游修复的 pg_net v0.20.5 提交，继续验证
 
 ## Risks
 

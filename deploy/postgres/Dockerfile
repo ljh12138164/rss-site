@@ -5,7 +5,7 @@ RUN git clone https://github.com/citusdata/pg_cron.git /tmp/pg_cron && \
     git -C /tmp/pg_cron checkout 465b38c737f584d520229f5a1d69d1d44649e4e5 && \
     make -C /tmp/pg_cron with_llvm=no && make -C /tmp/pg_cron install with_llvm=no
 RUN git clone https://github.com/supabase/pg_net.git /tmp/pg_net && \
-    git -C /tmp/pg_net checkout 5a4456c8d27aec412f1be5227a200664f83fb33b && \
+    git -C /tmp/pg_net checkout a8299b11182ea5c974f5e89ae83e70e9e44e9e8f && \
     make -C /tmp/pg_net with_llvm=no && make -C /tmp/pg_net install with_llvm=no
 
 FROM postgres:18-alpine
