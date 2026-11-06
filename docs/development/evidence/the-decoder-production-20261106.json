@@ -1,0 +1,26 @@
+{
+  "checked_at": "2026-11-06T07:04:55.241829+00:00",
+  "batch_id": "b5571388-23d3-4dd8-af25-b62621c1baaf",
+  "production_commit": "5db97d56104f120af4c6f6f45918da04fb3eeba9",
+  "feed_status": 200,
+  "items": 30,
+  "full_body_matches": 30,
+  "media_preserved": 20,
+  "authors_missing": 30,
+  "production_fix_complete": false,
+  "new_cron_active": false,
+  "pages": [
+    {
+      "path": "/technology/the-decoder/openais-gpt-6-cyber-can-both-break-into-systems-and-prop--c9277737-d7d8-4ba2-b649-75168bc2ed0b",
+      "status": 200,
+      "containsSource": true,
+      "rssItems": 0
+    },
+    {
+      "path": "/feeds/the-decoder.xml",
+      "status": 200,
+      "containsSource": true,
+      "rssItems": 10
+    }
+  ]
+}

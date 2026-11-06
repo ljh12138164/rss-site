@@ -28,6 +28,7 @@ interface ParsedItem {
   'content:encoded'?: unknown
   enclosure?: unknown
   author?: unknown
+  'dc:creator'?: unknown
   pubDate?: unknown
   published?: unknown
   updated?: unknown
@@ -315,7 +316,7 @@ export function parseSignalFeed(
               plainText(html)
             )?.slice(0, 500) ?? null),
         contentHtml,
-        author: extractAuthor(item.author),
+        author: extractAuthor(item.author) ?? extractAuthor(item['dc:creator']),
         publishedAt: publishedDate(
           item.pubDate ??
             item.published ??

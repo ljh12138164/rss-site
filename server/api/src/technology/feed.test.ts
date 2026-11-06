@@ -2,6 +2,19 @@ import { describe, expect, it } from 'vitest'
 import { parseTechnologyFeed } from './feed.js'
 
 describe('parseTechnologyFeed', () => {
+  it('reads RSSHub creators while keeping an explicit RSS author first', () => {
+    const xml = `<rss xmlns:dc="http://purl.org/dc/elements/1.1/"><channel>
+      <item><title>Creator</title><link>https://example.com/creator</link><dc:creator>Matthias Bastian</dc:creator></item>
+      <item><title>Author</title><link>https://example.com/author</link><author>RSS Author</author><dc:creator>Feed Creator</dc:creator></item>
+      <item><title>Empty author</title><link>https://example.com/empty</link><author></author><dc:creator>Feed Creator</dc:creator></item>
+    </channel></rss>`
+    expect(parseTechnologyFeed(xml, 'test').map((item) => item.author)).toEqual([
+      'Matthias Bastian',
+      'RSS Author',
+      'Feed Creator'
+    ])
+  })
+
   it('prefers an image enclosure over an inline illustration and skips audio enclosures', () => {
     const xml = `<rss><channel><item>
       <title>Article</title><link>https://example.com/article</link>
