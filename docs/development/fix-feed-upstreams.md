@@ -36,11 +36,39 @@ Antigravity 官网从 BaseLayout 改为 SharedHeadBootstrap，runtime 的语言�
 
 ## Verification
 
-- Next 适配器、转发器边界及现有 pipeline：15 项测试通过，API 类型检查通过
+- API 全量 176 项测试通过，三包类型检查通过，变更文件 Biome 与 ECS timer 门禁 8 项测试通过
 - 本地真实 STCN 采集 10 篇，约 1.2 秒，原 URL、全文及北京时间转换正确
 - RSSHub Antigravity 真站解析 28 篇，中文标题和正文保留；变更路由格式与类型感知 lint 通过
-- CF dry-run 和部署成功，修正版 6189d483-91c1-40be-aa3a-e62ef33f9166；ECS 使用应用 User-Agent 完整读取两路 HTTP 200：Google 20 篇/30,823 字节，Simon 15 篇/259,387 字节；最终 Next 采集门禁待完成
-- Antigravity Vercel 预览部署 dpl_74MrZ2yHxgY6FrsJLyxoCaYbrBVF HTTP 200，28 篇中文内容，首篇正文 10,299 字符；已提升为生产部署，构建待完成
+- CF dry-run 和部署成功，修正版 6189d483-91c1-40be-aa3a-e62ef33f9166；ECS 使用应用 User-Agent 完整读取两路 HTTP 200：Google 20 篇/30,823 字节，Simon 15 篇/259,387 字节；实际 Bun 请求分别 2.3 秒和 10.2 秒，均完整读完
+- Antigravity Vercel 预览部署 dpl_74MrZ2yHxgY6FrsJLyxoCaYbrBVF HTTP 200，28 篇中文内容，首篇正文 10,299 字符；生产部署 dpl_BcKv7pErkoaoN2VLwcCZ1KmiPCpc READY，rss.ljhboard.cn 真实路由 HTTP 200 / 475,356 字节
+- [完整 CI 42146370008](https://github.com/ljh12138164/rss-site/actions/runs/42146370008) 全部成功，包含测试、类型、部署脚本、Linux 构建及 PostgreSQL 18 应用角色镜像验收
+- 镜像 sha-9136314f11c595b96919170924473c9d407ef41a 已部署 ECS，Next healthy，50/50 列表缓存预热通过；未变更数据库 schema 或运行时凭据
+- 2026-11-06 09:59:21（Asia/Shanghai），全配置 44/44 来源的生产 POST /cron/signals 与 /cron/verify 全部 HTTP 200，共 1,053 条热点
+- 四个修复来源均 succeeded，source_status 批次与 hot_items 一致；排名从 1 连续到条数，标题/URL/来源/专区/发布时间核验错误 0、空正文 0；Google 保留官方 RSS 的摘要内容，未额外扩展全文抓取
+- 两个暂停 timer 已恢复，44 个来源加 3 项既有维护共 47/47 timer active；Next、PostgreSQL、agent 均 healthy，公开 healthz HTTP 200
+- 旧 Supabase active Cron=0、排队请求=0；Cloudflare 当前仅有模型网关、tokenizer 和新 Feed 转发器，旧采集 Worker 不存在
+
+| 来源 | 条数 | 采集耗时 | 已核验批次 |
+| --- | ---: | ---: | --- |
+| Google AI | 20 | 18.8 秒 | ff952870-2172-4665-9daf-8c6e620c80b5 |
+| Antigravity | 20 | 8.2 秒 | c9714c8f-4ecb-49fb-8802-36565395e1f4 |
+| 证券时报 | 10 | 1.3 秒 | 60eb53a4-4bc1-49c0-beae-bd36127c9d62 |
+| Simon Willison | 15 | 11.0 秒 | 89eaf471-7867-451c-962f-2fef85939535 |
+
+受保护服务器证据位于 `/opt/stacks/rss-site/migration/cron-verification-feed-fix.json`、`feed-data-quality.json`、`feed-timer-enablement.json`。启用器使用新鲜验收证据和受保护运行时中的既有 Cron secret；本次没有 schema 变更，沿用已迁移的来源和业务表。
+
+## Review
+
+STCN 官网链接限制、全文缺失处理、时区、去重和既有 pipeline 注入兼容已核对；转发器非白名单路径、凭据隔离、重定向拒绝有回归覆盖，真实 Workers、ECS Bun、Next 生产采集和目标 PostgreSQL 均已验证。无剩余阻塞项或接受的范围外跟进，不创建空 roadmap。
+
+配套 RSSHub 提交 3989abdd6，仅修改三个动态入口匹配并记录真实线上证据；没有改写正常解析的 STCN RSSHub handler。
+
+## Delivery
+
+修复已直接部署并验收。按仓库规则，由用户创建并合并两个 PR，确保以后常规发布包含修复：
+
+- [rss-site master...feat/fix-feed-upstreams](https://github.com/ljh12138164/rss-site/compare/master...feat/fix-feed-upstreams?expand=1)
+- [RSSHub master...feat/fix-stcn-antigravity-feeds](https://github.com/ljh12138164/RSSHub/compare/master...feat/fix-stcn-antigravity-feeds?expand=1)
 
 ## Risks
 
