@@ -36,7 +36,10 @@ begin
     timeout_milliseconds := 180000
   ) into request_id;
   insert into private.business_cron_requests(request_id,source,attempt)
-    values (request_id,job_source,retry_attempt);
+    values (request_id,job_source,retry_attempt)
+    -- pg_net's unlogged sequence resets after a crash or logical restore.
+    on conflict on constraint business_cron_requests_pkey do update set source=excluded.source,attempt=excluded.attempt,
+      retried=false,requested_at=excluded.requested_at;
   return request_id;
 end;
 $$;

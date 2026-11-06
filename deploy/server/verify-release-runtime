@@ -6,14 +6,16 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 PREFIX="rss-verify-${RANDOM}-${RANDOM}"
 NETWORK="${PREFIX}-network"
 POSTGRES="${PREFIX}-postgres"
+RESTORE="${PREFIX}-restore"
 WEB="${PREFIX}-web"
 cleanup() {
   status=$?
   if [[ $status -ne 0 ]]; then
     docker logs --tail 100 "$POSTGRES" || true
+    docker logs --tail 100 "$RESTORE" 2>/dev/null || true
     docker logs --tail 100 "$WEB" 2>/dev/null || true
   fi
-  docker rm -f "$WEB" "$POSTGRES" >/dev/null 2>&1 || true
+  docker rm -f "$WEB" "$POSTGRES" "$RESTORE" >/dev/null 2>&1 || true
   docker network rm "$NETWORK" >/dev/null 2>&1 || true
   exit "$status"
 }
@@ -118,4 +120,32 @@ done
 test "$(docker exec "$POSTGRES" psql -U postgres -d rss_site -X -Atc \
   "select count(*) from private.business_cron_history where source='publication-outbox' and status='succeeded'")" -gt 0
 docker exec "$POSTGRES" psql -U postgres -d rss_site -X -q -c "select cron.unschedule('rss-cron-smoke')" >/dev/null
+# A logical restore must retain configuration without running restored jobs.
+docker run -d --name "$RESTORE" --network none --memory 256m \
+  -e POSTGRES_PASSWORD=ci-admin-only -e POSTGRES_DB=rss_site \
+  "$POSTGRES_IMAGE" postgres -c shared_preload_libraries=pg_cron,pg_net \
+  -c cron.database_name=rss_site -c pg_net.database_name=rss_site \
+  -c cron.launch_active_jobs=off >/dev/null
+for _ in {1..60}; do
+  if docker exec "$RESTORE" pg_isready -h 127.0.0.1 -U postgres -d rss_site >/dev/null 2>&1; then break; fi
+  sleep 1
+done
+docker exec "$POSTGRES" pg_dump -U postgres -d rss_site -Fc |
+  docker exec -i "$RESTORE" pg_restore -U postgres -d rss_site --exit-on-error --no-owner --no-acl
+docker exec -i "$RESTORE" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
+do $$ begin
+  if current_setting('cron.launch_active_jobs')<>'off'
+    or (select count(*) from private.business_cron_jobs)<>47
+    or (select count(*) from cron.job)<>49 then
+    raise exception 'Restored Cron configuration failed';
+  end if;
+  -- net's unlogged sequence restarts at 1; old request metadata must not block it.
+  perform private.dispatch_business_job('publication-outbox',3);
+  if not exists (select 1 from private.business_cron_requests where request_id=1 and attempt=3) then
+    raise exception 'Restored request sequence could not be reused';
+  end if;
+end $$;
+SQL
+
 echo 'PostgreSQL Cron: idempotency, default-disabled sources, credentials isolation and scheduled HTTP passed'
+echo 'PostgreSQL Cron: isolated logical restore and request sequence recovery passed'
