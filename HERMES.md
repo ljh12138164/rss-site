@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-11-06 修复采集上游链路
+
+- Branch: feat/fix-feed-upstreams；RSSHub 配套 feat/fix-stcn-antigravity-feeds，均使用原目录
+- Document: [采集上游修复](docs/development/fix-feed-upstreams.md)
+- 证券时报改为 Next 在 ECS 请求官网列表和正文；Antigravity 修正官网语言入口；Google AI、Simon Willison 使用仅含固定公开目标的 CF 转发器
+- Antigravity Vercel 预览 HTTP 200，28 篇中文全文；生产提升正在构建
+- CF 已修复 redirect=error 的 Workers 兼容问题；ECS 两路 HTTP 200，Google 20 篇、Simon 15 篇，最终 Next 实际采集验收待完成
+- Next/API 本地测试已通过；生产镜像与全配置来源门禁待完成，暂停的两路 timer 尚未恢复
+
 ## 2026-11-05 修复 PostgreSQL 镜像验收竞态
 
 - Branch: feat/fix-postgres-runtime-readiness，原目录操作

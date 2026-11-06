@@ -3,6 +3,7 @@ import type { Database } from '../db/client'
 import { fetchSignalFeed } from './fetch'
 import { ingestSignal } from './ingest'
 import { type PublicationStatus, publishSourceUpdate } from './publish'
+import { fetchStcnFeed } from './stcn'
 import { DrizzleSignalStore } from './store'
 
 export interface IngestionPipelineOptions {
@@ -44,7 +45,10 @@ export async function runIngestionPipeline(
   const result = await ingestSignal(
     source,
     {
-      fetchFeed: () => Promise.all(feedUrls.map((url) => fetcher(url))),
+      fetchFeed:
+        source.id === 'stcn' && !options.fetchFeed
+          ? fetchStcnFeed
+          : () => Promise.all(feedUrls.map((url) => fetcher(url))),
       store
     },
     now
