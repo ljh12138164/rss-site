@@ -71,7 +71,7 @@ for _ in 1 2; do
 done
 docker exec -i "$POSTGRES" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
 do $$ begin
-  if (select count(*) from private.business_cron_jobs)<>47
+  if (select count(*) from private.business_cron_jobs)<>48
     or exists (select 1 from private.business_cron_jobs where verified)
     or exists (select 1 from cron.job where jobname like 'rss-site-%'
       and jobname not in ('rss-site-cron-history-cleanup','rss-site-cron-pending') and active)
@@ -139,8 +139,8 @@ docker exec "$RESTORE" psql -U postgres -d rss_site -X -q -c 'create role rss_si
 docker exec -i "$RESTORE" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
 do $$ begin
   if current_setting('cron.launch_active_jobs')<>'off'
-    or (select count(*) from private.business_cron_jobs)<>47
-    or (select count(*) from cron.job)<>49
+    or (select count(*) from private.business_cron_jobs)<>48
+    or (select count(*) from cron.job)<>50
     or has_table_privilege('rss_site_app','private.business_cron_settings','select')
     or has_function_privilege('rss_site_app','private.dispatch_business_job(text,integer)','execute')
     or has_schema_privilege('rss_site_app','net','usage') then

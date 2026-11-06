@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-11-06T06:32:25.386Z",
+  "feedUrl": "https://rss.ljhboard.cn/the-decoder/news",
+  "parsedItems": 30,
+  "fullBodyMatches": 30,
+  "displayedFullBodyMatches": 30,
+  "publicationDatesVerified": 30,
+  "images": 16,
+  "videos": 4,
+  "ingestedItems": 30,
+  "uniqueUrls": 30,
+  "consecutiveRanks": true,
+  "manifestMatchesRegistry": true,
+  "releaseSqlIncludesSourceMigration": true,
+  "automaticActivation": false,
+  "productionDatabaseVerified": false
+}

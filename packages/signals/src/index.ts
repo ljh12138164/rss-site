@@ -87,7 +87,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
   }
 ] as const
 
-// 科技 Technology (10)
+// 科技 Technology (11)
 export const technologySources = [
   {
     id: 'github',
@@ -221,6 +221,19 @@ export const technologySources = [
     isArticle: true,
     cronSchedule: '50 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-amd'
+  },
+  {
+    id: 'the-decoder',
+    name: 'The Decoder',
+    code: 'TD',
+    shortName: 'The Decoder',
+    description: 'AI 新闻与分析，英文全文',
+    section: 'technology',
+    itemLimit: 30,
+    rsshubPath: '/the-decoder/news',
+    isArticle: true,
+    cronSchedule: '0 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-the-decoder'
   }
 ] as const
 
@@ -786,7 +799,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'cloudflare-blog',
   'antigravity',
   'nvidia',
-  'amd'
+  'amd',
+  'the-decoder'
 ] as const
 
 // Cron jobs
