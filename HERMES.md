@@ -5,7 +5,9 @@
 - Branch: feat/postgres-cron；原目录，继承已交付测试精简和已部署采集修复
 - Document: [PostgreSQL Cron](docs/development/postgres-cron.md)
 - Objective: 按用户要求以 pg_cron/pg_net 替换 Python/systemd 业务调度，SQL 与计划随 CI/CD 更新
-- Next: 验证 PostgreSQL 18 扩展镜像、真实 HTTP、权限与验收门禁，再切换生产唯一调度
+- Delivered: 44 来源与 3 维护全部验收通过，1,053 条；旧业务 Python/systemd 已撤下，47 业务 + 2 内部 Cron 共 49 active，12:00 自然调度及业务入库通过，失败记录 0
+- Verification: lint、313 测试、最终 CI 与真实加密异地备份恢复通过；16 业务表及 61,735 篇文章核对，恢复后密钥权限、请求序号恢复通过；[非敏感证据](docs/development/evidence/postgres-cron-20261106.json)
+- Next: 按仓库规则由用户从 feat/postgres-cron 创建并合并到 master，CI/CD 自动同步 SQL 与任务清单；[创建 PR](https://github.com/ljh12138164/rss-site/compare/master...feat/postgres-cron?expand=1)
 
 ## 2026-11-06 精简测试套件与修复 lint
 
