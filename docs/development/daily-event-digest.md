@@ -55,3 +55,5 @@ UI 工作简报：读者快速了解前一天发生的事，再打开引用报�
 ## Delivery
 
 两仓分支均为 `feat/daily-event-digest`，base 均为 `master`。按仓库规定准备并推送分支，由维护者创建和合并 PR；优先部署 ai-base 后再部署 rss-site。没有数据库迁移、新密钥或新来源 Cron。
+
+实现提交已推送：rss-site `18a1990`、ai-base `341ba80`。维护者创建入口：[ai-base PR](https://github.com/ljh12138164/ai-base/compare/master...feat/daily-event-digest?expand=1)、[rss-site PR](https://github.com/ljh12138164/rss-site/compare/master...feat/daily-event-digest?expand=1)。CI 在创建 PR 后触发，本轮未创建或合并 PR。

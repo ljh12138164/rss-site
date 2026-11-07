@@ -6,7 +6,8 @@
 - Objective: 日报按事件总结并引用站内文章，移除空分区；配套排查当天生成失败
 - Document: [事件式日报](docs/development/daily-event-digest.md)
 - Verification: 全仓299项通过、16项服务集成跳过；类型与lint通过；58页生产构建成功；1440/390、明暗主题、键盘往期/日期导航和锚点无溢出。真实11-07冻结材料在独立Bun进程生成4条且校验通过，未发布
-- Next: 提交推送两仓feat/daily-event-digest，由用户创建和合并到master的PR；先部署ai-base再Web，之后显式补跑失败报期
+- Delivery: 实现18a1990已推送origin/feat/daily-event-digest，配套ai-base实现341ba80已推送同名分支；无生产部署
+- Next: 由用户创建和合并到master的PR；先部署ai-base再Web，之后显式补跑失败报期
 
 ## 2026-11-06 The Decoder 生产回归与作者修复
 
