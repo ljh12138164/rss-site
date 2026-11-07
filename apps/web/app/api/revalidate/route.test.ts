@@ -59,32 +59,6 @@ it('schedules external publication only after authorized ISR invalidation', asyn
   )
 })
 
-it('publishes GitHub ingestion to the independent ranking route', async () => {
-  const response = await app.request(request({ section: 'technology', source: 'github' }))
-  expect(response.status).toBe(200)
-  expect(paths).toHaveBeenCalledWith('/github')
-  expect(paths).not.toHaveBeenCalledWith('/technology/github')
-  expect(paths).not.toHaveBeenCalledWith('/technology/github/[slug]', 'page')
-  await callbacks[0]()
-  expect(publication).toHaveBeenCalledWith(
-    ['/', '/latest', '/sitemap.xml', '/github'],
-    expect.any(String)
-  )
-})
-
-it('publishes both skill sources only to the shared skills route', async () => {
-  const response = await app.request(request({ section: 'skills', source: 'skills-all-time' }))
-  expect(response.status).toBe(200)
-  expect(paths).toHaveBeenCalledWith('/skills')
-  expect(paths).not.toHaveBeenCalledWith('/skills/skills-all-time')
-  expect(paths).not.toHaveBeenCalledWith('/skills/skills-all-time/[slug]', 'page')
-  await callbacks[0]()
-  expect(publication).toHaveBeenCalledWith(
-    ['/', '/latest', '/sitemap.xml', '/skills'],
-    expect.any(String)
-  )
-})
-
 it('validates and publishes concrete Skill IDs, including a continuation batch', async () => {
   const id = 'mattpocock/skills/tdd'
   expect(
@@ -123,16 +97,6 @@ it('does not run external publication if Next invalidation fails', async () => {
   })
   expect((await app.request(request({ events: ['release-12345678'] }))).status).toBe(500)
   expect(callbacks).toHaveLength(0)
-})
-
-it('isolates background integration failures from the successful response', async () => {
-  const log = vi.spyOn(console, 'info').mockImplementation(() => {})
-  publication.mockRejectedValueOnce(new Error('private-value'))
-  const response = await app.request(request({ events: ['release-12345678'] }))
-  expect((await response.json()).revalidated).toBe(true)
-  await expect(callbacks[0]()).resolves.toBeUndefined()
-  expect(JSON.stringify(log.mock.calls)).not.toContain('private-value')
-  log.mockRestore()
 })
 
 it('invalidates concrete linked events and correlates publication to ingestion', async () => {

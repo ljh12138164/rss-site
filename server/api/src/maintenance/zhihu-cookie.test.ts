@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest'
-import { RefreshError } from './zhihu.js'
 import {
   type CookieRefreshDependencies,
   type CookieState,
@@ -38,23 +37,6 @@ function fixture(initialState?: CookieState) {
 }
 
 describe('daily Zhihu credential rotation', () => {
-  it.each([
-    ['value-only', 'z_c0=value-only'],
-    ['synthetic==', 'z_c0=synthetic=='],
-    ['z_c0=old', 'z_c0=old'],
-    ['d_c0=device; z_c0=old; _xsrf=xsrf', 'd_c0=device; z_c0=old; _xsrf=xsrf']
-  ])(
-    'accepts the configured Cookie %s and passes canonical form to authentication',
-    async (input, expected) => {
-      const { deps } = fixture()
-      deps.initialCookie = input
-      await runZhihuCookieRefresh(deps)
-      expect(deps.account).toHaveBeenCalledWith(expected)
-      expect(deps.refresh).toHaveBeenCalledWith(expected)
-      expect(deps.publish).toHaveBeenCalledWith('z_c0=new')
-    }
-  )
-
   it.each(['z_c0=', 'd_c0=device; _xsrf=xsrf', 'value\r\ninvalid=header'])(
     'still rejects a malformed Cookie before checking identity: %s',
     async (input) => {
@@ -132,30 +114,6 @@ describe('daily Zhihu credential rotation', () => {
     expect(deps.publish).not.toHaveBeenCalled()
   })
 
-  it('allows the refresh endpoint to recover an expired business API token', async () => {
-    const { deps } = fixture()
-    deps.account = vi
-      .fn()
-      .mockRejectedValueOnce(new RefreshError('upstream_http_401'))
-      .mockResolvedValue('account-1')
-    expect((await runZhihuCookieRefresh(deps)).status).toBe('deployment_pending')
-  })
-
-  it('does not redeploy when the validated Cookie is unchanged', async () => {
-    const { deps } = fixture()
-    deps.refresh = vi.fn(async () => 'z_c0=old')
-    expect(await runZhihuCookieRefresh(deps)).toEqual({ status: 'unchanged' })
-    expect(deps.publish).not.toHaveBeenCalled()
-  })
-
-  it('does not start another refresh while a deployment is still building', async () => {
-    const { deps } = fixture({ cookie: 'z_c0=new', deploymentId: 'dpl_1', publishPending: true })
-    deps.deploymentStatus = vi.fn(async () => 'BUILDING')
-    expect((await runZhihuCookieRefresh(deps)).status).toBe('deployment_pending')
-    expect(deps.refresh).not.toHaveBeenCalled()
-    expect(deps.verifyRsshub).not.toHaveBeenCalled()
-  })
-
   it('does not mark publication complete when the RSSHub login check fails', async () => {
     const { deps, state } = fixture({
       cookie: 'z_c0=new',
@@ -169,30 +127,9 @@ describe('daily Zhihu credential rotation', () => {
     expect(state()?.publishPending).toBe(true)
   })
 
-  it('continues with the saved credential after a failed deployment', async () => {
-    const { deps } = fixture({ cookie: 'z_c0=new', deploymentId: 'dpl_old', publishPending: true })
-    deps.deploymentStatus = vi.fn(async () => 'ERROR')
-    expect(await runZhihuCookieRefresh(deps)).toEqual({
-      status: 'deployment_pending',
-      deploymentId: 'dpl_1'
-    })
-    expect(deps.refresh).not.toHaveBeenCalled()
-  })
-
   it('applies the daily cooldown to duplicate invocations', async () => {
     const { deps } = fixture({ cookie: 'z_c0=new', refreshedAt: 1700000000000 })
     expect(await runZhihuCookieRefresh(deps)).toEqual({ status: 'not_due' })
     expect(deps.refresh).not.toHaveBeenCalled()
-  })
-
-  it('continues the daily rotation after verifying the previous day deployment', async () => {
-    const { deps } = fixture({
-      cookie: 'z_c0=old',
-      deploymentId: 'dpl_old',
-      publishPending: true,
-      refreshedAt: 1699900000000
-    })
-    expect((await runZhihuCookieRefresh(deps)).status).toBe('deployment_pending')
-    expect(deps.refresh).toHaveBeenCalledOnce()
   })
 })

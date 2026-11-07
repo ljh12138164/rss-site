@@ -1,11 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AiEvent } from './ai-events'
-import { looksLikeEnglish } from './article-language'
 import {
   TranslationBusyError,
   translateArticle,
   translateArticleOnce,
-  translateEvent,
   translateEventOnce
 } from './article-translation'
 import type { SignalArticle } from './signal-article'
@@ -73,9 +71,7 @@ describe('article translation', () => {
 
   it.each([
     { title: 'An updated guide to building reliable software systems' },
-    { contentHtml: '<p>This is revised article content for readers.</p>' },
-    { summary: 'An updated summary of this article.' },
-    { url: 'https://example.com/posts/revised' }
+    { contentHtml: '<p>This is revised article content for readers.</p>' }
   ])('does not reuse stale translations after article input changes: %j', async (changes) => {
     await translateArticleOnce(article, 'technology')
     translateText.mockClear()
@@ -116,33 +112,11 @@ describe('article translation', () => {
     }
   })
 
-  it('caches event translations separately from articles', async () => {
-    const first = await translateEventOnce({ ...event, id: article.id })
-    await translateArticleOnce(article, 'technology')
-    translateText.mockClear()
-    expect(await translateEventOnce({ ...event, id: article.id })).toEqual(first)
-    expect(translateText).not.toHaveBeenCalled()
-  })
-
-  it('shares concurrent requests for the same article', async () => {
-    const results = await Promise.all([
-      translateArticleOnce(article, 'technology'),
-      translateArticleOnce(article, 'technology')
-    ])
-    expect(results[0]).toEqual(results[1])
-    expect(translateText).toHaveBeenCalledTimes(2)
-  })
-
   it('does not cache failed translations and permits retry', async () => {
     translateText.mockRejectedValueOnce(new Error('translation failed'))
     await expect(translateArticleOnce(article, 'technology')).rejects.toThrow('translation failed')
     expect(cache.size).toBe(0)
     expect((await translateArticleOnce(article, 'technology')).title).toBe(`中文：${article.title}`)
-  })
-
-  it('only classifies predominantly English content as English', () => {
-    expect(looksLikeEnglish('A practical guide to building reliable software systems')).toBe(true)
-    expect(looksLikeEnglish('这是一篇中文技术文章，介绍可靠的软件系统。')).toBe(false)
   })
 
   it('sanitizes source and translated HTML around the translator', async () => {
@@ -173,29 +147,6 @@ describe('article translation', () => {
         translate
       )
     ).rejects.toThrow('ARTICLE_NOT_ENGLISH')
-    expect(translate).not.toHaveBeenCalled()
-  })
-
-  it('translates an English event title and summary', async () => {
-    const translate = vi.fn(async (text: string) => `中文：${text}`)
-    const result = await translateEvent(event, translate)
-
-    expect(translate).toHaveBeenNthCalledWith(1, event.title)
-    expect(translate).toHaveBeenNthCalledWith(2, event.summary)
-    expect(result).toEqual({
-      title: `中文：${event.title}`,
-      summary: `中文：${event.summary}`
-    })
-  })
-
-  it('rejects non-English events before translation', async () => {
-    const translate = vi.fn()
-    await expect(
-      translateEvent(
-        { ...event, title: '中文事件标题', summary: '这是一段中文事件摘要。' },
-        translate
-      )
-    ).rejects.toThrow('EVENT_NOT_ENGLISH')
     expect(translate).not.toHaveBeenCalled()
   })
 })

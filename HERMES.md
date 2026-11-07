@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-11-06 精简测试套件与修复 lint
+
+- Branch: feat/simplify-test-suite；沿用原目录，继承 feat/fix-feed-upstreams
+- Document: [测试精简](docs/development/simplify-test-suite.md)
+- Objective: 按用户要求删除重复和展示层测试，修复全仓 lint，提交并推送可审阅分支
+- Verification: Vitest 634 → 313 项，297 通过、16 项原有服务集成测试跳过；全仓 lint 无错误或警告，类型与差异检查通过；复查无阻塞项或接受的范围外跟进
+- Delivery: 本地验证完成；head 为 feat/simplify-test-suite，base 为 feat/fix-feed-upstreams；由用户创建并合并 PR，上游修复合入 master 后可切换 base；未部署
+
 ## 2026-11-06 修复采集上游链路
 
 - Branch: feat/fix-feed-upstreams；RSSHub 配套 feat/fix-stcn-antigravity-feeds，均使用原目录

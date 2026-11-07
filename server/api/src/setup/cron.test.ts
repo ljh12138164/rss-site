@@ -9,21 +9,14 @@ describe('normalizeIngestUrl', () => {
   it('allows protected server operations to use the production loopback endpoint', () => {
     expect(normalizeIngestUrl('http://127.0.0.1:18104')).toBe('http://127.0.0.1:18104/cron/signals')
   })
-  it.each([
-    '',
-    '/cron/juejin/',
-    '/cron/technology/',
-    '/cron/news/',
-    '/cron/ai/',
-    '/cron/social/',
-    '/cron/finance/',
-    '/cron/games/',
-    '/cron/signals/'
-  ])('normalizes the deployed Next address %s', (path) => {
-    expect(normalizeIngestUrl(`https://news.example.com${path}`)).toBe(
-      'https://news.example.com/cron/signals'
-    )
-  })
+  it.each(['', '/cron/technology/', '/cron/signals/'])(
+    'normalizes the deployed Next address %s',
+    (path) => {
+      expect(normalizeIngestUrl(`https://news.example.com${path}`)).toBe(
+        'https://news.example.com/cron/signals'
+      )
+    }
+  )
   it.each([
     'http://example.com',
     'https://user:pass@example.com',
@@ -134,7 +127,7 @@ describe('ECS source acceptance gate', () => {
     expect(verified).toHaveLength(2)
   })
 
-  it.each([0, -1, 1.5, null])('rejects missing or invalid item count %s', async (itemCount) => {
+  it.each([0, null])('rejects missing or invalid item count %s', async (itemCount) => {
     const verify = vi.fn()
     await expect(
       setupSignalCron({
@@ -160,26 +153,5 @@ describe('ECS source acceptance gate', () => {
         request: async () => result()
       })
     ).rejects.toThrow('target batch mismatch')
-  })
-
-  it('preserves staggered two-hour AI and six-hour auxiliary schedules', () => {
-    expect(SIGNAL_CRON_JOBS.slice(0, 7).every((job) => job.schedule.includes('*/2'))).toBe(true)
-    expect(
-      SIGNAL_CRON_JOBS.slice(7).every((job) =>
-        /\d (?:0,6,12,18|1,7,13,19|2,8,14,20|3,9,15,21|4,10,16,22) \* \* \*/.test(job.schedule)
-      )
-    ).toBe(true)
-    const minutes = SIGNAL_CRON_JOBS.flatMap((job) => {
-      const [minute, hour] = job.schedule.split(' ')
-      const hours =
-        hour === '*/2'
-          ? Array.from({ length: 12 }, (_, index) => index * 2)
-          : hour.split(',').map(Number)
-      return hours.map((value) => value * 60 + Number(minute))
-    }).sort((left, right) => left - right)
-    expect(new Set(minutes).size).toBe(minutes.length)
-    expect(minutes.every((minute, index) => index === 0 || minute - minutes[index - 1] >= 5)).toBe(
-      true
-    )
   })
 })

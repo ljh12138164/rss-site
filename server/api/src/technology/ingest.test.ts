@@ -1,4 +1,4 @@
-import { getSignalSource, newsSources } from '@rss-site/signals'
+import { getSignalSource } from '@rss-site/signals'
 import { describe, expect, it } from 'vitest'
 import type { TechnologyFeedItem } from './feed.js'
 import { ingestSignal, type SignalStore, type SuccessfulIngestion } from './ingest.js'
@@ -165,24 +165,6 @@ describe('ingestSignal', () => {
     expect(store.failedRuns[0]).toContain('empty GitHub Trending feed')
   })
 
-  it('caps large news feeds at the source ingestion limit', async () => {
-    const store = new MemoryStore()
-    const source = getNewsSource('cctv')
-    const items = Array.from({ length: 35 }, (_, index) => ({
-      id: String(index + 1),
-      title: `新闻 ${index + 1}`
-    }))
-
-    const result = await ingestSignal(
-      source,
-      { fetchFeed: async () => feed(items), store },
-      new Date('2026-09-05T01:00:00.000Z')
-    )
-
-    expect(result.itemCount).toBe(30)
-    expect(store.items).toHaveLength(30)
-  })
-
   it.each([
     ['2026-10-11T15:59:00Z', '2026-10-10T16:00:00.000Z'],
     ['2026-10-11T16:01:00Z', '2026-10-11T16:00:00.000Z']
@@ -214,17 +196,6 @@ describe('ingestSignal', () => {
       expect([...store.items.values()][0]?.publishedAt).toBeNull()
     }
   )
-
-  it.each(newsSources.map((source) => source.id))('applies the news policy to %s', async (id) => {
-    const store = new MemoryStore()
-    const source = getSignalSource(id)
-    const deps = { fetchFeed: async () => feed([{ id: '1', title: 'News' }]), store }
-    await ingestSignal(source, deps, new Date('2026-10-11T16:01:00Z'))
-    await ingestSignal(source, deps, new Date('2026-10-12T12:00:00Z'))
-    expect([...store.items.values()][0]?.publishedAt?.toISOString()).toBe(
-      '2026-10-11T16:00:00.000Z'
-    )
-  })
 
   it('does not use an Atom update time as the news publication time', async () => {
     const store = new MemoryStore()

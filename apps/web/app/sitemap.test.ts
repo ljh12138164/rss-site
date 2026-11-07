@@ -122,33 +122,6 @@ it('over limit: /sitemap.xml automatically upgrades to sitemapindex referencing 
   expect(res.headers.get('cache-control')).toContain('stale-while-revalidate=86400')
 })
 
-it('child sitemap /sitemap/[id].xml serves chunked urlset for valid chunk IDs', async () => {
-  vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  mockArticleCount = 10001
-
-  const res = await getChildSitemap(new Request('https://news.ljhboard.cn/sitemap/1.xml'), {
-    params: Promise.resolve({ id: '1.xml' })
-  })
-
-  expect(res.status).toBe(200)
-  const xml = await res.text()
-  expect(xml).toContain('<urlset')
-  expect(xml).toContain('<lastmod>2026-09-02T03:00:00Z</lastmod>')
-  expect(xml.match(/<url>/g)).toHaveLength(2000)
-  expect(res.headers.get('cache-control')).toContain('s-maxage=7200')
-})
-
-it('child sitemap returns 404 for out of range chunk IDs', async () => {
-  vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  mockArticleCount = 1000
-
-  const res = await getChildSitemap(new Request('https://news.ljhboard.cn/sitemap/99.xml'), {
-    params: Promise.resolve({ id: '99.xml' })
-  })
-
-  expect(res.status).toBe(404)
-})
-
 it('returns retryable 503 on database errors and does not cache a truncated sitemap', async () => {
   mockError = true
   vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
@@ -158,15 +131,6 @@ it('returns retryable 503 on database errors and does not cache a truncated site
   expect(res.headers.get('cache-control')).toBe('no-store')
   mockError = false
   expect((await getSitemapXml()).status).toBe(200)
-})
-
-it('reuses cached XML and queries only indexable article metadata', async () => {
-  vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
-  const first = await (await getSitemapXml()).text()
-  const reads = databaseCalls.mock.calls.length
-  expect(await (await getSitemapXml()).text()).toBe(first)
-  expect(databaseCalls).toHaveBeenCalledTimes(reads)
-  expect(articleFilters).toHaveBeenCalledWith('is_indexable', true)
 })
 
 it('bounds shards including catalog entries without losing articles at the boundary', async () => {

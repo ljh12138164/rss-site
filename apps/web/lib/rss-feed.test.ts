@@ -3,7 +3,6 @@ import type { FeedResult, HotItem } from './hot-feed'
 import {
   buildRssSectionData,
   buildRssSourcesData,
-  parseRssFeedName,
   type RssSectionConfig,
   renderRssSectionXml
 } from './rss-feed'
@@ -70,12 +69,6 @@ describe('section RSS feeds', () => {
     expect(xml).toContain('ai:openai:item-1')
     expect(xml).toContain('technology:juejin:item-1')
     expect(xml).toContain('/feeds/custom.xml?sources=juejin,openai')
-  })
-  it('accepts only the six stable XML feed names', () => {
-    expect(parseRssFeedName('ai.xml')).toBe('ai')
-    expect(parseRssFeedName('games.xml')).toBe('games')
-    expect(parseRssFeedName('ai')).toBeNull()
-    expect(parseRssFeedName('github.xml')).toBeNull()
   })
 
   it('orders dated entries newest-first, leaves undated entries last, and uses the newest status', () => {
@@ -145,19 +138,5 @@ describe('section RSS feeds', () => {
       '<atom:link href="https://hot.example/feeds/technology.xml" rel="self" type="application/rss+xml" />'
     )
     expect(xml).not.toContain('<pubDate>')
-  })
-
-  it('emits a real item publication date when one is available', () => {
-    const data = buildRssSectionData(config, {
-      'github-blog': ready(
-        [item({ publishedAt: new Date('2026-09-05T03:04:05.000Z') })],
-        '2026-09-05T04:00:00.000Z'
-      ),
-      'hacker-news': { state: 'empty' }
-    })
-
-    expect(renderRssSectionXml(data, 'https://hot.example')).toContain(
-      '<pubDate>Sat, 05 Sep 2026 03:04:05 GMT</pubDate>'
-    )
   })
 })
