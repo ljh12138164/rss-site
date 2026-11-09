@@ -9,9 +9,11 @@ import {
   technologySources
 } from '@rss-site/signals'
 import { sql } from 'drizzle-orm'
+import type { HotRanking } from '../../../shared/hot-ranking'
 import { type ArticleFilter, articleSections } from './article-filter'
 import { readBusinessRows } from './business-db'
 import type { HotItem } from './hot-feed'
+import { getHotRanking } from './hot-ranking'
 import { getCachedList } from './list-cache'
 import { articleListScope } from './list-cache-scopes'
 import type { OutboundReturnPath } from './outbound-link'
@@ -254,8 +256,7 @@ export interface HomeSectionPreview {
 }
 
 export interface HomeDigest {
-  /** Latest items across all sections, ranked by recency. */
-  top: HomeArticle[]
+  ranking: HotRanking
   /** Per-section preview (latest 3 each), in homeSections order. */
   sections: HomeSectionPreview[]
 }
@@ -308,11 +309,8 @@ async function fetchLatestBySection(
  * infinite-scroll article feed.
  */
 export async function getHomeDigest(signal?: AbortSignal): Promise<HomeDigest> {
-  const allIds = sources
-    .filter(({ source }) => source.id !== 'github')
-    .map(({ source }) => source.id)
-  const [top, ...previews] = await Promise.all([
-    fetchLatestBySection(null, allIds, 5, signal).catch(() => [] as HomeArticle[]),
+  const [ranking, ...previews] = await Promise.all([
+    getHotRanking(),
     ...homeSections.map(({ path, sources: sectionSources }) =>
       fetchLatestBySection(
         path.slice(1),
@@ -323,7 +321,7 @@ export async function getHomeDigest(signal?: AbortSignal): Promise<HomeDigest> {
     )
   ])
   return {
-    top,
+    ranking,
     sections: homeSections.map((section, index) => ({
       path: section.path,
       name: section.name,
