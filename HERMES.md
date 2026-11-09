@@ -8,7 +8,8 @@
 - Feasibility: 7天5,805篇、尾端48小时1,326篇；需要增量分析缓存及原子快照，不在页面推理
 - Verification: 全仓318项通过、12项原有Redis集成跳过；新功能15项含6项真实PostgreSQL18测试通过。类型、Git文件lint、58页生产构建通过；48篇真实材料非发布试算完成，12篇进博会材料不误并、2组跨来源正确归组。1440/390、站内引用、空榜/不可用/延迟通过，修复手机网格占位
 - Delivery: 用户本轮明确要求代理创建PR，已通过GitHub API创建 [rss-site #77](https://github.com/ljh12138164/rss-site/pull/77) 和 [ai-base #16](https://github.com/ljh12138164/ai-base/pull/16)，均base master；未合并或部署。样本试算不代表全量冷启动吞吐验证
-- Next: 检查两个PR的CI，由用户审阅并合并；先部署ai-base接口，再部署Web和迁移003，等待首次完整统计
+- CI: ai-base #16已通过；rss-site首次330测试/构建通过，恢复演练因RLS策略引用尚未创建的应用角色而失败。已复现并前移角色创建，补恢复策略/权限断言；同一PostgreSQL18复现转绿。完整状态见#77 Checks
+- Next: 确认修复后的完整CI，由用户审阅并合并；先部署ai-base接口，再部署Web和迁移003，等待首次完整统计
 
 ## 2026-11-07 事件式日报修复
 

@@ -44,6 +44,7 @@ UI工作简报：快速了解最受关注的五件事，焦点是事件标题；
 - 用真实生产已收录内容在独立Bun进程调用既有模型，完整处理48篇样本；12篇进博会材料各自归组，2组跨来源报道正确合并，3篇综述/闲聊材料被排除。此为样本验证，不是全量1065篇吞吐验收，也不是线上发布。摘要仍可能出现措辞瑕疵（样本有“心思动作RPG”），原文引用用于核对。非敏感统计见 [试算证据](evidence/home-hot-ranking-20261109.json)。
 - 1440桌面、390手机，浅色与深色布局检查；修复封面按钮残留网格占位导致手机竖排。站内引用实际进入详情页；正常五席、真实空榜、首次不可用、失败保留五席及延迟提示均验证。桌面与手机 `scrollWidth==clientWidth`。截图为本地48篇样本榜，不代表线上全量排行：[桌面](assets/home-hot-ranking-desktop.jpg)、[手机](assets/home-hot-ranking-mobile.jpg)。既有广告覆盖层未改动。
 - `rtk proxy graphify update .` 完成（2166 nodes、5119 edges）。未修改生产业务数据、调度、凭据或服务配置，未部署。
+- PR首次CI的330项测试、类型、lint及镜像构建全部通过，但 [运行时恢复演练](https://github.com/ljh12138164/rss-site/actions/runs/42632533758) 失败：`pg_restore --no-acl` 仍恢复引用角色的RLS策略，而演练在恢复后才创建 `rss_site_app`。隔离PostgreSQL18最小复现得到同一 `CREATE POLICY` 角色不存在错误；将既有角色创建移到恢复之前后，同一复现通过，归组缓存行及应用角色读权限恢复成功。原运行时门禁同时增加两表策略及应用角色读权限断言，保留真实恢复和权限隔离检查；Shell语法检查通过。完整重跑结果以 [PR #77 Checks](https://github.com/ljh12138164/rss-site/pull/77/checks) 为准。配套 [ai-base CI](https://github.com/ljh12138164/ai-base/actions/runs/42632509769) 已通过，无需修改。
 
 ## Review / Delivery
 
