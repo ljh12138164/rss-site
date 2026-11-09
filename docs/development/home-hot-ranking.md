@@ -49,7 +49,7 @@ UI工作简报：快速了解最受关注的五件事，焦点是事件标题；
 
 已按仓库标准和上述验收条件自审；手机网格占位、拆分首成员ID碰撞、输入编辑复用旧事件ID、超限截断发布和中断丢进度均已解决并复验。无剩余阻塞项，也无接受的范围外跟进，不创建空roadmap。配套契约分别保存在两仓，发布前须共同审阅。
 
-分支均为 `feat/home-hot-ranking`，base `master`。遵循仓库规则，由用户创建并合并两个PR；先ai-base、后rss-site。线上冷启动与生产连续运行尚未验证，首次完整统计完成之前显示不可用。
+分支均为 `feat/home-hot-ranking`，base `master`。用户本轮明确要求代理创建PR，已通过GitHub API创建 [rss-site #77](https://github.com/ljh12138164/rss-site/pull/77) 和 [ai-base #16](https://github.com/ljh12138164/ai-base/pull/16)，互相链接且注明验证和发布顺序。由用户审阅并合并；先ai-base、后rss-site。未合并或部署。线上冷启动与生产连续运行尚未验证，首次完整统计完成之前显示不可用。
 
 ## Risks
 

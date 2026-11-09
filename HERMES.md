@@ -7,8 +7,8 @@
 - Document: [热点排行](docs/development/home-hot-ranking.md)
 - Feasibility: 7天5,805篇、尾端48小时1,326篇；需要增量分析缓存及原子快照，不在页面推理
 - Verification: 全仓318项通过、12项原有Redis集成跳过；新功能15项含6项真实PostgreSQL18测试通过。类型、Git文件lint、58页生产构建通过；48篇真实材料非发布试算完成，12篇进博会材料不误并、2组跨来源正确归组。1440/390、站内引用、空榜/不可用/延迟通过，修复手机网格占位
-- Delivery: feat/home-hot-ranking 配套两仓已完成，未部署；样本试算不代表全量冷启动吞吐验证
-- Next: 由用户创建并合并两个以master为base的PR；先部署ai-base接口，再部署Web和迁移003，等待首次完整统计
+- Delivery: 用户本轮明确要求代理创建PR，已通过GitHub API创建 [rss-site #77](https://github.com/ljh12138164/rss-site/pull/77) 和 [ai-base #16](https://github.com/ljh12138164/ai-base/pull/16)，均base master；未合并或部署。样本试算不代表全量冷启动吞吐验证
+- Next: 检查两个PR的CI，由用户审阅并合并；先部署ai-base接口，再部署Web和迁移003，等待首次完整统计
 
 ## 2026-11-07 事件式日报修复
 
