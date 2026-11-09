@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { type DailyReport, type DailyStory, dailySections } from '../../../../shared/daily-report'
+import type { DailyReport, DailyStory } from '../../../../shared/daily-report'
 import type { DailyArchive, DailyArchiveEntry } from '../../lib/daily-reports'
 import { cn } from '../../lib/utils'
 
@@ -169,22 +169,22 @@ export function DailyReportView({
           if (!source) throw new Error('Unknown daily citation')
           return (
             <li key={id} className="min-w-0">
-              <a
-                href={source.url}
-                target="_blank"
-                rel="noreferrer"
-                title={source.title}
-                className={cn(linkClass, 'break-words')}
-              >
-                {source.sourceName} ↗
-              </a>
-              {articleLinks[id] && (
+              {articleLinks[id] ? (
                 <Link
                   href={articleLinks[id]}
-                  className={cn(linkClass, 'ml-2 underline underline-offset-4')}
+                  className={cn(linkClass, 'break-words underline underline-offset-4')}
                 >
-                  站内阅读
+                  {source.sourceName} · {source.title}
                 </Link>
+              ) : (
+                <a
+                  href={source.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={cn(linkClass, 'break-words underline underline-offset-4')}
+                >
+                  {source.sourceName} · {source.title} ↗
+                </a>
               )}
             </li>
           )
@@ -193,18 +193,20 @@ export function DailyReportView({
     )
   }
   function storyBody(story: DailyStory, lead = false) {
-    const Heading = lead ? 'h2' : 'h3'
     return (
       <article key={story.id} id={story.id} className="scroll-mt-36 py-7">
-        {lead && <p className="eyebrow mb-4 text-primary">头条 · {sectionNames[story.section]}</p>}
-        <Heading
+        <p className="eyebrow mb-4 text-primary">
+          {lead && '头条 · '}
+          {sectionNames[story.section]}
+        </p>
+        <h2
           className={cn(
             'headline-display break-words text-balance',
             lead ? 'text-3xl leading-tight sm:text-4xl' : 'text-xl leading-snug sm:text-2xl'
           )}
         >
           {story.title}
-        </Heading>
+        </h2>
         <p className="mt-5 whitespace-pre-line break-words text-[0.9375rem] leading-8 text-foreground/85">
           {story.summary}
         </p>
@@ -279,39 +281,11 @@ export function DailyReportView({
               <Highlights stories={report.content.stories} />
             </div>
             {storyBody(headline, true)}
-            <nav
-              aria-label="分区目录"
-              className="flex flex-wrap gap-x-5 border-y border-border py-2 text-xs"
-            >
-              {dailySections.map((section) => (
-                <a key={section} href={`#daily-${section}`} className={linkClass}>
-                  {sectionNames[section]}
-                </a>
-              ))}
-            </nav>
-            {dailySections.map((section) => {
-              const stories = report.content.stories.filter(
-                (story) => story.section === section && story.id !== headline.id
-              )
-              return (
-                <section
-                  key={section}
-                  id={`daily-${section}`}
-                  className="scroll-mt-36 border-b border-border py-6"
-                >
-                  <h2 className="eyebrow text-primary">{sectionNames[section]}</h2>
-                  {stories.length ? (
-                    <div className="divide-y divide-border/60">
-                      {stories.map((story) => storyBody(story))}
-                    </div>
-                  ) : (
-                    <p className="py-4 text-sm text-muted-foreground">
-                      {headline.section === section ? '本期重点见头条' : '本期未收录'}
-                    </p>
-                  )}
-                </section>
-              )
-            })}
+            {report.content.stories.length > 1 && (
+              <div className="divide-y divide-border/60 border-y border-border">
+                {report.content.stories.slice(1).map((story) => storyBody(story))}
+              </div>
+            )}
             <p className="pt-6 text-xs leading-6 text-muted-foreground">
               依据已收录报道整理，摘要由 AI 生成，请以原文为准
               <br />
