@@ -43,6 +43,44 @@ function timestamp(value: unknown) {
     throw new Error('invalid_input')
   return new Date(value)
 }
+async function recordHotRankingGeneration(input: Record<string, unknown>) {
+  const { phase, articleIds, model, elapsedMs, status, issueCode, result, resultTruncated } = input
+  if (
+    (phase !== 'analysis' && phase !== 'review') ||
+    !Array.isArray(articleIds) ||
+    articleIds.length < 1 ||
+    articleIds.length > 6 ||
+    typeof model !== 'string' ||
+    !/^[a-z0-9.-]{1,100}$/i.test(model) ||
+    typeof elapsedMs !== 'number' ||
+    !Number.isInteger(elapsedMs) ||
+    elapsedMs < 0 ||
+    elapsedMs > 300000 ||
+    (status !== 'ok' && status !== 'recovered' && status !== 'failed') ||
+    (status === 'ok'
+      ? issueCode !== null
+      : typeof issueCode !== 'string' || !/^[a-z][a-z0-9_]{0,79}$/.test(issueCode)) ||
+    (result === null
+      ? status !== 'failed'
+      : typeof result !== 'string' || result.includes('\0') || Buffer.byteLength(result) > 32768) ||
+    typeof resultTruncated !== 'boolean' ||
+    (resultTruncated && result === null)
+  )
+    throw new Error('invalid_input')
+  const batchId = identifier(input.batchId)
+  const ids = articleIds.map(identifier)
+  if (new Set(ids).size !== ids.length) throw new Error('invalid_input')
+  const startedAt = timestamp(input.startedAt)
+  await readBusinessRows(sql`insert into private.hot_ranking_generations
+    (batch_id,phase,article_ids,model,started_at,elapsed_ms,status,issue_code,result,result_truncated)
+    values (${batchId}::uuid,${phase},array[${sql.join(
+      ids.map((id) => sql`${id}::uuid`),
+      sql`, `
+    )}],
+      ${model},${startedAt.toISOString()}::timestamptz,${elapsedMs},${status},${issueCode},${result},${resultTruncated})
+    on conflict do nothing`)
+  return true
+}
 function frozen(value: unknown): FrozenInput {
   const row = record(value)
   if (
@@ -94,6 +132,9 @@ export function internalService(repository = new DailyReportRepository()) {
     try {
       let result: unknown
       switch (input.operation) {
+        case 'recordHotRankingGeneration':
+          result = await recordHotRankingGeneration(input)
+          break
         case 'article': {
           const id = identifier(input.id)
           const [article] = await readBusinessRows(

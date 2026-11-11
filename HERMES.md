@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-11-11 热点排行 AI 生成记录
+
+- Branch: `feat/hot-ranking-generation-records`，基于 `af00894`，配套 ai-base 同名分支叠加 PR #19
+- Document: [生成记录](docs/development/hot-ranking-generation-records.md)
+- Objective: 分析和拆分复核原始结果与问题码写入私有 PostgreSQL 表，复用内部鉴权，留存 7 天，写入故障不阻断排行
+- Verification: Web 189 项通过，22 项按环境跳过；类型和改动文件检查通过。构建后的 Agent 经真实内部接口向隔离 PostgreSQL 写入 3 种状态，去重、读权限和过期清理通过
+- Next: 用户创建两个目标为 `master` 的 PR；ai-base #19 先合入，rss-site 迁移先发布，随后发布 Agent 并核验生产记录。未部署或写生产库
+
 ## 2026-11-09 全部页热点排行
 
 - Branch: feat/home-hot-ranking，基于7311e90，配套ai-base基于3bf42ae；均复用原目录
