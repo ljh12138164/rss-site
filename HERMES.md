@@ -1,5 +1,10 @@
 # HERMES
 
+## 2026-11-11 生成记录读取权限
+
+- 生产已应用 `005`，现有 `rss_site_app` 可读生成记录表，确认 2 条记录可见；临时只读角色已移除
+- 将授权和发布验证交付到 `feat/hot-ranking-generation-read-access`；由用户创建并合并目标为 `master` 的 PR，后续发布自动重放授权
+
 ## 2026-11-11 热点排行 AI 生成记录
 
 - Branch: `feat/hot-ranking-generation-records`，基于 `af00894`，配套 ai-base 同名分支叠加 PR #19
