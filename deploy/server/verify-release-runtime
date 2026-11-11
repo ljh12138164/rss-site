@@ -74,13 +74,16 @@ curl -fsS -X POST http://127.0.0.1:18101/api/internal/agent \
   -d '{"operation":"recordHotRankingGeneration","batchId":"550e8400-e29b-41d4-a716-446655440000","articleIds":["550e8400-e29b-41d4-a716-446655440001"],"phase":"analysis","model":"gemini-3.5-flash-lite","startedAt":"2026-11-11T01:00:00Z","elapsedMs":50,"status":"recovered","issueCode":"new_group","result":"{\"groupKey\":null}","resultTruncated":false}' \
   | grep -F '"result":true' >/dev/null
 docker exec -i "$POSTGRES" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
+set role rss_site_app;
 do $$ begin
   if not exists (select 1 from private.hot_ranking_generations
     where batch_id='550e8400-e29b-41d4-a716-446655440000' and phase='analysis'
-    and status='recovered' and issue_code='new_group' and result='{"groupKey":null}')
-    or has_column_privilege('rss_site_app','private.hot_ranking_generations','result','select') then
-    raise exception 'Hot ranking generation record or privilege boundary failed';
+    and status='recovered' and issue_code='new_group' and result='{"groupKey":null}') then
+    raise exception 'Hot ranking generation record is not readable by rss_site_app';
   end if;
+end $$;
+reset role;
+do $$ begin
   if (select count(*) from private.business_cron_jobs)<>48
     or exists (select 1 from private.business_cron_jobs where verified)
     or exists (select 1 from cron.job where jobname like 'rss-site-%'
