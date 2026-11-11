@@ -89,12 +89,23 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
       )
       await refreshHotRanking(analyze)
       expect(analyze).toHaveBeenCalledTimes(1)
+      const [waiting] =
+        await app`select attempted_at <= now() - interval '20 minutes' as blocked from hot_ranking_state`
+      expect(waiting.blocked).toBe(true)
+      await admin.unsafe(
+        `update ${schema}.hot_ranking_state set attempted_at=now()-interval '31 minutes'`
+      )
+      await refreshHotRanking(analyze)
+      const [retried] =
+        await app`select attempted_at > now() - interval '1 minute' as refreshed from hot_ranking_state`
+      expect(retried.refreshed).toBe(true)
+      expect(analyze).toHaveBeenCalledTimes(1)
     })
     it('keeps the old complete snapshot on model failure and reports delay', async () => {
       await refreshHotRanking(analyze)
       const before = await app`select snapshot from hot_ranking_state`
       await admin.unsafe(
-        `update ${schema}.hot_ranking_state set attempted_at=now()-interval '20 minutes';update ${schema}.signal_articles set content_updated_at=now()+interval '1 second'`
+        `update ${schema}.hot_ranking_state set attempted_at=now()-interval '31 minutes';update ${schema}.signal_articles set content_updated_at=now()+interval '1 second'`
       )
       await expect(
         refreshHotRanking(async () => {
@@ -127,7 +138,7 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
       await refreshHotRanking(analyze)
       expect(await getHotRanking()).toMatchObject({ state: 'ready', entries: [] })
       await admin.unsafe(
-        `update ${schema}.hot_ranking_state set attempted_at=now()-interval '20 minutes';delete from ${schema}.source_status`
+        `update ${schema}.hot_ranking_state set attempted_at=now()-interval '31 minutes';delete from ${schema}.source_status`
       )
       await expect(refreshHotRanking(analyze)).rejects.toThrow()
       await admin.unsafe(
@@ -146,7 +157,7 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
       await refreshHotRanking(analyze)
       const old = (await app`select snapshot from hot_ranking_state`)[0].snapshot
       await admin.unsafe(`update ${schema}.signal_articles set content_updated_at=now()+interval '1 second';
-        update ${schema}.hot_ranking_state set attempted_at=now()-interval '20 minutes';
+        update ${schema}.hot_ranking_state set attempted_at=now()-interval '31 minutes';
         insert into ${schema}.signal_articles(id,source,section,title,url,content_html,published_at,first_seen_at,content_updated_at,is_indexable)
         select md5(i::text)::uuid,'ithome','technology','资料'||i,'https://example.com/'||i,repeat('完整事实',30),now()-interval '2 hours',now()-interval '2 hours',now(),true from generate_series(11,20)i`)
       let calls = 0
@@ -161,7 +172,7 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
         (await app`select count(*)::int as n from hot_ranking_analysis`)[0].n
       ).toBeGreaterThanOrEqual(6)
       await admin.unsafe(
-        `update ${schema}.hot_ranking_state set attempted_at=now()-interval '20 minutes'`
+        `update ${schema}.hot_ranking_state set attempted_at=now()-interval '31 minutes'`
       )
       const resumed: number[] = []
       await refreshHotRanking(async (input) => {

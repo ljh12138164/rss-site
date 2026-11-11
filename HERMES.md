@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-11 热点刷新与模型切换
+
+- 热点每 30 分钟最多启动一轮，配套 ai-base 固定使用 3.1 Flash Lite；日报 3.8 Flash 主用、3.6 Flash 备选
+- 文档：[热点刷新间隔与 Gemini 模型](docs/development/hot-ranking-flash-lite.md)
+- 下一步：先更新 Gemini 网关白名单，再发布 ai-base 和 rss-site 的 `feat/hot-ranking-flash-lite` → `master`，核对真实生成记录
+
 ## 2026-11-11 生成记录读取权限
 
 - 生产已应用 `005`，现有 `rss_site_app` 可读生成记录表，确认 2 条记录可见；临时只读角色已移除

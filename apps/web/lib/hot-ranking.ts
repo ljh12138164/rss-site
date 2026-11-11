@@ -114,7 +114,7 @@ export async function refreshHotRanking(analyze = requestHotAnalysis) {
     { cutoff: string }[]
   >`update hot_ranking_state set lease_token=${token},lease_until=now()+interval '5 minutes',attempted_at=now()
     where singleton and (lease_until is null or lease_until<now())
-    and (attempted_at is null or attempted_at<now()-interval '15 minutes') returning attempted_at as cutoff`
+    and (attempted_at is null or attempted_at<=now()-interval '30 minutes') returning attempted_at as cutoff`
   if (!lease) return
   const ownership = new AbortController()
   const signal = AbortSignal.any([ownership.signal, AbortSignal.timeout(45 * 60 * 1000)])
