@@ -22,11 +22,11 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 46 sources', () => {
+  it('defines 7 sections and 47 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(46)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(46)
+    expect(signalSources).toHaveLength(47)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(47)
   })
 
   it('correctly maps all section counts', () => {
@@ -34,7 +34,7 @@ describe('@rss-site/signals', () => {
     expect(technologyArticleSources).toHaveLength(10)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
-    expect(aiSources).toHaveLength(10)
+    expect(aiSources).toHaveLength(11)
     expect(socialSources).toHaveLength(6)
     expect(financeSources).toHaveLength(5)
     expect(gameSources).toHaveLength(6)
@@ -78,6 +78,10 @@ describe('@rss-site/signals', () => {
     const rsshubSource = getSignalSource('hacker-news')
     expect(resolveSignalFeedUrl(rsshubSource, 'https://rsshub.app')).toBe(
       'https://rsshub.app/hackernews'
+    )
+
+    expect(resolveSignalFeedUrl(getSignalSource('groq'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/groq/blog'
     )
 
     const directSource = getSignalSource('github-blog')
