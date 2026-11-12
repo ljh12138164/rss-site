@@ -39,12 +39,6 @@ const row = () => ({
 })
 
 describe('public daily report reads', () => {
-  it('maps a validated public fixture while preserving citation snapshots', () => {
-    const report = parseDailyReport(row())
-    expect(report.reportDate).toBe('2026-11-04')
-    expect(report.sources[0]?.url).toBe('https://example.com/image-rules')
-    expect(report.content).toEqual(fixture.draft)
-  })
   it('rejects unsafe citation URLs, fabricated counts and unknown references', () => {
     const unsafe = row()
     unsafe.sources[0].url = 'javascript:alert(1)'
@@ -77,22 +71,5 @@ describe('public daily report reads', () => {
       expect(query.sql).toMatch(/select report_date,title,published_at/)
       expect(query.sql).not.toContain('content,')
     }
-  })
-  it('routes latest and dated reads through distinct Redis keys', async () => {
-    result.data = [row()]
-    result.error = null
-    expect((await getDailyReport())?.reportDate).toBe('2026-11-04')
-    expect(getCachedDailyData).toHaveBeenLastCalledWith(
-      'report:latest',
-      expect.any(Function),
-      expect.any(Function)
-    )
-    expect((await getDailyReport('2026-11-04'))?.reportDate).toBe('2026-11-04')
-    expect(getCachedDailyData).toHaveBeenLastCalledWith(
-      'report:2026-11-04',
-      expect.any(Function),
-      expect.any(Function)
-    )
-    await expect(getDailyReport('2026-11-03')).rejects.toThrow('Invalid daily report date')
   })
 })

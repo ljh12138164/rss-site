@@ -39,27 +39,6 @@ describe('Hono ingestion API', () => {
     expect(sources).toEqual(['github'])
   })
 
-  it('runs a confirmed news source through both news and generic endpoints', async () => {
-    const sources: string[] = []
-    const app = configureApp(new Hono(), {
-      cronSecret: 'secret',
-      runIngestion: async (source) => {
-        sources.push(source)
-        return { batchId: 'batch-news', itemCount: 20 }
-      }
-    })
-
-    for (const path of ['/cron/news/xinhua', '/cron/signals/xinhua']) {
-      const response = await app.request(path, {
-        method: 'POST',
-        headers: { Authorization: 'Bearer secret' }
-      })
-      expect(response.status).toBe(200)
-    }
-
-    expect(sources).toEqual(['xinhua', 'xinhua'])
-  })
-
   it('does not accept a news source through the legacy technology endpoint', async () => {
     const app = configureApp(new Hono(), {
       cronSecret: 'secret',

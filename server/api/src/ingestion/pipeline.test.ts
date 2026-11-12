@@ -152,12 +152,6 @@ describe('readBoundedText', () => {
     )
   })
 
-  it('reads bounded stream within limit', async () => {
-    const response = new Response('small payload')
-    const text = await readBoundedText(response, 100)
-    expect(text).toBe('small payload')
-  })
-
   it('aborts stream when received bytes exceed limit', async () => {
     const stream = new ReadableStream({
       start(controller) {

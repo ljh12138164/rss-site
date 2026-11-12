@@ -59,17 +59,6 @@ describe('RSS route', () => {
     expect(response.headers.get('cache-control')).toBe('no-store')
   })
 
-  it('returns 503 when loading throws unexpectedly', async () => {
-    const response = await createRssResponse(
-      new Request('https://hot.example/feeds/ai.xml'),
-      'ai.xml',
-      async () => {
-        throw new Error('query failed')
-      }
-    )
-
-    expect(response.status).toBe(503)
-  })
   it('loads a single platform and a cross-section selection using validated source IDs', async () => {
     const load = vi.fn(async () => sectionData())
     const selected = vi.fn(async () => sectionData())

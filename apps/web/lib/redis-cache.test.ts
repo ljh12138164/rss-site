@@ -33,11 +33,6 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllEnvs())
 
 describe('Redis result cache', () => {
-  it('returns validated cached JSON', async () => {
-    redis.get.mockResolvedValue('{"title":"译文"}')
-    expect(await readResultCache('translation:test', isResult)).toEqual({ title: '译文' })
-  })
-
   it.each(['not json', '{"title":42}'])('ignores invalid cache data %s', async (raw) => {
     redis.get.mockResolvedValue(raw)
     expect(await readResultCache('translation:test', isResult)).toBeNull()

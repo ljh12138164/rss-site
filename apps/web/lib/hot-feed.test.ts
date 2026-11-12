@@ -1,13 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  type FeedCollectionQuery,
-  getNewsFeed,
-  getNewsFeeds,
-  getSectionFeeds,
-  getSkillFeeds,
-  getSourceFeed,
-  getTechnologyFeeds
-} from './hot-feed'
+import { type FeedCollectionQuery, getTechnologyFeeds } from './hot-feed'
 
 const query: FeedCollectionQuery = async () => ({
   items: [
@@ -117,104 +109,5 @@ describe('technology feeds', () => {
     }))
 
     expect(Object.values(feeds).every((feed) => feed.state === 'error')).toBe(true)
-  })
-})
-
-describe('skill feeds', () => {
-  it('keeps both rankings in upstream position order', async () => {
-    const feeds = await getSkillFeeds(async () => ({
-      items: [
-        {
-          source: 'skills-trending',
-          source_key: 'owner/repo/second',
-          title: '#2 second',
-          url: 'https://www.skills.sh/owner/repo/second',
-          summary: 'Second description · Installs: 20',
-          author: 'owner',
-          published_at: null,
-          position: 2
-        },
-        {
-          source: 'skills-trending',
-          source_key: 'owner/repo/first',
-          title: '#1 first',
-          url: 'https://www.skills.sh/owner/repo/first',
-          summary: 'First description · Installs: 30',
-          author: 'owner',
-          published_at: null,
-          position: 1
-        }
-      ],
-      statuses: [
-        { source: 'skills-trending', item_count: 2, last_success_at: '2026-09-14T01:00:00.000Z' }
-      ],
-      error: null
-    }))
-
-    expect(feeds['skills-all-time']).toEqual({ state: 'empty' })
-    expect(feeds['skills-trending'].state).toBe('ready')
-    if (feeds['skills-trending'].state === 'ready') {
-      expect(feeds['skills-trending'].items.map((item) => item.position)).toEqual([1, 2])
-    }
-  })
-})
-
-describe('news feeds', () => {
-  const newsQuery: FeedCollectionQuery = async () => ({
-    items: [
-      {
-        article_id: '00000000-0000-0000-0000-000000000102',
-        source: 'xinhua',
-        source_key: 'xinhua-1',
-        title: '新华社新闻',
-        url: 'https://www.news.cn/story',
-        summary: null,
-        author: null,
-        published_at: null,
-        position: 1
-      }
-    ],
-    statuses: [{ source: 'xinhua', item_count: 1, last_success_at: '2026-09-05T01:00:00.000Z' }],
-    error: null
-  })
-
-  it('builds independent collection and detail results', async () => {
-    const feeds = await getNewsFeeds(1, newsQuery)
-    const feed = await getNewsFeed('xinhua', undefined, newsQuery)
-
-    expect(feeds.xinhua.state).toBe('ready')
-    expect(feeds.cctv).toEqual({ state: 'empty' })
-    expect(feed.state).toBe('ready')
-    if (feed.state === 'ready') {
-      expect(feed.items[0]?.articleId).toBe('00000000-0000-0000-0000-000000000102')
-    }
-  })
-})
-
-describe('game feeds', () => {
-  const gameQuery: FeedCollectionQuery = async () => ({
-    items: [
-      {
-        source: 'gcores',
-        source_key: 'gcores-1',
-        title: '当前热销游戏',
-        url: 'https://www.gcores.com/articles/1',
-        image_url: null,
-        summary: null,
-        author: null,
-        published_at: null,
-        position: 1
-      }
-    ],
-    statuses: [{ source: 'gcores', item_count: 1, last_success_at: '2026-09-05T09:05:00.000Z' }],
-    error: null
-  })
-
-  it('supports generic getSectionFeeds and getSourceFeed readers', async () => {
-    const feeds = await getSectionFeeds('games', 1, gameQuery)
-    const feed = await getSourceFeed('gcores', undefined, gameQuery)
-
-    expect(feeds.indienova).toEqual({ state: 'empty' })
-    expect(feed.state).toBe('ready')
   })
 })

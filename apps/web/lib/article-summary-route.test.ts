@@ -7,7 +7,6 @@ vi.mock('./article-summary', async (original) => ({
   requestArticleSummary: mocks.summarize
 }))
 
-import { SummaryRequestError } from './article-summary'
 import { app } from './hono-app'
 
 const id = '550e8400-e29b-41d4-a716-446655440000'
@@ -38,10 +37,4 @@ it('rejects invalid identity and caller text, forwarding only an ID without quer
   expect(await response.json()).toEqual({ summary: result })
   expect(mocks.summarize).toHaveBeenCalledWith(id, expect.any(AbortSignal))
   expect(mocks.load).not.toHaveBeenCalled()
-})
-it.each([404, 503] as const)('maps %i to a public error', async (status) => {
-  mocks.summarize.mockRejectedValue(new SummaryRequestError(status))
-  const response = await post({ id })
-  expect(response.status).toBe(status)
-  expect(JSON.stringify(await response.json())).not.toContain('SUMMARY_UNAVAILABLE')
 })

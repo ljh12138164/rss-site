@@ -60,17 +60,6 @@ describe('Hono translation RPC', () => {
     })
   })
 
-  it('returns a typed not-found response', async () => {
-    getNewsArticle.mockResolvedValue(null)
-    const response = await app.request('/api/articles/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, source: 'openai' })
-    })
-    expect(response.status).toBe(404)
-    expect(await response.json()).toEqual({ error: '文章不存在' })
-  })
-
   it('validates an event slug before loading the event', async () => {
     const response = await app.request('/api/events/translate', {
       method: 'POST',

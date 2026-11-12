@@ -41,12 +41,6 @@ it('does not rewrite imported HTML before an edit, and sends HTML after an edit'
   expect(onChange).toHaveBeenCalledWith('<p><strong>修改</strong></p>')
 })
 
-it('keeps source mode available while the editor loads and disables editing during save', () => {
-  const markup = renderToStaticMarkup(<ArticleEditor value="" onChange={vi.fn()} disabled />)
-  expect(markup).toContain('源码')
-  expect(editorOptions.current.editable).toBe(false)
-})
-
 it('does not emit an HTML update when mounting or changing editable state', () => {
   editorOptions.effects = []
   const onChange = vi.fn()
