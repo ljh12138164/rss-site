@@ -74,6 +74,8 @@ Update the document as implementation decisions, scope, verification evidence, a
 3. Record commands and outcomes under Verification. Record material deviations and their rationale under Implementation.
 4. Keep commits scoped and reviewable. Do not include unrelated worktree changes.
 
+For new signal sources, follow the [production-data gate](../../../AGENTS.md#new-signal-source-gate). The Next service on ECS owns ingestion and writes to ECS PostgreSQL. Use [`deploy/postgres/migrations/`](../../../deploy/postgres/migrations/) for business migrations and [`deploy/server/business-jobs.json`](../../../deploy/server/business-jobs.json) for schedules. Supabase remains in use for Auth and private backup storage; its old business SQL and Cron files are historical.
+
 ## Close reviews and create the roadmap
 
 1. Review the completed diff against both repository standards and the development document's acceptance criteria. Use a dedicated review skill when the user requests one or repository instructions require it.
