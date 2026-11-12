@@ -841,7 +841,7 @@
 ## Delivery constraint
 
 不提交或输出 GitHub、Supabase、数据库、Vault、Cloudflare 或 Cron 密钥。不通过网页创建或合并 PR。任何新来源
-必须先通过生产 API 与云端 Supabase 数据门禁，再启用 Cron；部分成功不得绕过完整验证。
+必须先通过 ECS 上的 Next 采集与业务 PostgreSQL 数据验收，再启用 Cron；部分成功不得绕过[完整验证](AGENTS.md#new-signal-source-gate)。
 
 ## 2026-10-04 Workbox cache
 

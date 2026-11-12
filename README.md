@@ -4,7 +4,7 @@
 掘金、IT之家和 36氪；国内新闻区包含新华社、央视国内、中新网、澎湃热榜、界面中国和百度热搜；AI
 平台区包含 OpenAI、ChatGPT、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 和 Qwen；另有六路社交热点与
 五路财经、五路游戏信号。首页以 AI 为主展示三十五路摘要，各分区总览与 `[source]` 路由展示独立列表。
-AI 每 2 小时、其他分区每 6 小时错峰采集。迁移目标是单个 Next 服务承载业务入口，使用服务器 PostgreSQL 18；生产切换状态见[迁移开发文档](docs/development/business-postgres-migration.md)。
+AI 每 2 小时、其他分区每 6 小时错峰采集。生产业务已迁到 ECS，由一个 Next 服务承载业务入口，使用 PostgreSQL 18。切换过程见[迁移记录](docs/development/business-postgres-migration.md)。
 
 ## Architecture
 
@@ -21,7 +21,7 @@ PostgreSQL pg_cron + pg_net → Next /cron → RSSHub / official RSS
 - `apps/web`：Next.js 16、React 19、采集与维护入口、业务查询、MCP 和日报仓库
 - `server/api`：由 Next 复用的 Hono、Drizzle schema 和采集模块，不单独部署 API Worker
 - `compose.yaml`：Web、Redis、PostgreSQL 18；数据库只在内部网络开放给 Web
-- Supabase：保留 Auth 和私有备份桶；历史业务迁移位于 `supabase/migrations`
+- Supabase：保留 Auth 和私有备份桶；`supabase/migrations` 中的业务 SQL 仅供历史查阅
 
 应用层只有 Next 直连业务数据库，ai-base 使用鉴权内部接口。列表页由服务端动态渲染并使用 Redis 缓存，文章详情保留 ISR。MCP 地址为 `https://news.ljhboard.cn/api/mcp`。
 
@@ -114,9 +114,9 @@ Compose 提供 `REDIS_URL`。RSSHub 地址保留现有默认值，Vercel 项目�
 
 ## 部署与定时任务
 
-[PostgreSQL 部署与备份说明](deploy/postgres/README.md)描述 PostgreSQL 18 卷挂载、普通应用角色、加密备份和独立恢复验证。首次切换必须冻结所有旧写入、导入最终快照并验证，之后才能由根 Compose 接管数据库。
+[PostgreSQL 部署与备份说明](deploy/postgres/README.md)描述 PostgreSQL 18 卷挂载、普通应用角色、加密备份和独立恢复验证。业务迁移放在 `deploy/postgres/migrations/`，发布时由 `sync-business-cron` 按文件名顺序应用到 ECS PostgreSQL；迁移须可重复执行。
 
-`deploy/server/business-jobs.json` 是启用来源的配置。迁移保留线上原有 44 个来源，未在线启用的 ChatGPT 不自动增加。新增来源仍需先验证真实上游、部署依赖和迁移，再通过生产数据门禁。
+`deploy/server/business-jobs.json` 是业务调度清单。新增来源按[生产数据门禁](AGENTS.md#new-signal-source-gate)上线：验证上游订阅，先部署所需的 RSSHub 和 Next 改动及业务迁移，再手动采集并核对 ECS PostgreSQL 中的数据，最后启用调度。
 
 在已注入现有 `SITE_URL` 和 `CRON_SECRET` 的环境运行：
 
@@ -130,7 +130,7 @@ pnpm setup:cron --output /protected/path/cron-verification.json
 
 保留策略不变：普通文章 90 天、AI 文章 180 天；当前热点、置顶文章和 AI 事件引用不清理；采集运行记录保留 30 天。删除通知通过持久 outbox 重试。Supabase 每小时只读保活运行在 ECS，不额外保存执行日志。
 
-历史 `supabase/cron` 与 Worker 开发文档用于旧环境审计，不能用于启用新生产调度。旧 API Worker 在替代采集、MCP 和维护入口完成验证后下线。
+旧 API Worker 已下线。历史 `supabase/cron` 与 Worker 开发文档仅用于旧环境审计；现行采集、MCP 和维护入口由 Next 提供。
 
 更详细的设计与实施记录见
 [科技多来源与 React Aria 开发文档](docs/development/technology-hot-sources.md)。

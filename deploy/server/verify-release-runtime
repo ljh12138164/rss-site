@@ -83,8 +83,23 @@ do $$ begin
   end if;
 end $$;
 reset role;
+insert into private.hot_ranking_generations
+  (batch_id, phase, article_ids, model, started_at, elapsed_ms, status, issue_code, result_truncated, recorded_at)
+values
+  ('550e8400-e29b-41d4-a716-446655440002', 'analysis',
+   array['550e8400-e29b-41d4-a716-446655440001']::uuid[],
+   'gemini-3.5-flash-lite', now() - interval '25 hours', 50, 'failed', 'timeout', false,
+   now() - interval '25 hours');
+SQL
+test "$(curl -s -o /dev/null -w '%{http_code}' -X POST http://127.0.0.1:18101/cron/maintenance/hot-ranking-log-retention)" = 401
+curl -fsS -X POST http://127.0.0.1:18101/cron/maintenance/hot-ranking-log-retention   -H 'Authorization: Bearer ci-cron-only' | grep -F '"status":"retained"' >/dev/null
+docker exec -i "$POSTGRES" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
 do $$ begin
-  if (select count(*) from private.business_cron_jobs)<>48
+  if exists (select 1 from private.hot_ranking_generations where batch_id='550e8400-e29b-41d4-a716-446655440002')
+    or not exists (select 1 from private.hot_ranking_generations where batch_id='550e8400-e29b-41d4-a716-446655440000') then
+    raise exception 'Hot ranking log retention did not preserve exactly the recent fixture';
+  end if;
+  if (select count(*) from private.business_cron_jobs)<>50
     or exists (select 1 from private.business_cron_jobs where verified)
     or exists (select 1 from cron.job where jobname like 'rss-site-%'
       and jobname not in ('rss-site-cron-history-cleanup','rss-site-cron-pending') and active)
@@ -153,8 +168,8 @@ docker exec "$WEB" bun apps/web/scripts/render-cron-sql.mjs |
 docker exec -i "$RESTORE" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
 do $$ begin
   if current_setting('cron.launch_active_jobs')<>'off'
-    or (select count(*) from private.business_cron_jobs)<>48
-    or (select count(*) from cron.job)<>50
+    or (select count(*) from private.business_cron_jobs)<>50
+    or (select count(*) from cron.job)<>52
     or has_table_privilege('rss_site_app','private.business_cron_settings','select')
     or has_function_privilege('rss_site_app','private.dispatch_business_job(text,integer)','execute')
     or has_schema_privilege('rss_site_app','net','usage')

@@ -90,7 +90,8 @@ export async function requestHotAnalysis(input: HotBatch, signal: AbortSignal) {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
-      signal: AbortSignal.any([signal, AbortSignal.timeout(115000)]),
+      // Analysis and optional review run sequentially (90 s + 45 s), plus log writes.
+      signal: AbortSignal.any([signal, AbortSignal.timeout(145_000)]),
       redirect: 'error',
       cache: 'no-store'
     })

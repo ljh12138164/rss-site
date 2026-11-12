@@ -9,7 +9,8 @@ import { getBusinessDatabase } from './business-db'
 import {
   drainPublicationOutbox,
   refreshBusinessCookie,
-  retainBusinessData
+  retainBusinessData,
+  retainHotRankingGenerations
 } from './business-maintenance'
 import { matchesServiceToken } from './service-auth'
 
@@ -58,6 +59,8 @@ export function ingestionApp() {
       return c.json({ error: 'Unauthorized' }, 401)
     try {
       if (c.req.param('task') === 'retention') return c.json(await retainBusinessData())
+      if (c.req.param('task') === 'hot-ranking-log-retention')
+        return c.json(await retainHotRankingGenerations())
       if (c.req.param('task') === 'publication-outbox')
         return c.json(await drainPublicationOutbox())
       return c.json({ error: 'Unknown maintenance task' }, 404)

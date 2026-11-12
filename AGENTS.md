@@ -9,8 +9,8 @@ Use the existing `rss-site` directory for all work. Do not create additional Git
 Every new platform or feed source must pass the following production-data gate before its Cron job is enabled:
 
 1. Probe the real upstream feed without credentials and record the chosen route or official feed URL.
-2. Deploy every required API and RSSHub change before testing ingestion.
-3. Apply the versioned migration to the production business PostgreSQL database on ECS. Local Docker checks are supplemental and must not replace production validation. Supabase Auth changes remain separate from business schema changes.
+2. Deploy the Next service on ECS and any required changes to the separate RSSHub instance before testing ingestion.
+3. Put business migrations in `deploy/postgres/migrations/` and apply them to production PostgreSQL on ECS through the release workflow. Local Docker checks supplement production validation. Supabase is used for Auth and private backup storage; `supabase/migrations/` and `supabase/cron/` are historical for business data.
 4. Manually call the production `POST /cron/signals/:source` endpoint with the server-side `CRON_SECRET`.
 5. Query production business PostgreSQL through the authenticated Next verification endpoint or authorized server operations and verify that the run succeeded, `source_status` was updated, at least one `hot_items` row was written, and the stored title, URL, source, section, rank, and publication time are plausible.
 6. Only after all configured sources pass verification may a source's PostgreSQL Cron job be enabled. Confirm old writers and replaced ECS business timers are disabled; the job must use the server-side secret synchronized from protected runtime configuration.
