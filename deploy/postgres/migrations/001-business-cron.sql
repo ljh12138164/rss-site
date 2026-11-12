@@ -92,7 +92,8 @@ begin
   for item in select * from jsonb_to_recordset(desired) as j(source text,schedule text,path text) loop
     if item.source !~ '^[a-z0-9-]+$' or item.schedule is null
        or item.path not in ('/cron/signals/' || item.source,
-          '/cron/maintenance/retention','/cron/maintenance/zhihu-cookie','/cron/maintenance/publication-outbox') then
+          '/cron/maintenance/retention','/cron/maintenance/zhihu-cookie','/cron/maintenance/publication-outbox',
+          '/cron/maintenance/hot-ranking-log-retention') then
       raise exception 'Invalid business job';
     end if;
     insert into private.business_cron_jobs as current(source,schedule,path)

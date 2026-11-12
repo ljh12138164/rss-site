@@ -42,6 +42,12 @@
     "path": "/cron/signals/qwen"
   },
   {
+    "source": "groq",
+    "name": "signal-ingest-groq",
+    "schedule": "50 */2 * * *",
+    "path": "/cron/signals/groq"
+  },
+  {
     "source": "github",
     "name": "signal-ingest-github",
     "schedule": "30 0,6,12,18 * * *",
@@ -273,6 +279,11 @@
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"
+  },
+  {
+    "source": "hot-ranking-log-retention",
+    "schedule": "10 * * * *",
+    "path": "/cron/maintenance/hot-ranking-log-retention"
   },
   {
     "source": "zhihu-cookie",

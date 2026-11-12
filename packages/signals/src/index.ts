@@ -460,6 +460,19 @@ export const aiSources = [
     cronJobName: 'signal-ingest-qwen'
   },
   {
+    id: 'groq',
+    name: 'Groq',
+    code: 'GQ',
+    shortName: 'Groq',
+    description: 'Groq 官方博客与新闻',
+    section: 'ai',
+    itemLimit: 20,
+    rsshubPath: '/groq/blog',
+    isArticle: true,
+    cronSchedule: '50 */2 * * *',
+    cronJobName: 'signal-ingest-groq'
+  },
+  {
     id: 'lilian-weng',
     name: "Lil'Log",
     code: 'LW',
@@ -761,6 +774,7 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'glm',
   'google-ai',
   'qwen',
+  'groq',
   'chatgpt',
   'github',
   'hacker-news',

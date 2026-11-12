@@ -29,7 +29,7 @@ create policy hot_generations_insert on private.hot_ranking_generations
   for insert to rss_site_app with check (true);
 drop policy if exists hot_generations_retention on private.hot_ranking_generations;
 create policy hot_generations_retention on private.hot_ranking_generations
-  for delete to rss_site_app using (recorded_at < now() - interval '7 days');
+  for delete to rss_site_app using (recorded_at < now() - interval '24 hours');
 drop policy if exists hot_generations_retention_read on private.hot_ranking_generations;
 create policy hot_generations_retention_read on private.hot_ranking_generations
-  for select to rss_site_app using (recorded_at < now() - interval '7 days');
+  for select to rss_site_app using (recorded_at < now() - interval '24 hours');

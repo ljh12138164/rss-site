@@ -4,7 +4,7 @@ alter table public.ingestion_runs
     source in (
       'github', 'github-blog', 'cloudflare-blog', 'hacker-news', 'juejin', 'ithome', '36kr', 'geekpark', 'nvidia', 'amd', 'the-decoder',
       'xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu',
-      'openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'lilian-weng', 'simon-willison',
+      'openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'groq', 'lilian-weng', 'simon-willison',
       'bilibili', 'zhihu', 'coolapk', 'hupu', 'sspai', 'toutiao',
       'wallstreetcn', 'cls', 'jin10', 'yicai', 'stcn',
       '3dmgame', 'gcores', 'gamersky', 'ali213', 'indienova', 'chuapp',
@@ -17,7 +17,7 @@ alter table public.source_status
   add constraint source_status_source_section_check check (
     (section = 'technology' and source in ('github', 'github-blog', 'cloudflare-blog', 'hacker-news', 'juejin', 'ithome', '36kr', 'geekpark', 'nvidia', 'amd', 'the-decoder'))
     or (section = 'news' and source in ('xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu'))
-    or (section = 'ai' and source in ('openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'lilian-weng', 'simon-willison'))
+    or (section = 'ai' and source in ('openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'groq', 'lilian-weng', 'simon-willison'))
     or (section = 'social' and source in ('bilibili', 'zhihu', 'coolapk', 'hupu', 'sspai', 'toutiao'))
     or (section = 'finance' and source in ('wallstreetcn', 'cls', 'jin10', 'yicai', 'stcn'))
     or (section = 'games' and source in ('3dmgame', 'gcores', 'gamersky', 'ali213', 'indienova', 'chuapp'))
@@ -29,7 +29,7 @@ alter table public.hot_items
   add constraint hot_items_source_section_check check (
     (section = 'technology' and source in ('github', 'github-blog', 'cloudflare-blog', 'hacker-news', 'juejin', 'ithome', '36kr', 'geekpark', 'nvidia', 'amd', 'the-decoder'))
     or (section = 'news' and source in ('xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu'))
-    or (section = 'ai' and source in ('openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'lilian-weng', 'simon-willison'))
+    or (section = 'ai' and source in ('openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'groq', 'lilian-weng', 'simon-willison'))
     or (section = 'social' and source in ('bilibili', 'zhihu', 'coolapk', 'hupu', 'sspai', 'toutiao'))
     or (section = 'finance' and source in ('wallstreetcn', 'cls', 'jin10', 'yicai', 'stcn'))
     or (section = 'games' and source in ('3dmgame', 'gcores', 'gamersky', 'ali213', 'indienova', 'chuapp'))
@@ -41,7 +41,7 @@ alter table public.signal_articles
   add constraint signal_articles_source_section_check check (
     (section = 'technology' and source in ('github', 'github-blog', 'cloudflare-blog', 'hacker-news', 'juejin', 'ithome', '36kr', 'geekpark', 'nvidia', 'amd', 'the-decoder'))
     or (section = 'news' and source in ('xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu'))
-    or (section = 'ai' and source in ('openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'lilian-weng', 'simon-willison'))
+    or (section = 'ai' and source in ('openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'groq', 'lilian-weng', 'simon-willison'))
     or (section = 'social' and source in ('bilibili', 'zhihu', 'coolapk', 'hupu', 'sspai', 'toutiao'))
     or (section = 'finance' and source in ('wallstreetcn', 'cls', 'jin10', 'yicai', 'stcn'))
     or (section = 'games' and source in ('3dmgame', 'gcores', 'gamersky', 'ali213', 'indienova', 'chuapp'))

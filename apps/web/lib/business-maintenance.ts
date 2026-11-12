@@ -87,9 +87,14 @@ export async function retainBusinessData() {
     if (!lock.acquired) return { status: 'busy' }
     // Fixed, versioned SQL; never accepts SQL from a request.
     await tx.unsafe(RETENTION_COMMAND)
-    await tx`delete from private.hot_ranking_generations where recorded_at < now() - interval '7 days'`
     return { status: 'retained' }
   })
+}
+
+export async function retainHotRankingGenerations() {
+  await getBusinessDatabase()
+    .client`delete from private.hot_ranking_generations where recorded_at < now() - interval '24 hours'`
+  return { status: 'retained' }
 }
 
 export async function drainPublicationOutbox() {

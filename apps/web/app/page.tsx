@@ -66,7 +66,7 @@ const coverage = [
     cadence: '每 2 小时',
     limit: '20 条 / 源',
     feed: '/feeds/ai.xml',
-    sample: 'OpenAI / ChatGPT / Anthropic / DeepSeek / GLM / Gemini / Qwen'
+    sample: 'OpenAI / ChatGPT / Anthropic / DeepSeek / GLM / Gemini / Qwen / Groq'
   },
   {
     name: '科技',
@@ -246,8 +246,9 @@ export default function HomePage() {
                   </h3>
                   <p>
                     收录 OpenAI 、 ChatGPT 、 Anthropic 、 DeepSeek 、智谱 GLM 、 Google AI 、
-                    Antigravity 、 Qwen 、 Lil&apos;Log 与 Simon Willison 共 {aiSources.length}{' '}
-                    路官方来源，核心模型动态每 2 小时检查 1 次更新，并提供 /ai/events 事件时间轴。
+                    Antigravity 、 Qwen 、 Groq 、 Lil&apos;Log 与 Simon Willison 共{' '}
+                    {aiSources.length} 路官方来源，核心模型动态每 2 小时检查 1 次更新，并提供
+                    /ai/events 事件时间轴。
                   </p>
                 </div>
               </div>
