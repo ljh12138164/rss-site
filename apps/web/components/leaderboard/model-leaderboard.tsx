@@ -19,6 +19,7 @@ import {
   type ModelLeaderboardItem
 } from '../../lib/leaderboard'
 import { cn } from '../../lib/utils'
+import { UiSegmentedGroup } from '../ui/segmented-group'
 
 interface ModelLeaderboardProps {
   categories: Record<string, ModelLeaderboardItem[]>
@@ -199,24 +200,24 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
           </div>
         </SearchField>
 
-        <fieldset className="flex items-center gap-1.5 self-end sm:self-auto" aria-label="视图">
-          <Button
-            aria-pressed={view === 'list'}
-            onPress={() => remember('list', tab)}
-            className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-sm border border-border bg-card px-3 text-xs outline-none hover:border-strong focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary/60 aria-pressed:bg-accent aria-pressed:font-semibold"
-          >
-            <List className="size-3.5" aria-hidden="true" />
-            列表
-          </Button>
-          <Button
-            aria-pressed={view === 'cards'}
-            onPress={() => remember('cards', tab)}
-            className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-sm border border-border bg-card px-3 text-xs outline-none hover:border-strong focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary/60 aria-pressed:bg-accent aria-pressed:font-semibold"
-          >
-            <LayoutGrid className="size-3.5" aria-hidden="true" />
-            卡片
-          </Button>
-        </fieldset>
+        <UiSegmentedGroup
+          ariaLabel="视图"
+          value={view}
+          onChange={(next) => remember(next, tab)}
+          className="self-end sm:self-auto"
+          options={[
+            {
+              value: 'list',
+              label: '列表',
+              icon: <List className="size-3.5" aria-hidden="true" />
+            },
+            {
+              value: 'cards',
+              label: '卡片',
+              icon: <LayoutGrid className="size-3.5" aria-hidden="true" />
+            }
+          ]}
+        />
       </div>
 
       <TabList

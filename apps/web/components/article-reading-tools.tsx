@@ -1,6 +1,8 @@
 'use client'
 
+import { ChevronDown } from 'lucide-react'
 import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { Button, Disclosure, DisclosurePanel } from 'react-aria-components'
 import { getReadingPosition, saveReadingPosition } from '../lib/reading-progress'
 import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
@@ -105,26 +107,37 @@ export function ArticleReadingTools({
         </p>
       )}
       {headings.length > 1 && (
-        <details className="mt-4 rounded-sm border border-border bg-card/70 p-4">
-          <summary className="cursor-pointer font-medium focus-visible:outline-2 focus-visible:outline-primary">
-            文章目录 · <span className="tabular-nums">{headings.length}</span> 节
-          </summary>
-          <nav aria-label="文章目录" className="mt-3">
-            <ol className="space-y-1">
-              {headings.map((heading) => (
-                <li key={heading.id} className={cn(heading.level > 2 && 'pl-4')}>
-                  <a
-                    href={`#${heading.id}`}
-                    title={heading.title}
-                    className="block min-h-11 truncate py-3 text-sm text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
-                  >
-                    {heading.title}
-                  </a>
-                </li>
-              ))}
-            </ol>
-          </nav>
-        </details>
+        <Disclosure className="group/toc mt-4 rounded-sm border border-border bg-card/70">
+          <Button
+            slot="trigger"
+            className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-left text-sm font-medium text-foreground outline-none transition-colors hover:bg-row-highlight focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
+          >
+            <span>
+              文章目录 · <span className="font-mono tabular-nums">{headings.length}</span> 节
+            </span>
+            <ChevronDown
+              aria-hidden="true"
+              className="size-4 shrink-0 text-muted-foreground transition-transform duration-150 group-data-[expanded]/toc:rotate-180"
+            />
+          </Button>
+          <DisclosurePanel className="border-t border-border/70 px-4 py-2">
+            <nav aria-label="文章目录">
+              <ol className="space-y-0.5">
+                {headings.map((heading) => (
+                  <li key={heading.id} className={cn(heading.level > 2 && 'pl-4')}>
+                    <a
+                      href={`#${heading.id}`}
+                      title={heading.title}
+                      className="block min-h-10 truncate py-2 text-sm text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-ring"
+                    >
+                      {heading.title}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          </DisclosurePanel>
+        </Disclosure>
       )}
       <div ref={body}>{children}</div>
     </>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { actionStyles } from '../../components/action-styles'
+import { TransitMark } from '../../components/transit-mark'
 import {
   type OutboundReturnPath,
   resolveOutboundDestination,
@@ -18,18 +19,16 @@ export const metadata: Metadata = {
 
 function OutboundFrame({ children }: { children: ReactNode }) {
   return (
-    <main className="min-h-dvh bg-muted/55 px-5 py-12 sm:px-8 sm:py-20">
+    <main className="min-h-dvh bg-background px-5 py-12 sm:px-8 sm:py-20">
       <div className="mx-auto w-full max-w-3xl">
-        <div className="flex items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="flex size-9 items-center justify-center rounded-sm bg-primary font-mono text-xs font-bold text-primary-foreground"
-          >
-            AI
-          </span>
-          <span className="text-xl font-semibold tracking-[-0.025em]">AI 热榜</span>
-        </div>
-        <section className="mt-6 border border-border bg-card px-6 py-8 shadow-sm sm:px-12 sm:py-10">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2.5 text-foreground hover:text-primary"
+        >
+          <TransitMark className="size-8" />
+          <span className="text-xl font-bold tracking-tight">今日热点</span>
+        </Link>
+        <section className="mt-6 rounded-sm border border-border bg-card px-6 py-8 shadow-sm sm:px-10 sm:py-9">
           {children}
         </section>
       </div>
@@ -66,8 +65,8 @@ export function OutboundView({
 
   return (
     <OutboundFrame>
-      <h1 className="text-xl font-medium tracking-[-0.02em]" id="outbound-title">
-        即将离开 AI 热榜，请注意账号财产安全
+      <h1 className="headline-display text-xl sm:text-2xl" id="outbound-title">
+        即将离开今日热点，请注意账号财产安全
       </h1>
       <p className="mt-5 break-all text-sm leading-6 text-muted-foreground sm:text-base">
         {destination}

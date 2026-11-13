@@ -1,23 +1,24 @@
 'use client'
 
 import Link from 'next/link'
+import { ActionButton } from '../../components/action-button'
+import { actionStyles } from '../../components/action-styles'
 import { SiteShell } from '../../components/site-shell'
 
 export default function DailyError({ reset }: { reset: () => void }) {
   return (
-    <SiteShell>
-      <div className="mx-auto max-w-2xl py-16">
-        <h1 className="headline-display text-3xl">暂时无法读取日报</h1>
-        <p className="mt-4 text-muted-foreground">请稍后重新加载</p>
-        <div className="mt-6 flex flex-wrap gap-6">
-          <button
-            type="button"
-            onClick={reset}
-            className="min-h-11 text-primary underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-primary"
-          >
+    <SiteShell mainClassName="mx-auto flex w-full max-w-[42rem] items-center py-12 sm:py-20">
+      <div role="alert" className="w-full rounded-sm border border-border bg-card p-6 sm:p-8">
+        <span className="inline-flex items-center rounded-sm bg-destructive/14 px-2 py-0.5 font-mono text-xs font-semibold text-destructive">
+          加载异常
+        </span>
+        <h1 className="headline-display mt-4 text-3xl sm:text-4xl">暂时无法读取日报</h1>
+        <p className="mt-2.5 text-sm leading-6 text-muted-foreground">请稍后重新加载。</p>
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <ActionButton onPress={reset} variant="primary">
             重新加载
-          </button>
-          <Link href="/daily" className="inline-flex min-h-11 items-center">
+          </ActionButton>
+          <Link className={actionStyles('outline')} href="/daily">
             返回最新日报
           </Link>
         </div>

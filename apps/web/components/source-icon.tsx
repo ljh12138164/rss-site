@@ -96,7 +96,7 @@ export function SourceIcon({
       <span
         aria-hidden="true"
         className={cn(
-          'inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md ring-1 ring-border/60',
+          'inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-sm ring-1 ring-border/60',
           className
         )}
         style={{ backgroundColor: bg }}
@@ -112,7 +112,7 @@ export function SourceIcon({
       <span
         aria-hidden="true"
         className={cn(
-          'inline-flex size-6 shrink-0 items-center justify-center rounded-md bg-muted font-mono text-xs font-semibold text-muted-foreground ring-1 ring-border/60',
+          'inline-flex size-6 shrink-0 items-center justify-center rounded-sm bg-muted font-mono text-[10px] leading-none font-semibold text-muted-foreground ring-1 ring-border/60',
           className
         )}
       >
@@ -125,7 +125,7 @@ export function SourceIcon({
     <span
       aria-hidden="true"
       className={cn(
-        'inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-md bg-white p-0.5 ring-1 ring-border/60',
+        'inline-flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-white p-0.5 ring-1 ring-border/60',
         className
       )}
     >

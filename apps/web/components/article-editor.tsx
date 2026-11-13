@@ -5,8 +5,11 @@ import { TableKit } from '@tiptap/extension-table'
 import { EditorContent, useEditor, useEditorState } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import { useEffect, useState } from 'react'
+import { Button as AriaButton, ToggleButton } from 'react-aria-components'
 import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
+import { UiSegmentedGroup } from './ui/segmented-group'
+import { UiTextArea, UiTextField } from './ui/text-field'
 
 export function ArticleEditor({
   value,
@@ -78,30 +81,18 @@ export function ArticleEditor({
     <div className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm font-medium">正文</p>
-        <fieldset className="flex gap-2" aria-label="正文编辑模式">
-          <ActionButton
-            variant={sourceMode ? 'outline' : 'primary'}
-            isDisabled={disabled || hasEmbeddedVideo}
-            aria-pressed={!sourceMode}
-            onPress={() => {
-              setSourceMode(false)
-              setLinkOpen(false)
-            }}
-          >
-            富文本
-          </ActionButton>
-          <ActionButton
-            variant={sourceMode ? 'primary' : 'outline'}
-            isDisabled={disabled}
-            aria-pressed={sourceMode}
-            onPress={() => {
-              setSourceMode(true)
-              setLinkOpen(false)
-            }}
-          >
-            源码
-          </ActionButton>
-        </fieldset>
+        <UiSegmentedGroup
+          ariaLabel="正文编辑模式"
+          value={sourceMode || hasEmbeddedVideo ? 'source' : 'rich'}
+          onChange={(next) => {
+            setSourceMode(next === 'source')
+            setLinkOpen(false)
+          }}
+          options={[
+            { value: 'rich', label: '富文本', isDisabled: disabled || hasEmbeddedVideo },
+            { value: 'source', label: '源码', isDisabled: disabled }
+          ]}
+        />
       </div>
       {hasEmbeddedVideo && (
         <p className="text-xs text-muted-foreground">
@@ -109,90 +100,97 @@ export function ArticleEditor({
         </p>
       )}
       {sourceMode || hasEmbeddedVideo ? (
-        <textarea
-          aria-label="正文 HTML 源码"
-          disabled={disabled}
+        <UiTextArea
+          ariaLabel="正文 HTML 源码"
+          isDisabled={disabled}
           value={value}
-          onChange={(event) => onChange(event.target.value)}
-          className="min-h-72 w-full rounded-md border border-input bg-background p-4 font-mono text-xs leading-6 focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-60"
+          onChange={onChange}
+          textAreaClassName="font-mono text-xs"
         />
       ) : (
-        <div className="overflow-hidden rounded-md border border-input bg-background focus-within:ring-2 focus-within:ring-primary">
-          <fieldset
+        <div className="overflow-hidden rounded-sm border border-input bg-background focus-within:ring-2 focus-within:ring-ring">
+          <div
+            role="toolbar"
             aria-label="正文排版工具"
             className="flex flex-wrap gap-1 border-b border-border bg-muted/40 p-2"
           >
             {[
               {
                 label: '加粗',
-                pressed: active?.bold,
+                pressed: Boolean(active?.bold),
                 run: () => editor?.chain().focus().toggleBold().run()
               },
               {
                 label: '斜体',
-                pressed: active?.italic,
+                pressed: Boolean(active?.italic),
                 run: () => editor?.chain().focus().toggleItalic().run()
               },
               {
                 label: '标题',
-                pressed: active?.heading,
+                pressed: Boolean(active?.heading),
                 run: () => editor?.chain().focus().toggleHeading({ level: 2 }).run()
               },
               {
                 label: '无序列表',
-                pressed: active?.bulletList,
+                pressed: Boolean(active?.bulletList),
                 run: () => editor?.chain().focus().toggleBulletList().run()
               },
               {
                 label: '有序列表',
-                pressed: active?.orderedList,
+                pressed: Boolean(active?.orderedList),
                 run: () => editor?.chain().focus().toggleOrderedList().run()
               },
               {
                 label: '引用',
-                pressed: active?.blockquote,
+                pressed: Boolean(active?.blockquote),
                 run: () => editor?.chain().focus().toggleBlockquote().run()
               },
               {
                 label: '链接',
-                pressed: active?.link,
+                pressed: Boolean(active?.link),
                 run: () => {
                   setLinkUrl(editor?.getAttributes('link').href ?? '')
                   setLinkError('')
                   setLinkOpen(!linkOpen)
                 }
-              },
-              { label: '撤销', run: () => editor?.chain().focus().undo().run() },
-              { label: '重做', run: () => editor?.chain().focus().redo().run() }
+              }
             ].map(({ label, pressed, run }) => (
-              <button
+              <ToggleButton
                 key={label}
-                type="button"
-                disabled={disabled || !editor}
-                aria-pressed={pressed}
-                onClick={run}
+                isDisabled={disabled || !editor}
+                isSelected={pressed}
+                onChange={run}
                 className={cn(
-                  'min-h-9 rounded px-2 text-xs hover:bg-muted focus-visible:outline-2 focus-visible:outline-primary disabled:opacity-40',
-                  pressed && 'bg-primary/15 text-primary'
+                  'min-h-9 cursor-pointer rounded-sm px-2.5 text-xs font-medium text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring data-[selected]:bg-primary/15 data-[selected]:font-semibold data-[selected]:text-primary data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40'
                 )}
               >
                 {label}
-              </button>
+              </ToggleButton>
             ))}
-          </fieldset>
+            {[
+              { label: '撤销', run: () => editor?.chain().focus().undo().run() },
+              { label: '重做', run: () => editor?.chain().focus().redo().run() }
+            ].map(({ label, run }) => (
+              <AriaButton
+                key={label}
+                isDisabled={disabled || !editor}
+                onPress={run}
+                className="min-h-9 cursor-pointer rounded-sm px-2.5 text-xs font-medium text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40"
+              >
+                {label}
+              </AriaButton>
+            ))}
+          </div>
           {linkOpen && (
             <div className="space-y-2 border-b border-border p-3">
-              <label className="block text-xs">
-                链接地址
-                <input
-                  type="url"
-                  value={linkUrl}
-                  disabled={disabled}
-                  onChange={(event) => setLinkUrl(event.target.value)}
-                  placeholder="https://"
-                  className="mt-1 min-h-10 w-full rounded border border-input bg-background px-3 text-sm"
-                />
-              </label>
+              <UiTextField
+                label="链接地址"
+                type="url"
+                value={linkUrl}
+                isDisabled={disabled}
+                onChange={setLinkUrl}
+                placeholder="https://"
+              />
               <div className="flex flex-wrap gap-2">
                 <ActionButton isDisabled={disabled} onPress={applyLink}>
                   应用链接

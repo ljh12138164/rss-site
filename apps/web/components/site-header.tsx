@@ -132,17 +132,14 @@ function RailContent({
                       )}
                       <span
                         aria-hidden="true"
-                        className={cn(
-                          'size-2.5 shrink-0 rounded-full transition-transform',
-                          active
-                            ? 'scale-110 ring-2 ring-offset-2 ring-offset-rail'
-                            : 'ring-1 ring-inset'
-                        )}
+                        className="size-2.5 shrink-0 rounded-full transition-transform"
                         style={{
-                          backgroundColor: active ? line.cssVar : 'transparent',
+                          backgroundColor: active ? line.cssVar : 'var(--rail)',
                           borderColor: line.cssVar,
                           borderWidth: active ? '0px' : '2px',
-                          boxShadow: active ? `0 0 0 1px ${line.cssVar}` : undefined
+                          boxShadow: active
+                            ? `0 0 0 2px var(--rail), 0 0 0 3.5px ${line.cssVar}`
+                            : undefined
                         }}
                       />
                       <span className="min-w-0 flex-1 truncate">{line.name}</span>

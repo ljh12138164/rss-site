@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-11-13 品牌图标重设计与全站 UI 组件统一
+
+- Branch: `feat/transit-icon-redesign` (targeting `master` from `9faaba9`)
+- Document: [品牌图标重设计、广告清理与全站 UI 细节统一](docs/development/transit-icon-redesign.md)
+- Roadmap: none (no accepted follow-ups remaining)
+- Objective: 重设计 32×32 午夜蓝搪瓷品牌 SVG 与多尺寸 `favicon.ico`（`?v=2`），移除 Monetag In-Page Push 悬浮广告，建立 `apps/web/components/ui/`（React Aria Components）统一基础控件并迁移全站前台表单/标签/折叠控件，修复 PC 端频道圆点光晕、重复日报入口与子页样式细节。
+- Verification: `pnpm check-types` (`3/3` 包通过)、`pnpm --filter @rss-site/web build` (`59/59` 静态页 + early hints + `sw.js`)、`pnpm test` (`@rss-site/signals` 8/8、`@rss-site/api` 114/114、`@rss-site/web` 192 passed / 22 DB-Redis skipped)、`pnpm exec biome check apps/web/app apps/web/components apps/web/public/icon.svg`（150 files 0 errors）、`impeccable detect.mjs` 无新增告警、`1028px` 深浅主题浏览器实测通过。
+- Next: 推送 `feat/transit-icon-redesign` 至 `origin` 并通过 `gh pr create` 创建合入 `master` 的 PR（当前环境缺少已认证的 `gh` CLI，待完成 `gh` 安装与 `gh auth login` 后发起 PR）。
+
 ## 2026-11-13 午夜搪瓷线网中枢全站 UI 重构
 
 - Branch: `feat/transit-ui-redesign`，基于 `origin/master`（`2aa08b7`），沿用原目录未新建 worktree
