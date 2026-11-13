@@ -16,17 +16,12 @@ export const metadata = createPageMetadata({
 
 export function LeaderboardHeader() {
   return (
-    <header className="mb-8 sm:mb-10">
-      <div className="mb-4 flex size-11 items-center justify-center rounded-xl bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300">
-        <Cpu className="size-5" />
+    <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+      <div className="flex items-center gap-2.5">
+        <Cpu className="size-5 shrink-0 text-primary" aria-hidden="true" />
+        <h1 className="headline-display text-2xl text-foreground sm:text-3xl">AI 模型评测榜</h1>
       </div>
-      <h1 className="text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-5xl">
-        AI 模型评测榜
-      </h1>
-      <p className="mt-4 max-w-2xl text-pretty text-sm leading-6 text-muted-foreground">
-        汇集公开标准化评测集与人类盲测成绩，涵盖编程、科研、办公 Agent 与知识问答等维度，每 4
-        小时更新。
-      </p>
+      <span className="font-mono text-xs text-muted-foreground">每 4 小时更新</span>
     </header>
   )
 }
@@ -34,7 +29,6 @@ export function LeaderboardHeader() {
 export default async function LeaderboardPage() {
   const categoriesData: Record<string, ModelLeaderboardItem[]> = {}
 
-  // Fetch overall and category rankings in parallel
   const [overall, coding, reasoning, professional, knowledge] = await Promise.all([
     getModelLeaderboard('overall'),
     getModelLeaderboard('coding'),

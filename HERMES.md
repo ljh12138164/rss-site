@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-11-13 午夜搪瓷线网中枢全站 UI 重构
+
+- Branch: `feat/transit-ui-redesign`，基于 `origin/master`（`2aa08b7`），沿用原目录未新建 worktree
+- Document: [午夜搪瓷线网中枢全站 UI 重构](docs/development/transit-ui-redesign.md)
+- Roadmap: [午夜搪瓷线网中枢全站 UI 重构 roadmap](docs/roadmaps/transit-ui-redesign.md)
+- Objective: 全站重构为「午夜搪瓷线网中枢」（深色 `#0B1224` 默认 / 浅色地铁白瓷 `#EEF2F7`、6 条频道线色、`216px` 桌面左线网栏 + 移动端抽屉与 4 项底部导览），统一 `/` 与 `/latest` 实时中枢，精简文案（`/humanizer-zh`）并去除多余描述、无图占位与登录/头像元素，同时修复模型评测榜按名次排序与横向标签栏裁剪问题
+- Verification: 全仓 `pnpm lint`（`biome check .`，`352` 文件）、`pnpm --filter @rss-site/web check-types`、`pnpm --filter @rss-site/web build`（`59/59` 静态页面 + early hints + `sw.js`）与 `impeccable.cmd detect --json`（返回 `[]`）全部通过；`pnpm --filter @rss-site/web test` 共 `41 passed | 4 skipped (45)`、`189 passed | 22 skipped (211)`（`22` 项需数据库/Redis 跳过）；已通过 `chrome-devtools-mcp` 在桌面 `1440×900`（深/浅色）及移动 `390×844` 实测页面与抽屉交互，并完成 Standards + Spec 双轴评审
+- Next: 推送 `feat/transit-ui-redesign` 至 `origin` 并通过 `gh pr create` 创建合入 `master` 的 PR 交由用户审阅合并
+
 ## 2026-11-13 Arm 全文来源接入
 
 - Branch: `feat/arm-source`，基于 `origin/master`（`7a9070f`），沿用原目录未新建 worktree

@@ -7,7 +7,7 @@ import {
   socialSources,
   technologySources
 } from '@rss-site/signals'
-import { Bot, Cpu, Sparkles, Terminal, Wrench } from 'lucide-react'
+import { Cpu, Sparkles, Terminal, Wrench } from 'lucide-react'
 import { McpClientConfig } from '../../components/mcp-client-config'
 import { SiteShell } from '../../components/site-shell'
 import { createPageMetadata } from '../../lib/seo'
@@ -80,58 +80,49 @@ const samplePrompts = [
 
 export default function McpPage() {
   return (
-    <SiteShell mainClassName="mx-auto w-full max-w-4xl py-8 sm:py-12">
-      {/* Page Header */}
-      <header className="mb-10 border-l-4 border-primary pl-4 sm:mb-12">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary">
-          <Bot size={16} />
-          Model Context Protocol
-        </div>
-        <h1 className="mt-2 text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-          接入 MCP 新闻服务
+    <SiteShell mainClassName="mx-auto w-full max-w-4xl">
+      <header className="mb-8 border-b border-border pb-6">
+        <h1 className="headline-display text-balance text-3xl text-foreground sm:text-4xl">
+          接入 MCP 服务
         </h1>
-        <p className="mt-3 text-pretty text-sm leading-7 text-muted-foreground sm:text-base">
-          将本站接入 Codex CLI、Claude Code、Cursor、Windsurf 等 AI
-          客户端后，可在对话中调用工具，按平台或分类获取已收录的最新热点。
+        <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
+          将本站接入 Codex CLI、Claude Code、Cursor 等客户端，在对话中直接查询已收录热点。
         </p>
       </header>
 
-      <div className="space-y-12">
+      <div className="space-y-10">
         {/* Section 1: Client Config */}
         <section aria-labelledby="client-config-heading" className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
-            <Terminal size={20} className="text-primary" />
-            <h2 id="client-config-heading">客户端快速接入（支持终端一键命令）</h2>
+          <div className="flex items-center gap-2 text-base font-semibold text-foreground">
+            <Terminal size={18} className="text-primary" />
+            <h2 id="client-config-heading">客户端接入</h2>
           </div>
-          <p className="text-sm leading-6 text-muted-foreground">
-            选择正在使用的 AI 开发工具或客户端，复制对应的终端命令或配置文件即可接入：
-          </p>
           <McpClientConfig />
         </section>
 
         {/* Section 2: Tool Specification */}
         <section aria-labelledby="tool-spec-heading" className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
-            <Wrench size={20} className="text-primary" />
-            <h2 id="tool-spec-heading">工具接口定义 (`get_news`)</h2>
+          <div className="flex items-center gap-2 text-base font-semibold text-foreground">
+            <Wrench size={18} className="text-primary" />
+            <h2 id="tool-spec-heading">工具接口</h2>
           </div>
 
-          <div className="rounded-xl border border-border bg-card p-5 space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
+          <div className="space-y-4 rounded-sm border border-border bg-card p-5">
+            <div className="flex flex-wrap items-center gap-2.5">
               <span className="font-mono text-base font-bold text-primary">get_news</span>
-              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+              <span className="rounded-sm bg-primary/14 px-2 py-0.5 font-mono text-[11px] font-medium text-primary">
                 MCP Tool
               </span>
             </div>
             <p className="text-sm leading-6 text-muted-foreground">
-              获取已收录的热点资讯，支持按平台或分类筛选；不传参数时默认返回全平台最新 100 条热点。
+              按平台或分类查询热点；不传参数时默认返回全平台最新 100 条。
             </p>
 
             {/* Parameters Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
-                  <tr className="border-b border-border text-muted-foreground">
+                  <tr className="border-b border-border font-mono text-xs text-muted-foreground">
                     <th className="py-2.5 font-medium">参数名</th>
                     <th className="py-2.5 font-medium">类型</th>
                     <th className="py-2.5 font-medium">必填</th>
@@ -142,69 +133,58 @@ export default function McpPage() {
                 <tbody className="divide-y divide-border">
                   <tr>
                     <td className="py-3 font-mono font-semibold text-foreground">platform</td>
-                    <td className="py-3 text-muted-foreground">string</td>
+                    <td className="py-3 font-mono text-muted-foreground">string</td>
                     <td className="py-3 text-muted-foreground">否</td>
-                    <td className="py-3 text-muted-foreground">无（全平台）</td>
+                    <td className="py-3 text-muted-foreground">全平台</td>
                     <td className="py-3 text-muted-foreground">
-                      来源平台 ID（如 <code className="text-foreground">juejin</code>、
+                      平台 ID（如 <code className="text-foreground">juejin</code>、
                       <code className="text-foreground">github</code>、
-                      <code className="text-foreground">openai</code>）或一级分类名称（如{' '}
+                      <code className="text-foreground">openai</code>）或频道名（如{' '}
                       <code className="text-foreground">technology</code>、
                       <code className="text-foreground">ai</code>）。
                     </td>
                   </tr>
                   <tr>
                     <td className="py-3 font-mono font-semibold text-foreground">limit</td>
-                    <td className="py-3 text-muted-foreground">number</td>
+                    <td className="py-3 font-mono text-muted-foreground">number</td>
                     <td className="py-3 text-muted-foreground">否</td>
-                    <td className="py-3 font-mono text-primary font-semibold">100</td>
-                    <td className="py-3 text-muted-foreground">返回条数，范围 1～100 条。</td>
+                    <td className="py-3 font-mono font-semibold text-primary">100</td>
+                    <td className="py-3 text-muted-foreground">返回条数（1～100）。</td>
                   </tr>
                 </tbody>
               </table>
-            </div>
-
-            {/* Default 100 highlight */}
-            <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 text-xs sm:text-sm leading-6 text-foreground">
-              <span className="font-semibold text-primary">默认策略：</span>调用时不传{' '}
-              <code className="font-mono font-semibold">platform</code>{' '}
-              参数，默认返回全平台最新入库的{' '}
-              <strong className="font-bold text-primary">100 条</strong> 资讯。
             </div>
           </div>
         </section>
 
         {/* Section 3: Supported Platforms Directory */}
         <section aria-labelledby="platforms-heading" className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
-            <Cpu size={20} className="text-primary" />
-            <h2 id="platforms-heading">支持的平台与分类字典</h2>
+          <div className="flex items-center gap-2 text-base font-semibold text-foreground">
+            <Cpu size={18} className="text-primary" />
+            <h2 id="platforms-heading">平台与频道 ID</h2>
           </div>
-          <p className="text-sm leading-6 text-muted-foreground">
-            可以在提问中让大模型使用以下平台 ID 或分类名称进行精确过滤：
-          </p>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-3.5 sm:grid-cols-2">
             {sectionsInfo.map((section) => (
               <div
                 key={section.sectionKey}
-                className="rounded-xl border border-border bg-card p-4 space-y-2.5"
+                className="space-y-2.5 rounded-sm border border-border bg-card p-4"
               >
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-foreground">{section.title}</h3>
-                  <code className="rounded-xs bg-muted px-1.5 py-0.5 text-[11px] font-mono text-primary">
+                  <code className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[11px] text-primary">
                     {section.sectionKey}
                   </code>
                 </div>
-                <div className="flex flex-wrap gap-1.5 pt-1">
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {section.sources.map((source) => (
                     <span
                       key={source.id}
-                      className="inline-flex items-center gap-1 rounded-md border border-border/80 bg-muted/40 px-2 py-1 text-xs text-foreground"
+                      className="inline-flex items-center gap-1 rounded-sm border border-border bg-secondary px-2 py-1 text-xs text-foreground"
                     >
                       <span>{source.name}</span>
                       <span className="font-mono text-[10px] text-muted-foreground">
-                        ({source.id})
+                        {source.id}
                       </span>
                     </span>
                   ))}
@@ -216,22 +196,19 @@ export default function McpPage() {
 
         {/* Section 4: Sample Prompts */}
         <section aria-labelledby="prompts-heading" className="space-y-4">
-          <div className="flex items-center gap-2 text-lg font-semibold text-foreground">
-            <Sparkles size={20} className="text-primary" />
-            <h2 id="prompts-heading">常用 AI 对话提问示例</h2>
+          <div className="flex items-center gap-2 text-base font-semibold text-foreground">
+            <Sparkles size={18} className="text-primary" />
+            <h2 id="prompts-heading">提问示例</h2>
           </div>
-          <p className="text-sm leading-6 text-muted-foreground">
-            配置完成后，你可以在与 AI 助手的日常对话中直接这样提问：
-          </p>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {samplePrompts.map((item) => (
               <div
                 key={item.title}
-                className="rounded-xl border border-border bg-card p-4 space-y-2 transition-colors hover:border-primary/50"
+                className="space-y-1.5 rounded-sm border border-border bg-card p-4 transition-colors hover:border-primary/45"
               >
-                <div className="text-xs font-semibold text-primary">{item.title}</div>
-                <div className="text-xs sm:text-sm leading-6 text-foreground italic">
+                <div className="font-mono text-xs font-semibold text-primary">{item.title}</div>
+                <div className="text-xs leading-6 text-foreground sm:text-sm">
                   &ldquo;{item.prompt}&rdquo;
                 </div>
               </div>

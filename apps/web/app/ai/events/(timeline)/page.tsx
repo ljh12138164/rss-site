@@ -19,12 +19,13 @@ export default async function EventsPage() {
   client.setQueryData(['ai-events'], { pages: [initialPage], pageParams: [null] })
   return (
     <SiteShell>
-      <header className="mb-8 border-b border-border pb-7 sm:pb-9">
-        <p className="eyebrow">AI Events · 大事记</p>
-        <h1 className="headline-display mt-3 text-4xl leading-[1.1] sm:text-5xl">AI 时间轴</h1>
-        <p className="mt-4 text-sm leading-6 text-muted-foreground">
-          沿着时间，回顾 AI 的重要变化。每个事件都保留摘要与来源。
-        </p>
+      <header className="mb-6 flex items-center gap-2.5 border-b border-border pb-4">
+        <span
+          aria-hidden="true"
+          className="size-3 shrink-0 rounded-full"
+          style={{ backgroundColor: 'var(--line-ai)' }}
+        />
+        <h1 className="headline-display text-2xl text-foreground sm:text-3xl">AI 时间轴</h1>
       </header>
       <HydrationBoundary state={dehydrate(client)}>
         <EventTimeline initialPage={initialPage} />

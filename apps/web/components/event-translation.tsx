@@ -92,16 +92,16 @@ export function EventTranslation({
         <div className="mt-5 flex flex-wrap items-center gap-3">
           {translation ? (
             <fieldset
-              aria-label="双语阅读模式选择"
-              className="m-0 inline-flex rounded-lg border border-border bg-muted/40 p-1 text-xs font-medium"
+              aria-label="阅读模式"
+              className="m-0 inline-flex rounded-sm border border-border bg-card p-1 text-xs font-medium"
             >
               <button
                 type="button"
                 aria-pressed={mode === 'bilingual'}
                 className={cn(
-                  'cursor-pointer rounded-md px-3 py-1.5 transition-colors',
+                  'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
                   mode === 'bilingual'
-                    ? 'bg-background font-semibold text-foreground shadow-xs'
+                    ? 'bg-accent font-semibold text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
                 onClick={() => setMode('bilingual')}
@@ -112,9 +112,9 @@ export function EventTranslation({
                 type="button"
                 aria-pressed={mode === 'chinese'}
                 className={cn(
-                  'cursor-pointer rounded-md px-3 py-1.5 transition-colors',
+                  'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
                   mode === 'chinese'
-                    ? 'bg-background font-semibold text-foreground shadow-xs'
+                    ? 'bg-accent font-semibold text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
                 onClick={() => setMode('chinese')}
@@ -125,9 +125,9 @@ export function EventTranslation({
                 type="button"
                 aria-pressed={mode === 'original'}
                 className={cn(
-                  'cursor-pointer rounded-md px-3 py-1.5 transition-colors',
+                  'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
                   mode === 'original'
-                    ? 'bg-background font-semibold text-foreground shadow-xs'
+                    ? 'bg-accent font-semibold text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
                 onClick={() => setMode('original')}
@@ -154,18 +154,14 @@ export function EventTranslation({
       )}
       {isBilingual && translation ? (
         <div className="mt-8 space-y-4">
-          <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Original Summary
-            </p>
+          <div className="rounded-sm border border-border bg-card p-4 sm:p-5">
+            <p className="mb-2 font-mono text-xs font-semibold text-muted-foreground">原文</p>
             <p className="whitespace-pre-line text-pretty text-base leading-8 text-foreground/90">
               {summary}
             </p>
           </div>
-          <div className="rounded-lg border border-primary/30 bg-accent/20 p-4 sm:p-5">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
-              中文摘要
-            </p>
+          <div className="rounded-sm border border-primary/40 bg-accent/40 p-4 sm:p-5">
+            <p className="mb-2 font-mono text-xs font-semibold text-primary">译文</p>
             <p className="whitespace-pre-line text-pretty text-base leading-8 text-foreground">
               {translation.summary}
             </p>

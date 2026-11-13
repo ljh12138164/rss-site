@@ -49,12 +49,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <GoogleScripts />
         <MonetagScript />
         <ServiceWorker />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          disableTransitionOnChange
-          enableSystem
-        >
+        <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange enableSystem>
           <QueryProvider>
             <ReactAriaProvider>{children}</ReactAriaProvider>
           </QueryProvider>

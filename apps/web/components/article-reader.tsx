@@ -140,7 +140,7 @@ export function ArticleReader({
       <article className="mx-auto w-full max-w-[46rem] min-w-0">
         <nav
           aria-label="面包屑"
-          className="mb-8 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground"
+          className="mb-6 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground"
         >
           <Link
             className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
@@ -176,8 +176,8 @@ export function ArticleReader({
             ) : undefined
           }
           sourceLabel={
-            <div className="mb-5 flex items-center gap-2.5 text-sm font-medium text-primary">
-              <SourceIcon source={source} className="size-5" />
+            <div className="mb-4 flex items-center gap-2 font-mono text-xs font-semibold text-primary">
+              <SourceIcon source={source} className="size-4" />
               <span>{source.name}</span>
             </div>
           }
@@ -214,8 +214,8 @@ export function ArticleReader({
           }
         />
         <footer className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border py-6">
-          <p className="max-w-md text-sm leading-6 text-muted-foreground">
-            内容来自{source.name}，可能为节选。完整内容与后续更新以原文为准。
+          <p className="max-w-md text-xs leading-6 text-muted-foreground">
+            内容来自 {source.name}，完整内容以原文为准。
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <ArticleBookmarkButton

@@ -73,10 +73,13 @@ export function EventTimeline({
   return (
     <div aria-busy={isFetching}>
       {!items.length && (
-        <div className="border-y border-border py-10">
-          <p className="text-muted-foreground">暂无已发布的 AI 事件。</p>
-          <Link className="mt-4 inline-flex min-h-11 items-center text-primary" href="/ai">
-            查看 AI 最新资讯
+        <div className="rounded-sm border border-border bg-card py-10 text-center">
+          <p className="text-sm text-muted-foreground">暂无已发布的 AI 事件</p>
+          <Link
+            className="mt-4 inline-flex min-h-10 items-center text-xs font-medium text-primary hover:underline"
+            href="/ai"
+          >
+            查看 AI 频道 →
           </Link>
         </div>
       )}
@@ -84,7 +87,7 @@ export function EventTimeline({
         {items.map((event) => (
           <li
             key={event.id}
-            className="group relative grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-4 sm:grid-cols-[7.5rem_1.25rem_minmax(0,1fr)] sm:gap-x-6"
+            className="group relative grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-4 sm:grid-cols-[6.5rem_1.25rem_minmax(0,1fr)] sm:gap-x-5"
           >
             <time
               className="col-start-2 mb-2 pt-0.5 font-mono text-xs leading-6 tabular-nums text-muted-foreground sm:col-start-1 sm:row-start-1 sm:text-right"
@@ -96,47 +99,52 @@ export function EventTimeline({
             </time>
             <div
               aria-hidden="true"
-              className="absolute inset-y-0 left-0 flex w-5 justify-center sm:left-[9rem]"
+              className="absolute inset-y-0 left-0 flex w-5 justify-center sm:left-[7.75rem]"
             >
-              <span className="absolute bottom-0 top-3 w-px bg-border group-last:hidden" />
-              <span className="relative mt-2 size-2.5 rounded-full border-2 border-primary bg-background group-first:bg-primary" />
+              <span
+                className="absolute top-3 bottom-0 w-[2px] opacity-40 group-last:hidden"
+                style={{ backgroundColor: 'var(--line-ai)' }}
+              />
+              <span
+                className="relative mt-2 size-3 rounded-full border-2 bg-background"
+                style={{ borderColor: 'var(--line-ai)' }}
+              />
             </div>
-            <div className="col-start-2 min-w-0 pb-10 sm:col-start-3 sm:row-start-1 sm:pb-12">
-              <EventSources sources={event.sources ?? []} />
-              <h2 className="text-lg font-semibold leading-7 break-words sm:text-xl">
+            <div className="col-start-2 min-w-0 pb-6 sm:col-start-3 sm:row-start-1 sm:pb-7">
+              <div className="rounded-sm border border-border bg-card p-4 transition-colors hover:border-strong sm:p-5">
+                <EventSources sources={event.sources ?? []} />
+                <h2 className="mt-2 text-base font-semibold leading-6 break-words sm:text-lg">
+                  <Link
+                    className="hover:text-primary focus-visible:outline-2 focus-visible:outline-ring"
+                    href={`/ai/events/${event.slug}`}
+                  >
+                    {event.title}
+                  </Link>
+                </h2>
+                <p className="mt-2 max-w-3xl text-pretty text-sm leading-6 break-words text-muted-foreground">
+                  {event.summary}
+                </p>
                 <Link
-                  className="hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+                  className="mt-3 inline-flex items-center font-mono text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
                   href={`/ai/events/${event.slug}`}
                 >
-                  {event.title}
+                  详情与来源 →
                 </Link>
-              </h2>
-              <p className="mt-2 max-w-3xl text-pretty text-sm leading-7 break-words text-muted-foreground">
-                {event.summary}
-              </p>
-              <Link
-                className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-primary"
-                href={`/ai/events/${event.slug}`}
-              >
-                查看事件与来源{' '}
-                <span aria-hidden="true" className="ml-2">
-                  →
-                </span>
-              </Link>
+              </div>
             </div>
           </li>
         ))}
       </ol>
-      <div ref={sentinel} className="flex min-h-24 flex-col items-center justify-center gap-3">
-        <p role={isError ? 'alert' : 'status'} className="text-sm text-muted-foreground">
+      <div ref={sentinel} className="flex min-h-20 flex-col items-center justify-center gap-3 py-4">
+        <p role={isError ? 'alert' : 'status'} className="font-mono text-xs text-muted-foreground">
           {isFetching
-            ? '正在加载事件…'
+            ? '加载中…'
             : isError
-              ? '暂时无法加载，请重试。'
+              ? '加载失败，请重试'
               : hasNextPage
                 ? archive
-                  ? '通过下方链接查看更早的事件'
-                  : '继续向下滚动，查看更早的事件'
+                  ? ''
+                  : ''
                 : items.length
                   ? '已显示全部事件'
                   : ''}
@@ -154,9 +162,9 @@ export function EventTimeline({
           <Link
             href={`/ai/events/archive?cursor=${encodeURIComponent(cursor)}`}
             prefetch={false}
-            className="inline-flex min-h-11 items-center text-sm text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
+            className="inline-flex min-h-10 items-center text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
           >
-            查看更早事件
+            更早事件 →
           </Link>
         )}
       </div>

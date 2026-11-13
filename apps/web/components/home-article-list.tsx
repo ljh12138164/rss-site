@@ -100,23 +100,19 @@ export function HomeArticleList({
           publishedAt: item.publishedAt ? new Date(item.publishedAt) : null
         }))}
       />
-      <div ref={sentinel} className="flex min-h-24 flex-col items-center justify-center gap-3 py-6">
-        <p role={error ? 'alert' : 'status'} className="text-sm text-muted-foreground">
+      <div ref={sentinel} className="flex min-h-20 flex-col items-center justify-center gap-3 py-5">
+        <p role={error ? 'alert' : 'status'} className="font-mono text-xs text-muted-foreground">
           {isFetching
-            ? source === 'github'
-              ? '正在加载更多项目…'
-              : '正在加载更多文章…'
+            ? '加载中…'
             : error
-              ? '暂时无法加载，请重试。'
+              ? '加载失败，请重试'
               : hasNextPage
-                ? source === 'github'
-                  ? '继续向下滚动，加载更多项目'
-                  : '继续向下滚动，加载更多文章'
+                ? ''
                 : items.length
-                  ? '已显示全部内容。'
+                  ? '已到底部'
                   : unreadOnly
-                    ? '没有未读文章。'
-                    : '暂无内容。'}
+                    ? '暂无未读文章'
+                    : '暂无内容'}
         </p>
         {(hasNextPage || error) && (
           <ActionButton variant="outline" isDisabled={isFetching} onPress={() => void loadMore()}>
@@ -127,9 +123,9 @@ export function HomeArticleList({
           <Link
             href={archiveHref}
             prefetch={false}
-            className="inline-flex min-h-11 items-center text-sm text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
+            className="inline-flex min-h-10 items-center text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
           >
-            查看更早文章
+            查看更早内容
           </Link>
         )}
       </div>

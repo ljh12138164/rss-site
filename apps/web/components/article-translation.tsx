@@ -127,15 +127,15 @@ export function ArticleTranslation({
             {translation ? (
               <fieldset
                 aria-label="双语阅读模式选择"
-                className="m-0 inline-flex rounded-lg border border-border bg-muted/40 p-1 text-xs font-medium"
+                className="m-0 inline-flex rounded-sm border border-border bg-muted p-1 text-xs font-medium"
               >
                 <button
                   type="button"
                   aria-pressed={mode === 'bilingual'}
                   className={cn(
-                    'cursor-pointer rounded-md px-3 py-1.5 transition-colors',
+                    'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
                     mode === 'bilingual'
-                      ? 'bg-background font-semibold text-foreground shadow-xs'
+                      ? 'bg-card font-semibold text-foreground shadow-xs'
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                   onClick={() => setMode('bilingual')}
@@ -146,9 +146,9 @@ export function ArticleTranslation({
                   type="button"
                   aria-pressed={mode === 'chinese'}
                   className={cn(
-                    'cursor-pointer rounded-md px-3 py-1.5 transition-colors',
+                    'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
                     mode === 'chinese'
-                      ? 'bg-background font-semibold text-foreground shadow-xs'
+                      ? 'bg-card font-semibold text-foreground shadow-xs'
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                   onClick={() => setMode('chinese')}
@@ -159,9 +159,9 @@ export function ArticleTranslation({
                   type="button"
                   aria-pressed={mode === 'original'}
                   className={cn(
-                    'cursor-pointer rounded-md px-3 py-1.5 transition-colors',
+                    'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
                     mode === 'original'
-                      ? 'bg-background font-semibold text-foreground shadow-xs'
+                      ? 'bg-card font-semibold text-foreground shadow-xs'
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                   onClick={() => setMode('original')}
@@ -210,7 +210,7 @@ export function ArticleTranslation({
                       <ArticleHtmlBody
                         html={pair.translated}
                         lang="zh-CN"
-                        className="article-content mt-2.5 rounded-r-md border-l-2 border-primary/40 bg-accent/20 py-2 pl-3.5 pr-2 font-sans text-[0.95em] leading-relaxed text-muted-foreground transition-colors group-hover:border-primary group-hover:text-foreground"
+                        className="article-content mt-2.5 rounded-r-sm border-l-2 border-primary/50 bg-primary/8 py-2 pl-3.5 pr-2 font-sans text-[0.95em] leading-relaxed text-muted-foreground transition-colors group-hover:border-primary group-hover:text-foreground"
                       />
                     )}
                   </div>
@@ -219,9 +219,9 @@ export function ArticleTranslation({
             ) : (
               <div className="bilingual-summary space-y-4">
                 {summary && (
-                  <div className="rounded-lg border border-border bg-card p-4 sm:p-5">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      Original Summary
+                  <div className="rounded-sm border border-border bg-card p-4 sm:p-5">
+                    <p className="mb-2 font-mono text-xs font-semibold text-muted-foreground">
+                      原文摘要
                     </p>
                     <p
                       lang={originalLang}
@@ -232,10 +232,8 @@ export function ArticleTranslation({
                   </div>
                 )}
                 {translation.summary && (
-                  <div className="rounded-lg border border-primary/30 bg-accent/20 p-4 sm:p-5">
-                    <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary">
-                      中文摘要
-                    </p>
+                  <div className="rounded-sm border border-primary/35 bg-primary/8 p-4 sm:p-5">
+                    <p className="mb-2 font-mono text-xs font-semibold text-primary">中文摘要</p>
                     <p
                       lang="zh-CN"
                       className="whitespace-pre-line text-sm leading-7 text-foreground"
@@ -251,28 +249,28 @@ export function ArticleTranslation({
               <ArticleHtmlBody html={translation.contentHtml} lang="zh-CN" />
             ) : translation.summary ? (
               <div className="article-content">
-                <p className="mb-5 text-sm text-muted-foreground">文章摘要</p>
+                <p className="mb-4 font-mono text-xs text-muted-foreground">摘要</p>
                 <p lang="zh-CN" className="whitespace-pre-line">
                   {translation.summary}
                 </p>
               </div>
             ) : (
               <p className="text-base leading-8 text-muted-foreground">
-                来源暂未提供可在站内阅读的内容，可以前往原文查看。
+                暂无站内正文，可点击“查看原文”阅读。
               </p>
             )
           ) : hasBody && contentHtml ? (
             <ArticleHtmlBody html={contentHtml} lang={originalLang} />
           ) : summary ? (
             <div className="article-content">
-              <p className="mb-5 text-sm text-muted-foreground">文章摘要</p>
+              <p className="mb-4 font-mono text-xs text-muted-foreground">摘要</p>
               <p lang={originalLang} className="whitespace-pre-line">
                 {summary}
               </p>
             </div>
           ) : (
             <p className="text-base leading-8 text-muted-foreground">
-              来源暂未提供可在站内阅读的内容，可以前往原文查看。
+              暂无站内正文，可点击“查看原文”阅读。
             </p>
           )}
         </section>

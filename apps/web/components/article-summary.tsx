@@ -98,10 +98,10 @@ export function ArticleSummary({
   return (
     <section
       aria-label="AI 总结"
-      className="mt-6 rounded-2xl border-2 border-primary/70 bg-muted/30 p-4 sm:p-5"
+      className="mt-6 rounded-sm border border-primary/45 bg-card p-4 sm:p-5"
     >
       <div className="flex min-w-0 items-center justify-between gap-3">
-        <h2 className="flex min-w-0 items-center gap-2 text-balance text-sm font-medium text-primary">
+        <h2 className="flex min-w-0 items-center gap-2 text-balance font-mono text-sm font-semibold text-primary">
           <Sparkles className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">AI 总结</span>
         </h2>
@@ -122,7 +122,7 @@ export function ArticleSummary({
           }
           aria-expanded={summary ? visible : undefined}
           aria-controls={summary ? contentId : undefined}
-          className="rounded-lg px-3 text-xs text-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
+          className="rounded-sm px-3 text-xs text-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
         >
           {pending
             ? '生成中…'
@@ -144,11 +144,9 @@ export function ArticleSummary({
       <div id={contentId} aria-live="polite" aria-busy={pending}>
         {pending && (
           <div className="mt-3">
-            <p className="text-pretty text-sm text-muted-foreground">
-              {kind === 'skill' ? '正在总结 SKILL.md…' : '正在提取文章要点，请稍候…'}
-            </p>
+            <p className="text-pretty text-sm text-muted-foreground">正在提炼要点…</p>
             {!draft && (
-              <div aria-hidden="true" className="mt-4 space-y-2">
+              <div aria-hidden="true" className="mt-3 space-y-2">
                 <div className="h-3 w-full rounded-sm bg-muted" />
                 <div className="h-3 w-5/6 rounded-sm bg-muted" />
                 <div className="h-3 w-2/3 rounded-sm bg-muted" />
@@ -172,23 +170,15 @@ export function ArticleSummary({
               ))}
             </ul>
             {summary && (
-              <p className="mt-4 text-pretty text-xs leading-5 text-muted-foreground">
+              <p className="mt-3 text-pretty font-mono text-xs leading-5 text-muted-foreground">
                 {kind === 'skill'
-                  ? '基于 SKILL.md 整理，请结合原文使用。'
+                  ? '基于 SKILL.md 提炼'
                   : summary.basis === 'excerpt'
-                    ? '基于来源摘要整理，未获取全文。'
-                    : '基于站内正文整理。'}
-                {kind === 'article' && '完整内容以原文为准。'}
+                    ? '基于来源摘要提炼'
+                    : '基于正文提炼'}
               </p>
             )}
           </div>
-        )}
-        {!pending && !summary && !error && (
-          <p className="mt-2 text-pretty text-xs leading-5 text-muted-foreground">
-            {kind === 'skill'
-              ? '整理 Skill 的用途与使用要点。'
-              : '提炼文章概述与要点，快速了解主要内容。'}
-          </p>
         )}
       </div>
     </section>

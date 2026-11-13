@@ -146,7 +146,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
     return (
       <div
         className={cn(
-          'my-6 flex flex-col items-center justify-center rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-center text-sm',
+          'my-6 flex flex-col items-center justify-center rounded-sm border border-destructive/30 bg-destructive/5 p-6 text-center text-sm',
           aspectClass,
           className
         )}
@@ -157,7 +157,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         <button
           type="button"
           onClick={fetchVideoInfo}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent transition-colors cursor-pointer"
         >
           <RotateCw className="size-3.5" />
           重试
@@ -170,7 +170,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
     return (
       <div
         className={cn(
-          'my-6 flex flex-col items-center justify-center rounded-xl border border-border/80 bg-muted/40 animate-pulse',
+          'my-6 flex flex-col items-center justify-center rounded-sm border border-border bg-card animate-pulse',
           aspectClass,
           className
         )}
@@ -185,7 +185,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
     return (
       <div
         className={cn(
-          'my-6 overflow-hidden rounded-xl border border-border/80 shadow-md bg-black relative',
+          'my-6 overflow-hidden rounded-sm border border-border shadow-md bg-black relative',
           aspectClass,
           className
         )}
@@ -200,7 +200,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
   return (
     <div
       className={cn(
-        'group relative my-6 overflow-hidden rounded-xl border border-border/80 bg-black/90 shadow-md transition-all hover:border-primary/50',
+        'group relative my-6 overflow-hidden rounded-sm border border-border bg-black/90 shadow-md transition-all hover:border-primary/50',
         aspectClass,
         className
       )}

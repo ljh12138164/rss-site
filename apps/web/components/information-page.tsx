@@ -11,12 +11,16 @@ export function InformationPage({
   children: ReactNode
 }) {
   return (
-    <SiteShell mainClassName="mx-auto w-full max-w-3xl py-8 sm:py-12">
-      <header className="mb-8 border-b border-border pb-7 sm:mb-10">
+    <SiteShell mainClassName="mx-auto w-full max-w-3xl">
+      <header className="mb-6 border-b border-border pb-6">
         <h1 className="headline-display text-3xl sm:text-4xl">{title}</h1>
-        <p className="mt-3 text-pretty text-sm leading-7 text-muted-foreground">{description}</p>
+        {description && (
+          <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
+            {description}
+          </p>
+        )}
       </header>
-      <article className="space-y-8 border-y border-border py-8 sm:space-y-10 sm:py-10 [&_h2]:mb-3 [&_h2]:text-balance [&_h2]:text-lg [&_h2]:font-semibold [&_p]:text-pretty [&_p]:text-sm [&_p]:leading-7 [&_p]:text-muted-foreground [&_p+p]:mt-3">
+      <article className="space-y-8 rounded-sm border border-border bg-card p-6 sm:space-y-9 sm:p-8 [&_h2]:mb-2.5 [&_h2]:text-balance [&_h2]:text-lg [&_h2]:font-semibold [&_p]:text-pretty [&_p]:text-sm [&_p]:leading-7 [&_p]:text-muted-foreground [&_p+p]:mt-2.5">
         {children}
       </article>
     </SiteShell>

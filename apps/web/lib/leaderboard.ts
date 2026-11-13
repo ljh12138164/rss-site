@@ -177,25 +177,29 @@ export const getModelLeaderboard = cache(
         tags?: string[]
       }[]
 
-      return items.map((item) => {
-        const titleMatch = item.title.match(/\[No\.(\d+)\s+评分:\s*([\d.]+)\]\s+([^·]+)\s*·\s*(.+)/)
-        const slug = item.url.split('/').pop() || ''
-        const { coverage, scores, pricing } = parseLeaderboardHtml(item.content_html || '')
+      return items
+        .map((item) => {
+          const titleMatch = item.title.match(
+            /\[No\.(\d+)\s+评分:\s*([\d.]+)\]\s+([^·]+)\s*·\s*(.+)/
+          )
+          const slug = item.url.split('/').pop() || ''
+          const { coverage, scores, pricing } = parseLeaderboardHtml(item.content_html || '')
 
-        return {
-          slug,
-          name: titleMatch ? titleMatch[3].trim() : item.title,
-          creator: titleMatch ? titleMatch[4].trim() : 'AI Lab',
-          overallScore: titleMatch ? titleMatch[2] : '0.0',
-          rank: titleMatch ? Number(titleMatch[1]) : 0,
-          releasedAt: item.date_published,
-          coverage,
-          scores,
-          pricing,
-          tags: item.tags || [],
-          url: `/leaderboard/${slug}`
-        }
-      })
+          return {
+            slug,
+            name: titleMatch ? titleMatch[3].trim() : item.title,
+            creator: titleMatch ? titleMatch[4].trim() : 'AI Lab',
+            overallScore: titleMatch ? titleMatch[2] : '0.0',
+            rank: titleMatch ? Number(titleMatch[1]) : 0,
+            releasedAt: item.date_published,
+            coverage,
+            scores,
+            pricing,
+            tags: item.tags || [],
+            url: `/leaderboard/${slug}`
+          }
+        })
+        .sort((a, b) => (a.rank || Number.MAX_SAFE_INTEGER) - (b.rank || Number.MAX_SAFE_INTEGER))
     } catch (err) {
       console.warn(`[leaderboard] Failed to fetch category ${category}:`, err)
       return []

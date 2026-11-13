@@ -1,0 +1,5 @@
+{
+  "tool": "image-generator",
+  "direction": "challenger-transit",
+  "prompt": "A dark-mode-first desktop web application screen for「今日热点」(Chinese AI & multi-platform news aggregator), rendered edge to edge with crisp, legible Simplified Chinese UI typography and no browser frame. Screen structure: Left fixed sidebar rail (220px) with top brand flame mark +「今日热点」, grouped workspace navigation (全部热点 active, 今日日报, 我的关注, 稍后读, 六条彩色主题线路 AI/科技/新闻/社交/财经/游戏, 专题站点 AI时间轴/开源排行/热门Skills/模型榜/MCP). Top bar (56px) with search box, RSS button, theme switch. Main workspace header「跨平台热点中枢 · 近 48 小时交汇事件」and 2-column layout with vertical colored route bars, multi-source interchange badges (3 源交汇), and stacked Daily Brief & Model rankings."
+}

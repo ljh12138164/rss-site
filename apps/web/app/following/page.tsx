@@ -41,14 +41,14 @@ export default function FollowingPage() {
   }
   return (
     <SiteShell>
-      <header className="py-6 sm:py-10">
-        <h1 className="headline-display text-balance text-3xl">我的关注</h1>
-        <p className="mt-3 text-pretty text-sm leading-6 text-muted-foreground">
-          关注喜欢的文章平台，隐藏不感兴趣的来源。偏好仅保存在当前浏览器。
+      <header className="border-b border-border pb-6">
+        <h1 className="headline-display text-balance text-3xl sm:text-4xl">我的关注</h1>
+        <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
+          关注或隐藏平台来源，配置保存在本地浏览器。
         </p>
       </header>
       <details
-        className="mb-6 rounded-lg border border-border p-4"
+        className="my-6 rounded-sm border border-border bg-card p-4"
         open={!preferences.followed.length}
       >
         <summary className="cursor-pointer py-2 font-semibold focus-visible:outline-2 focus-visible:outline-primary">
@@ -115,8 +115,8 @@ export default function FollowingPage() {
         </label>
       </div>
       {preferences.unreadOnly && (
-        <p className="mb-4 text-sm text-muted-foreground">
-          已读状态依据当前浏览器最近 100 条阅读足迹。
+        <p className="mb-4 font-mono text-xs text-muted-foreground">
+          依据最近 100 条本地阅读记录过滤
         </p>
       )}
       {error && (
@@ -131,8 +131,11 @@ export default function FollowingPage() {
           unreadOnly={preferences.unreadOnly}
         />
       ) : (
-        <p role="status" className="border-y border-border py-10 text-sm text-muted-foreground">
-          暂无关注文章，请在上方选择要关注的平台。
+        <p
+          role="status"
+          className="rounded-sm border border-border bg-card py-10 text-center text-sm text-muted-foreground"
+        >
+          请在上方选择要关注的平台。
         </p>
       )}
     </SiteShell>
