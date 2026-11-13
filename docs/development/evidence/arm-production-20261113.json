@@ -1,0 +1,585 @@
+{
+  "verifiedAt": "2026-11-13T04:36:05.489Z",
+  "deployment": {
+    "mergedPullRequests": [82, 83],
+    "commitSha": "2aa08b746e79863b13c6bab4c36be5c7aa76d545",
+    "webImage": "rss-site-web:sha-2aa08b746e79863b13c6bab4c36be5c7aa76d545",
+    "postgresImage": "rss-site-postgres:18-cron-v1",
+    "databaseMajor": 18,
+    "oldBusinessTimersActive": 0
+  },
+  "cronActivation": {
+    "previousUnverifiedSources": ["arm", "groq", "hot-ranking-log-retention", "the-decoder"],
+    "activatedVia": "private.activate_business_jobs(jsonb)",
+    "businessCronJobs": {
+      "total": 51,
+      "verified": 51,
+      "unverified": 0
+    },
+    "pgCronJobs": {
+      "total": 53,
+      "active": 53,
+      "inactive": 0,
+      "internalJobs": ["rss-site-cron-history-cleanup", "rss-site-cron-pending"]
+    },
+    "privilegeIsolation": {
+      "rssSiteAppSelectSettings": false,
+      "rssSiteAppExecuteDispatch": false
+    },
+    "recentHistory2h": {
+      "succeeded": 47,
+      "failed": 0,
+      "pendingOrExpired": 0
+    }
+  },
+  "targetSourceQuality": {
+    "arm": {
+      "hotRows": 30,
+      "newsItems": 10,
+      "blogItems": 20,
+      "positionRange": [1, 30],
+      "withAuthor": 24,
+      "withPublishedAt": 30,
+      "matchedArticles": 30,
+      "indexableArticles": 29,
+      "contentHtmlLengthRange": [856, 24101]
+    },
+    "groq": {
+      "hotRows": 20,
+      "positionRange": [1, 20],
+      "withAuthor": 1,
+      "withPublishedAt": 20,
+      "matchedArticles": 20,
+      "indexableArticles": 20,
+      "contentHtmlLengthRange": [626, 6249]
+    },
+    "the-decoder": {
+      "hotRows": 30,
+      "positionRange": [1, 30],
+      "withAuthor": 30,
+      "withPublishedAt": 30,
+      "matchedArticles": 30,
+      "indexableArticles": 25,
+      "contentHtmlLengthRange": [1408, 14303]
+    }
+  },
+  "maintenanceResults": [
+    { "task": "retention", "status": 200, "body": { "status": "retained" } },
+    { "task": "hot-ranking-log-retention", "status": 200, "body": { "status": "retained" } },
+    { "task": "zhihu-cookie", "status": 200, "body": { "status": "not_due" } },
+    { "task": "publication-outbox", "status": 200, "body": { "processed": 0, "accepted": 0 } }
+  ],
+  "signalResults": [
+    {
+      "source": "36kr",
+      "section": "technology",
+      "batchId": "7e530f71-05a8-4903-a52d-be0bdbeb9126",
+      "itemCount": 8,
+      "finishedAt": "2026-11-13T04:28:34.496+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "3dmgame",
+      "section": "games",
+      "batchId": "a0633009-5cd8-4a73-bede-77f67baf20b5",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:30:18.277+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "ali213",
+      "section": "games",
+      "batchId": "dc4a738f-7471-4214-b125-445159a8b0f5",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:30:33.192+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "amd",
+      "section": "technology",
+      "batchId": "ca7e15c5-6313-4825-90b2-980a3294ebeb",
+      "itemCount": 16,
+      "finishedAt": "2026-11-13T04:31:40.198+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "anthropic",
+      "section": "ai",
+      "batchId": "24837d34-13d2-457f-9572-0b1cf44c122c",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:27:43.933+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "antigravity",
+      "section": "ai",
+      "batchId": "825f0509-ff95-4cf3-a04f-212fdd22bded",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:35:00.057+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "arm",
+      "section": "technology",
+      "batchId": "d1588311-e6a2-4904-99f7-c1160b922464",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:31:45.071+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "baidu",
+      "section": "news",
+      "batchId": "cd464b8f-e736-41bc-88a5-0f6d9e21c7d1",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:29:22.703+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "bilibili",
+      "section": "social",
+      "batchId": "40a5e8bd-cc07-420f-911f-b11444ededbd",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:29:25.431+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "cctv",
+      "section": "news",
+      "batchId": "a945b574-dcf2-4f2c-8b0f-242fd6c9e602",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:28:48.64+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "chinanews",
+      "section": "news",
+      "batchId": "3154d051-ba14-4263-a08b-bed27c299bfe",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:29:03.092+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "chuapp",
+      "section": "games",
+      "batchId": "a3ce286c-fab6-47ad-8115-ed62c1ccd015",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:31:29.766+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "cloudflare-blog",
+      "section": "technology",
+      "batchId": "0861000d-c2ca-4a54-8c4e-a6732f596efd",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:31:35.335+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "cls",
+      "section": "finance",
+      "batchId": "95e11f73-9729-4ed0-97c6-2848194076b2",
+      "itemCount": 13,
+      "finishedAt": "2026-11-13T04:30:00.639+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "coolapk",
+      "section": "social",
+      "batchId": "98aa295c-e02b-4f80-add8-68665c9ae860",
+      "itemCount": 16,
+      "finishedAt": "2026-11-13T04:29:28.589+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "deepseek",
+      "section": "ai",
+      "batchId": "0878ecae-79f0-4ebb-8231-23c5d287c6c9",
+      "itemCount": 19,
+      "finishedAt": "2026-11-13T04:27:48.498+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "gamersky",
+      "section": "games",
+      "batchId": "392cd312-96a4-45e2-839f-606ea82aed31",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:30:27.655+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "gcores",
+      "section": "games",
+      "batchId": "c42ca396-8ef0-4f80-b2cc-8dc795be90f5",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:30:23.739+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "geekpark",
+      "section": "technology",
+      "batchId": "c1d44666-6cef-4fd6-8140-aa716bf45472",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:31:15.711+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "github",
+      "section": "technology",
+      "batchId": "e6675774-0351-49f0-a865-2cda2acca049",
+      "itemCount": 21,
+      "finishedAt": "2026-11-13T04:28:14.195+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "github-blog",
+      "section": "technology",
+      "batchId": "202a137c-1786-496b-8d84-d00d2292f353",
+      "itemCount": 10,
+      "finishedAt": "2026-11-13T04:30:43.466+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "glm",
+      "section": "ai",
+      "batchId": "ddfc803a-a4bb-487d-88a6-d9699b91cff2",
+      "itemCount": 15,
+      "finishedAt": "2026-11-13T04:28:01.696+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "google-ai",
+      "section": "ai",
+      "batchId": "044f9435-bcf5-4146-b64e-774f707f6950",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:28:03.163+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "groq",
+      "section": "ai",
+      "batchId": "5f2486a6-229b-4fb6-b18c-099ad51d095e",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:28:13.889+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "hacker-news",
+      "section": "technology",
+      "batchId": "775a7fcf-0c10-4a21-8cef-f1aca97cd064",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:28:17.965+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "hupu",
+      "section": "social",
+      "batchId": "9ab9c046-53e6-4eb8-912f-9cb1ef2fac4b",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:29:29.865+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "indienova",
+      "section": "games",
+      "batchId": "afccf08b-b665-405c-a139-bbf371a71cc3",
+      "itemCount": 12,
+      "finishedAt": "2026-11-13T04:30:38.511+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "ithome",
+      "section": "technology",
+      "batchId": "15f970eb-0c94-4361-afba-8eae2c957466",
+      "itemCount": 12,
+      "finishedAt": "2026-11-13T04:28:31.236+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "jiemian",
+      "section": "news",
+      "batchId": "fdc822f5-7f6b-4f44-a905-ca1d3d20c920",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:29:15.19+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "jin10",
+      "section": "finance",
+      "batchId": "7a94906a-adf4-42ed-8ba7-4aa91ec69ee4",
+      "itemCount": 10,
+      "finishedAt": "2026-11-13T04:30:07.102+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "juejin",
+      "section": "technology",
+      "batchId": "db738db9-d608-41c7-8a22-60924e7c9baa",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:28:18.879+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "lilian-weng",
+      "section": "ai",
+      "batchId": "8bf50818-c8f7-4bd7-b9e6-39d933ddb12a",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:31:33.576+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "nvidia",
+      "section": "technology",
+      "batchId": "0b41c772-8a17-47c9-b3ad-8d53cfebab78",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:31:35.839+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "openai",
+      "section": "ai",
+      "batchId": "c19c84b8-4d8f-44b8-96a8-caaab4848026",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:27:37.745+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "qwen",
+      "section": "ai",
+      "batchId": "1adf64ca-8832-4cd2-8de0-c3ff61de59a3",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:28:12.06+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "simon-willison",
+      "section": "ai",
+      "batchId": "35b33572-2471-4be1-8a2b-a5a2c795bd2e",
+      "itemCount": 15,
+      "finishedAt": "2026-11-13T04:31:34.366+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "skills-all-time",
+      "section": "skills",
+      "batchId": "225c3557-9664-45d1-8e89-9b9d8cb04016",
+      "itemCount": 100,
+      "finishedAt": "2026-11-13T04:30:45.12+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "skills-trending",
+      "section": "skills",
+      "batchId": "b6bfbc0a-b383-42c2-ab4d-fb4c5aff8bf7",
+      "itemCount": 100,
+      "finishedAt": "2026-11-13T04:31:04.697+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "sspai",
+      "section": "social",
+      "batchId": "82f2dd38-3125-4d6d-bd22-458dfd48f270",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:29:39.993+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "stcn",
+      "section": "finance",
+      "batchId": "81d18ad7-aa7e-45ff-9b55-f694f1253661",
+      "itemCount": 10,
+      "finishedAt": "2026-11-13T04:30:16.995+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "the-decoder",
+      "section": "technology",
+      "batchId": "0000bb26-83b5-497e-915f-5fb519565f70",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:31:44.648+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "thepaper",
+      "section": "news",
+      "batchId": "5a8eaa89-b24d-4e94-a4a2-7036b2c719e5",
+      "itemCount": 20,
+      "finishedAt": "2026-11-13T04:29:09.061+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "toutiao",
+      "section": "social",
+      "batchId": "4aac886c-fce9-4c75-9faf-071198dcc3e4",
+      "itemCount": 13,
+      "finishedAt": "2026-11-13T04:29:48.991+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "wallstreetcn",
+      "section": "finance",
+      "batchId": "4cda0926-076b-4ad1-b813-1677792eecd0",
+      "itemCount": 10,
+      "finishedAt": "2026-11-13T04:29:55.194+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "xinhua",
+      "section": "news",
+      "batchId": "1a4a30fb-deca-4c17-86db-f3e9af11b2c3",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:28:40.734+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "yicai",
+      "section": "finance",
+      "batchId": "d075c0ea-eb58-47ca-b241-294f53ce355c",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:30:10.519+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    },
+    {
+      "source": "zhihu",
+      "section": "social",
+      "batchId": "f99a2504-f922-4172-909f-355772eafcd0",
+      "itemCount": 30,
+      "finishedAt": "2026-11-13T04:29:26.647+00:00",
+      "status": 200,
+      "verified": true,
+      "databaseMajor": 18
+    }
+  ],
+  "publicRoutesVerifiedAt": "2026-11-13T04:38:00Z",
+  "publicRoutes": [
+    { "url": "https://news.ljhboard.cn/healthz", "status": 200, "bytes": 15 },
+    { "url": "https://news.ljhboard.cn/", "status": 200, "bytes": 119681 },
+    { "url": "https://news.ljhboard.cn/technology", "status": 200, "bytes": 206097 },
+    { "url": "https://news.ljhboard.cn/technology/arm", "status": 200, "bytes": 231991 },
+    { "url": "https://news.ljhboard.cn/technology/the-decoder", "status": 200, "bytes": 201182 },
+    { "url": "https://news.ljhboard.cn/ai", "status": 200, "bytes": 200907 },
+    { "url": "https://news.ljhboard.cn/ai/groq", "status": 200, "bytes": 148416 },
+    { "url": "https://news.ljhboard.cn/feeds/arm.xml", "status": 200, "bytes": 10305, "items": 10 },
+    {
+      "url": "https://news.ljhboard.cn/feeds/groq.xml",
+      "status": 200,
+      "bytes": 10837,
+      "items": 10
+    },
+    {
+      "url": "https://news.ljhboard.cn/feeds/the-decoder.xml",
+      "status": 200,
+      "bytes": 11082,
+      "items": 10
+    },
+    {
+      "url": "https://news.ljhboard.cn/feeds/technology.xml",
+      "status": 200,
+      "bytes": 133126,
+      "items": 108
+    },
+    {
+      "url": "https://news.ljhboard.cn/feeds/ai.xml",
+      "status": 200,
+      "bytes": 102545,
+      "items": 100
+    },
+    {
+      "url": "https://news.ljhboard.cn/technology/arm/accelerating-the-agentic-era-how-arm-and-google-cloud-co--f738bf4f-8156-43cc-bba8-618bcc96396b",
+      "status": 200,
+      "bytes": 85594,
+      "hasHeading": true
+    }
+  ]
+}

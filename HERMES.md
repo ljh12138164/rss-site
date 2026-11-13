@@ -2,11 +2,11 @@
 
 ## 2026-11-13 Arm 全文来源接入
 
-- Branch: `feat/arm-source`，基于 `origin/master`（`7a9070f`），沿用原目录未新建 worktree
+- Branch: `feat/arm-source`（PR #82 已合入 `master`），生产回归与验收证据分支 `docs/arm-production-evidence`（基于 `origin/master` `2aa08b7`，沿用原目录未新建 worktree）
 - Document: [Arm 全文来源接入](docs/development/arm-source.md)
-- Objective: 在 `technology` 分区接入单一合并源 `arm`，并行拉取自建 RSSHub `/arm/news?limit=20` 与 `/arm/blog?limit=20`（`itemLimit: 30`、复用 `SiArm` 图标），配套 `006-arm-source.sql`、`baseline.sql` 与未启用 Cron 清单（`51` 项任务 / `53` 项 `cron.job`）
-- Verification: 线上双路由实测合并 `30` 篇全通过（[非敏感证据](docs/development/evidence/arm-local-20261113.json)）；变更文件 Biome 检查无错误；`pnpm check-types`、`pnpm build`、`render-cron-sql.mjs` 与 `bash -n verify-release-runtime` 通过；`pnpm test` 共 `311 passed | 22 skipped`（`22` 项需本地 Docker DB/Redis 环境跳过）。Docker 镜像验收待 CI 执行，未写或操作生产
-- Next: 推送 `feat/arm-source`，由用户创建并合并到 `master` 的 PR，等待 CI 与部署完成后再执行 `POST /cron/signals/arm` 与生产门禁激活
+- Objective: 在 `technology` 分区接入单一合并源 `arm`，并行拉取自建 RSSHub `/arm/news?limit=20` 与 `/arm/blog?limit=20`（`itemLimit: 30`、复用 `SiArm` 图标），配套 `006-arm-source.sql`、`baseline.sql` 与 Cron 调度激活（`51` 项任务 / `53` 项 `cron.job`）
+- Verification: PR #82 本地验证通过（[本地非敏感证据](docs/development/evidence/arm-local-20261113.json)）；ECS 生产回归 `47 / 47` 信号源与 `4 / 4` 维护端点均返回 HTTP 200，已激活 `arm`、`groq`、`hot-ranking-log-retention`、`the-decoder`，`business_cron_jobs` `51 / 51`、`cron.job` `53 / 53`（[生产非敏感证据](docs/development/evidence/arm-production-20261113.json)）
+- Next: 创建并合并本证据 PR；用户自行依据生成的双语 PR 文案向上游 `DIYgod/RSSHub` 提交 `feat/arm-newsroom` -> `master` PR
 
 ## 2026-11-11 热点刷新与模型切换
 
