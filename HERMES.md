@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-11-13 Arm 全文来源接入
+
+- Branch: `feat/arm-source`，基于 `origin/master`（`7a9070f`），沿用原目录未新建 worktree
+- Document: [Arm 全文来源接入](docs/development/arm-source.md)
+- Objective: 在 `technology` 分区接入单一合并源 `arm`，并行拉取自建 RSSHub `/arm/news?limit=20` 与 `/arm/blog?limit=20`（`itemLimit: 30`、复用 `SiArm` 图标），配套 `006-arm-source.sql`、`baseline.sql` 与未启用 Cron 清单（`51` 项任务 / `53` 项 `cron.job`）
+- Verification: 线上双路由实测合并 `30` 篇全通过（[非敏感证据](docs/development/evidence/arm-local-20261113.json)）；变更文件 Biome 检查无错误；`pnpm check-types`、`pnpm build`、`render-cron-sql.mjs` 与 `bash -n verify-release-runtime` 通过；`pnpm test` 共 `311 passed | 22 skipped`（`22` 项需本地 Docker DB/Redis 环境跳过）。Docker 镜像验收待 CI 执行，未写或操作生产
+- Next: 推送 `feat/arm-source`，由用户创建并合并到 `master` 的 PR，等待 CI 与部署完成后再执行 `POST /cron/signals/arm` 与生产门禁激活
+
 ## 2026-11-11 热点刷新与模型切换
 
 - 热点每 30 分钟最多启动一轮，配套 ai-base 固定使用 3.1 Flash Lite；日报 3.8 Flash 主用、3.6 Flash 备选

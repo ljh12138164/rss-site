@@ -1,0 +1,24 @@
+{
+  "checkedAt": "2026-11-13T03:37:09.975Z",
+  "source": "arm",
+  "section": "technology",
+  "feedUrls": [
+    "https://rss.ljhboard.cn/arm/news?limit=20",
+    "https://rss.ljhboard.cn/arm/blog?limit=20"
+  ],
+  "parsedItems": 30,
+  "newsItemsInTop30": 10,
+  "blogItemsInTop30": 20,
+  "fullBodyMatches": 30,
+  "publicationDatesVerified": 30,
+  "namedAuthors": 24,
+  "coverImages": 30,
+  "maxContentHtmlBytes": 24162,
+  "ingestedItems": 30,
+  "uniqueUrls": 30,
+  "consecutiveRanks": true,
+  "manifestMatchesRegistry": true,
+  "releaseSqlIncludesSourceMigration": true,
+  "automaticActivation": false,
+  "productionDatabaseVerified": false
+}
