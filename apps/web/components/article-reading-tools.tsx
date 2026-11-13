@@ -105,7 +105,7 @@ export function ArticleReadingTools({
         </p>
       )}
       {headings.length > 1 && (
-        <details className="mt-4 rounded-lg border border-border p-4">
+        <details className="mt-4 rounded-sm border border-border bg-card/70 p-4">
           <summary className="cursor-pointer font-medium focus-visible:outline-2 focus-visible:outline-primary">
             文章目录 · <span className="tabular-nums">{headings.length}</span> 节
           </summary>

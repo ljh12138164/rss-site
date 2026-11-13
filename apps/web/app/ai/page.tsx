@@ -22,24 +22,17 @@ export function AiView({ feeds }: { feeds: AiFeeds }) {
 
 export function LeaderboardBanner() {
   return (
-    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/70 bg-card/60 p-4 transition-colors hover:border-border sm:p-5">
-      <div className="flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-          <Cpu className="size-4" />
-        </div>
-        <div>
-          <p className="text-sm font-semibold text-foreground">AI 大模型能力评测榜</p>
-          <p className="text-xs text-muted-foreground">
-            横向对比主流大模型在编程、科研、Agent 与知识问答维度的公开实测成绩。
-          </p>
-        </div>
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-card px-4 py-3">
+      <div className="flex items-center gap-2.5 text-sm font-medium text-foreground">
+        <Cpu className="size-4 text-primary" aria-hidden="true" />
+        <span>AI 大模型评测榜</span>
       </div>
       <Link
         href="/leaderboard"
-        className="inline-flex min-h-9 items-center gap-1.5 rounded-md bg-primary/10 px-3 text-xs font-semibold text-primary transition-colors hover:bg-primary/20 focus-visible:outline-2 focus-visible:outline-ring"
+        className="inline-flex items-center gap-1 font-mono text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
       >
-        查看完整榜单
-        <ArrowRight className="size-3.5" />
+        查看榜单
+        <ArrowRight className="size-3.5" aria-hidden="true" />
       </Link>
     </div>
   )

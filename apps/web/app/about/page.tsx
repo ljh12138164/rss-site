@@ -11,28 +11,24 @@ export const metadata = createPageMetadata({
 
 export default function AboutPage() {
   return (
-    <InformationPage
-      title="关于 AI 热榜"
-      description="把分散的动态放在一起，让你更快找到想读的内容。"
-    >
+    <InformationPage title="关于 AI 热榜" description="多平台公开资讯与技术动态聚合站。">
       <section>
-        <h2>在这里读什么</h2>
+        <h2>收录范围</h2>
         <p>
-          今日热点（AI 热榜）汇总 35+ 个官方订阅与公开媒体源，覆盖
-          AI、科技、国内新闻、社交、财经和游戏六个分区。你可以浏览最新文章，按来源查看动态，也可以搜索标题和摘要，找到感兴趣的话题。
+          汇总 35 个以上公开平台与官方博客，覆盖 AI、科技、国内新闻、社交、财经与游戏六个频道，
+          以及开源排行与 Skills 榜单。站内提供原文跳转、中文翻译、要点总结与 RSS 订阅。
         </p>
       </section>
       <section aria-labelledby="content-flow-heading">
-        <h2 id="content-flow-heading">本站如何运作</h2>
-        <p>定期把公开来源的内容整理到一起，你看到的是已保存的文章列表。</p>
-        <ol className="my-5 grid gap-3 sm:grid-cols-4">
+        <h2 id="content-flow-heading">运作方式</h2>
+        <ol className="my-4 grid gap-3 sm:grid-cols-4">
           {[
-            ['公开内容', '官方订阅源或 RSSHub'],
-            ['定期获取', '提取标题、链接与时间'],
-            ['整理保存', '更新文章与当前列表'],
-            ['阅读与订阅', '浏览、搜索或使用 RSS']
+            ['公开信源', '官方 RSS 与公开榜单'],
+            ['定时抓取', '提取标题、链接与发布时间'],
+            ['归档入库', '去重整理并更新热点流'],
+            ['阅读订阅', '搜索、阅读或 RSS / MCP 获取']
           ].map(([title, detail], index) => (
-            <li className="min-w-0" key={title}>
+            <li className="min-w-0 rounded-sm border border-border bg-secondary p-3" key={title}>
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <span className="font-mono text-xs text-primary">{index + 1}</span>
                 <span>{title}</span>
@@ -43,72 +39,50 @@ export default function AboutPage() {
                   />
                 )}
               </div>
-              <div className="mt-2 text-xs leading-6 text-muted-foreground">{detail}</div>
+              <div className="mt-1.5 text-xs leading-5 text-muted-foreground">{detail}</div>
               {index < 3 && (
                 <ArrowDown
                   aria-hidden="true"
-                  className="mt-3 size-4 text-muted-foreground sm:hidden"
+                  className="mt-2 size-4 text-muted-foreground sm:hidden"
                 />
               )}
             </li>
           ))}
         </ol>
         <a
-          className="inline-flex min-h-11 items-center gap-2 text-sm text-primary underline underline-offset-4"
+          className="inline-flex min-h-10 items-center gap-2 text-sm text-primary underline underline-offset-4"
           href="/diagrams/content-flow.html"
         >
-          查看原理图
+          查看数据流图
           <ArrowRight aria-hidden="true" className="size-4" />
         </a>
       </section>
       <section>
-        <h2>内容从哪里来</h2>
+        <h2>版权与时效</h2>
         <p>
-          标题、摘要和文章内容来自公开网页或订阅源，相关权利归原作者及所属平台所有。
-          本站保留来源和原文链接，方便你继续阅读和核对信息。
-        </p>
-        <p>
-          分区列表按发布时间展示，列表序号表示阅读顺序。来源更新可能存在延迟，
-          内容也可能被原站修改或撤回，请以原文为准。
-        </p>
-      </section>
-      <section id="rss">
-        <h2>继续阅读，或订阅更新</h2>
-        <p>
-          外部文章会先显示离站提示，确认地址后点击“继续访问”，即可在当前标签页打开原文。
-          新闻文章也可以在站内阅读，并通过原文链接查看出处。
-        </p>
-        <p>
-          六个分区都提供 RSS 订阅入口。进入你关心的分区，复制 RSS 地址到阅读器，
-          就能用习惯的方式接收更新。
+          标题、摘要与正文来自各平台公开页面，版权归原作者及对应平台所有。站内保留出处与原文链接；
+          抓取按固定间隔执行，存在同步延迟，内容若被原站修改或撤回，以原站为准。
         </p>
       </section>
       <section aria-labelledby="faq-heading">
         <h2 id="faq-heading">常见问题</h2>
         <div className="space-y-4">
           <div>
-            <h3 className="text-sm font-semibold text-foreground">什么是今日热点？</h3>
+            <h3 className="text-sm font-semibold text-foreground">内容多久更新一次？</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              今日热点（AI 热榜）是一个多平台公开内容聚合站，覆盖
-              AI、科技、国内新闻、社交、财经与游戏 6 个阅读分区及 Skills
-              榜单，把分散在官方博客与媒体站点的动态整理到一起，保留原始出处、发布时间与原文链接。
+              AI 核心来源（OpenAI、Anthropic、DeepSeek、Google AI、智谱 GLM、Qwen 等）每 2
+              小时检查更新； 科技、新闻、社交、财经、游戏与 Skills 榜单每 6 小时同步一次。
             </p>
           </div>
-          <div>
-            <h3 className="text-sm font-semibold text-foreground">内容更新频率是怎样的？</h3>
+          <div id="rss">
+            <h3 className="text-sm font-semibold text-foreground">如何通过 RSS 订阅？</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              站点采用定时错峰拉取机制，并非实时流式抓取。AI
-              专区的核心模型来源（OpenAI、ChatGPT、Anthropic、DeepSeek、Google AI、智谱 GLM、Qwen
-              等）每 2 小时检查一次更新；科技、国内新闻、社交热点、财经、游戏与 Skills 榜单每 6
-              小时同步一次。
-            </p>
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-foreground">如何使用 RSS 订阅本站？</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              AI、科技、国内新闻、社交、财经、游戏六个分区均提供标准 RSS 2.0 订阅地址（例如
-              /feeds/ai.xml），也可以在「我的关注」页面生成自定义来源组合的 RSS
-              链接，粘贴到任意阅读器即可按周期接收更新。
+              可在顶部「RSS」弹窗复制全站或分频道的 RSS 2.0 地址（如
+              /feeds/ai.xml），粘贴到阅读器使用； AI 客户端可通过{' '}
+              <Link className="text-primary underline underline-offset-4" href="/mcp">
+                MCP 接口
+              </Link>{' '}
+              接入。
             </p>
           </div>
         </div>
@@ -116,11 +90,11 @@ export default function AboutPage() {
       <section>
         <h2>访问与隐私</h2>
         <p>
-          浏览本站无需注册。关于主题偏好、搜索请求、外部链接与使用规则的说明，参见
+          浏览无需登录。数据处理与外链跳转规则见{' '}
           <Link className="text-primary underline underline-offset-4" href="/privacy">
             隐私说明
-          </Link>
-          与
+          </Link>{' '}
+          与{' '}
           <Link className="text-primary underline underline-offset-4" href="/privacy#terms">
             服务条款
           </Link>
@@ -128,9 +102,9 @@ export default function AboutPage() {
         </p>
       </section>
       <section id="contact" aria-labelledby="contact-heading">
-        <h2 id="contact-heading">联系我们</h2>
+        <h2 id="contact-heading">反馈与联系</h2>
         <p>
-          本站由{' '}
+          由{' '}
           <a
             className="text-primary underline underline-offset-4"
             href="https://blog.ljhboard.cn/"
@@ -138,7 +112,7 @@ export default function AboutPage() {
           >
             LJH
           </a>{' '}
-          维护。如果发现来源链接失效、抓取排版异常，或有信源增补与内容权利相关反馈，可通过{' '}
+          维护。链接失效、排版异常或信源增补反馈，请提交到{' '}
           <a
             className="text-primary underline underline-offset-4"
             href="https://github.com/ljh12138164/rss-site/issues"
@@ -146,10 +120,10 @@ export default function AboutPage() {
             target="_blank"
           >
             GitHub Issues
-          </a>{' '}
-          或作者博客留言联系。
+          </a>
+          。
         </p>
-        <p>
+        <p className="font-mono text-xs text-muted-foreground">
           最近更新：<time dateTime="2026-10-23">2026 年 10 月 23 日</time>
         </p>
       </section>

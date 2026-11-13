@@ -39,10 +39,10 @@ export function ArticleBookmarkButton({
         type="button"
         onClick={handleToggle}
         className={cn(
-          'inline-flex size-8 cursor-pointer items-center justify-center rounded-md transition-colors',
+          'inline-flex size-8 cursor-pointer items-center justify-center rounded-sm transition-colors',
           saved
             ? 'text-primary hover:text-primary/80'
-            : 'text-muted-foreground/60 hover:text-foreground',
+            : 'text-muted-foreground/70 hover:text-foreground',
           className
         )}
         title={saved ? '移出稍后读' : '加入稍后读'}
@@ -62,10 +62,10 @@ export function ArticleBookmarkButton({
       type="button"
       onClick={handleToggle}
       className={cn(
-        'inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors',
+        'inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-sm border px-3 py-1.5 font-mono text-xs font-medium transition-colors',
         saved
-          ? 'border-primary/40 bg-primary/10 text-primary hover:bg-primary/20'
-          : 'border-border bg-background text-muted-foreground hover:bg-accent hover:text-foreground',
+          ? 'border-primary/45 bg-primary/12 text-primary hover:bg-primary/20'
+          : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground',
         className
       )}
       aria-label={saved ? '移出稍后读' : '加入稍后读'}
@@ -75,7 +75,7 @@ export function ArticleBookmarkButton({
       ) : (
         <Bookmark className="size-3.5" aria-hidden="true" />
       )}
-      <span>{saved ? '已加入稍后读' : '稍后阅读'}</span>
+      <span>{saved ? '已存稍后读' : '稍后读'}</span>
     </button>
   )
 }

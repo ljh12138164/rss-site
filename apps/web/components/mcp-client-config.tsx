@@ -123,25 +123,23 @@ export function McpClientConfig() {
   const isEndpointCopied = copiedKey === 'endpoint'
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Endpoint Bar */}
-      <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 rounded-sm border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <div className="text-xs font-medium text-muted-foreground">
-            服务连接地址 (Streamable HTTP)
-          </div>
-          <div className="mt-1 font-mono text-sm font-semibold text-foreground break-all sm:text-base">
+          <div className="font-mono text-xs text-muted-foreground">Streamable HTTP 地址</div>
+          <div className="mt-1 break-all font-mono text-sm font-semibold text-foreground sm:text-base">
             {MCP_ENDPOINT}
           </div>
         </div>
         <ActionButton
           variant="outline"
           onPress={() => copyText(MCP_ENDPOINT, 'endpoint')}
-          className="min-h-9 px-3 text-xs shrink-0 self-start sm:self-auto"
+          className="min-h-9 shrink-0 self-start px-3 text-xs sm:self-auto"
           aria-label="复制 MCP 服务地址"
         >
-          {isEndpointCopied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
-          {isEndpointCopied ? '已复制地址' : '复制地址'}
+          {isEndpointCopied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
+          {isEndpointCopied ? '已复制' : '复制地址'}
         </ActionButton>
       </div>
 
@@ -156,10 +154,10 @@ export function McpClientConfig() {
               key={snippet.id}
               id={snippet.id}
               className={({ isSelected }) =>
-                `cursor-pointer rounded-md px-3.5 py-1.5 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                `cursor-pointer rounded-sm px-3 py-1.5 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                   isSelected
-                    ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                    ? 'bg-primary font-semibold text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                 }`
               }
             >
@@ -169,7 +167,7 @@ export function McpClientConfig() {
         </TabList>
 
         {snippets.map((snippet) => (
-          <TabPanel key={snippet.id} id={snippet.id} className="pt-4 outline-none space-y-4">
+          <TabPanel key={snippet.id} id={snippet.id} className="space-y-4 pt-4 outline-none">
             {/* Command-level CLI Section */}
             {snippet.command && (
               <div className="space-y-2">
@@ -177,15 +175,15 @@ export function McpClientConfig() {
                   <Terminal size={14} className="text-primary" />
                   <span>{snippet.commandDesc ?? '在终端执行以下命令：'}</span>
                 </div>
-                <div className="relative rounded-lg border border-border bg-muted/70 p-4 font-mono text-xs sm:text-sm">
+                <div className="relative rounded-sm border border-border bg-muted p-4 font-mono text-xs sm:text-sm">
                   <ActionButton
                     variant="ghost"
                     onPress={() => copyText(snippet.command ?? '', `${snippet.id}-cmd`)}
-                    className="absolute right-2.5 top-2.5 min-h-8 px-2.5 text-xs bg-background/80 hover:bg-background shadow-xs"
+                    className="absolute top-2.5 right-2.5 min-h-8 bg-card px-2.5 text-xs shadow-xs hover:bg-accent"
                     aria-label={`复制 ${snippet.label} 命令`}
                   >
                     {copiedKey === `${snippet.id}-cmd` ? (
-                      <Check size={13} className="text-green-500" />
+                      <Check size={13} className="text-primary" />
                     ) : (
                       <Copy size={13} />
                     )}
@@ -204,20 +202,20 @@ export function McpClientConfig() {
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
                   <span>{snippet.fileDesc ?? '配置文件内容：'}</span>
                   {snippet.filePath && (
-                    <span className="font-mono rounded-xs bg-muted px-1.5 py-0.5 text-[11px] text-foreground">
+                    <span className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
                       {snippet.filePath}
                     </span>
                   )}
                 </div>
-                <div className="relative rounded-lg border border-border bg-muted/70 p-4 font-mono text-xs sm:text-sm">
+                <div className="relative rounded-sm border border-border bg-muted p-4 font-mono text-xs sm:text-sm">
                   <ActionButton
                     variant="ghost"
                     onPress={() => copyText(snippet.fileCode ?? '', `${snippet.id}-file`)}
-                    className="absolute right-2.5 top-2.5 min-h-8 px-2.5 text-xs bg-background/80 hover:bg-background shadow-xs"
+                    className="absolute top-2.5 right-2.5 min-h-8 bg-card px-2.5 text-xs shadow-xs hover:bg-accent"
                     aria-label={`复制 ${snippet.label} 配置`}
                   >
                     {copiedKey === `${snippet.id}-file` ? (
-                      <Check size={13} className="text-green-500" />
+                      <Check size={13} className="text-primary" />
                     ) : (
                       <Copy size={13} />
                     )}
@@ -232,8 +230,8 @@ export function McpClientConfig() {
 
             {/* Tip note */}
             {snippet.tip && (
-              <div className="text-xs text-muted-foreground bg-muted/30 border border-border/60 rounded-md p-2.5 leading-5">
-                💡 {snippet.tip}
+              <div className="rounded-sm border border-border bg-card px-3 py-2 font-mono text-xs leading-5 text-muted-foreground">
+                {snippet.tip}
               </div>
             )}
           </TabPanel>

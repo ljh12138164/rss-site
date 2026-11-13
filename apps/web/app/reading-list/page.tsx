@@ -58,27 +58,27 @@ export default function ReadingListPage() {
 
   return (
     <SiteShell mainClassName="mx-auto w-full max-w-4xl py-8 sm:py-12">
-      <header className="mb-8 border-b border-border pb-7 sm:mb-10">
-        <h1 className="headline-display text-3xl sm:text-4xl">稍后读与阅读足迹</h1>
-        <p className="mt-3 text-pretty text-sm leading-7 text-muted-foreground">
-          收藏的文章和最近 100 条阅读足迹保存在当前浏览器，可随时回看。
+      <header className="mb-6 border-b border-border pb-6">
+        <h1 className="headline-display text-3xl sm:text-4xl">稍后读</h1>
+        <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
+          收藏文章与最近 100 条本地阅读记录。
         </p>
 
         {/* Tab switch */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
           <div
             role="tablist"
             aria-label="阅读列表分类"
-            className="inline-flex rounded-lg border border-border bg-muted/40 p-1 text-xs font-medium"
+            className="inline-flex rounded-sm border border-border bg-muted p-1 text-xs font-medium"
           >
             <button
               type="button"
               role="tab"
               aria-selected={activeTab === 'saved'}
               className={cn(
-                'cursor-pointer rounded-md px-4 py-2 transition-colors flex items-center gap-2',
+                'flex cursor-pointer items-center gap-2 rounded-sm px-3.5 py-2 transition-colors',
                 activeTab === 'saved'
-                  ? 'bg-background font-semibold text-foreground shadow-xs'
+                  ? 'bg-card font-semibold text-foreground shadow-xs'
                   : 'text-muted-foreground hover:text-foreground'
               )}
               onClick={() => {
@@ -87,8 +87,8 @@ export default function ReadingListPage() {
               }}
             >
               <Bookmark className="size-3.5" aria-hidden="true" />
-              <span>稍后阅读</span>
-              <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">
+              <span>稍后读</span>
+              <span className="rounded-sm bg-primary/14 px-1.5 py-0.5 font-mono text-[10px] text-primary">
                 {savedArticles.length}
               </span>
             </button>
@@ -97,9 +97,9 @@ export default function ReadingListPage() {
               role="tab"
               aria-selected={activeTab === 'history'}
               className={cn(
-                'cursor-pointer rounded-md px-4 py-2 transition-colors flex items-center gap-2',
+                'flex cursor-pointer items-center gap-2 rounded-sm px-3.5 py-2 transition-colors',
                 activeTab === 'history'
-                  ? 'bg-background font-semibold text-foreground shadow-xs'
+                  ? 'bg-card font-semibold text-foreground shadow-xs'
                   : 'text-muted-foreground hover:text-foreground'
               )}
               onClick={() => {
@@ -108,8 +108,8 @@ export default function ReadingListPage() {
               }}
             >
               <History className="size-3.5" aria-hidden="true" />
-              <span>历史足迹</span>
-              <span className="rounded-full bg-muted-foreground/15 px-1.5 py-0.5 text-[10px] text-muted-foreground">
+              <span>浏览记录</span>
+              <span className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
                 {readingHistory.length}
               </span>
             </button>
@@ -123,31 +123,26 @@ export default function ReadingListPage() {
               className={cn(
                 'cursor-pointer text-xs font-medium transition-colors',
                 confirmClear
-                  ? 'text-destructive font-semibold'
+                  ? 'font-semibold text-destructive'
                   : 'text-muted-foreground hover:text-destructive'
               )}
             >
-              {confirmClear
-                ? '确定清空全部吗？'
-                : activeTab === 'saved'
-                  ? '清空稍后读'
-                  : '清空足迹'}
+              {confirmClear ? '确认清空？' : activeTab === 'saved' ? '清空稍后读' : '清空记录'}
             </button>
           )}
         </div>
       </header>
 
-      {/* Main Content */}
-      <main>
+      <section aria-label="列表内容">
         {activeTab === 'saved' ? (
           savedArticles.length === 0 ? (
             <EmptyState
-              icon={<Bookmark className="size-10 text-muted-foreground/40" />}
-              title="暂无稍后阅读文章"
-              description="浏览热点或文章详情页时，点击「稍后阅读」即可把文章收藏到这里。"
+              icon={<Bookmark className="size-9 text-muted-foreground/45" />}
+              title="暂无收藏文章"
+              description="阅读时点击「稍后读」即可存入这里。"
             />
           ) : (
-            <ol className="divide-y divide-border border-y border-border">
+            <ol className="divide-y divide-border rounded-sm border border-border bg-card">
               {savedArticles.map((item) => (
                 <SavedItemRow
                   key={item.id}
@@ -159,12 +154,12 @@ export default function ReadingListPage() {
           )
         ) : readingHistory.length === 0 ? (
           <EmptyState
-            icon={<History className="size-10 text-muted-foreground/40" />}
-            title="暂无阅读足迹"
-            description="在站内打开过的文章会自动记录在当前浏览器，最多保留最近 100 条。"
+            icon={<History className="size-9 text-muted-foreground/45" />}
+            title="暂无浏览记录"
+            description="打开过的站内文章会保留在这里，最多 100 条。"
           />
         ) : (
-          <ol className="divide-y divide-border border-y border-border">
+          <ol className="divide-y divide-border rounded-sm border border-border bg-card">
             {readingHistory.map((item) => (
               <HistoryItemRow
                 key={item.id}
@@ -185,7 +180,7 @@ export default function ReadingListPage() {
             ))}
           </ol>
         )}
-      </main>
+      </section>
     </SiteShell>
   )
 }
@@ -200,15 +195,15 @@ function EmptyState({
   description: string
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center sm:py-24">
-      <div className="mb-4">{icon}</div>
-      <h2 className="headline-display text-lg sm:text-xl font-semibold">{title}</h2>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground leading-relaxed">{description}</p>
+    <div className="flex flex-col items-center justify-center rounded-sm border border-border bg-card px-6 py-16 text-center sm:py-20">
+      <div className="mb-3">{icon}</div>
+      <h2 className="headline-display text-lg font-semibold sm:text-xl">{title}</h2>
+      <p className="mt-2 max-w-md text-sm leading-6 text-muted-foreground">{description}</p>
       <Link
         href="/"
-        className="mt-6 inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent"
+        className="mt-5 inline-flex min-h-10 items-center gap-1.5 rounded-sm border border-strong bg-secondary px-4 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent"
       >
-        <span>返回首页浏览热点</span>
+        <span>返回首页</span>
         <ArrowRight className="size-3.5" aria-hidden="true" />
       </Link>
     </div>
@@ -219,7 +214,7 @@ function SavedItemRow({ item, onRemove }: { item: SavedArticleItem; onRemove: ()
   const isInternal = item.url.startsWith('/')
 
   return (
-    <li className="-mx-2 flex flex-col gap-2 rounded-md p-3 transition-colors hover:bg-row-highlight sm:flex-row sm:items-center sm:justify-between sm:p-4">
+    <li className="flex flex-col gap-2 px-4 py-3.5 transition-colors hover:bg-row-highlight sm:flex-row sm:items-center sm:justify-between sm:px-5">
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
           {item.sourceName && <span className="font-semibold text-primary">{item.sourceName}</span>}
@@ -248,9 +243,9 @@ function SavedItemRow({ item, onRemove }: { item: SavedArticleItem; onRemove: ()
         <button
           type="button"
           onClick={onRemove}
-          className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
-          title="从稍后读移除"
-          aria-label="从稍后读移除"
+          className="inline-flex size-8 cursor-pointer items-center justify-center rounded-sm text-muted-foreground/65 transition-colors hover:bg-destructive/10 hover:text-destructive"
+          title="移出稍后读"
+          aria-label="移出稍后读"
         >
           <Trash2 className="size-4" aria-hidden="true" />
         </button>
@@ -273,7 +268,7 @@ function HistoryItemRow({
   const isInternal = item.url.startsWith('/')
 
   return (
-    <li className="-mx-2 flex flex-col gap-2 rounded-md p-3 transition-colors hover:bg-row-highlight sm:flex-row sm:items-center sm:justify-between sm:p-4">
+    <li className="flex flex-col gap-2 px-4 py-3.5 transition-colors hover:bg-row-highlight sm:flex-row sm:items-center sm:justify-between sm:px-5">
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
           {item.sourceName && <span className="font-semibold text-primary">{item.sourceName}</span>}
@@ -303,10 +298,10 @@ function HistoryItemRow({
           type="button"
           onClick={onToggleSave}
           className={cn(
-            'inline-flex size-8 cursor-pointer items-center justify-center rounded-md transition-colors',
+            'inline-flex size-8 cursor-pointer items-center justify-center rounded-sm transition-colors',
             isSaved
               ? 'text-primary hover:text-primary/80'
-              : 'text-muted-foreground/60 hover:text-foreground'
+              : 'text-muted-foreground/65 hover:text-foreground'
           )}
           title={isSaved ? '移出稍后读' : '加入稍后读'}
           aria-label={isSaved ? '移出稍后读' : '加入稍后读'}
@@ -320,9 +315,9 @@ function HistoryItemRow({
         <button
           type="button"
           onClick={onRemove}
-          className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
-          title="删除此足迹"
-          aria-label="删除此足迹"
+          className="inline-flex size-8 cursor-pointer items-center justify-center rounded-sm text-muted-foreground/65 transition-colors hover:bg-destructive/10 hover:text-destructive"
+          title="删除此条记录"
+          aria-label="删除此条记录"
         >
           <Trash2 className="size-4" aria-hidden="true" />
         </button>

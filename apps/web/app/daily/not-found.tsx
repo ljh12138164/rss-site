@@ -4,14 +4,14 @@ import { SiteShell } from '../../components/site-shell'
 export default function DailyNotFound() {
   return (
     <SiteShell>
-      <div className="mx-auto max-w-2xl py-16">
-        <p className="eyebrow mb-4 text-primary">404</p>
-        <h1 className="headline-display text-3xl">这一期日报不存在</h1>
+      <div className="mx-auto max-w-xl rounded-sm border border-border bg-card p-8">
+        <p className="font-mono text-xs text-primary">404</p>
+        <h1 className="headline-display mt-2 text-2xl">该期日报不存在</h1>
         <Link
           href="/daily"
-          className="mt-6 inline-flex min-h-11 items-center text-primary underline underline-offset-4"
+          className="mt-5 inline-flex min-h-10 items-center text-sm text-primary hover:underline"
         >
-          阅读最新日报 →
+          返回最新日报 →
         </Link>
       </div>
     </SiteShell>

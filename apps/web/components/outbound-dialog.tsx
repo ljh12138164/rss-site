@@ -39,10 +39,10 @@ export function OutboundDialogView({
       {() => (
         <>
           <Heading slot="title" className="text-lg font-semibold">
-            即将离开本站
+            即将打开外部链接
           </Heading>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            你将访问第三方网站的原文，请注意信息安全。
+            将跳转到第三方站点，请注意链接安全。
           </p>
           {destination && (
             <p className="mt-3 line-clamp-2 overflow-hidden font-mono text-xs break-all text-muted-foreground">
@@ -111,9 +111,9 @@ export function OutboundDialog() {
       onOpenChange={(open) => {
         if (!open) setPending(null)
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
     >
-      <Modal className="w-full max-w-md border border-border bg-background p-6 text-foreground shadow-lg">
+      <Modal className="w-full max-w-md rounded-sm border border-strong bg-popover p-6 text-popover-foreground shadow-2xl">
         <OutboundDialogView
           destination={destination}
           pending={pending}

@@ -166,16 +166,16 @@ function SearchPanel() {
       </TextField>
       <div className="mx-5 mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <label className="min-w-0 text-xs text-muted-foreground">
-          分区
+          频道
           <select
             value={section}
             onChange={(event) => {
               setSection(event.target.value)
               setSource('')
             }}
-            className="mt-1 min-h-11 w-full rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+            className="mt-1 min-h-10 w-full rounded-sm border border-input bg-card px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring"
           >
-            <option value="">全部分区</option>
+            <option value="">全部频道</option>
             {listSignalSections()
               .filter((entry) => sources.some((item) => item.section === entry.id))
               .map((entry) => (
@@ -190,7 +190,7 @@ function SearchPanel() {
           <select
             value={source}
             onChange={(event) => setSource(event.target.value)}
-            className="mt-1 min-h-11 w-full rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+            className="mt-1 min-h-10 w-full rounded-sm border border-input bg-card px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring"
           >
             <option value="">全部来源</option>
             {sources
@@ -203,39 +203,41 @@ function SearchPanel() {
           </select>
         </label>
         <label className="min-w-0 text-xs text-muted-foreground">
-          发布时间
+          时间
           <select
             value={range}
             onChange={(event) => setRange(event.target.value as SearchRange)}
-            className="mt-1 min-h-11 w-full rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+            className="mt-1 min-h-10 w-full rounded-sm border border-input bg-card px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring"
           >
-            <option value="all">全部时间</option>
-            <option value="day">最近一天</option>
-            <option value="week">最近一周</option>
+            <option value="all">不限</option>
+            <option value="day">近 24 小时</option>
+            <option value="week">近 7 天</option>
           </select>
         </label>
       </div>
-      <div className="px-5 py-4 text-sm text-muted-foreground" role="status" aria-live="polite">
+      <div
+        className="px-5 py-3 text-xs text-muted-foreground tabular-nums"
+        role="status"
+        aria-live="polite"
+      >
         {!query
-          ? '输入关键词，查找标题和摘要'
+          ? '按标题和摘要检索'
           : composing
-            ? '输入关键词…'
+            ? '输入中…'
             : (validation ??
               (pending
-                ? '正在搜索…'
+                ? '检索中…'
                 : (error ??
-                  (items.length
-                    ? `已显示 ${items.length} 条结果 · 按发布时间排序`
-                    : '没有找到相关文章，试试更短的关键词'))))}
+                  (items.length ? `${items.length} 条匹配 · 按发布时间` : '未找到匹配内容'))))}
       </div>
       <div className="min-h-0 overflow-y-auto overscroll-contain px-5 pb-5">
         {pending && !items.length && (
           <div aria-hidden="true" className="space-y-6 py-2">
             {[0, 1, 2].map((key) => (
               <div key={key} className="space-y-3">
-                <div className="h-3 w-24 rounded bg-muted" />
-                <div className="h-5 w-3/4 rounded bg-muted" />
-                <div className="h-4 w-full rounded bg-muted" />
+                <div className="h-3 w-24 rounded-sm bg-muted" />
+                <div className="h-5 w-3/4 rounded-sm bg-muted" />
+                <div className="h-4 w-full rounded-sm bg-muted" />
               </div>
             ))}
           </div>
@@ -243,7 +245,7 @@ function SearchPanel() {
         <ul className="divide-y divide-border">
           {items.map((item) => (
             <li key={item.id} className="py-4">
-              <p className="mb-2 text-xs text-muted-foreground">
+              <p className="mb-1.5 font-mono text-xs text-muted-foreground tabular-nums">
                 {sources.find((source) => source.id === item.source)?.shortName ?? item.source}
                 {item.published_at && (
                   <>
@@ -257,14 +259,14 @@ function SearchPanel() {
               </p>
               <Link
                 href={createArticlePath(item.source, item.title, item.id)}
-                className="block rounded-sm text-foreground outline-offset-4 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+                className="block rounded-sm text-foreground outline-offset-4 hover:text-primary focus-visible:outline-2 focus-visible:outline-ring"
               >
-                <span className="text-base font-semibold leading-7">
+                <span className="text-base font-semibold leading-6">
                   <Highlight text={item.title} query={query} />{' '}
                   <ArrowRight className="inline size-3.5" aria-hidden="true" />
                 </span>
                 {item.summary && (
-                  <p className="mt-2 text-pretty text-sm leading-6 text-muted-foreground">
+                  <p className="mt-1.5 text-pretty text-sm leading-6 text-muted-foreground">
                     <Highlight text={item.summary} query={query} />
                   </p>
                 )}
@@ -290,18 +292,18 @@ function SearchPanel() {
             isDisabled={pending}
             onPress={() => void fetchNextPage({ cancelRefetch: false })}
           >
-            {pending ? '正在加载…' : '显示更多'}
+            {pending ? '加载中…' : '更多'}
           </ActionButton>
         )}
       </div>
-      <div className="mt-auto border-t border-border px-5 py-3 text-xs text-muted-foreground">
+      <div className="mt-auto border-t border-border px-5 py-2.5 font-mono text-[11px] text-muted-foreground">
         Tab 切换 · Enter 打开 · Esc 关闭
       </div>
     </>
   )
 }
 
-export function ArticleSearch() {
+export function ArticleSearch({ variant = 'topbar' }: { variant?: 'topbar' | 'icon' }) {
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
@@ -317,23 +319,36 @@ export function ArticleSearch() {
 
   return (
     <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
-      <ActionButton
-        variant="ghost"
-        aria-label="搜索文章"
-        className="gap-2 text-muted-foreground transition-all duration-150 hover:bg-accent hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
-      >
-        <Search aria-hidden="true" className="size-4 shrink-0" />
-        <span className="hidden sm:inline">搜索文章</span>
-        <kbd className="hidden sm:inline-flex items-center rounded border border-border/80 bg-muted px-1.5 py-0.5 font-mono text-[10px] font-medium text-muted-foreground">
-          ⌘K
-        </kbd>
-      </ActionButton>
+      {variant === 'icon' ? (
+        <ActionButton
+          variant="ghost"
+          size="icon"
+          aria-label="搜索"
+          className="size-9 rounded-sm border border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
+        >
+          <Search aria-hidden="true" className="size-4" />
+        </ActionButton>
+      ) : (
+        <ActionButton
+          variant="ghost"
+          aria-label="搜索文章"
+          className="h-9 w-full max-w-sm justify-between rounded-sm border border-border bg-card px-3 text-sm text-muted-foreground hover:border-primary/60 hover:bg-card hover:text-foreground"
+        >
+          <span className="flex min-w-0 items-center gap-2 truncate">
+            <Search aria-hidden="true" className="size-4 shrink-0" />
+            <span className="truncate">搜索文章或关键词…</span>
+          </span>
+          <kbd className="hidden sm:inline-flex shrink-0 items-center rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted-foreground">
+            ⌘K
+          </kbd>
+        </ActionButton>
+      )}
       <ModalOverlay
         isDismissable
-        className="fixed inset-0 z-50 flex items-start justify-center bg-foreground/30 px-3 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xs sm:pt-20"
+        className="fixed inset-0 z-50 flex items-start justify-center bg-black/55 px-3 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur-xs sm:pt-20"
       >
-        <Modal className="w-full max-w-2xl overflow-hidden rounded-lg border border-border bg-background text-foreground shadow-2xl">
-          <Dialog className="flex max-h-[calc(var(--visual-viewport-height,100dvh)-7rem)] flex-col outline-none [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-primary">
+        <Modal className="w-full max-w-2xl overflow-hidden rounded-sm border border-strong bg-popover text-popover-foreground shadow-2xl">
+          <Dialog className="flex max-h-[calc(var(--visual-viewport-height,100dvh)-7rem)] flex-col outline-none [&_button:focus-visible]:outline-2 [&_button:focus-visible]:outline-ring">
             <SearchPanel />
           </Dialog>
         </Modal>

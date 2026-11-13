@@ -7,8 +7,8 @@ import { getDailyArchive, getDailyArticleLinks, getDailyReport } from '../../lib
 export const revalidate = 300
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
-  title: '每日要闻 · 日报',
-  description: '每天精选值得关注的 AI、科技及其他重要消息，附原文来源与往期归档',
+  title: '今日日报',
+  description: '每日精选 AI、科技及重要要闻摘要与原文出处。',
   alternates: { canonical: '/daily' }
 }
 
@@ -17,15 +17,13 @@ export default async function DailyPage() {
   if (!report)
     return (
       <SiteShell>
-        <div className="mx-auto max-w-2xl py-16">
-          <p className="eyebrow mb-4 text-primary">每日要闻</p>
-          <h1 className="headline-display text-4xl">暂无已发布日报</h1>
-          <p className="mt-5 text-muted-foreground">日报发布后会出现在这里</p>
+        <div className="mx-auto max-w-xl rounded-sm border border-border bg-card p-8 text-center">
+          <h1 className="headline-display text-2xl">暂无日报</h1>
           <Link
-            href="/latest"
-            className="mt-6 inline-flex min-h-11 items-center text-primary underline underline-offset-4"
+            href="/"
+            className="mt-5 inline-flex min-h-10 items-center font-mono text-xs text-primary hover:underline"
           >
-            浏览最新热点 →
+            返回全部热点 →
           </Link>
         </div>
       </SiteShell>

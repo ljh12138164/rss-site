@@ -1,8 +1,7 @@
-import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { cn } from '../lib/utils'
 import { OutboundDialog } from './outbound-dialog'
-import { SiteHeader } from './site-header'
+import { SiteHeader, TransitSidebar } from './site-header'
 
 export function SiteShell({
   children,
@@ -12,75 +11,27 @@ export function SiteShell({
   mainClassName?: string
 }) {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-5 sm:px-7">
-      <OutboundDialog />
-      <SiteHeader />
-      <main className={cn('flex-1 py-10 sm:py-14', mainClassName)}>{children}</main>
-      <footer className="mt-auto flex min-h-20 flex-wrap items-center justify-between gap-x-6 gap-y-3 border-t border-border py-6 text-xs text-muted-foreground">
-        <p className="font-mono text-[0.6875rem] uppercase tracking-wider">Editorial RSS Digest</p>
-        <nav aria-label="站点信息" className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <Link
-            className="flex min-h-11 items-center transition-colors hover:text-foreground"
-            href="/reading-list"
-          >
-            稍后读与足迹
-          </Link>
-          <Link
-            className="flex min-h-11 items-center transition-colors hover:text-foreground"
-            href="/mcp"
-          >
-            MCP 服务
-          </Link>
-          <Link
-            className="flex min-h-11 items-center transition-colors hover:text-foreground"
-            href="/about"
-          >
-            关于本站
-          </Link>
-          <Link
-            className="flex min-h-11 items-center transition-colors hover:text-foreground"
-            href="/about#contact"
-          >
-            联系我们
-          </Link>
-          <Link
-            className="flex min-h-11 items-center transition-colors hover:text-foreground"
-            href="/privacy"
-          >
-            隐私说明
-          </Link>
-          <Link
-            className="flex min-h-11 items-center transition-colors hover:text-foreground"
-            href="/privacy#terms"
-          >
-            服务条款
-          </Link>
-          <a
-            className="flex min-h-11 items-center transition-colors hover:text-foreground"
-            href="https://blog.ljhboard.cn/"
-            rel="noreferrer"
-            target="_blank"
-          >
-            ljh.notes
-          </a>
-          <a
-            className="flex min-h-11 items-center transition-colors hover:text-foreground"
-            href="https://token.ljhboard.cn/"
-            rel="noreferrer"
-            target="_blank"
-          >
-            Token Paper
-          </a>
-          <a
-            className="flex min-h-11 items-center transition-colors hover:text-foreground"
-            href="https://tools.ljhboard.cn/"
-            rel="noreferrer"
-            target="_blank"
-          >
-            LJH Tools
-          </a>
-        </nav>
-      </footer>
+    <div className="min-h-dvh w-full bg-background text-foreground lg:flex">
+      <a
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-sm focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
+        href="#main-content"
+      >
+        跳到正文
+      </a>
+      <TransitSidebar />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <SiteHeader />
+        <main
+          className={cn(
+            'mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 py-6 pb-20 sm:px-7 sm:py-8 lg:pb-12',
+            mainClassName
+          )}
+          id="main-content"
+        >
+          {children}
+        </main>
+        <OutboundDialog />
+      </div>
     </div>
   )
 }

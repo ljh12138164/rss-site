@@ -1,5 +1,5 @@
 import { HomeView } from '../../components/latest-overview'
-import { getHomeDigest } from '../../lib/home-articles'
+import { getHomeHubData } from '../../lib/home-hub'
 import { createPageMetadata, SITE_DESCRIPTION } from '../../lib/seo'
 
 export const dynamic = 'force-dynamic'
@@ -12,7 +12,7 @@ export const metadata = {
   })
 }
 
-export default async function HomePage() {
-  const digest = await getHomeDigest()
-  return <HomeView digest={digest} />
+export default async function LatestHomePage() {
+  const { digest, dailyReport, topModels } = await getHomeHubData()
+  return <HomeView digest={digest} dailyReport={dailyReport} topModels={topModels} />
 }
