@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import NextTopLoader from 'nextjs-toploader'
 import type { ReactNode } from 'react'
 import { GoogleScripts } from '../components/google-scripts'
-import { MonetagScript } from '../components/monetag-script'
 import { QueryProvider } from '../components/query-provider'
 import { ReactAriaProvider } from '../components/react-aria-provider'
 import { ServiceWorker } from '../components/service-worker'
@@ -25,7 +24,13 @@ export const metadata: Metadata = {
   creator: SITE_AUTHOR_NAME,
   publisher: SITE_NAME,
   category: 'news',
-  icons: { icon: '/icon.svg' },
+  icons: {
+    icon: [
+      { url: '/icon.svg?v=2', type: 'image/svg+xml' },
+      { url: '/favicon.ico?v=2', sizes: '32x32' }
+    ],
+    shortcut: '/favicon.ico?v=2'
+  },
   verification: {
     other: {
       'msvalidate.01': '1D97E9469470F8C3242E298438BF37AD',
@@ -47,7 +52,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           zIndex={50}
         />
         <GoogleScripts />
-        <MonetagScript />
         <ServiceWorker />
         <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange enableSystem>
           <QueryProvider>
