@@ -1,22 +1,32 @@
 'use client'
 
 import { listSignalSections, type SignalSourceId } from '@rss-site/signals'
+import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { Button, Disclosure, DisclosurePanel } from 'react-aria-components'
 import { ActionButton } from '../../components/action-button'
 import { HomeArticleList } from '../../components/home-article-list'
 import { SiteShell } from '../../components/site-shell'
 import { SourceIcon } from '../../components/source-icon'
+import { UiCheckbox } from '../../components/ui/checkbox'
 import {
   type FollowingPreferences,
   followingSources,
   saveFollowing,
   useFollowing
 } from '../../lib/following'
+import { cn } from '../../lib/utils'
+
+const followingSections = listSignalSections().filter((section) =>
+  followingSources.some((source) => source.section === section.id)
+)
 
 export default function FollowingPage() {
   const preferences = useFollowing()
   const [showAll, setShowAll] = useState(false)
+  const [userExpanded, setUserExpanded] = useState<boolean | null>(null)
   const [error, setError] = useState('')
+  const isManageOpen = userExpanded ?? !preferences.followed.length
   const selected = followingSources
     .filter(
       (source) =>
@@ -28,6 +38,7 @@ export default function FollowingPage() {
   function save(next: FollowingPreferences) {
     setError(saveFollowing(next) ? '' : '无法保存偏好，请检查浏览器是否允许本地存储。')
   }
+
   function changeSource(id: SignalSourceId, state: 'followed' | 'hidden') {
     const active = preferences[state].includes(id)
     save({
@@ -39,6 +50,7 @@ export default function FollowingPage() {
         : [...preferences[state], id]
     })
   }
+
   return (
     <SiteShell>
       <header className="border-b border-border pb-6">
@@ -47,21 +59,45 @@ export default function FollowingPage() {
           关注或隐藏平台来源，配置保存在本地浏览器。
         </p>
       </header>
-      <details
-        className="my-6 rounded-sm border border-border bg-card p-4"
-        open={!preferences.followed.length}
+
+      <Disclosure
+        isExpanded={isManageOpen}
+        onExpandedChange={setUserExpanded}
+        className="my-6 rounded-sm border border-border bg-card"
       >
-        <summary className="cursor-pointer py-2 font-semibold focus-visible:outline-2 focus-visible:outline-primary">
-          管理文章来源 · 已关注 <span className="tabular-nums">{preferences.followed.length}</span>{' '}
-          个
-        </summary>
-        {listSignalSections()
-          .filter((section) => followingSources.some((source) => source.section === section.id))
-          .map((section) => (
-            <fieldset key={section.id} className="mt-4">
-              <legend className="text-sm font-semibold text-muted-foreground">
+        <Button
+          slot="trigger"
+          className="flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left font-semibold text-foreground outline-none transition-colors hover:bg-row-highlight focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
+        >
+          <span>
+            管理文章来源 · 已关注{' '}
+            <span className="font-mono text-primary tabular-nums">
+              {preferences.followed.length}
+            </span>{' '}
+            个
+          </span>
+          <ChevronDown
+            aria-hidden="true"
+            className={cn(
+              'size-4 shrink-0 text-muted-foreground transition-transform duration-150',
+              isManageOpen && 'rotate-180'
+            )}
+          />
+        </Button>
+
+        <DisclosurePanel className="border-t border-border px-4 pb-4">
+          {followingSections.map((section) => (
+            <section
+              key={section.id}
+              aria-labelledby={`following-section-${section.id}`}
+              className="mt-4"
+            >
+              <h2
+                id={`following-section-${section.id}`}
+                className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+              >
                 {section.title}
-              </legend>
+              </h2>
               <div className="divide-y divide-border">
                 {followingSources
                   .filter((source) => source.section === section.id)
@@ -81,6 +117,7 @@ export default function FollowingPage() {
                           variant={preferences.followed.includes(source.id) ? 'primary' : 'outline'}
                           aria-pressed={preferences.followed.includes(source.id)}
                           aria-label={`关注${source.name}`}
+                          className="min-h-8 px-3 text-xs"
                           onPress={() => changeSource(source.id, 'followed')}
                         >
                           关注
@@ -89,6 +126,7 @@ export default function FollowingPage() {
                           variant={preferences.hidden.includes(source.id) ? 'outline' : 'ghost'}
                           aria-pressed={preferences.hidden.includes(source.id)}
                           aria-label={`隐藏${source.name}`}
+                          className="min-h-8 px-3 text-xs"
                           onPress={() => changeSource(source.id, 'hidden')}
                         >
                           隐藏
@@ -97,23 +135,23 @@ export default function FollowingPage() {
                     </div>
                   ))}
               </div>
-            </fieldset>
+            </section>
           ))}
-      </details>
+        </DisclosurePanel>
+      </Disclosure>
+
       <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2">
-        <label className="flex min-h-11 items-center gap-2 text-sm">
-          <input type="checkbox" checked={showAll} onChange={(e) => setShowAll(e.target.checked)} />
+        <UiCheckbox isSelected={showAll} onChange={setShowAll}>
           浏览全部未隐藏来源
-        </label>
-        <label className="flex min-h-11 items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={preferences.unreadOnly}
-            onChange={(e) => save({ ...preferences, unreadOnly: e.target.checked })}
-          />
+        </UiCheckbox>
+        <UiCheckbox
+          isSelected={preferences.unreadOnly}
+          onChange={(unreadOnly) => save({ ...preferences, unreadOnly })}
+        >
           只看未读
-        </label>
+        </UiCheckbox>
       </div>
+
       {preferences.unreadOnly && (
         <p className="mb-4 font-mono text-xs text-muted-foreground">
           依据最近 100 条本地阅读记录过滤
@@ -131,11 +169,8 @@ export default function FollowingPage() {
           unreadOnly={preferences.unreadOnly}
         />
       ) : (
-        <p
-          role="status"
-          className="rounded-sm border border-border bg-card py-10 text-center text-sm text-muted-foreground"
-        >
-          请在上方选择要关注的平台。
+        <p className="text-muted-foreground">
+          还没有关注任何来源，请先展开「管理文章来源」，或勾选「浏览全部未隐藏来源」。
         </p>
       )}
     </SiteShell>

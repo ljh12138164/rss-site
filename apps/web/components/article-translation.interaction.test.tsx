@@ -52,7 +52,9 @@ it('marks original and translated text across all reading modes without changing
       )
     ).toEqual(['en', 'zh-CN'])
     expect(container.querySelector('header > p')?.getAttribute('lang')).toBe('zh-CN')
-    expect(container.querySelector('fieldset')?.hasAttribute('lang')).toBe(false)
+    expect(container.querySelector('[aria-label="双语阅读模式选择"]')?.hasAttribute('lang')).toBe(
+      false
+    )
     await press('仅译文')
     expect(container.querySelector('h1')?.lang).toBe('zh-CN')
     expect(container.querySelector('.article-content')?.getAttribute('lang')).toBe('zh-CN')

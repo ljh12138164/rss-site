@@ -27,6 +27,14 @@ import {
   technologySources
 } from '../lib/technology-sources'
 import { ActionButton } from './action-button'
+import { UiSelect } from './ui/select'
+
+const searchDateFormatter = new Intl.DateTimeFormat('zh-CN', {
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+  timeZone: 'Asia/Shanghai'
+})
 
 const sources = [
   ...aiSources,
@@ -165,55 +173,41 @@ function SearchPanel() {
         )}
       </TextField>
       <div className="mx-5 mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <label className="min-w-0 text-xs text-muted-foreground">
-          频道
-          <select
-            value={section}
-            onChange={(event) => {
-              setSection(event.target.value)
-              setSource('')
-            }}
-            className="mt-1 min-h-10 w-full rounded-sm border border-input bg-card px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            <option value="">全部频道</option>
-            {listSignalSections()
+        <UiSelect
+          label="频道"
+          value={section}
+          onChange={(next) => {
+            setSection(next)
+            setSource('')
+          }}
+          options={[
+            { value: '', label: '全部频道' },
+            ...listSignalSections()
               .filter((entry) => sources.some((item) => item.section === entry.id))
-              .map((entry) => (
-                <option key={entry.id} value={entry.path}>
-                  {entry.title}
-                </option>
-              ))}
-          </select>
-        </label>
-        <label className="min-w-0 text-xs text-muted-foreground">
-          来源
-          <select
-            value={source}
-            onChange={(event) => setSource(event.target.value)}
-            className="mt-1 min-h-10 w-full rounded-sm border border-input bg-card px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            <option value="">全部来源</option>
-            {sources
+              .map((entry) => ({ value: entry.path, label: entry.title }))
+          ]}
+        />
+        <UiSelect
+          label="来源"
+          value={source}
+          onChange={setSource}
+          options={[
+            { value: '', label: '全部来源' },
+            ...sources
               .filter((item) => !section || `/${item.section}` === section)
-              .map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-          </select>
-        </label>
-        <label className="min-w-0 text-xs text-muted-foreground">
-          时间
-          <select
-            value={range}
-            onChange={(event) => setRange(event.target.value as SearchRange)}
-            className="mt-1 min-h-10 w-full rounded-sm border border-input bg-card px-2 text-sm text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-          >
-            <option value="all">不限</option>
-            <option value="day">近 24 小时</option>
-            <option value="week">近 7 天</option>
-          </select>
-        </label>
+              .map((item) => ({ value: item.id, label: item.name }))
+          ]}
+        />
+        <UiSelect
+          label="时间"
+          value={range}
+          onChange={(next) => setRange(next as SearchRange)}
+          options={[
+            { value: 'all', label: '不限' },
+            { value: 'day', label: '近 24 小时' },
+            { value: 'week', label: '近 7 天' }
+          ]}
+        />
       </div>
       <div
         className="px-5 py-3 text-xs text-muted-foreground tabular-nums"
@@ -252,7 +246,7 @@ function SearchPanel() {
                     {' '}
                     ·{' '}
                     <time dateTime={item.published_at}>
-                      {new Date(item.published_at).toLocaleDateString('zh-CN')}
+                      {searchDateFormatter.format(new Date(item.published_at))}
                     </time>
                   </>
                 )}

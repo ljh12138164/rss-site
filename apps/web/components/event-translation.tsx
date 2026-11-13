@@ -4,8 +4,8 @@ import { hc } from 'hono/client'
 import { Languages, LoaderCircle } from 'lucide-react'
 import { useState } from 'react'
 import type { AppType } from '../lib/hono-app'
-import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
+import { UiSegmentedGroup } from './ui/segmented-group'
 
 const api = hc<AppType>('/')
 
@@ -91,50 +91,16 @@ export function EventTranslation({
       {canTranslate && (
         <div className="mt-5 flex flex-wrap items-center gap-3">
           {translation ? (
-            <fieldset
-              aria-label="阅读模式"
-              className="m-0 inline-flex rounded-sm border border-border bg-card p-1 text-xs font-medium"
-            >
-              <button
-                type="button"
-                aria-pressed={mode === 'bilingual'}
-                className={cn(
-                  'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
-                  mode === 'bilingual'
-                    ? 'bg-accent font-semibold text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-                onClick={() => setMode('bilingual')}
-              >
-                双语对照
-              </button>
-              <button
-                type="button"
-                aria-pressed={mode === 'chinese'}
-                className={cn(
-                  'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
-                  mode === 'chinese'
-                    ? 'bg-accent font-semibold text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-                onClick={() => setMode('chinese')}
-              >
-                仅译文
-              </button>
-              <button
-                type="button"
-                aria-pressed={mode === 'original'}
-                className={cn(
-                  'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
-                  mode === 'original'
-                    ? 'bg-accent font-semibold text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-                onClick={() => setMode('original')}
-              >
-                仅原文
-              </button>
-            </fieldset>
+            <UiSegmentedGroup
+              ariaLabel="阅读模式"
+              value={mode}
+              onChange={setMode}
+              options={[
+                { value: 'bilingual', label: '双语对照' },
+                { value: 'chinese', label: '仅译文' },
+                { value: 'original', label: '仅原文' }
+              ]}
+            />
           ) : (
             <ActionButton variant="primary" onPress={requestTranslation} isDisabled={isLoading}>
               {isLoading ? (

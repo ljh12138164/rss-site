@@ -8,10 +8,10 @@ import { pairBilingualBlocks } from '../lib/article-bilingual'
 import { looksLikeEnglish } from '../lib/article-language'
 import type { AppType } from '../lib/hono-app'
 import { estimateReadingMinutes } from '../lib/reading-progress'
-import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
 import { ArticleHtmlBody } from './article-html-body'
 import { ArticleReadingTools } from './article-reading-tools'
+import { UiSegmentedGroup } from './ui/segmented-group'
 
 const api = hc<AppType>('/')
 
@@ -125,50 +125,16 @@ export function ArticleTranslation({
         {canTranslate && (
           <div className="mt-5 flex flex-wrap items-center gap-3">
             {translation ? (
-              <fieldset
-                aria-label="双语阅读模式选择"
-                className="m-0 inline-flex rounded-sm border border-border bg-muted p-1 text-xs font-medium"
-              >
-                <button
-                  type="button"
-                  aria-pressed={mode === 'bilingual'}
-                  className={cn(
-                    'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
-                    mode === 'bilingual'
-                      ? 'bg-card font-semibold text-foreground shadow-xs'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                  onClick={() => setMode('bilingual')}
-                >
-                  双语对照
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={mode === 'chinese'}
-                  className={cn(
-                    'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
-                    mode === 'chinese'
-                      ? 'bg-card font-semibold text-foreground shadow-xs'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                  onClick={() => setMode('chinese')}
-                >
-                  仅译文
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={mode === 'original'}
-                  className={cn(
-                    'cursor-pointer rounded-sm px-3 py-1.5 transition-colors',
-                    mode === 'original'
-                      ? 'bg-card font-semibold text-foreground shadow-xs'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                  onClick={() => setMode('original')}
-                >
-                  仅原文
-                </button>
-              </fieldset>
+              <UiSegmentedGroup
+                ariaLabel="双语阅读模式选择"
+                value={mode}
+                onChange={setMode}
+                options={[
+                  { value: 'bilingual', label: '双语对照' },
+                  { value: 'chinese', label: '仅译文' },
+                  { value: 'original', label: '仅原文' }
+                ]}
+              />
             ) : (
               <ActionButton variant="primary" onPress={requestTranslation} isDisabled={isLoading}>
                 {isLoading ? (

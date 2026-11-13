@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, Download, LayoutGrid, List, Search, X } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, Download, LayoutGrid, List, Search, X } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import {
@@ -19,6 +19,7 @@ import { parseSkillMetadata } from '../lib/skill-metadata'
 import { searchSkillFeed } from '../lib/skill-search'
 import { cn } from '../lib/utils'
 import { EmptyFeed, FeedError } from './feed-state'
+import { UiSegmentedGroup } from './ui/segmented-group'
 
 export { parseSkillMetadata } from '../lib/skill-metadata'
 
@@ -88,7 +89,7 @@ function SkillFeed({
                   />
                 </span>
                 {metadata.description ? (
-                  <span className="mt-1.5 line-clamp-2 block text-sm font-normal leading-6 text-muted-foreground">
+                  <span className="mt-1.5 line-clamp-2 block max-w-prose text-sm font-normal leading-6 text-muted-foreground">
                     {metadata.description}
                   </span>
                 ) : null}
@@ -107,7 +108,7 @@ function SkillFeed({
               </Link>
               {metadata.source && (
                 <a
-                  className="mt-2 block truncate font-mono text-xs text-muted-foreground hover:text-primary"
+                  className="mt-2 inline-flex max-w-full items-center gap-1 font-mono text-xs text-muted-foreground hover:text-primary"
                   href={
                     metadata.source.includes('/')
                       ? `https://github.com/${metadata.source}`
@@ -117,7 +118,8 @@ function SkillFeed({
                   rel="noopener noreferrer"
                   data-outbound
                 >
-                  {metadata.source} ↗
+                  <span className="truncate">{metadata.source}</span>
+                  <ArrowUpRight className="size-3 shrink-0" aria-hidden="true" />
                 </a>
               )}
             </article>
@@ -188,25 +190,24 @@ export function SkillLeaderboard({ feeds }: { feeds: SkillFeeds }) {
           </div>
         </SearchField>
 
-        <fieldset className="flex items-center gap-1.5 self-end sm:self-auto" aria-label="视图">
-          {[
-            ['list', '列表', List],
-            ['cards', '卡片', LayoutGrid]
-          ].map(([key, label, Icon]) => {
-            const ViewIcon = Icon as typeof List
-            return (
-              <Button
-                key={String(key)}
-                aria-pressed={view === key}
-                onPress={() => remember(String(key), tab)}
-                className="inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-sm border border-border bg-card px-3 text-xs outline-none hover:border-strong focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary/60 aria-pressed:bg-accent aria-pressed:font-semibold"
-              >
-                <ViewIcon aria-hidden="true" className="size-3.5" />
-                {String(label)}
-              </Button>
-            )
-          })}
-        </fieldset>
+        <UiSegmentedGroup
+          ariaLabel="视图"
+          value={view === 'cards' ? 'cards' : 'list'}
+          onChange={(next) => remember(next, tab)}
+          className="self-end sm:self-auto"
+          options={[
+            {
+              value: 'list',
+              label: '列表',
+              icon: <List aria-hidden="true" className="size-3.5" />
+            },
+            {
+              value: 'cards',
+              label: '卡片',
+              icon: <LayoutGrid aria-hidden="true" className="size-3.5" />
+            }
+          ]}
+        />
       </div>
 
       <TabList
