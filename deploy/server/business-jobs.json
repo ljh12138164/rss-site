@@ -276,6 +276,12 @@
     "path": "/cron/signals/the-decoder"
   },
   {
+    "source": "arm",
+    "name": "signal-ingest-arm",
+    "schedule": "15 5,11,17,23 * * *",
+    "path": "/cron/signals/arm"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

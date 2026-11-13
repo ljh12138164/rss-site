@@ -3,6 +3,7 @@ import type { ComponentType } from 'react'
 import {
   SiAmd,
   SiAnthropic,
+  SiArm,
   SiBaidu,
   SiBilibili,
   SiBytedance,
@@ -39,6 +40,7 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
   'cloudflare-blog': { Icon: SiCloudflare, color: '#f38020', bg: '#fff3e6' },
   nvidia: { Icon: SiNvidia, color: '#76b900', bg: '#f0f8e4' },
   amd: { Icon: SiAmd, color: '#ed1c24', bg: '#fde8e9' },
+  arm: { Icon: SiArm, color: '#0091bd', bg: '#e6f5fa' },
   'skills-all-time': { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
   'skills-trending': { Icon: SiGithub, color: '#181717', bg: '#f2f0ea' },
   'hacker-news': { Icon: SiYcombinator, color: '#ffffff', bg: '#f0652f' },

@@ -22,16 +22,16 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 47 sources', () => {
+  it('defines 7 sections and 48 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(47)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(47)
+    expect(signalSources).toHaveLength(48)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(48)
   })
 
   it('correctly maps all section counts', () => {
-    expect(technologySources).toHaveLength(11)
-    expect(technologyArticleSources).toHaveLength(10)
+    expect(technologySources).toHaveLength(12)
+    expect(technologyArticleSources).toHaveLength(11)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
     expect(aiSources).toHaveLength(11)
@@ -67,7 +67,7 @@ describe('@rss-site/signals', () => {
 
   it('filters sources by section and isArticle', () => {
     const techArticles = listSignalSources({ section: 'technology', isArticle: true })
-    expect(techArticles).toHaveLength(10)
+    expect(techArticles).toHaveLength(11)
     expect(techArticles.some((s) => s.id === 'github')).toBe(false)
 
     const allSkills = listSignalSources({ section: 'skills' })
@@ -103,6 +103,10 @@ describe('@rss-site/signals', () => {
     ])
     expect(resolveSignalFeedUrls(getSignalSource('amd'), 'https://rss.ljhboard.cn')).toEqual([
       'https://rss.ljhboard.cn/amd/newsroom/all/zh-CN?limit=20'
+    ])
+    expect(resolveSignalFeedUrls(getSignalSource('arm'), 'https://rss.ljhboard.cn')).toEqual([
+      'https://rss.ljhboard.cn/arm/news?limit=20',
+      'https://rss.ljhboard.cn/arm/blog?limit=20'
     ])
     expect(
       resolveSignalFeedUrls(getSignalSource('github-blog'), 'https://rss.ljhboard.cn')

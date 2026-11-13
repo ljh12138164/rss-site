@@ -87,7 +87,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
   }
 ] as const
 
-// 科技 Technology (11)
+// 科技 Technology (12)
 export const technologySources = [
   {
     id: 'github',
@@ -234,6 +234,19 @@ export const technologySources = [
     isArticle: true,
     cronSchedule: '0 5,11,17,23 * * *',
     cronJobName: 'signal-ingest-the-decoder'
+  },
+  {
+    id: 'arm',
+    name: 'Arm',
+    code: 'ARM',
+    shortName: 'Arm',
+    description: 'Arm 官方新闻稿与技术博客，英文全文',
+    section: 'technology',
+    itemLimit: 30,
+    feeds: [{ rsshubPath: '/arm/news?limit=20' }, { rsshubPath: '/arm/blog?limit=20' }],
+    isArticle: true,
+    cronSchedule: '15 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-arm'
   }
 ] as const
 
@@ -814,7 +827,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'antigravity',
   'nvidia',
   'amd',
-  'the-decoder'
+  'the-decoder',
+  'arm'
 ] as const
 
 // Cron jobs
