@@ -146,7 +146,7 @@ export function ArticleReader({
             className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
             href="/"
           >
-            首页
+            全部热点
           </Link>
           <span aria-hidden="true">/</span>
           <Link
@@ -228,6 +228,9 @@ export function ArticleReader({
             />
             <a
               href={outbound}
+              target="_blank"
+              rel="noreferrer noopener external"
+              data-outbound
               className="group inline-flex min-h-11 items-center gap-2 font-medium text-primary hover:underline"
             >
               阅读原文

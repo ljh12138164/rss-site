@@ -64,8 +64,8 @@ export function HomeHotRanking({ ranking }: { ranking: HotRanking }) {
   return (
     <section aria-labelledby="hot-ranking">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
-        <div className="flex items-center gap-2.5">
-          <span aria-hidden="true" className="size-2.5 rounded-full bg-primary" />
+        <div className="flex items-center gap-2">
+          <GitMerge aria-hidden="true" className="size-4 text-muted-foreground" />
           <h2 id="hot-ranking" className="headline-display text-lg text-foreground sm:text-xl">
             热门交汇
           </h2>

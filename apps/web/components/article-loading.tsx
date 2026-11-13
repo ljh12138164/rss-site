@@ -11,7 +11,7 @@ export default function ArticleLoading() {
         <SignalSkeleton className="mt-5 h-12 w-full sm:w-5/6" />
         <SignalSkeleton className="mt-3 h-12 w-2/3" />
         <SignalSkeleton className="mt-7 h-4 w-52" />
-        <div className="mt-10 space-y-3 border-y border-border py-7">
+        <div className="mt-10 space-y-3 rounded-sm border border-border bg-card p-6">
           <SignalSkeleton className="h-5 w-full" />
           <SignalSkeleton className="h-5 w-11/12" />
           <SignalSkeleton className="h-5 w-4/5" />

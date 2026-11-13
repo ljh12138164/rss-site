@@ -34,7 +34,7 @@ export function HomeDigestView({
           <h1 className="headline-display text-2xl text-foreground sm:text-3xl">全部热点</h1>
           <Link
             href="/daily"
-            className="inline-flex items-center gap-1.5 font-mono text-xs font-medium text-primary hover:underline"
+            className="inline-flex items-center gap-1.5 font-mono text-xs font-medium text-primary hover:underline xl:hidden"
           >
             今日日报
             <ArrowRight className="size-3.5" aria-hidden="true" />

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import { convert } from 'html-to-text'
+import { ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { skillInstallCommand, skillPath, validSkillId } from '../../../../../shared/skills'
@@ -67,16 +68,25 @@ export default async function Page({ params }: Props) {
     }).format(new Date(value))
   return (
     <SiteShell>
-      <nav aria-label="面包屑" className="mb-8 flex flex-wrap gap-2 text-sm text-muted-foreground">
-        <Link href="/">首页</Link>
+      <nav
+        aria-label="面包屑"
+        className="mb-8 flex flex-wrap gap-2 font-mono text-xs text-muted-foreground"
+      >
+        <Link className="transition-colors hover:text-primary" href="/">
+          全部热点
+        </Link>
         <span aria-hidden="true">/</span>
-        <Link href="/skills">Skills</Link>
+        <Link className="transition-colors hover:text-primary" href="/skills">
+          Skills
+        </Link>
         <span aria-hidden="true">/</span>
-        <span aria-current="page">{detail.name}</span>
+        <span aria-current="page" className="text-foreground">
+          {detail.name}
+        </span>
       </nav>
       <header>
         <p className="mb-3 font-mono text-sm text-muted-foreground">{detail.source}</p>
-        <h1 className="text-balance break-words text-3xl font-semibold sm:text-4xl">
+        <h1 className="headline-display text-balance break-words text-3xl sm:text-4xl">
           {detail.name}
         </h1>
         {detail.description && (
@@ -118,21 +128,24 @@ export default async function Page({ params }: Props) {
         <ArticleSummary kind="skill" articleId={id} key={summaryKey} cacheKey={summaryKey} />
       )}
       <div className="mt-8 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
-        <aside className="order-first space-y-5 text-sm lg:order-last">
-          <h2 className="font-medium">来源信息</h2>
+        <aside className="order-first space-y-4 self-start rounded-sm border border-border bg-card p-4 text-sm lg:order-last">
+          <h2 className="border-b border-border/70 pb-2.5 font-semibold text-foreground">
+            来源信息
+          </h2>
           <p className="text-muted-foreground">
             {detail.sourceType === 'github' ? 'GitHub' : '网站提供'}
           </p>
-          <div className="flex flex-wrap gap-4 lg:flex-col">
+          <div className="flex flex-wrap gap-3 lg:flex-col">
             {detail.installUrl && (
               <a
                 href={detail.installUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-outbound
-                className="text-primary hover:underline"
+                className="inline-flex items-center gap-1 text-primary hover:underline"
               >
-                {detail.sourceType === 'github' ? '来源仓库' : '来源网站'} ↗
+                <span>{detail.sourceType === 'github' ? '来源仓库' : '来源网站'}</span>
+                <ArrowUpRight className="size-3.5 shrink-0" aria-hidden="true" />
               </a>
             )}
             <a
@@ -140,31 +153,32 @@ export default async function Page({ params }: Props) {
               target="_blank"
               rel="noopener noreferrer"
               data-outbound
-              className="text-primary hover:underline"
+              className="inline-flex items-center gap-1 text-primary hover:underline"
             >
-              skills.sh ↗
+              <span>skills.sh</span>
+              <ArrowUpRight className="size-3.5 shrink-0" aria-hidden="true" />
             </a>
           </div>
-          <p className="leading-6 text-muted-foreground">
+          <p className="font-mono text-xs leading-6 text-muted-foreground tabular-nums">
             采集时间
             <br />
             {date(detail.contentSyncedAt ?? detail.lastSeenAt)}
           </p>
-          <p className="leading-6 text-muted-foreground">
+          <p className="font-mono text-xs leading-6 text-muted-foreground tabular-nums">
             本站首次收录
             <br />
             {date(detail.firstSeenAt)}
           </p>
           {headings.length > 1 && (
-            <details open>
-              <summary className="min-h-11 py-3 font-medium">目录</summary>
+            <div className="border-t border-border/70 pt-3">
+              <h3 className="mb-2 text-xs font-semibold text-foreground">目录</h3>
               <nav aria-label="Skill 目录">
-                <ul className="space-y-2">
+                <ul className="space-y-1.5">
                   {headings.map((heading) => (
                     <li key={heading.id}>
                       <a
                         href={`#${heading.id}`}
-                        className="block py-1 text-muted-foreground hover:text-primary"
+                        className="block py-1 text-xs text-muted-foreground hover:text-primary"
                       >
                         {heading.text}
                       </a>
@@ -172,23 +186,24 @@ export default async function Page({ params }: Props) {
                   ))}
                 </ul>
               </nav>
-            </details>
+            </div>
           )}
         </aside>
         <section className="min-w-0" aria-label="SKILL.md">
           {html && detail.skillMarkdown ? (
             <SkillContent html={html} markdown={detail.skillMarkdown} />
           ) : (
-            <div className="border-y border-border py-10">
+            <div className="rounded-sm border border-border bg-card px-5 py-8">
               <p>暂未收录 SKILL.md</p>
               <a
-                className="mt-4 inline-block text-primary hover:underline"
+                className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline"
                 href={detail.upstreamUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-outbound
               >
-                查看来源 ↗
+                <span>查看来源</span>
+                <ArrowUpRight className="size-3.5 shrink-0" aria-hidden="true" />
               </a>
             </div>
           )}
