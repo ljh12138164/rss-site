@@ -20,4 +20,4 @@ Every new platform or feed source must pass the following production-data gate b
 
 ## Pull requests
 
-Do not create or merge pull requests through a website UI. When a pull request is required, prepare and push the branch, then tell the user which branch and base to use and ask them to create and merge it.
+Do not create or merge pull requests through a website UI, and do not auto-merge pull requests. When a pull request is required, prepare, verify, and push the branch, check for an existing open PR for that branch, and create the pull request targeting `master` via the `gh` CLI (`gh pr create`). Then share the created PR URL, branch, and base with the user so they can review CI and merge it.
