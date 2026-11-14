@@ -486,6 +486,19 @@ export const aiSources = [
     cronJobName: 'signal-ingest-groq'
   },
   {
+    id: 'cohere',
+    name: 'Cohere',
+    code: 'CO',
+    shortName: 'Cohere',
+    description: 'Cohere 官方博客英文全文',
+    section: 'ai',
+    itemLimit: 20,
+    rsshubPath: '/cohere/blog?limit=20',
+    isArticle: true,
+    cronSchedule: '20 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-cohere'
+  },
+  {
     id: 'lilian-weng',
     name: "Lil'Log",
     code: 'LW',
@@ -828,7 +841,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'nvidia',
   'amd',
   'the-decoder',
-  'arm'
+  'arm',
+  'cohere'
 ] as const
 
 // Cron jobs

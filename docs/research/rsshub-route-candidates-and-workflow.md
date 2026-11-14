@@ -1,8 +1,8 @@
 # RSSHub 待新增路由候选与标准化交付工作流
 
-- **调研日期**：2026-11-13
-- **`rss-site` 基线**：`master` @ `7a9070f`（PR #81 `feat/groq-and-hot-ranking`，`packages/signals/src/index.ts` 已注册 `47` 个源，分属 `7` 个分区：`ai` 11、`technology` 11、`news` 6、`social` 6、`finance` 5、`games` 6、`skills` 2；`deploy/server/business-jobs.json` 含 `46` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`）
-- **RSSHub 基线**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（`master`）
+- **调研日期**：2026-11-13（2026-11-14 同步进度与自建实例说明）
+- **`rss-site` 基线**：`master` @ `32489cc` + `feat/cohere-source`（已接入 `cohere`，`packages/signals/src/index.ts` 已注册 `49` 个源，分属 `7` 个分区：`ai` 12、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 6、`skills` 2；`deploy/server/business-jobs.json` 含 `48` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `52` 项）
+- **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
 
 ---
@@ -15,8 +15,8 @@
 
 | 平台 | 首页 / 列表页 | RSSHub 上游 | 官网原生 RSS | 探测实证与抓取方案 |
 | :--- | :--- | :--- | :--- | :--- |
-| **Arm Newsroom** | `https://newsroom.arm.com/` | 无（`404`；自建 fork 亦 `404`） | 无（HTML 无 RSS link） | 公开 WordPress REST API `https://newsroom.arm.com/wp-json/wp/v2/posts?per_page=3` 返回 `200 \| application/json`（`57,421` 字节），可直接走 WP REST API 生成全文与元数据。 |
-| **Cohere Blog** | `https://cohere.com/blog` | 无（`404`） | 无 | 列表页 `200`（`1,328,576` 字节，`next:true`）；文章页实测 `https://cohere.com/blog/rerank-5` 返回 `200`（`486,167` 字节，`cf:false`），适合 Next.js SSR 列表 + 原文抓取。 |
+| **Arm Newsroom** | `https://newsroom.arm.com/` | ✅ 已完成（上游 PR `#23872`，`master` @ `0db3292f4`）；`rss-site` PR `#82` 已接入 | 无（HTML 无 RSS link） | 公开 WordPress REST API（`/arm/news` 与 `/arm/blog`）；`rss-site` `technology` 分区已上线 `arm` 合并源。 |
+| **Cohere Blog** | `https://cohere.com/blog` | ✅ 已完成：自建 `https://rss.ljhboard.cn/cohere/blog` 已上线（`master` @ `31e6563b`，源分支 `feat/cohere-blog` @ `20e227784`）；`rss-site` 已在 `feat/cohere-source` 接入（上游 PR 文案已交付待用户提交） | 无 | 官网同时保留 Sanity Content Lake（`rjtqmwfu.apicdn.sanity.io` / `web3-prod`）与 Ghost Content API 两部分文章。新路由并发合并双源、按 URL 去重时间排序后截取 `limit`，支持 Portable Text 全文、行内/块级 LaTeX 公式、`blogFaqSection` 问答、`keyTakeaways`、表格、代码块及音视频嵌入。 |
 | **MiniMax** | `https://www.minimax.cn/news` | 无（`404`） | 无 | 列表页 `200`（`53,336` 字节，`next:true`）；文章页实测 `https://www.minimax.cn/blog/minimax-m31f` 返回 `200`（`71,778` 字节，`cf:false`）。注：`.io` 同文章（`https://www.minimax.io/news/minimax-m31f`）返回 `500`（`20,192` 字节），路由应优先以 `minimax.cn` 为主。 |
 | **Moonshot / Kimi Blog** | `https://www.kimi.com/blog/` | 无（`moonshot` / `kimi` 均 `404`） | 无 | 列表页 `200`（`201,042` 字节，`next:true`，可见 headings `["研究"]`），适合基于 SSR 页面解析列表与文章全文。 |
 
@@ -52,7 +52,7 @@
 | **Tailscale Blog** | `https://tailscale.com/blog/index.xml` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 86`，description only）；文章页 `200`（`135,784` 字节）。 |
 | **Figma Blog** | `https://www.figma.com/blog/feed/atom.xml` | 无（`404`） | Atom 仅含摘要（`rssBodyWords: 136`，`content: 136`）；文章页 `200`（`1,777,788` 字节）。 |
 
-> 注：**Mistral AI**（`lib/routes/mistral`，含 `namespace.ts` 与 `news.ts`）已通过上游 PR `#23854` 合入 `DIYgod/RSSHub` `master`，当前尚未同步到 `ljh12138164/RSSHub`，无需重复提 PR，同步后即可接入 `rss-site`。
+> 注：**Mistral AI**（`lib/routes/mistral`，含 `namespace.ts` 与 `news.ts`）已通过上游 PR `#23854` 合入 `DIYgod/RSSHub` `master` 并随本次冲突解决合并至本地 `RSSHub` `master`；按用户指令，本轮跳过 Mistral AI，暂不接入 `rss-site`。
 
 ### 2.2 游戏 / 游戏媒体与引擎
 
@@ -134,11 +134,17 @@ pnpm run typecheck
      pnpm exec tsx lib/index.ts
      ```
    - 访问 `http://localhost:1200/<route>` 实测关键参数组合（如 `?limit=1`、默认路由、专题/分类过滤、`?format=json` 等），检查标题、链接、发布时间、`author`、封面/正文图片、`description` 全文质量及无 `http://` 混合内容问题。
-   - 将 **本地文档预览地址** 与 **真实抓取的数据样本/质量统计** 一并提交给用户验收；验收通过后再进入第 3 步合并部署到自建 `ljh12138164/RSSHub`。
+4. **使用 Codex（`gpt-6.1-sol` + 高思考程度 `high`）进行代码 Review**：
+   - 若本机尚未安装 Codex CLI（或版本过旧不支持 `gpt-6.1-sol`），先全局安装/升级：`npm install -g @openai/codex@latest`（若使用 Vite+ 工具链可执行 `vp add -g @openai/codex@latest`）；
+   - 在提交前针对未提交代码执行高思考力度 Review：
+     ```bash
+     codex review --uncommitted -c model="gpt-6.1-sol" -c model_reasoning_effort="high"
+     ```
+   - 用真实线上数据核查 Codex 指出的 P0/P1/P2 问题，修复并重跑静态校验与本地实测后，将 **本地文档预览地址**、**Review 修复结论** 与 **真实抓取的数据样本/质量统计** 一并提交给用户验收；验收通过后再进入第 3 步合并部署到自建 `ljh12138164/RSSHub`。
 
 ### 第 3 步：自建 RSSHub 上线与实测验收
 
-1. 将验证通过的路由同步/部署至自建实例（`ljh12138164/RSSHub` -> `https://rss.ljhboard.cn`）。
+1. 将验证通过的路由同步/部署至自建实例（将改动合并/cherry-pick 至 `ljh12138164/RSSHub` `master` 推送以部署主实例 `https://rss.ljhboard.cn`；若需同步更新备用分流实例 `https://rss1.ljhboard.cn`，还需前往二次 fork 仓库 `ljh-project/RSSHub` 执行 `Sync fork -> Update branch`）。
 2. 对已上线的自建路由做匿名 HTTP 探测：
    - 分别检查默认路径与 `?limit=1`、`?limit=<default/max>`：HTTP `200`、响应为有效 RSS XML、所有条目 `link` 去重且唯一、`pubDate` 合法、全文 `description` 非空且保留正文核心内容与图片。
 
@@ -146,7 +152,7 @@ pnpm run typecheck
 
 在 `rss-site` 仓库基于最新 `origin/master` 切出 `feat/<source>` 分支，按项目规范逐项接入并测试：
 
-1. `packages/signals/src/index.ts`：注册新信号源（`id`、`name`、`section`、`feedUrl` / RSSHub 路径由 `resolveSignalFeedUrl` 解析，默认 `RSSHUB_BASE_URL` 为 `https://rss.ljhboard.cn` 等）。
+1. `packages/signals/src/index.ts`：注册新信号源（`id`、`name`、`section`、`feedUrl` / RSSHub 路径由 `resolveSignalFeedUrl` 解析，默认 `RSSHUB_BASE_URL` 为 `https://rss.ljhboard.cn`，如需分担 Vercel 免费额度可在配置中指向备用实例 `https://rss1.ljhboard.cn`）。
 2. `deploy/postgres/migrations/*.sql`：新增可重复执行 SQL 迁移，同步更新 `ingestion_runs`、`source_status`、`hot_items`、`signal_articles` 4 张表的 CHECK 约束。
 3. `deploy/server/business-jobs.json`：添加对应抓取 job；依据 `AGENTS.md`，新源初始保持禁用（待线上验收门禁通过后再激活）。
 4. `apps/web/components/source-icon.tsx`：按需补充专属图标（缺省回退使用 `code`）。
