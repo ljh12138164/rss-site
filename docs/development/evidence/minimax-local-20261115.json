@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-11-14T17:50:32.208Z",
+  "source": "minimax",
+  "section": "ai",
+  "feedUrls": [
+    "https://rss.ljhboard.cn/minimax/blog?limit=20",
+    "https://rss.ljhboard.cn/minimax/news?limit=20"
+  ],
+  "feedByteLengths": [431276, 275802],
+  "parsedItems": 24,
+  "blogItemsInTop30": 15,
+  "newsItemsInTop30": 9,
+  "fullBodyMatches": 24,
+  "publicationDatesVerified": 24,
+  "namedAuthors": 24,
+  "coverImages": 24,
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 101792,
+  "ingestedItems": 24,
+  "uniqueUrls": 24,
+  "consecutiveRanks": true,
+  "manifestMatchesRegistry": true,
+  "releaseSqlIncludesSourceMigration": true,
+  "automaticActivation": false,
+  "productionDatabaseVerified": false,
+  "sampleTop3": [
+    {
+      "position": 1,
+      "title": "MiniMax H3-Image: Bringing 4K Image Generation into the 10-Second Era",
+      "url": "https://www.minimax.io/blog/minimax-h3-image",
+      "author": "MiniMax",
+      "publishedAt": "2026-11-10T16:23:20.000Z",
+      "contentHtmlBytes": 6244
+    },
+    {
+      "position": 2,
+      "title": "Introducing MiniMax Code Mini App",
+      "url": "https://www.minimax.io/blog/minimax-code-mini-app-1792650729",
+      "author": "MiniMax",
+      "publishedAt": "2026-10-22T06:32:09.000Z",
+      "contentHtmlBytes": 9750
+    },
+    {
+      "position": 3,
+      "title": "MiniMax M3.1 Flash: Redefining Agent Performance and Cost",
+      "url": "https://www.minimax.io/blog/minimax-m31f",
+      "author": "MiniMax",
+      "publishedAt": "2026-10-19T00:00:00.000Z",
+      "contentHtmlBytes": 9313
+    }
+  ]
+}

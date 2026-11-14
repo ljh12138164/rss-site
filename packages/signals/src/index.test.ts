@@ -22,11 +22,11 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 49 sources', () => {
+  it('defines 7 sections and 50 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(49)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(49)
+    expect(signalSources).toHaveLength(50)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(50)
   })
 
   it('correctly maps all section counts', () => {
@@ -34,7 +34,7 @@ describe('@rss-site/signals', () => {
     expect(technologyArticleSources).toHaveLength(11)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
-    expect(aiSources).toHaveLength(12)
+    expect(aiSources).toHaveLength(13)
     expect(socialSources).toHaveLength(6)
     expect(financeSources).toHaveLength(5)
     expect(gameSources).toHaveLength(6)
@@ -60,6 +60,7 @@ describe('@rss-site/signals', () => {
     expect(isSignalSourceId('lilian-weng')).toBe(true)
     expect(isSignalSourceId('simon-willison')).toBe(true)
     expect(isSignalSourceId('cohere')).toBe(true)
+    expect(isSignalSourceId('minimax')).toBe(true)
     expect(isSignalSourceId('chuapp')).toBe(true)
     expect(isSignalSourceId('invalid')).toBe(false)
     expect(isSignalSectionId('ai')).toBe(true)
@@ -87,6 +88,9 @@ describe('@rss-site/signals', () => {
     expect(resolveSignalFeedUrl(getSignalSource('cohere'), 'https://rss.ljhboard.cn')).toBe(
       'https://rss.ljhboard.cn/cohere/blog?limit=20'
     )
+    expect(resolveSignalFeedUrl(getSignalSource('minimax'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/minimax/blog?limit=20'
+    )
 
     const directSource = getSignalSource('github-blog')
     expect(resolveSignalFeedUrl(directSource, 'https://rsshub.app')).toBe(
@@ -111,6 +115,10 @@ describe('@rss-site/signals', () => {
     expect(resolveSignalFeedUrls(getSignalSource('arm'), 'https://rss.ljhboard.cn')).toEqual([
       'https://rss.ljhboard.cn/arm/news?limit=20',
       'https://rss.ljhboard.cn/arm/blog?limit=20'
+    ])
+    expect(resolveSignalFeedUrls(getSignalSource('minimax'), 'https://rss.ljhboard.cn')).toEqual([
+      'https://rss.ljhboard.cn/minimax/blog?limit=20',
+      'https://rss.ljhboard.cn/minimax/news?limit=20'
     ])
     expect(
       resolveSignalFeedUrls(getSignalSource('github-blog'), 'https://rss.ljhboard.cn')
