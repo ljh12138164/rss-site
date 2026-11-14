@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-11-15 MiniMax 与 Cohere 生产门禁激活及 RSSHub 规范沉淀
+
+- Branch: `docs/minimax-production-evidence`（基于 `origin/master` @ `93c49fe`，沿用原目录未新建 worktree）
+- Document: [MiniMax 全文来源接入](docs/development/minimax-source.md)、[Cohere 全文来源接入](docs/development/cohere-source.md)、[RSSHub 交付流程与避坑清单](docs/research/rsshub-route-candidates-and-workflow.md)
+- Objective: 完成 `minimax`（`PR #89`）与 `cohere`（`PR #88`）合入上线后的 ECS 53 项全量门禁验收、生产 PostgreSQL 数据核验、全量 Cron 激活及线上公开路由验证，并将 `#23881`（Cohere）与 `#23882`（MiniMax）暴露的 CI/Review/Workbench 避坑要点写入仓库规则与开发文档。
+- Verification: ECS Workbench（`--output json` 单次执行并已关闭全部会话/守护进程）完成 `53/53` 业务任务验证（`49/49` 信号采集与 `/cron/verify/:source` `verified: true` + `4/4` 维护端点 HTTP 200，`failed_count = 0`，[非敏感生产证据](docs/development/evidence/minimax-production-20261115.json)）；`minimax` 入库 `24/24`、`cohere` 入库 `20/20` 均含合法全文与时间；`private.activate_business_jobs` 执行后 `private.business_cron_jobs = 53/53 verified`、`cron.job = 55/55 active`、`failed_cron_runs_24h = 0`、`rss_site_app` 密钥/调度隔离为 `false/false`；公开 `/ai`、`/ai/minimax`、`/ai/cohere`、文章详情页及 `/feeds/{minimax,cohere,ai}.xml` 全部 HTTP 200。
+- Next: 推送 `docs/minimax-production-evidence` 并通过 `gh pr create` 创建合入 `master` 的证据与规范更新 PR 交用户审阅合并；同时提示用户可同步 `ljh-project/RSSHub`（`rss1.ljhboard.cn` 备用实例当前仍在 `be81ea575`）。
+
 ## 2026-11-15 MiniMax 官方博客与新闻全文来源接入
 
 - Branch: `feat/minimax-source`（基于 `origin/master` @ `ae35a85`，沿用原目录未新建 worktree）

@@ -16,8 +16,8 @@
 | 平台 | 首页 / 列表页 | RSSHub 上游 | 官网原生 RSS | 探测实证与抓取方案 |
 | :--- | :--- | :--- | :--- | :--- |
 | **Arm Newsroom** | `https://newsroom.arm.com/` | ✅ 已完成（上游 PR `#23872`，`master` @ `0db3292f4`）；`rss-site` PR `#82` 已接入 | 无（HTML 无 RSS link） | 公开 WordPress REST API（`/arm/news` 与 `/arm/blog`）；`rss-site` `technology` 分区已上线 `arm` 合并源。 |
-| **Cohere Blog** | `https://cohere.com/blog` | ✅ 已完成：自建 `https://rss.ljhboard.cn/cohere/blog` 已上线（`master` @ `31e6563b`，源分支 `feat/cohere-blog` @ `20e227784`）；`rss-site` PR `#88` 已合并 `master`（上游 PR 文案已交付待用户提交） | 无 | 官网同时保留 Sanity Content Lake（`rjtqmwfu.apicdn.sanity.io` / `web3-prod`）与 Ghost Content API 两部分文章。新路由并发合并双源、按 URL 去重时间排序后截取 `limit`，支持 Portable Text 全文、行内/块级 LaTeX 公式、`blogFaqSection` 问答、`keyTakeaways`、表格、代码块及音视频嵌入。 |
-| **MiniMax** | `https://www.minimax.io/blog` / `https://www.minimax.io/news` | ✅ 已完成：自建 `https://rss.ljhboard.cn/minimax/blog` 与 `/minimax/news` 已上线（`master` @ `0a301d5f8`，源分支 `feat/minimax` @ `5dfcaaa94`）；`rss-site` 已在 `feat/minimax-source` 接入（上游 PR 文案已交付待用户提交） | 无 | 支持可选参数 `:lang?`（默认 `en` 抓取 `minimax.io`，传 `zh-CN`/`zh` 切换 `minimax.cn`）；`/minimax/blog` 解析 SSR 列表并并发提取文章 `.prose` 全文、KaTeX 公式、图片及 Next.js RSC 内嵌视频；`/minimax/news` 读取官方 `/api/news` 与双排版详情页正文并按规范链接去重。 |
+| **Cohere Blog** | `https://cohere.com/blog` | ✅ 已完成（上游 PR [`#23881`](https://github.com/DIYgod/RSSHub/pull/23881) 已合入）；自建 `https://rss.ljhboard.cn/cohere/blog` 已上线；`rss-site` PR `#88` 已合并 `master` | 无 | 官网同时保留 Sanity Content Lake（`rjtqmwfu.apicdn.sanity.io` / `web3-prod`）与 Ghost Content API 两部分文章。新路由并发合并双源、按 URL 去重时间排序后截取 `limit`，支持 Portable Text 全文、行内/块级 LaTeX 公式、`blogFaqSection` 问答、`keyTakeaways`、表格、代码块及音视频嵌入，并采用 JSX 模板渲染与主机名边界安全校验。 |
+| **MiniMax** | `https://www.minimax.io/blog` / `https://www.minimax.io/news` | ✅ 已完成（自建 `https://rss.ljhboard.cn/minimax/blog` 与 `/minimax/news` 已上线，`master` @ `eaa8bc531`，源分支 `feat/minimax` @ `a31d6de3a`，上游 PR [`#23882`](https://github.com/DIYgod/RSSHub/pull/23882) 已提交）；`rss-site` PR `#89` 已合并 `master` | 无 | 支持可选参数 `:lang?`（默认 `en` 抓取 `minimax.io`，传 `zh-CN`/`zh` 切换 `minimax.cn`）；`/minimax/blog` 解析 SSR 列表并并发提取文章 `.prose` 全文、MathML/KaTeX 公式、图片及 Next.js RSC 内嵌视频；`/minimax/news` 读取官方 `/api/news` 与双排版详情页正文并按规范链接去重，采用 JSX 模板渲染与 CI 零告警重构。 |
 | **Moonshot / Kimi Blog** | `https://www.kimi.com/blog/` | 无（`moonshot` / `kimi` 均 `404`） | 无 | 列表页 `200`（`201,042` 字节，`next:true`，可见 headings `["研究"]`），适合基于 SSR 页面解析列表与文章全文。 |
 
 ### 1.2 游戏 / 游戏技术
@@ -115,9 +115,12 @@ pnpm run build:docs
 pnpm run format:check
 pnpm run eslint
 pnpm run typecheck
+pnpm exec oxfmt --check lib/routes/<namespace>
+pnpm exec oxlint --type-aware --config=.oxlintrc.ci.json --deny-warnings lib/routes/<namespace>
+uvx --from lizard lizard -l typescript -C 10 -w lib/routes/<namespace>
 ```
 
-> **Windows 环境说明**：若仓库内存在历史路径或全量校验受环境限制，可同时运行针对新增命名空间的检查命令确保零告警：`pnpm exec oxfmt --check lib/routes/<namespace>`、`pnpm exec oxlint --type-aware lib/routes/<namespace>`、`pnpm exec eslint lib/routes/<namespace>`，并与 `pnpm run typecheck` 配合验证。
+> **CI / Windows 必跑提示**：普通 `pnpm run eslint` 或默认 `.oxlintrc.json` 不会暴露 CI 的 `anti-slop/*` 规则，务必显式用 `--config=.oxlintrc.ci.json --deny-warnings` 验证；`lizard -C 10` 用于提前拦截 CodeFactor 圈复杂度超标；若 Windows 因 `core.autocrlf = true` 出现仅行尾差异（`git diff --ignore-all-space` 为空），提交前清理工作区噪音后再 `git push`。
 
 检查与本地启动验收要点：
 1. **构建与 i18n 文档生成**：`pnpm run build:docs` 会先运行 `pnpm run build:routes`（通过 `scripts/workflow/build-routes.ts` 校验 `findOrphanFiles()` 孤立文件，并产出 `assets/build/radar-rules.json`、`radar-rules.js`、`maintainers.json`、`routes.json`、`routes.js`、`route-paths.ts`），随后执行 `scripts/workflow/build-docs.ts` 加载全部命名空间并生成 `assets/build/docs/routes.json` 与 `assets/build/docs/categories.json`。
@@ -281,3 +284,67 @@ The route returns up to <N> entries by default and supports RSSHub's common `lim
 - 已核验全部 <max> 条记录均包含有效正文、唯一 `link` 与合法 `pubDate` 时间戳。
 - 已完成 `pnpm run build:docs`（含路由构建与中英文文档校验）、`pnpm run format:check`、`pnpm run eslint` 与 `pnpm run typecheck` 校验且全部通过。
 ````
+
+---
+
+## 五、历史实现常见问题与 CI / Review 避坑清单（基于 `#23881` Cohere 与 `#23882` MiniMax 实证）
+
+在 `Cohere`（`DIYgod/RSSHub#23881`）与 `MiniMax`（`DIYgod/RSSHub#23882`）开发、Codex 复审及 `rss-site` / ECS 上线过程中真实暴露过以下问题。后续新增任何平台路由或接入 `rss-site` 前，必须在本地逐项核对清零，避免提交 PR 后反复返工。
+
+### 5.1 CI 严格 Lint 规则（`.oxlintrc.ci.json` / `anti-slop/*`）
+
+- **问题表现**：PR `#23881` 遭 `github-advanced-security` Bot 报多条 `oxlint / anti-slop(no-known-value-widening)`（如 `const HEADING_MAP: Record<string, string> = { ... }`、`const DECORATOR_MAP: Record<string, [string, string]> = { ... }`、渲染函数返回匿名宽泛对象类型）；`#23882` 初版 `utils.ts` 触发 `anti-slop(no-unknown-parameters)`（`(node: unknown, urls: string[])`）及 `Record<...>` 注解。
+- **根因**：上游 CI（`.github/workflows/lint.yml`）实际执行 `pnpm exec oxlint --type-aware --config=.oxlintrc.ci.json`，其中启用了 `anti-slop/*` 且设置了 `respectEslintDisableDirectives: false`（禁止用注释压制告警）。
+- **硬性规避**：
+  1. 静态映射表（语言配置、标题/标签映射、样式字典）保留类型推导或使用 `as const` / `as const satisfies ...`，**严禁**声明 `Record<string, ...>` 或宽松匿名对象返回类型；
+  2. **严禁**给函数参数或返回值标注 `unknown` / `Record<string, unknown>`（仅保留显式边界 `JSON.parse` + 窄类型守卫 `isRecordObject`，例如直接在行文本解析边界完成字段读取）；
+  3. 提交前必须运行：
+     `pnpm exec oxlint --type-aware --config=.oxlintrc.ci.json --deny-warnings lib/routes/<namespace>`。
+
+### 5.2 JSX 正文模板、无手写转义与文件精简边界（PR Auto Review 第 25 条 & `#23881` `6503c54`）
+
+- **问题表现**：`#23881` 初版及 `MiniMax` 初版曾用模板字符串拼 HTML、手写 `escapeHtml()`、或用 `cheerio.load('', null, false)` / `$('<video controls>')` 拼装输出，被上游要求改为 JSX 模板（维护者在 `6503c54` 亲自重构成 `templates/description.tsx`）；同时 `MiniMax` 初版元数据兜底误包含 `[metaDescription, title]`，违反规则 11；而单路由额外拆出 `types.ts` 也属于过度拆分。
+- **硬性规避**：
+  1. 凡自建拼装正文、音视频包装或摘要兜底 HTML，统一放在 `lib/routes/<namespace>/templates/description.tsx`，通过 `hono/jsx/dom/server` 的 `renderToString` 渲染并自动转义，**禁止**手写 `escapeHtml` 或模板字符串拼 HTML；
+  2. 不额外创建纯类型拆分文件 `types.ts`（仅当助手函数确被路由与 `templates/description.tsx` 共用时保留精简 `utils.ts`），也不在 `lib/routes/` 下保留测试文件（遵循上游 `AGENTS.md` 第 50 条）；
+  3. **禁止**在 `description` 中重复拼接 `title`、`author`、`pubDate`、`H1` 或分类标签（规则 11）；**禁止**在路由内重新遍历补全相对图片/链接或注入 `referrerpolicy`（`lib/middleware/parameter.ts` 已统一处理）。
+
+### 5.3 CodeQL 安全扫描与域名边界校验
+
+- **问题表现**：`#23881` YouTube 视频 URL 解析被 `github-advanced-security` / CodeQL 检出 2 条域名校验缺陷——仅用字符串包含或后缀检查未做域名边界界定，导致 `notyoutube.com` 等伪造主机绕过校验。
+- **硬性规避**：
+  1. 任何外链/媒体白名单校验必须用 `new URL(raw, BASE_URL)` 解析，明确限制协议白名单（如仅允许 `http:` / `https:` / `mailto:`，拒绝 `javascript:` / `data:`）；
+  2. 域名匹配必须写成 `hostname === 'youtube.com' || hostname.endsWith('.youtube.com')`，禁止 `.includes('youtube.com')` 或 `host.endsWith('youtube.com')`（缺前导点）。
+
+### 5.4 CodeFactor 圈复杂度阈值告警
+
+- **问题表现**：`#23881` 即使由维护者合并 `6503c54` 后，仍被 CodeFactor 阻塞 3 条复杂度告警：`handler`（`32`）、`renderSpecialBlock`（`21`）、`renderBlocks`（`18`），不得不二次提交 `bd113a1` 拆分成小函数（降至 `7 / 2 / 10`）；`#23882` 初版也有两处达到 `CCN = 12`。
+- **硬性规避**：
+  1. 按数据源拉取/映射、源合并去重、块分派与媒体提取拆分为顶层单一职责纯函数；
+  2. 推送前运行本地复杂度门禁（目标函数与闭包 `CCN <= 10`）：
+     `uvx --from lizard lizard -l typescript -C 10 -w lib/routes/<namespace>`。
+
+### 5.5 真实全量回归（多 CMS 并存、语言参数、公式/FAQ/多媒体）
+
+- **问题表现**：`#23881` 切换至 Sanity Content Lake 后遗漏了仍仅存于 Ghost CMS 的历史文章，且过滤条件静默丢弃 `latex` 行内/块级公式及 `blogFaqSection` 问答块；`#23882` 则需同时兼顾官网中英文双域名（默认英文 `minimax.io`、可选 `:lang?` 切 `minimax.cn`）、Next.js RSC 内嵌 `<video>`、MathML `<math>`、`/api/news` 与双排版详情页及 `/_next/image` 代理还原。
+- **硬性规避**：
+  1. 不能只用 `?limit=1` 看 HTTP 200 就收工，必须在 `?limit=100` 下对比官网真实文章清单与逐篇 DOM，检查是否存在新旧双 CMS 混存、多语言路由参数及分页遗漏；
+  2. 逐项核查数学公式（`LaTeX` / `MathML`）、FAQ / Takeaways、表格、代码块、`<audio>` / `<video>`、封面海报与内嵌图片 URL 还原（如 Next.js `/_next/image`、相对路径），确保无静默丢失；
+  3. 禁止硬编码 Next.js 构建哈希等易失效静态凭证（必要时从公开 SSR 页面动态读取）。
+
+### 5.6 Git 工作流、Windows 行尾与 Vercel 双实例同步
+
+- **问题表现**：Windows 配置 `core.autocrlf = true` 时，运行 `oxfmt` 或 `build:docs` 后易在 `git status` 残留无实质语义的 LF/CRLF 假修改；同时主仓库更新后若遗漏同步 `ljh-project/RSSHub` 会导致 `https://rss1.ljhboard.cn` 短暂滞后于 `https://rss.ljhboard.cn`。
+- **硬性规避**：
+  1. 提交或切换分支前执行 `git diff --ignore-all-space` 复核无多余行尾改动，再 `git checkout -- <path>` 清理纯行尾 stat 噪音；
+  2. 自建主库 `ljh12138164/RSSHub` `master` 推送后，务必确认 Vercel commit status 为 `success` 再触发 `rss-site` / ECS 生产验证，并提醒/同步备用仓库 `ljh-project/RSSHub`；
+  3. 禁止在未与需求确认的情况下跨仓混改上游无关文件。
+
+### 5.7 Windows `alibabacloud-workbench-cli` ECS 运维避坑
+
+- **问题表现**：在 Windows 直接执行 `workbench exec ...` 未传 `--output json` 会因交互管道参数报 `dial tcp: address \\.\pipe\workbench-exec-...: missing port in address`；短生命周期命令若被超时或子进程强杀导致未关闭远端会话，服务端默认保留 **30 分钟** 空闲会话，累计后触发 `Forbidden.SessionLimit` 阻塞后续操作；此外 `docker compose exec -T` 若未加 `</dev/null` 会提前消耗外层标准输入流。
+- **硬性规避**：
+  1. **每次** `workbench exec` 必须携带 `--output json`；
+  2. 多行远端脚本统一先编码为单行 Base64，再通过 `bash -c 'source <(echo <b64>|base64 -d)'` 执行，且内部 `docker compose exec -T` 命令末尾均加 `</dev/null`；
+  3. 用单次集成脚本尽量减少开启会话次数，且**无论成败**命令末尾都必须执行 `workbench session close --all` 与 `workbench daemon stop`，严禁泄漏半开会话；
+  4. 执行敏感操作（如 `POST /cron/*` 或 `private.activate_business_jobs`）优先在 `rss-site-web-1` 容器内直接读取内存中的 `process.env.CRON_SECRET` 发起回环调用，只输出脱敏状态与数量统计，**严禁**回显、打印或落盘任何密钥与数据库 URL。

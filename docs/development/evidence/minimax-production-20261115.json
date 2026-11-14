@@ -1,0 +1,655 @@
+{
+  "verified_at": "2026-11-14T18:46:05.449Z",
+  "production_commit": "93c49fed85c54f591401e13e8933020a2fa688d5",
+  "release_workflow_run": "https://github.com/ljh12138164/rss-site/actions/runs/43623578810",
+  "rsshub_master_commit": "eaa8bc5319a5ee2dc3f7081bc76db5b7e3162de6",
+  "database_major": 18,
+  "database_version": "18.7",
+  "old_writers_disabled": true,
+  "legacy_business_timers": 0,
+  "scheduler_before": {
+    "business_total": 53,
+    "business_verified": 51,
+    "cron_total": 55,
+    "cron_active": 53
+  },
+  "scheduler_after": {
+    "business_total": 53,
+    "business_verified": 53,
+    "cron_total": 55,
+    "cron_active": 55,
+    "cohere_active": true,
+    "minimax_active": true,
+    "failed_cron_runs_24h": 0,
+    "app_can_read_secret": false,
+    "app_can_dispatch": false
+  },
+  "minimax": {
+    "batch_id": "43cd088d-1edd-4331-bc9b-51c97981f6ff",
+    "ingestion_run": {
+      "id": "43cd088d-1edd-4331-bc9b-51c97981f6ff",
+      "source": "minimax",
+      "status": "succeeded",
+      "item_count": 24,
+      "error_message": null,
+      "started_at": "2026-11-14T18:41:56.495+00:00",
+      "finished_at": "2026-11-14T18:41:56.495+00:00"
+    },
+    "source_status": {
+      "source": "minimax",
+      "section": "ai",
+      "item_count": 24,
+      "last_success_at": "2026-11-14T18:41:56.495+00:00",
+      "last_batch_id": "43cd088d-1edd-4331-bc9b-51c97981f6ff"
+    },
+    "hot_items_summary": {
+      "source": "minimax",
+      "rows": 24,
+      "min_pos": 1,
+      "max_pos": 24,
+      "oldest_pub": "2025-10-27T00:00:00+00:00",
+      "newest_pub": "2026-11-10T16:23:20+00:00",
+      "with_image": 24,
+      "with_author": 24
+    },
+    "signal_articles_summary": {
+      "source": "minimax",
+      "total_rows": 24,
+      "indexable_rows": 24,
+      "non_empty_html_rows": 24,
+      "min_html_bytes": 3842,
+      "max_html_bytes": 101792
+    },
+    "samples": [
+      {
+        "source": "minimax",
+        "position": 1,
+        "article_id": "1e948e8b-e317-4df9-aec7-62a468d7a125",
+        "title": "MiniMax H3-Image: Bringing 4K Image Generation into the 10-Second Era",
+        "url": "https://www.minimax.io/blog/minimax-h3-image",
+        "author": "MiniMax",
+        "published_at": "2026-11-10T16:23:20+00:00",
+        "html_bytes": 6244,
+        "is_indexable": true
+      },
+      {
+        "source": "minimax",
+        "position": 2,
+        "article_id": "333772b6-bdb7-498a-96f2-e03a00f6139a",
+        "title": "Introducing MiniMax Code Mini App",
+        "url": "https://www.minimax.io/blog/minimax-code-mini-app-1792650729",
+        "author": "MiniMax",
+        "published_at": "2026-10-22T06:32:09+00:00",
+        "html_bytes": 9750,
+        "is_indexable": true
+      },
+      {
+        "source": "minimax",
+        "position": 3,
+        "article_id": "8ca748a4-e793-48c0-8b91-820940ca6977",
+        "title": "MiniMax M3.1 Flash: Redefining Agent Performance and Cost",
+        "url": "https://www.minimax.io/blog/minimax-m31f",
+        "author": "MiniMax",
+        "published_at": "2026-10-19T00:00:00+00:00",
+        "html_bytes": 9313,
+        "is_indexable": true
+      },
+      {
+        "source": "minimax",
+        "position": 4,
+        "article_id": "9336e9d5-51bf-43a9-b57b-209810d429dd",
+        "title": "MiniMax｜Japanese IP, Ready for the Global AI Era",
+        "url": "https://www.minimax.io/news/minimax-japanese-ip-ready-for-the-global-ai-era",
+        "author": "MiniMax",
+        "published_at": "2026-10-12T16:00:00+00:00",
+        "html_bytes": 8488,
+        "is_indexable": true
+      },
+      {
+        "source": "minimax",
+        "position": 5,
+        "article_id": "7a945ec0-d3a9-4ee7-89f0-dd1b07edf193",
+        "title": "MiniMax Announces First Half 2026 Financial Results",
+        "url": "https://www.minimax.io/news/minimax-announces-first-half-2026-financial-results-1787744160",
+        "author": "MiniMax",
+        "published_at": "2026-08-26T11:36:00+00:00",
+        "html_bytes": 101792,
+        "is_indexable": true
+      }
+    ]
+  },
+  "cohere": {
+    "batch_id": "d3f9ad6a-abbf-4035-a50f-cdda92172d55",
+    "ingestion_run": {
+      "id": "d3f9ad6a-abbf-4035-a50f-cdda92172d55",
+      "source": "cohere",
+      "status": "succeeded",
+      "item_count": 20,
+      "error_message": null,
+      "started_at": "2026-11-14T18:42:03.838+00:00",
+      "finished_at": "2026-11-14T18:42:03.838+00:00"
+    },
+    "source_status": {
+      "source": "cohere",
+      "section": "ai",
+      "item_count": 20,
+      "last_success_at": "2026-11-14T18:42:03.838+00:00",
+      "last_batch_id": "d3f9ad6a-abbf-4035-a50f-cdda92172d55"
+    },
+    "hot_items_summary": {
+      "source": "cohere",
+      "rows": 20,
+      "min_pos": 1,
+      "max_pos": 20,
+      "oldest_pub": "2026-10-09T18:54:00+00:00",
+      "newest_pub": "2026-11-13T14:00:00+00:00",
+      "with_image": 20,
+      "with_author": 20
+    },
+    "signal_articles_summary": {
+      "source": "cohere",
+      "total_rows": 20,
+      "indexable_rows": 20,
+      "non_empty_html_rows": 20,
+      "min_html_bytes": 3023,
+      "max_html_bytes": 31440
+    },
+    "samples": [
+      {
+        "source": "cohere",
+        "position": 1,
+        "article_id": "677148db-c5ba-4ffc-9ed4-2481cfdba8cf",
+        "title": "Cohere Expands Its Sovereign AI Platform with AISLE and cubic",
+        "url": "https://cohere.com/blog/cohere-expands-its-sovereign-ai-platform-with-aisle-and-cubic",
+        "author": "Cohere Team",
+        "published_at": "2026-11-13T14:00:00+00:00",
+        "html_bytes": 7533,
+        "is_indexable": true
+      },
+      {
+        "source": "cohere",
+        "position": 2,
+        "article_id": "c97b678c-729f-4bdf-986d-45063afee4b4",
+        "title": "Welcoming Jaya Baloo as Cohere's First CISO",
+        "url": "https://cohere.com/blog/cohere-welcomes-jaya-baloo-as-first-ciso",
+        "author": "Cohere Team",
+        "published_at": "2026-11-12T14:30:00+00:00",
+        "html_bytes": 5206,
+        "is_indexable": true
+      },
+      {
+        "source": "cohere",
+        "position": 3,
+        "article_id": "cc8eaefb-b9fa-4194-bba3-9e672728c264",
+        "title": "Embed 5 and Rerank 5 now on OpenRouter",
+        "url": "https://cohere.com/blog/embed-rerank-5-openrouter",
+        "author": "Cohere Team",
+        "published_at": "2026-11-04T15:00:00+00:00",
+        "html_bytes": 16989,
+        "is_indexable": true
+      },
+      {
+        "source": "cohere",
+        "position": 4,
+        "article_id": "1c319bb4-0669-41f5-b105-b243de6892c2",
+        "title": "The world's leading open models, fully under your control",
+        "url": "https://cohere.com/blog/open-source-model-vault",
+        "author": "Cohere Team",
+        "published_at": "2026-11-03T18:56:00+00:00",
+        "html_bytes": 9772,
+        "is_indexable": true
+      },
+      {
+        "source": "cohere",
+        "position": 5,
+        "article_id": "90557ba0-92b2-4313-9ad3-eb4dac429e89",
+        "title": "Cohere advances C$4 billion commitment to strengthen Canada’s AI leadership and significantly expand its national workforce",
+        "url": "https://cohere.com/blog/cohere-canada-commitment",
+        "author": "Cohere Team",
+        "published_at": "2026-10-30T14:00:00+00:00",
+        "html_bytes": 5932,
+        "is_indexable": true
+      }
+    ]
+  },
+  "pages": [
+    {
+      "path": "/ai",
+      "status": 200,
+      "bytes": 200326,
+      "containsMinimax": true,
+      "containsCohere": true
+    },
+    {
+      "path": "/ai/minimax",
+      "status": 200,
+      "bytes": 191630,
+      "containsLatestTitle": true
+    },
+    {
+      "path": "/ai/minimax/minimax-h3-image-bringing-4k-image-generation-into-the-1--1e948e8b-e317-4df9-aec7-62a468d7a125",
+      "status": 200,
+      "bytes": 105111,
+      "hasArticleTag": true,
+      "robots": "index, follow"
+    },
+    {
+      "path": "/feeds/minimax.xml",
+      "status": 200,
+      "bytes": 9886,
+      "rssItems": 10,
+      "containsMinimax": true
+    },
+    {
+      "path": "/feeds/ai.xml",
+      "status": 200,
+      "bytes": 103701,
+      "rssItems": 120,
+      "containsMinimax": true,
+      "containsCohere": true
+    },
+    {
+      "path": "/ai/cohere",
+      "status": 200,
+      "bytes": 156649,
+      "containsCohere": true
+    },
+    {
+      "path": "/ai/cohere/cohere-expands-its-sovereign-ai-platform-with-aisle-and--677148db-c5ba-4ffc-9ed4-2481cfdba8cf",
+      "status": 200,
+      "bytes": 111235,
+      "hasArticleTag": true,
+      "robots": "index, follow"
+    },
+    {
+      "path": "/feeds/cohere.xml",
+      "status": 200,
+      "bytes": 9879,
+      "rssItems": 10,
+      "containsCohere": true
+    }
+  ],
+  "all_jobs_acceptance": {
+    "verified_at": "2026-11-14T18:46:05.449Z",
+    "total_jobs": 53,
+    "signal_passed": 49,
+    "maintenance_passed": 4,
+    "failed_count": 0,
+    "signals": [
+      {
+        "source": "minimax",
+        "status": 200,
+        "batchId": "43cd088d-1edd-4331-bc9b-51c97981f6ff",
+        "itemCount": 24,
+        "verified": true
+      },
+      {
+        "source": "cohere",
+        "status": 200,
+        "batchId": "d3f9ad6a-abbf-4035-a50f-cdda92172d55",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "36kr",
+        "status": 200,
+        "batchId": "72089dfc-d7b5-4a3d-9a8e-711a5ce826a2",
+        "itemCount": 8,
+        "verified": true
+      },
+      {
+        "source": "3dmgame",
+        "status": 200,
+        "batchId": "22d580f4-e659-4730-8ba8-d22e13a5a1f3",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "ali213",
+        "status": 200,
+        "batchId": "3a79e6ef-ac97-4b88-b0f6-94b1e0c8bd2c",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "amd",
+        "status": 200,
+        "batchId": "6fce9dda-ba07-42da-85fd-0c8e8f9631ad",
+        "itemCount": 16,
+        "verified": true
+      },
+      {
+        "source": "anthropic",
+        "status": 200,
+        "batchId": "62832514-7f65-4220-a73c-b26b1cf5400e",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "antigravity",
+        "status": 200,
+        "batchId": "478bcbb9-55ce-461a-a1fb-0af219309d54",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "arm",
+        "status": 200,
+        "batchId": "45975499-dbeb-40b7-b2b2-a91274b5ac6e",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "baidu",
+        "status": 200,
+        "batchId": "27796f5e-6fb7-48fb-b9e8-8dbb2e00e7a7",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "bilibili",
+        "status": 200,
+        "batchId": "fdc15249-7141-4146-89c8-71f093964724",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "cctv",
+        "status": 200,
+        "batchId": "b25e53be-30f8-4804-819d-820273106231",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "chinanews",
+        "status": 200,
+        "batchId": "6fc891b3-6838-4d5f-9b4e-44897f9cd9f0",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "chuapp",
+        "status": 200,
+        "batchId": "e99060ee-6b4e-44d1-ad31-56a01a242dd4",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "cloudflare-blog",
+        "status": 200,
+        "batchId": "4d257a79-d5b5-4b9c-9674-45edfbe52560",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "cls",
+        "status": 200,
+        "batchId": "d4e3ca43-75c4-48a4-bf68-23b481ff213c",
+        "itemCount": 13,
+        "verified": true
+      },
+      {
+        "source": "coolapk",
+        "status": 200,
+        "batchId": "4375723b-0604-4dd8-9a40-78dc8bb8a9d4",
+        "itemCount": 15,
+        "verified": true
+      },
+      {
+        "source": "deepseek",
+        "status": 200,
+        "batchId": "e5c40acc-3b69-4c64-b111-2751bbca53db",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "gamersky",
+        "status": 200,
+        "batchId": "aee1174b-b532-4b38-9d21-2529af072dd3",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "gcores",
+        "status": 200,
+        "batchId": "66b5645b-688f-4edc-9300-bd44b0d919d8",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "geekpark",
+        "status": 200,
+        "batchId": "bbb28a9e-a7b1-4905-bb30-64bf6fca02e0",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "github",
+        "status": 200,
+        "batchId": "3d550071-cbe9-4548-8cc0-de05ee452b34",
+        "itemCount": 22,
+        "verified": true
+      },
+      {
+        "source": "github-blog",
+        "status": 200,
+        "batchId": "a464c5ae-0ca3-41e5-9750-18955510020b",
+        "itemCount": 10,
+        "verified": true
+      },
+      {
+        "source": "glm",
+        "status": 200,
+        "batchId": "df552a97-8cc4-4b72-a199-c192111b5b93",
+        "itemCount": 15,
+        "verified": true
+      },
+      {
+        "source": "google-ai",
+        "status": 200,
+        "batchId": "68fd3c19-daa7-42db-a04a-5e2c8958f52b",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "groq",
+        "status": 200,
+        "batchId": "32f9b464-3498-4bda-b66a-dee172deaa84",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "hacker-news",
+        "status": 200,
+        "batchId": "215870be-3679-4f69-b91c-d848ca227dc7",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "hupu",
+        "status": 200,
+        "batchId": "b5918344-e507-4401-889c-3d1082068ef9",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "indienova",
+        "status": 200,
+        "batchId": "4decc3a3-ea6c-45c2-a464-ef1568a9df24",
+        "itemCount": 12,
+        "verified": true
+      },
+      {
+        "source": "ithome",
+        "status": 200,
+        "batchId": "b6165909-91cc-434a-a19b-bb1432c95a0a",
+        "itemCount": 12,
+        "verified": true
+      },
+      {
+        "source": "jiemian",
+        "status": 200,
+        "batchId": "7463b8ba-220f-43e7-b33c-f4c3f6a6dd1f",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "jin10",
+        "status": 200,
+        "batchId": "3c49c21d-a4c4-4b67-a87a-87e9f9a9c85b",
+        "itemCount": 10,
+        "verified": true
+      },
+      {
+        "source": "juejin",
+        "status": 200,
+        "batchId": "e5bbf294-7ba9-46c3-b0c0-85bb1122b2a8",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "lilian-weng",
+        "status": 200,
+        "batchId": "5a742029-1df2-447e-896d-bcd5c2b6438f",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "nvidia",
+        "status": 200,
+        "batchId": "f760e1f0-8007-4c78-aa4f-44b88e52e35d",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "openai",
+        "status": 200,
+        "batchId": "c09e529a-a115-40b9-93dd-decebf89b55e",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "qwen",
+        "status": 200,
+        "batchId": "cd148975-2505-46ec-896d-c5490deeaf11",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "simon-willison",
+        "status": 200,
+        "batchId": "63a8c3b5-527a-458a-9d66-77f8d531b91e",
+        "itemCount": 15,
+        "verified": true
+      },
+      {
+        "source": "skills-all-time",
+        "status": 200,
+        "batchId": "243213f5-029f-45f4-a16c-b3fa100d7a93",
+        "itemCount": 100,
+        "verified": true
+      },
+      {
+        "source": "skills-trending",
+        "status": 200,
+        "batchId": "bd00feb8-6b34-4ab4-91d3-b661c21c8f78",
+        "itemCount": 100,
+        "verified": true
+      },
+      {
+        "source": "sspai",
+        "status": 200,
+        "batchId": "2aba8a93-37a1-4617-be98-c92c5eef7804",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "stcn",
+        "status": 200,
+        "batchId": "9d532645-ba7d-4ec6-a7b2-98695b119b24",
+        "itemCount": 10,
+        "verified": true
+      },
+      {
+        "source": "the-decoder",
+        "status": 200,
+        "batchId": "4e4c82f8-3557-4c62-9c6b-89d487994efe",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "thepaper",
+        "status": 200,
+        "batchId": "2f38720a-1588-4654-9906-e9ad1d062f5b",
+        "itemCount": 20,
+        "verified": true
+      },
+      {
+        "source": "toutiao",
+        "status": 200,
+        "batchId": "e7ca4b1a-74d0-4911-b413-2d4ea2a0128f",
+        "itemCount": 15,
+        "verified": true
+      },
+      {
+        "source": "wallstreetcn",
+        "status": 200,
+        "batchId": "082de6ae-59d0-464c-9684-42dc4cec74d3",
+        "itemCount": 10,
+        "verified": true
+      },
+      {
+        "source": "xinhua",
+        "status": 200,
+        "batchId": "7d825abe-9117-4ab8-a030-3b72d736c688",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "yicai",
+        "status": 200,
+        "batchId": "e1dad9f8-34ce-4214-9250-30c5607232eb",
+        "itemCount": 30,
+        "verified": true
+      },
+      {
+        "source": "zhihu",
+        "status": 200,
+        "batchId": "702d8fb4-0cb7-4427-bd75-43979b07c7f9",
+        "itemCount": 30,
+        "verified": true
+      }
+    ],
+    "maintenance": [
+      {
+        "source": "hot-ranking-log-retention",
+        "status": 200,
+        "result": {
+          "status": "retained"
+        }
+      },
+      {
+        "source": "publication-outbox",
+        "status": 200,
+        "result": {
+          "processed": 0,
+          "accepted": 0
+        }
+      },
+      {
+        "source": "retention",
+        "status": 200,
+        "result": {
+          "status": "retained"
+        }
+      },
+      {
+        "source": "zhihu-cookie",
+        "status": 200,
+        "result": {
+          "status": "not_due"
+        }
+      }
+    ]
+  }
+}

@@ -50,7 +50,19 @@
 - 仅在 `ai` 分区新增 `minimax` 与 `SiMinimax` 品牌图标，未改动其余来源配置、抓取核心与前端布局；`008-minimax-source.sql` 与 `baseline.sql` 保持重复发布和恢复幂等；新 Cron 任务保持默认禁用。
 - Blocking：`0` 项；Accepted follow-up：`0` 项（待 PR 合并并部署到 ECS 后按 `AGENTS.md` 执行 `POST /cron/signals/minimax` 与 `setup:cron` 门禁验收）。
 
+## Delivery
+
+- `rss-site` [PR #89](https://github.com/ljh12138164/rss-site/pull/89) 已合并至 `master`（`93c49fed85c54f591401e13e8933020a2fa688d5`），[生产发布运行 #43623578810](https://github.com/ljh12138164/rss-site/actions/runs/43623578810) 成功，迁移 `008-minimax-source.sql` 生效，生产 `rss-site-web-1` / `rss-site-postgres-1`（`18.7`）/ `rss-site-redis-1` 均 healthy。
+- 自建 `ljh12138164/RSSHub` 已提前升级至 `master @ eaa8bc5319a5ee2dc3f7081bc76db5b7e3162de6`（同步自 `feat/minimax @ a31d6de3afd1b636661c37762c47d9e7dff99f14`、`DIYgod/RSSHub#23882`），Vercel 部署 `success`，采用 JSX `renderToString` 模板、`.oxlintrc.ci.json` 类型约束与低复杂度实现。
+
+## Production regression
+
+- **生产门禁与全量验收（2026-11-15 `02:41–02:46` CST / `2026-11-14T18:46:05.449Z`）**：通过 `alibabacloud-workbench-cli`（`--output json`，全程仅使用容器内环境变量未打印任何密钥）在 ECS 完成全套 `53/53` 业务任务验证（`49/49` `/cron/signals/*` 与 `/cron/verify/*` 均 HTTP 200 且 `verified: true`、`4/4` `/cron/maintenance/*` 均 HTTP 200、`failed_count: 0`）。
+- **MiniMax 生产入库核验**：`POST /cron/signals/minimax` 返回 `200`，`batch_id = 43cd088d-1edd-4331-bc9b-51c97981f6ff`，`item_count = 24`；`ingestion_runs.status = 'succeeded'`、`source_status` 对齐同一批次；`hot_items` 写入 `24` 条（`section = 'ai'`、排名 `1–24` 连续、均含封面图与作者、出版时间跨度 `2025-10-27T00:00:00Z` 至 `2026-11-10T16:23:20Z`）；`signal_articles` `24/24` `is_indexable = true`、正文 `3,842–101,792` 字节。
+- **Cron 激活与权限边界**：确认宿主机无任何遗留业务 timer（`legacy_business_timers = 0`、`old_writers_disabled = true`）后执行 `private.activate_business_jobs`：激活后 `private.business_cron_jobs = 53/53 verified`、`cron.job = 55/55 active`（含 `rss-site-cohere` 与 `rss-site-minimax`）、近 24 小时失败调度为 `0`、`has_table_privilege('rss_site_app','private.business_cron_settings','select') = false`、`has_function_privilege('rss_site_app','private.dispatch_business_job(text,integer)','execute') = false`。
+- **线上公开路由实测（`https://news.ljhboard.cn`）**：`/ai`（`200`、`200,326 B`）、`/ai/minimax`（`200`、`191,630 B`）、文章详情 `/ai/minimax/minimax-h3-image-bringing-4k-image-generation-into-the-1--1e948e8b-e317-4df9-aec7-62a468d7a125`（`200`、`105,111 B`、`robots = index, follow`）、`/feeds/minimax.xml`（`200`、`10` 条）及 `/feeds/ai.xml`（`200`、`120` 条且包含 MiniMax 与 Cohere）全部通过。非敏感证据记录于 [minimax-production-20261115.json](evidence/minimax-production-20261115.json)。
+
 ## Risks
 
 - MiniMax 新闻列表部分条目为外链新闻稿（如第三方媒体链接），RSSHub 侧在外链条目无本站 `.prose` 正文时回退列表摘要；若官网日后调整 Next.js RSC Flight 数据结构或 `/api/news` 字段，需在自建 RSSHub 仓库同步适配后重部署；
-- PR 合并部署并完成 `POST /cron/signals/minimax` 与 `pnpm setup:cron` 验收激活前，生产环境不会自动定时抓取 `minimax`。
+- 已完成 53 项生产数据门禁并激活定时抓取，后续常规运行状态由 `pg_cron` 与 `/cron/signals/minimax` 持续维护。
