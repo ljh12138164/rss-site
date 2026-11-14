@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-11-14 Cohere 官方博客英文全文来源接入
+
+- Branch: `feat/cohere-source`（基于 `origin/master` @ `32489cc`，沿用原目录未新建 worktree）
+- Document: [Cohere 全文来源接入](docs/development/cohere-source.md)
+- Objective: 在 `ai` 分区接入 `cohere`（`itemLimit: 20`、消费自建 RSSHub `https://rss.ljhboard.cn/cohere/blog?limit=20`、新增官方三色 `cohere.svg` 图标），配套 `007-cohere-source.sql`、`baseline.sql` 与未启用 Cron 清单（`52` 项业务任务 / `54` 项 `cron.job`），并同步更新候选路由与交付流程文档。
+- Verification: 线上路由 `ingestSignal` 实测 `20/20` 篇全通过（[非敏感证据](docs/development/evidence/cohere-local-20261114.json)）；5 个变更/新增代码与 JSON 文件 Biome 校验 0 错误；`pnpm check-types`（3/3 包）、`pnpm build`（60/60 路由 + `early-hints` + `sw.js`）、`render-cron-sql.mjs` 与 `bash -n verify-release-runtime` 均通过；`pnpm test` 共 `314 passed | 22 skipped`（`22` 项为需本地 Docker PostgreSQL/Redis 环境的集成测试）。
+- Next: 推送 `feat/cohere-source` 至 `origin` 供发起合入 `master` 的 PR（当前环境未安装 `gh` CLI），待合并并部署 ECS 后执行 `POST /cron/signals/cohere` 与生产数据门禁激活。
+
 ## 2026-11-13 品牌图标重设计与全站 UI 组件统一
 
 - Branch: `feat/transit-icon-redesign` (targeting `master` from `9faaba9`)

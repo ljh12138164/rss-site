@@ -282,6 +282,12 @@
     "path": "/cron/signals/arm"
   },
   {
+    "source": "cohere",
+    "name": "signal-ingest-cohere",
+    "schedule": "20 5,11,17,23 * * *",
+    "path": "/cron/signals/cohere"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"
