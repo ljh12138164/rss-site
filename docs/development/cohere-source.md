@@ -50,7 +50,18 @@
 - 仅在 `ai` 分区新增 `cohere` 与图标，未改动其余来源配置、抓取核心与前端布局；`007-cohere-source.sql` 与 `baseline.sql` 保持重复发布和恢复幂等；新 Cron 任务保持默认禁用。
 - Blocking：`0` 项；Accepted follow-up：`0` 项（待 PR 合并并部署到 ECS 后按 `AGENTS.md` 执行 `POST /cron/signals/cohere` 与 `setup:cron` 门禁验收）。
 
+## Delivery
+
+- `rss-site` [PR #88](https://github.com/ljh12138164/rss-site/pull/88) 已合并至 `master`（`ae35a85`），自建 `ljh12138164/RSSHub` 上线（对应上游 [PR #23881](https://github.com/DIYgod/RSSHub/pull/23881) 已合入）。
+
+## Production regression
+
+- 在 2026-11-15 `02:41–02:46` CST（`2026-11-14T18:46:05.449Z`）的 ECS 53 项全量门禁中同步完成 `cohere` 生产入库与 Cron 激活：
+  - `POST /cron/signals/cohere` 返回 `200`，`batch_id = d3f9ad6a-abbf-4035-a50f-cdda92172d55`，`item_count = 20`；`ingestion_runs.status = 'succeeded'`、`source_status` 对齐同一批次；
+  - `hot_items` 写入 `20` 条（`section = 'ai'`、排名 `1–20` 连续、均含封面图与作者 `Cohere Team`），`signal_articles` `20/20` `is_indexable = true`、正文 `3,023–31,440` 字节；
+  - `private.activate_business_jobs` 执行后 `rss-site-cohere` 已激活（`53/53 verified`、`55/55 active`）；公开 `/ai/cohere`（`200`、`156,649 B`）、文章详情 `/ai/cohere/cohere-expands-its-sovereign-ai-platform-with-aisle-and--677148db-c5ba-4ffc-9ed4-2481cfdba8cf`（`200`、`robots = index, follow`）与 `/feeds/cohere.xml`（`200`、`10` 条）均正常。非敏感证据复用 [minimax-production-20261115.json](evidence/minimax-production-20261115.json)。
+
 ## Risks
 
 - Cohere 官方博客同时存在于 Sanity 与 Ghost 两套系统，虽已在上游路由实现合并去重与正文保底，若官网继续迁移 Sanity schema 仍需在自建 RSSHub 仓库同步适配后重部署；
-- PR 合并部署并完成 `POST /cron/signals/cohere` 与 `pnpm setup:cron` 验收激活前，生产环境不会自动定时抓取 `cohere`。
+- 已与 `minimax` 一同通过生产数据门禁并激活定时调度，后续由 `pg_cron` 按 `20 5,11,17,23 * * *` 周期执行。
