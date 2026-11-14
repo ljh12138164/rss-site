@@ -1,7 +1,7 @@
 # RSSHub 待新增路由候选与标准化交付工作流
 
-- **调研日期**：2026-11-13（2026-11-14 同步进度与自建实例说明）
-- **`rss-site` 基线**：`master` @ `32489cc` + `feat/cohere-source`（已接入 `cohere`，`packages/signals/src/index.ts` 已注册 `49` 个源，分属 `7` 个分区：`ai` 12、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 6、`skills` 2；`deploy/server/business-jobs.json` 含 `48` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `52` 项）
+- **调研日期**：2026-11-13（2026-11-15 同步 MiniMax 进度与自建实例说明）
+- **`rss-site` 基线**：`master` @ `ae35a85` + `feat/minimax-source`（已接入 `cohere` 与 `minimax`，`packages/signals/src/index.ts` 已注册 `50` 个源，分属 `7` 个分区：`ai` 13、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 6、`skills` 2；`deploy/server/business-jobs.json` 含 `49` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `53` 项）
 - **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
 
@@ -16,8 +16,8 @@
 | 平台 | 首页 / 列表页 | RSSHub 上游 | 官网原生 RSS | 探测实证与抓取方案 |
 | :--- | :--- | :--- | :--- | :--- |
 | **Arm Newsroom** | `https://newsroom.arm.com/` | ✅ 已完成（上游 PR `#23872`，`master` @ `0db3292f4`）；`rss-site` PR `#82` 已接入 | 无（HTML 无 RSS link） | 公开 WordPress REST API（`/arm/news` 与 `/arm/blog`）；`rss-site` `technology` 分区已上线 `arm` 合并源。 |
-| **Cohere Blog** | `https://cohere.com/blog` | ✅ 已完成：自建 `https://rss.ljhboard.cn/cohere/blog` 已上线（`master` @ `31e6563b`，源分支 `feat/cohere-blog` @ `20e227784`）；`rss-site` 已在 `feat/cohere-source` 接入（上游 PR 文案已交付待用户提交） | 无 | 官网同时保留 Sanity Content Lake（`rjtqmwfu.apicdn.sanity.io` / `web3-prod`）与 Ghost Content API 两部分文章。新路由并发合并双源、按 URL 去重时间排序后截取 `limit`，支持 Portable Text 全文、行内/块级 LaTeX 公式、`blogFaqSection` 问答、`keyTakeaways`、表格、代码块及音视频嵌入。 |
-| **MiniMax** | `https://www.minimax.cn/news` | 无（`404`） | 无 | 列表页 `200`（`53,336` 字节，`next:true`）；文章页实测 `https://www.minimax.cn/blog/minimax-m31f` 返回 `200`（`71,778` 字节，`cf:false`）。注：`.io` 同文章（`https://www.minimax.io/news/minimax-m31f`）返回 `500`（`20,192` 字节），路由应优先以 `minimax.cn` 为主。 |
+| **Cohere Blog** | `https://cohere.com/blog` | ✅ 已完成：自建 `https://rss.ljhboard.cn/cohere/blog` 已上线（`master` @ `31e6563b`，源分支 `feat/cohere-blog` @ `20e227784`）；`rss-site` PR `#88` 已合并 `master`（上游 PR 文案已交付待用户提交） | 无 | 官网同时保留 Sanity Content Lake（`rjtqmwfu.apicdn.sanity.io` / `web3-prod`）与 Ghost Content API 两部分文章。新路由并发合并双源、按 URL 去重时间排序后截取 `limit`，支持 Portable Text 全文、行内/块级 LaTeX 公式、`blogFaqSection` 问答、`keyTakeaways`、表格、代码块及音视频嵌入。 |
+| **MiniMax** | `https://www.minimax.io/blog` / `https://www.minimax.io/news` | ✅ 已完成：自建 `https://rss.ljhboard.cn/minimax/blog` 与 `/minimax/news` 已上线（`master` @ `0a301d5f8`，源分支 `feat/minimax` @ `5dfcaaa94`）；`rss-site` 已在 `feat/minimax-source` 接入（上游 PR 文案已交付待用户提交） | 无 | 支持可选参数 `:lang?`（默认 `en` 抓取 `minimax.io`，传 `zh-CN`/`zh` 切换 `minimax.cn`）；`/minimax/blog` 解析 SSR 列表并并发提取文章 `.prose` 全文、KaTeX 公式、图片及 Next.js RSC 内嵌视频；`/minimax/news` 读取官方 `/api/news` 与双排版详情页正文并按规范链接去重。 |
 | **Moonshot / Kimi Blog** | `https://www.kimi.com/blog/` | 无（`moonshot` / `kimi` 均 `404`） | 无 | 列表页 `200`（`201,042` 字节，`next:true`，可见 headings `["研究"]`），适合基于 SSR 页面解析列表与文章全文。 |
 
 ### 1.2 游戏 / 游戏技术

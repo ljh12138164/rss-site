@@ -12,6 +12,7 @@ import {
   SiGithub,
   SiGooglegemini,
   SiJuejin,
+  SiMinimax,
   SiNvidia,
   SiQwen,
   SiYcombinator,
@@ -50,6 +51,7 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
   deepseek: { Icon: SiDeepseek, color: '#4d6bfe', bg: '#e8edff' },
   'google-ai': { Icon: SiGooglegemini, color: '#1c72fb', bg: '#e6f0fe' },
   qwen: { Icon: SiQwen, color: '#615ced', bg: '#ecebfe' },
+  minimax: { Icon: SiMinimax, color: '#e21f64', bg: '#fdebf1' },
   bilibili: { Icon: SiBilibili, color: '#00a1d6', bg: '#e0f4fb' },
   zhihu: { Icon: SiZhihu, color: '#ffffff', bg: '#0084ff' },
   toutiao: { Icon: SiBytedance, color: '#325ab4', bg: '#e7edfb' }

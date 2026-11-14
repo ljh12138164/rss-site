@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-11-15 MiniMax 官方博客与新闻全文来源接入
+
+- Branch: `feat/minimax-source`（基于 `origin/master` @ `ae35a85`，沿用原目录未新建 worktree）
+- Document: [MiniMax 全文来源接入](docs/development/minimax-source.md)
+- Objective: 在 `ai` 分区接入多 Feed 合并源 `minimax`（`itemLimit: 30`、并行消费自建 RSSHub `https://rss.ljhboard.cn/minimax/blog?limit=20` 与 `/minimax/news?limit=20`、复用 `SiMinimax` 图标），配套 `008-minimax-source.sql`、`baseline.sql` 与未启用 Cron 清单（`53` 项业务任务 / `55` 项 `cron.job`），并同步更新候选路由进度文档。
+- Verification: 线上双路由 `ingestSignal` 实测 `24/24` 篇全通过（Blog `15` + News `9`，[非敏感证据](docs/development/evidence/minimax-local-20261115.json)）；5 个改动代码/配置/JSON 文件 Biome 校验 0 错误；`pnpm check-types`（3/3 包）、`pnpm build`（`@rss-site/api` + `@rss-site/web` 61 路由、`early-hints`、`sw.js`）、`render-cron-sql.mjs` 与 Git Bash `bash -n verify-release-runtime` 均通过；`pnpm test` 共 `314 passed | 22 skipped`（`22` 项为需本地 Docker PostgreSQL/Redis 环境的集成测试）。
+- Next: 推送 `feat/minimax-source` 并通过 `gh pr create` 创建合入 `master` 的 PR，待合并并部署 ECS 后执行 `POST /cron/signals/minimax` 与生产数据门禁激活。
+
 ## 2026-11-14 Cohere 官方博客英文全文来源接入
 
 - Branch: `feat/cohere-source`（基于 `origin/master` @ `32489cc`，沿用原目录未新建 worktree）

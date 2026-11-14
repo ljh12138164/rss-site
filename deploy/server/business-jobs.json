@@ -288,6 +288,12 @@
     "path": "/cron/signals/cohere"
   },
   {
+    "source": "minimax",
+    "name": "signal-ingest-minimax",
+    "schedule": "25 5,11,17,23 * * *",
+    "path": "/cron/signals/minimax"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

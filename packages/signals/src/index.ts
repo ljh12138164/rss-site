@@ -499,6 +499,19 @@ export const aiSources = [
     cronJobName: 'signal-ingest-cohere'
   },
   {
+    id: 'minimax',
+    name: 'MiniMax',
+    code: 'MM',
+    shortName: 'MiniMax',
+    description: 'MiniMax 官方博客与新闻动态，英文全文',
+    section: 'ai',
+    itemLimit: 30,
+    feeds: [{ rsshubPath: '/minimax/blog?limit=20' }, { rsshubPath: '/minimax/news?limit=20' }],
+    isArticle: true,
+    cronSchedule: '25 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-minimax'
+  },
+  {
     id: 'lilian-weng',
     name: "Lil'Log",
     code: 'LW',
@@ -842,7 +855,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'amd',
   'the-decoder',
   'arm',
-  'cohere'
+  'cohere',
+  'minimax'
 ] as const
 
 // Cron jobs
