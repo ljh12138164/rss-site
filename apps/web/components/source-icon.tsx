@@ -82,7 +82,8 @@ const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
   gcores: { src: '/source-icons/gcores.png' },
   gamersky: { src: '/source-icons/gamersky.png' },
   ali213: { src: '/source-icons/ali213.png' },
-  indienova: { src: '/source-icons/indienova.svg' }
+  indienova: { src: '/source-icons/indienova.svg' },
+  '80lv': { src: '/source-icons/80lv.png' }
 }
 
 export function SourceIcon({

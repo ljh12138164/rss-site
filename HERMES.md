@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-15 80 Level 官方文章全文来源接入
+
+- 将 `80lv`（`80 Level`，`https://80.lv/articles/`）接入 `rss-site` 的 `games` 分区（总计 `51` 个来源、`games` 分区 `7` 个来源），拉取自建 `RSSHub`（`master` @ `dba5a9557`，线上路由 `https://rss.ljhboard.cn/80lv/articles?limit=30`）提供的全文图文内容；新增官方源图标 `apps/web/public/source-icons/80lv.png`，注册 `source-icon.tsx` 与 `apps/web/app/games/page.tsx` 元信息。
+- 新增 `deploy/postgres/migrations/010-80lv-source.sql`（同步更新 `deploy/postgres/baseline.sql`，并在 `008-minimax-source.sql` 标明已被 `010-80lv-source.sql` 覆盖），在 `deploy/server/business-jobs.json` 注册 `signal-ingest-80lv`（`35 5,11,17,23 * * *`；业务任务总计 `54` 条）并更新 `deploy/server/verify-release-runtime` 预期计数（`54` / `56`）。
+- 基于真实 feed `https://rss.ljhboard.cn/80lv/articles?limit=30` 生成本地 `ingestSignal` 证据 `docs/development/evidence/80lv-local-20261115.json`（`30/30` 全文、`276559` bytes、`0` 异常图片链接），通过 `biome check`、`render-cron-sql.mjs`、`test-release-packaging.py`（`8/8`）、`pnpm check-types`、`pnpm test`（`318 passed | 22 skipped`）与 `pnpm build`（`62/62` 静态页），详情见 `docs/development/80lv-source.md`。
+
 ## 2026-11-15 CI 部署未激活 Cron 任务自动试抓与增量激活（方案 A）
 
 - Branch: `feat/auto-activate-unverified-cron`（基于 `origin/master` @ `c1d9274`，沿用原目录未新建 worktree）
