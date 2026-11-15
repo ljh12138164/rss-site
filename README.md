@@ -116,17 +116,17 @@ Compose 提供 `REDIS_URL`。RSSHub 地址保留现有默认值，Vercel 项目�
 
 [PostgreSQL 部署与备份说明](deploy/postgres/README.md)描述 PostgreSQL 18 卷挂载、普通应用角色、加密备份和独立恢复验证。业务迁移放在 `deploy/postgres/migrations/`，发布时由 `sync-business-cron` 按文件名顺序应用到 ECS PostgreSQL；迁移须可重复执行。
 
-`deploy/server/business-jobs.json` 是业务调度清单。新增来源按[生产数据门禁](AGENTS.md#new-signal-source-gate)上线：验证上游订阅，先部署所需的 RSSHub 和 Next 改动及业务迁移，再手动采集并核对 ECS PostgreSQL 中的数据，最后启用调度。
+`deploy/server/business-jobs.json` 是业务调度清单。新增来源按[生产数据门禁](AGENTS.md#new-signal-source-gate)上线：验证上游订阅后合入代码；CI 发布在确认新实例健康并解除回滚后，通过 `sync-business-cron --activate-unverified` 对未验收（`verified = false`）或路径变更的任务通过本地回环调用采集与 `/cron/verify/:source` 核验 PostgreSQL 18 数据，并调用 `private.activate_verified_business_jobs(jsonb)` 仅自动激活通过验收的新任务（单个新源异常不回滚已发布版本也不影响存量已激活任务）。
 
-在已注入现有 `SITE_URL` 和 `CRON_SECRET` 的环境运行：
+若需人工全量复核或灾备演练，仍可在注入 `SITE_URL` 和 `CRON_SECRET` 的环境运行：
 
 ```bash
 pnpm setup:cron --output /protected/path/cron-verification.json
 ```
 
-命令依次调用 Next 采集入口，再调用受保护的 `/cron/verify/:source`，由 Next 核对 PostgreSQL 18 中的 run、source_status、hot_items 和持久文章。CLI 不持有数据库凭据，不安装 Supabase 扩展，不修改 Vault 或调度。任一来源失败都不会生成新的验收证据。
+全量命令依次调用 Next 采集入口，再调用受保护的 `/cron/verify/:source`，由 Next 核对 PostgreSQL 18 中的 run、source_status、hot_items 和持久文章。CLI 不持有数据库凭据，不安装 Supabase 扩展，不修改 Vault 或调度。任一来源失败都不会生成新的全量验收证据。
 
-业务调度使用 PostgreSQL `pg_cron` 与 `pg_net`。CI/CD 构建扩展镜像，并通过 `sync-business-cron` 自动应用仓库 SQL、同步任务清单；固定名称更新，不重复创建任务。新来源默认禁用；启用还要求全部配置来源验证通过、证据不超过两小时，并确认旧写入已停止，再调用 `private.activate_business_jobs(jsonb)`。维护任务分别验收后加入 verified_jobs；Cookie 维护沿用北京时间 04:00，备份为 03:00。查询计划与 HTTP 执行结果见 [Cron 运维说明](deploy/postgres/README.md)。
+业务调度使用 PostgreSQL `pg_cron` 与 `pg_net`。CI/CD 构建扩展镜像，并通过 `sync-business-cron` 自动应用仓库 SQL、同步任务清单；固定名称更新，不重复创建任务。新来源初始写入为禁用状态，随后由 `sync-business-cron --activate-unverified` 在确认无残留旧定时器时增量验收激活（或全量验收后调用 `private.activate_business_jobs(jsonb)`）；Cookie 维护沿用北京时间 04:00，备份为 03:00。查询计划与 HTTP 执行结果见 [Cron 运维说明](deploy/postgres/README.md)。
 
 保留策略不变：普通文章 90 天、AI 文章 180 天；当前热点、置顶文章和 AI 事件引用不清理；采集运行记录保留 30 天。删除通知通过持久 outbox 重试。Supabase 每小时只读保活运行在 ECS，不额外保存执行日志。
 

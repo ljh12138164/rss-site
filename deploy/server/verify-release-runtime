@@ -104,7 +104,9 @@ do $$ begin
     or exists (select 1 from cron.job where jobname like 'rss-site-%'
       and jobname not in ('rss-site-cron-history-cleanup','rss-site-cron-pending') and active)
     or has_table_privilege('rss_site_app','private.business_cron_settings','select')
-    or has_function_privilege('rss_site_app','private.dispatch_business_job(text,integer)','execute') then
+    or has_function_privilege('rss_site_app','private.dispatch_business_job(text,integer)','execute')
+    or has_function_privilege('rss_site_app','private.activate_business_jobs(jsonb)','execute')
+    or has_function_privilege('rss_site_app','private.activate_verified_business_jobs(jsonb)','execute') then
     raise exception 'Cron configuration, idempotency or privilege boundary failed';
   end if;
   begin
@@ -113,15 +115,36 @@ do $$ begin
   exception when raise_exception then
     if sqlerrm='Empty acceptance was allowed' then raise; end if;
   end;
+  begin
+    perform private.activate_verified_business_jobs('{}');
+    raise exception 'Empty incremental acceptance was allowed';
+  exception when raise_exception then
+    if sqlerrm='Empty incremental acceptance was allowed' then raise; end if;
+  end;
   -- Exercise activation/update/removal inside a rolled-back subtransaction.
   begin
-    perform private.sync_business_jobs('[{"source":"test-source","schedule":"0 0 * * *","path":"/cron/signals/test-source"}]');
-    if (select count(*) from private.business_cron_jobs)<>1
+    perform private.sync_business_jobs('[{"source":"test-source","schedule":"0 0 * * *","path":"/cron/signals/test-source"},{"source":"test-pending","schedule":"15 0 * * *","path":"/cron/signals/test-pending"}]');
+    if (select count(*) from private.business_cron_jobs)<>2
       or exists (select 1 from cron.job where jobname='rss-site-openai') then
       raise exception 'Removed jobs survived synchronization';
     end if;
-    perform private.activate_business_jobs(jsonb_build_object('database_major',18,
+    begin
+      perform private.activate_verified_business_jobs(jsonb_build_object('database_major',18,
+        'old_writers_disabled',true,'verified_at',now(),'verified_jobs',jsonb_build_array('missing-source')));
+      raise exception 'Unknown incremental job acceptance was allowed';
+    exception when raise_exception then
+      if sqlerrm='Unknown incremental job acceptance was allowed' then raise; end if;
+    end;
+    perform private.activate_verified_business_jobs(jsonb_build_object('database_major',18,
       'old_writers_disabled',true,'verified_at',now(),'verified_jobs',jsonb_build_array('test-source')));
+    if not exists (select 1 from cron.job where jobname='rss-site-test-source' and active)
+       or not exists (select 1 from private.business_cron_jobs where source='test-source' and verified)
+       or exists (select 1 from cron.job where jobname='rss-site-test-pending' and active)
+       or exists (select 1 from private.business_cron_jobs where source='test-pending' and verified) then
+      raise exception 'Incremental activation did not isolate verified and unverified jobs';
+    end if;
+    perform private.activate_business_jobs(jsonb_build_object('database_major',18,
+      'old_writers_disabled',true,'verified_at',now(),'verified_jobs',jsonb_build_array('test-source','test-pending')));
     perform private.sync_business_jobs('[{"source":"test-source","schedule":"30 0 * * *","path":"/cron/signals/test-source"}]');
     if not exists (select 1 from cron.job where jobname='rss-site-test-source' and active and schedule='30 0 * * *') then
       raise exception 'Verified schedule update lost enablement';
@@ -138,6 +161,8 @@ end $$;
 select cron.schedule('rss-cron-smoke','1 second',
   $job$select private.dispatch_business_job('publication-outbox')$job$);
 SQL
+INCREMENTAL_REPORT=$(docker exec "$WEB" bun server/api/src/setup/cli.mjs --loopback --json --sources publication-outbox,zhihu-cookie)
+printf '%s\n' "$INCREMENTAL_REPORT" | grep -F '{"verified":["publication-outbox"],"failed":[{"source":"zhihu-cookie",' >/dev/null
 for _ in {1..30}; do
   if [[ $(docker exec "$POSTGRES" psql -U postgres -d rss_site -X -Atc \
     "select count(*) from private.business_cron_history where source='publication-outbox' and status='succeeded'") -gt 0 ]]; then
@@ -172,6 +197,8 @@ do $$ begin
     or (select count(*) from cron.job)<>55
     or has_table_privilege('rss_site_app','private.business_cron_settings','select')
     or has_function_privilege('rss_site_app','private.dispatch_business_job(text,integer)','execute')
+    or has_function_privilege('rss_site_app','private.activate_business_jobs(jsonb)','execute')
+    or has_function_privilege('rss_site_app','private.activate_verified_business_jobs(jsonb)','execute')
     or has_schema_privilege('rss_site_app','net','usage')
     or (select count(*) from pg_policies where schemaname='public'
       and tablename in ('hot_ranking_analysis','hot_ranking_state')

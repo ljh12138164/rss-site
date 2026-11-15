@@ -1,5 +1,14 @@
 # HERMES
 
+## 2026-11-15 CI 部署未激活 Cron 任务自动试抓与增量激活（方案 A）
+
+- Branch: `feat/auto-activate-unverified-cron`（基于 `origin/master` @ `c1d9274`，沿用原目录未新建 worktree）
+- Document: [未激活 Cron 任务自动试抓与增量激活](docs/development/auto-activate-unverified-cron.md)
+- Roadmap: none (no accepted follow-ups remaining)
+- Objective: 在 ECS 发布链路实现**方案 A**：正常发布保持零额外 HTTP 请求且不改动存量已激活任务；当新增信号源或变更任务路径（`verified = false`）上线并确认 Web/PostgreSQL 健康、解除回滚后，由 `deploy/server/sync-business-cron --activate-unverified` 检查无残留旧定时器、通过容器本地回环调用 `cli.mjs --loopback --json` 触发采集与 `/cron/verify/:source` 核验（含 `/cron/maintenance/*`），仅激活通过验证的子集（`private.activate_verified_business_jobs(jsonb)`），单个新源上游失败时保留为禁用且不回滚健康版本；同步更新 `AGENTS.md`、`README.md`、`deploy/postgres/README.md` 与交付流程文档。
+- Verification: changed-file Biome（3 文件 0 错误）、`pnpm check-types`（3/3 包）、`pnpm build`（`@rss-site/api` + `@rss-site/web` 61 路由）、`bun build cli.ts`（3 modules / `33.38 KB`）、`render-cron-sql.mjs`（`336` 行含 `activate_verified_business_jobs`）、`pnpm test`（`@rss-site/signals` 8/8、`@rss-site/api` 118/118 含 `cron.test.ts` 22/22、`@rss-site/web` 192 passed / 22 DB-Redis skipped）、WSL `bash -n` 与 `python3 -B deploy/server/test-release-packaging.py -v`（8/8 OK）均通过；本地无 `shellcheck` 且 Docker Desktop 守护进程未启动，`shellcheck` 与 `verify-release-runtime` 由 GitHub Actions PR CI 执行验证。
+- Next: 更新 Graphify 图谱、提交分支改动、推送 `feat/auto-activate-unverified-cron` 并通过 `gh pr create` 创建合入 `master` 的 PR 交用户审阅 CI 与合并。
+
 ## 2026-11-15 MiniMax 与 Cohere 生产门禁激活及 RSSHub 规范沉淀
 
 - Branch: `docs/minimax-production-evidence`（基于 `origin/master` @ `93c49fe`，沿用原目录未新建 worktree）
