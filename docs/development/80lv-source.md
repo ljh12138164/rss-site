@@ -64,7 +64,22 @@
 
 - **Blocking findings**: `0`
 - **Accepted follow-ups**: `0`（不额外创建空的 roadmap 文档）
-- 核对 `render-cron-sql.mjs` 输出确认不包含顶层自动激活语句（`hasActivateTopLevel=False`），新任务在发布初期保持 `verified = false`，符合生产准入门禁。
+- 核对 `render-cron-sql.mjs` 输出确认不包含顶层 `select private.activate_*` 调用（`hasTopLevelSelectActivate=False`），新任务在发布初期保持 `verified = false`，符合生产准入门禁。
+
+## Delivery
+
+- `rss-site` [PR #92](https://github.com/ljh12138164/rss-site/pull/92) 已合并至 `master`（`08e0f5467ffa1ce18399b7fa5e2aacab98efb151`），CI 发布工作流 [Verify and deploy news #43699162846](https://github.com/ljh12138164/rss-site/actions/runs/43699162846) 成功完成。
+- 自建 `ljh12138164/RSSHub` 已部署 `master` @ `dba5a9557280cfc5520827f870e84cf01fcc4c23`（`feat/80lv` @ `01c11aa27`），`https://rss.ljhboard.cn/80lv/articles?limit=30` 稳定输出全文。
+
+## Production regression
+
+- **CI 增量自动试抓与激活**：部署阶段执行 `sync-business-cron --activate-unverified` 后日志输出 `Automatically verified and activated 1 PostgreSQL Cron job(s)`，`listPrewarm` 刷新 `56/56` 条列表缓存（`failed: 0`），公网 `/healthz` 返回 `200 {"status":"ok"}`。
+- **ECS 生产库与 `pg_cron` 核验（只读，未打印任何密钥/连接串）**：
+  - 容器 `rss-site-postgres-1`（PostgreSQL `18.7`）、`rss-site-redis-1`、`rss-site-web-1`（`sha-08e0f5467ffa1ce18399b7fa5e2aacab98efb151`）均为 `healthy`；宿主机仅保留 `rss-site-postgres-backup.timer` 与 `rss-site-supabase-keepalive.timer`，无遗留抓取 timer。
+  - `private.business_cron_jobs` 为 `54/54 verified`（其中 `80lv` 对应 `35 5,11,17,23 * * *`、`/cron/signals/80lv`、`verified = true`），`cron.job` 为 `56/56 active`（含 `jobid = 1089` / `rss-site-80lv`、`active = true`），近 24 小时失败调度 `0` 次；`rss_site_app` 对 `private.business_cron_settings` 与 `private.dispatch_business_job(text,integer)` 的权限隔离均为 `false`。
+  - `ingestion_runs` 最新 `80lv` 批次 `2cd80d38-0c66-41bd-ab72-541a68e9d307` 为 `succeeded`（`item_count = 30`、`2026-11-15T09:31:03.816Z`）；`source_status` 对齐同批次；`hot_items` 写入 `30` 条（`position 1–30`）；`signal_articles` 写入 `30` 条且 `30/30 is_indexable = true`（`published_at` 跨度 `2026-11-12T12:23:00Z` 至 `2026-11-14T18:00:00Z`，`content_html` 字节数 `2,977–26,253`）。
+- **线上公开路由与浏览器实测（`https://news.ljhboard.cn`）**：
+  - `/games`（`200`、`185,874 B`，含 `80 Level` 入口、`/games/80lv` 链接与图标）、`/source-icons/80lv.png`（`200`、`image/png`、`6,422 B`，浏览器实测 `naturalWidth = 192`）、`/games/80lv`（`200`、`193,947 B`，列表渲染 `30` 篇文章）、抽检 3 篇详情页（均 `200`、`102,071–109,545 B`，`robots = index, follow`，正文/作者/时间/原文链接渲染正常）、`/feeds/80lv.xml`（`200`、`10,284 B`、`10` 条）、`/feeds/games.xml`（`200`、`61,101 B`、`70` 条，含 `80 Level` `10` 条）以及 `/sitemap.xml`（`31` 索引）与 `/sitemap/0.xml`（含 `/games/80lv` 及详情页 URL）均通过；浏览器无 `4xx/5xx` 或控制台错误，非敏感证据记录于 [80lv-production-20261115.json](evidence/80lv-production-20261115.json)。
 
 ## Risks
 

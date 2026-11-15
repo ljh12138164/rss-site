@@ -1,5 +1,10 @@
 # HERMES
 
+## 2026-11-15 80 Level 线上自动激活与回归验收
+
+- `PR #92`（`08e0f5467ffa1ce18399b7fa5e2aacab98efb151`）合并后，`Verify and deploy news`（[#43699162846](https://github.com/ljh12138164/rss-site/actions/runs/43699162846)）自动执行 `sync-business-cron --activate-unverified` 首次验证并激活 `1` 个未激活 Cron 任务（`signal-ingest-80lv` / `rss-site-80lv`），`listPrewarm` 刷新 `56/56`、`failed: 0`。
+- 通过 `alibabacloud-workbench-cli` 只读核验 ECS 生产容器（`postgres 18.7` / `redis` / `web` 均 `healthy`）、`private.business_cron_jobs = 54/54 verified`、`cron.job = 56/56 active`、`ingestion_runs`（`2cd80d38-0c66-41bd-ab72-541a68e9d307`，`30` 条 `succeeded`）、`hot_items`（`30` 条 `1–30`）与 `signal_articles`（`30/30 indexable`）；实测 `https://news.ljhboard.cn` `/games`、`/games/80lv`（`30` 篇）、详情页、`/source-icons/80lv.png`（`192x192`）、`/feeds/80lv.xml`（`10` 条）、`/feeds/games.xml`（`70` 条）与 `/sitemap/0.xml` 均返回 HTTP `200`，浏览器检查无 `4xx/5xx` 或控制台错误，详情见 [80lv-source.md](docs/development/80lv-source.md) 与 [80lv-production-20261115.json](docs/development/evidence/80lv-production-20261115.json)。
+
 ## 2026-11-15 80 Level 官方文章全文来源接入
 
 - 将 `80lv`（`80 Level`，`https://80.lv/articles/`）接入 `rss-site` 的 `games` 分区（总计 `51` 个来源、`games` 分区 `7` 个来源），拉取自建 `RSSHub`（`master` @ `dba5a9557`，线上路由 `https://rss.ljhboard.cn/80lv/articles?limit=30`）提供的全文图文内容；新增官方源图标 `apps/web/public/source-icons/80lv.png`，注册 `source-icon.tsx` 与 `apps/web/app/games/page.tsx` 元信息。

@@ -1,0 +1,115 @@
+{
+  "verifiedAt": "2026-11-15T09:45:05Z",
+  "productionCommit": "08e0f5467ffa1ce18399b7fa5e2aacab98efb151",
+  "pullRequest": "https://github.com/ljh12138164/rss-site/pull/92",
+  "releaseWorkflowRun": "https://github.com/ljh12138164/rss-site/actions/runs/43699162846",
+  "rsshubMasterCommit": "dba5a9557280cfc5520827f870e84cf01fcc4c23",
+  "databaseMajor": 18,
+  "databaseVersion": "18.7",
+  "containers": {
+    "postgres": "healthy",
+    "redis": "healthy",
+    "web": "healthy"
+  },
+  "activeSystemdTimers": ["rss-site-postgres-backup.timer", "rss-site-supabase-keepalive.timer"],
+  "autoActivation": {
+    "activatedJobs": 1,
+    "logMessage": "Automatically verified and activated 1 PostgreSQL Cron job(s)",
+    "listPrewarm": {
+      "status": "succeeded",
+      "total": 56,
+      "succeeded": 56,
+      "failed": 0
+    }
+  },
+  "scheduler": {
+    "businessTotal": 54,
+    "businessVerified": 54,
+    "cronTotal": 56,
+    "cronActive": 56,
+    "job80lvVerified": true,
+    "cron80lvJobId": 1089,
+    "cron80lvJobName": "rss-site-80lv",
+    "cron80lvSchedule": "35 5,11,17,23 * * *",
+    "cron80lvActive": true,
+    "failedCronRuns24h": 0,
+    "appCanReadSecret": false,
+    "appCanDispatch": false
+  },
+  "sourceData": {
+    "source": "80lv",
+    "section": "games",
+    "ingestionRun": {
+      "id": "2cd80d38-0c66-41bd-ab72-541a68e9d307",
+      "status": "succeeded",
+      "itemCount": 30,
+      "startedAt": "2026-11-15T09:31:03.816Z",
+      "finishedAt": "2026-11-15T09:31:03.816Z"
+    },
+    "sourceStatus": {
+      "source": "80lv",
+      "section": "games",
+      "itemCount": 30,
+      "lastSuccessAt": "2026-11-15T09:31:03.816Z",
+      "lastBatchId": "2cd80d38-0c66-41bd-ab72-541a68e9d307"
+    },
+    "hotItemsSummary": {
+      "rows": 30,
+      "minPosition": 1,
+      "maxPosition": 30
+    },
+    "signalArticlesSummary": {
+      "totalRows": 30,
+      "indexableRows": 30,
+      "oldestPublishedAt": "2026-11-12T12:23:00Z",
+      "newestPublishedAt": "2026-11-14T18:00:00Z",
+      "minContentHtmlBytes": 2977,
+      "maxContentHtmlBytes": 26253
+    }
+  },
+  "publicRoutes": {
+    "healthz": { "status": 200, "bytes": 15 },
+    "icon": { "status": 200, "contentType": "image/png", "bytes": 6422 },
+    "gamesSection": {
+      "status": 200,
+      "bytes": 185874,
+      "has80lvLabel": true,
+      "has80lvHref": true,
+      "has80lvIcon": true
+    },
+    "games80lv": {
+      "status": 200,
+      "bytes": 193947,
+      "uniqueArticleLinks": 30
+    },
+    "sampleDetails": [
+      {
+        "path": "/games/80lv/this-manga-style-action-fps-uses-radial-gravity-to-turn--731c4f7a-68e8-4d34-ac5c-e2cf5728e008",
+        "status": 200,
+        "bytes": 102071,
+        "robots": "index, follow"
+      },
+      {
+        "path": "/games/80lv/vrchat-hairstyle-with-ponytails-that-turn-into-propeller--51b2d783-98df-4386-a3a5-e67e218c2dac",
+        "status": 200,
+        "bytes": 109545
+      },
+      {
+        "path": "/games/80lv/epic-is-taking-apple-s-27-web-fee-to-the-supreme-court--b2621f94-ee1a-4706-94ea-4672d0aa3cfb",
+        "status": 200,
+        "bytes": 107603
+      }
+    ],
+    "feed80lv": { "status": 200, "bytes": 10284, "items": 10 },
+    "feedGames": { "status": 200, "bytes": 61101, "items": 70, "items80lv": 10 },
+    "sitemapIndex": { "status": 200, "locs": 31 },
+    "sitemap0": { "status": 200, "locs": 2000, "includes80lvRoutes": true }
+  },
+  "browserCheck": {
+    "visitedOrigin": "https://news.ljhboard.cn",
+    "blockedOrigins": [],
+    "http4xx5xxErrors": 0,
+    "iconNaturalWidth": 192,
+    "renderedArticlesOn80lv": 30
+  }
+}
