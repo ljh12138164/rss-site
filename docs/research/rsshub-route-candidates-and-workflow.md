@@ -194,18 +194,25 @@ PR 合并并经发布工作流将 Next 服务及 `deploy/postgres/migrations/` �
 
 ### 第 7 步：输出 `DIYgod/RSSHub` 上游 PR 文案（代理只负责写文案，由用户本人提交上游 PR）
 
-> **执行边界**：代理**不调用 CLI / 网页向上游 `DIYgod/RSSHub` 创建 PR**，仅推送分叉分支并在本步给出完整的中英文 PR 标题与正文文案，由用户自行检查并向上游发起 PR。
+> **执行边界**：代理**不调用 CLI / 网页向上游 `DIYgod/RSSHub` 创建 PR**，仅推送分叉分支并在本步给出可直接复制提交的 PR 标题与正文文案，由用户自行检查并向上游发起 PR。
 
-对照本人既往已合入上游的 PR（[`#23861`](https://github.com/DIYgod/RSSHub/pull/23861) Groq、[`#23854`](https://github.com/DIYgod/RSSHub/pull/23854) Mistral、[`#23811`](https://github.com/DIYgod/RSSHub/pull/23811) The Decoder、[`#23765`](https://github.com/DIYgod/RSSHub/pull/23765) NVIDIA & AMD、[`#23527`](https://github.com/DIYgod/RSSHub/pull/23527) DeepSeek）以及上游官方 `.github/PULL_REQUEST_TEMPLATE.md` 结构，每次交付提供可直接复制提交的**英文正式版**与**对应中文版**两套文案。
+对照本人既往上游 PR 的实际风格（[`#23882`](https://github.com/DIYgod/RSSHub/pull/23882) MiniMax、[`#23881`](https://github.com/DIYgod/RSSHub/pull/23881) Cohere、[`#23872`](https://github.com/DIYgod/RSSHub/pull/23872) Arm、[`#23861`](https://github.com/DIYgod/RSSHub/pull/23861) Groq、[`#23854`](https://github.com/DIYgod/RSSHub/pull/23854) Mistral）以及 `.github/PULL_REQUEST_TEMPLATE.md` 结构，生成上游 PR 文案时必须遵守以下硬性约定：
+
+1. **Issue 固定写法**：无关联 Issue 时统一写 `N/A`（不要留空、不要保留 `Close #` 或 HTML 注释占位）。
+2. **`routes` 块精简写法（不展开分类子路径）**：` ```routes``` ` 仅填写默认主路由（如 `/80lv/articles`、`/arm/news`、`#23882` 中并列路由 `/minimax/blog` + `/minimax/news` 等），**不要把 `:category?` / `:topic?` 等可穷举分类路径全部展开塞进 PR 文案**。
+3. **正文风格统一为精炼英文（对齐 `#23872` / `#23881` / `#23882`）**：
+   - **禁止**在同一份 PR 正文中拆成 `### English` 与 `### 中文说明` 双段模板；
+   - **禁止**使用 `Highlights:` / `主要实现：` 等 AI 模板小标题，也**不要**把 `oxlint`、`lizard`、`oxfmt` 等本地代码检查命令堆进上游 PR 说明；
+   - `## Note / 说明` 用 1 句综述 + 2–3 条简明英文要点说明上游接口/抓取方式、`cache.tryGet` 缓存与渲染内容、参数/`Radar`/无新增依赖及无 Puppeteer；
+   - `### Validation` 直接列出针对线上路由的真实实测项（如默认路由、`?limit=1`、`?limit=100` 等条数、HTTP `200`、正文与合法 `pubDate`）。
+4. 若需给用户提供中文理解或核对，仅在对话中简述或按需单独附注，不混入 PR 正文。
 
 #### 7.1 PR 标题模板
 
-- **英文（推荐直接提交）**：
-  - `feat(route): add <Platform> full-text <blog/news> feed`（如 `feat(route): add Groq full-text blog feed` / `feat(route): add Mistral AI full-text news`）
-- **中文对照**：
-  - `feat(route): 新增 <平台名> 全文 <博客/新闻> 路由`
+- **新增路由（默认）**：`feat(route): add <Platform> full-text <articles/news/blog> route`（如 `feat(route): add 80 Level full-text articles route`、`feat(route): add MiniMax full-text blog and news routes`）
+- **升级现有路由**：`feat(route/<namespace>): upgrade /<namespace>/<route> to full-text feed ...`（如 `#23881`）
 
-#### 7.2 英文上游 PR 正文模板（对照 `#23854` / `#23861` 与 `.github/PULL_REQUEST_TEMPLATE.md`）
+#### 7.2 上游 PR 正文模板（对照 `#23872` / `#23881` / `#23882` 与 `.github/PULL_REQUEST_TEMPLATE.md`）
 
 ````markdown
 ## Involved Issue / 该 PR 相关 Issue
@@ -232,53 +239,15 @@ N/A
 
 ## Note / 说明
 
-Adds a full-text feed for <Platform> at `/<namespace>/<route>`. The route uses <the official RSS feed / public WordPress API / SSR listing page> to discover articles, then fetches and caches the main article content via `cache.tryGet`, including inline images and code blocks. It includes authors and categories when available.
+Adds a full-text feed for <Platform> under `/<namespace>/<route>`:
 
-The route returns up to <N> entries by default and supports RSSHub's common `limit` parameter. It adds Radar rules plus documentation in English and Chinese without requiring new dependencies or browser automation.
+- **Source & caching**: Queries <official API / RSS / SSR listing> and fetches full article details via `cache.tryGet` (bounded concurrency), populating titles, authors, categories/tags, cover images, and `pubDate` timestamps.
+- **Content rendering**: Renders rich HTML content (headings, images, code blocks, quotes, tables, embeds) cleanly and normalizes/sanitizes links and media.
+- **Parameters & metadata**: Defaults to <N> items, supports RSSHub's common `limit` parameter (`1..100`) and optional parameters (`:category?` / `:lang?` when applicable), and adds Radar rules and English/Chinese documentation without new dependencies or Puppeteer.
 
 ### Validation
 
-- Tested against the live source. The default request, `limit=1`, and `limit=<max>` returned <N>, 1, and <max> entries respectively.
-- Verified that all <max> entries contained main article content, had unique links, and valid `pubDate` timestamps.
-- `pnpm run build:docs`, `pnpm run format:check`, `pnpm run eslint`, and `pnpm run typecheck` passed.
-````
-
-#### 7.3 中文文案模板（用于双语对照或补充中文说明）
-
-````markdown
-## Involved Issue / 该 PR 相关 Issue
-
-无
-
-## Example for the Proposed Route(s) / 路由地址示例
-
-```routes
-/<namespace>/<route>
-```
-
-## New RSS Route Checklist / 新 RSS 路由检查表
-
-- [x] New Route / 新的路由
-    - [x] Follows [Script Standard](https://docs.rsshub.app/joinus/advanced/script-standard) / 跟随 [路由规范](https://docs.rsshub.app/zh/joinus/advanced/script-standard)
-- [ ] Anti-bot or rate limit / 反爬/频率限制
-    - [ ] If yes, do your code reflect this sign? / 如果有, 是否有对应的措施?
-- [x] [Date and time](https://docs.rsshub.app/joinus/advanced/pub-date) / [日期和时间](https://docs.rsshub.app/zh/joinus/advanced/pub-date)
-    - [x] Parsed / 可以解析
-    - [x] Correct time zone / 时区正确
-- [ ] New package added / 添加了新的包
-- [ ] `Puppeteer`
-
-## Note / 说明
-
-为 <平台名> 新增全文 RSSHub 路由 `/<namespace>/<route>`。路由通过 <官方摘要 RSS / 公开 WordPress REST API / SSR 列表页> 发现最新文章列表，并通过 `cache.tryGet` 抓取并缓存文章正文内容（包含行内图片与代码块），在原文页面或 Feed 可提取时补充作者与分类信息。
-
-路由默认返回最多 <N> 条内容，支持 RSSHub 通用的 `limit` 参数；同时补充了 Radar 规则与中英文双语文档，未新增第三方依赖，也不依赖无头浏览器自动化。
-
-### 验证情况
-
-- 已针对真实线上源实测：默认请求、`limit=1` 与 `limit=<max>` 分别返回 <N>、1 与 <max> 条记录。
-- 已核验全部 <max> 条记录均包含有效正文、唯一 `link` 与合法 `pubDate` 时间戳。
-- 已完成 `pnpm run build:docs`（含路由构建与中英文文档校验）、`pnpm run format:check`、`pnpm run eslint` 与 `pnpm run typecheck` 校验且全部通过。
+- Verified against the deployed route: `/<namespace>/<route>` (<N> items), `/<namespace>/<route>?limit=1` (1 item), and `/<namespace>/<route>?limit=<max>` (<max> items) all returned HTTP 200 with full article content, unique links, and valid `pubDate` timestamps.
 ````
 
 ---
