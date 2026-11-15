@@ -179,22 +179,18 @@ uvx --from lizard lizard -l typescript -C 10 -w lib/routes/<namespace>
    > 注：与 `AGENTS.md` 的 `Pull requests` 规则保持一致——内部仓库 `rss-site` 由代理通过 `gh` CLI 创建 PR 并交付地址、由用户审核合并；第 7 步上游 `DIYgod/RSSHub` PR 仍严格仅输出文案，由用户本人提交。
 3. 向用户返回 **已创建的 PR 地址**（`https://github.com/ljh12138164/rss-site/pull/<编号>`）、源分支 `feat/<source>`、目标分支 `master` 及本地验证结果，由用户复核 CI 并完成合并。
 
-### 第 6 步：合并发布后线上回归与 Cron 验收
+### 第 6 步：合并发布后自动试抓激活与线上复核
 
-PR 合并并经发布工作流将 Next 服务及 `deploy/postgres/migrations/` 迁移部署至生产 ECS PostgreSQL 后，严格执行 `AGENTS.md` 新信号源门禁：
+PR 合并并经发布工作流将 Next 服务及 `deploy/postgres/migrations/` 迁移部署至生产 ECS PostgreSQL 后，`deploy-rss-site` 会按 `AGENTS.md` 新信号源门禁自动完成新增来源试抓与激活：
 
-1. 使用服务端 `CRON_SECRET` 手动调用生产接口 `POST /cron/signals/:source`。
-2. 通过鉴权 Next 校验接口 `/cron/verify/:source` 或受权服务端查询核验生产库：
-   - `ingestion_runs` 本次运行成功；
-   - `source_status` 已更新；
-   - `hot_items`（及 `signal_articles`）至少写入 1 条数据，且标题、URL、来源、分区、排序与发布时间合理；
-   - 核验线上 `/feeds/*.xml` 及首页热度参与逻辑（如适用）展示正常。
-3. 运行全量配置验收生成证据文件（脚本本身不启用任务）：
+1. **自动试抓与增量激活（默认链路）**：`sync-business-cron` 同步清单时将新增或路径变更任务标记为 `verified = false`；版本健康且解除回滚后，`sync-business-cron --activate-unverified` 检查无残留旧业务 timer、通过容器本地回环调用新源 `POST /cron/signals/:source` 与 `/cron/verify/:source` 核验入库，并调用 `private.activate_verified_business_jobs(jsonb)` 仅激活本次通过验证的新增任务（不影响存量任务，单源失败不回滚发布）。
+2. **线上公开接口复核**：观察 CI 部署日志确认自动激活成功后，抽检公开 `/feeds/*.xml`、频道页与文章详情页展示正常。
+3. **故障重试或全量兜底（仅自动激活失败时）**：若新源上线时因上游波动未能自动激活，修复后可在 ECS 运行 `sudo /usr/local/sbin/sync-business-cron --activate-unverified` 重试未激活源，或按需执行全量门禁：
    ```bash
    pnpm setup:cron --output docs/development/evidence/<source>-setup-cron.json
    ```
-   确认全部来源通过后，再通过 `private.activate_business_jobs(jsonb)` 启用新源的 PostgreSQL Cron 任务，并确认旧写入端/已替代定时器已关闭。
-4. 将非敏感验收证据（HTTP 状态码、条数、batch ID、时间戳、数据质量检查）写入 `docs/development/<source>.md`（严禁打印或提交数据库 URL、Token、Vault 值或 Cron 密钥）。
+   确认全部来源通过后调用 `private.activate_business_jobs(jsonb)`。
+4. 在需要留档时将非敏感验收信息（HTTP 状态码、激活数、日志检查结果）记录至 `docs/development/<source>.md`（严禁打印或提交数据库 URL、Token、Vault 值或 Cron 密钥）。
 
 ### 第 7 步：输出 `DIYgod/RSSHub` 上游 PR 文案（代理只负责写文案，由用户本人提交上游 PR）
 

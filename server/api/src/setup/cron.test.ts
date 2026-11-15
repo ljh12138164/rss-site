@@ -1,6 +1,12 @@
 import { getSignalSource } from '@rss-site/signals'
 import { describe, expect, it, vi } from 'vitest'
-import { normalizeIngestUrl, SIGNAL_CRON_JOBS, setupSignalCron } from './cron'
+import {
+  createHttpCronRepository,
+  normalizeIngestUrl,
+  SIGNAL_CRON_JOBS,
+  setupSignalCron,
+  verifyBusinessJobs
+} from './cron'
 
 const batchId = '12345678-1234-4234-8234-123456789abc'
 const result = () => Response.json({ batchId, itemCount: 12 })
@@ -153,5 +159,123 @@ describe('ECS source acceptance gate', () => {
         request: async () => result()
       })
     ).rejects.toThrow('target batch mismatch')
+  })
+})
+
+describe('createHttpCronRepository', () => {
+  it('posts target database verification to /cron/verify/:source and retries transient 503', async () => {
+    const urls: string[] = []
+    let attempt = 0
+    const repository = createHttpCronRepository({
+      apiUrl: 'http://127.0.0.1:3000',
+      cronSecret: 'test-secret',
+      retryDelaysMs: [0],
+      request: async (url, init) => {
+        urls.push(String(url))
+        expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer test-secret')
+        attempt += 1
+        return attempt === 1
+          ? new Response('unavailable', { status: 503 })
+          : Response.json({ verified: true, databaseMajor: 18 })
+      }
+    })
+
+    await expect(
+      repository.verifyIngestion({
+        source: 'minimax',
+        section: 'ai',
+        batchId,
+        itemCount: 12
+      })
+    ).resolves.toBeUndefined()
+    expect(urls).toEqual([
+      'http://127.0.0.1:3000/cron/verify/minimax',
+      'http://127.0.0.1:3000/cron/verify/minimax'
+    ])
+  })
+
+  it('rejects unverified response payloads', async () => {
+    const repository = createHttpCronRepository({
+      apiUrl: 'http://127.0.0.1:3000',
+      cronSecret: 'test-secret',
+      retryDelaysMs: [],
+      request: async () => Response.json({ verified: false })
+    })
+
+    await expect(
+      repository.verifyIngestion({
+        source: 'minimax',
+        section: 'ai',
+        batchId,
+        itemCount: 12
+      })
+    ).rejects.toThrow('Source minimax failed target database verification')
+  })
+})
+
+describe('verifyBusinessJobs', () => {
+  const sampleJobs = [
+    { source: 'cohere', path: '/cron/signals/cohere' },
+    { source: 'minimax', path: '/cron/signals/minimax' },
+    { source: 'publication-outbox', path: '/cron/maintenance/publication-outbox' },
+    { source: 'zhihu-cookie', path: '/cron/maintenance/zhihu-cookie' }
+  ]
+
+  it('verifies signal sources and 200/202 maintenance jobs while isolating per-source failures', async () => {
+    const verifyCalls: string[] = []
+    const report = await verifyBusinessJobs({
+      apiUrl: 'http://127.0.0.1:3000',
+      cronSecret: 'test-secret',
+      jobs: sampleJobs,
+      requestedSources: ['minimax', 'cohere', 'publication-outbox', 'zhihu-cookie', 'minimax'],
+      retryDelaysMs: [],
+      repository: {
+        verifyIngestion: async (input) => {
+          verifyCalls.push(input.source)
+        }
+      },
+      request: async (url) => {
+        const endpoint = String(url)
+        if (endpoint.endsWith('/cron/signals/minimax')) return result()
+        if (endpoint.endsWith('/cron/signals/cohere')) return new Response('boom', { status: 500 })
+        if (endpoint.endsWith('/cron/maintenance/publication-outbox'))
+          return Response.json({ processed: 0, accepted: 0 }, { status: 200 })
+        if (endpoint.endsWith('/cron/maintenance/zhihu-cookie'))
+          return Response.json({ status: 'deployment_pending' }, { status: 202 })
+        throw new Error(`Unexpected endpoint: ${endpoint}`)
+      }
+    })
+
+    expect(verifyCalls).toEqual(['minimax'])
+    expect(report.verified).toEqual(['minimax', 'publication-outbox', 'zhihu-cookie'])
+    expect(report.failed).toHaveLength(1)
+    expect(report.failed[0]).toMatchObject({ source: 'cohere' })
+    expect(report.failed[0]?.reason).not.toMatch(/[\r\n\t]/)
+  })
+
+  it('rejects unknown job names and empty source selections before sending requests', async () => {
+    const request = vi.fn(async () => result())
+    await expect(
+      verifyBusinessJobs({
+        apiUrl: 'http://127.0.0.1:3000',
+        cronSecret: 'test-secret',
+        jobs: sampleJobs,
+        requestedSources: ['unknown-source'],
+        repository: { verifyIngestion: async () => undefined },
+        request
+      })
+    ).rejects.toThrow('Unknown business job: unknown-source')
+
+    await expect(
+      verifyBusinessJobs({
+        apiUrl: 'http://127.0.0.1:3000',
+        cronSecret: 'test-secret',
+        jobs: sampleJobs,
+        requestedSources: [],
+        repository: { verifyIngestion: async () => undefined },
+        request
+      })
+    ).rejects.toThrow('At least one requested business job is required')
+    expect(request).not.toHaveBeenCalled()
   })
 })

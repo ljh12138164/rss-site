@@ -3,6 +3,119 @@
 set -euo pipefail
 STACK=${STACK:-/opt/stacks/rss-site}
 compose() { docker compose --project-directory "$STACK" "$@"; }
-compose exec -T web bun apps/web/scripts/render-cron-sql.mjs |
-  compose exec -T postgres psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 >/dev/null
-echo 'PostgreSQL Cron configuration synchronized; unverified sources remain disabled'
+
+sync_jobs() {
+  compose exec -T web bun apps/web/scripts/render-cron-sql.mjs </dev/null |
+    compose exec -T postgres psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 >/dev/null
+  echo 'PostgreSQL Cron configuration synchronized; unverified sources remain disabled'
+}
+
+check_old_writers_disabled() {
+  if ! command -v systemctl >/dev/null 2>&1; then
+    return 0
+  fi
+  local stray_timers=''
+  stray_timers=$(
+    systemctl list-units --type=timer --state=active --no-legend --plain 'rss-site-*.timer' </dev/null 2>/dev/null |
+      awk 'NF > 0 && $1 != "rss-site-postgres-backup.timer" && $1 != "rss-site-supabase-keepalive.timer" { print $1 }'
+  ) || true
+  if [[ -n "$stray_timers" ]]; then
+    echo "Unexpected active legacy timer(s) prevent automatic Cron activation: $stray_timers" >&2
+    return 1
+  fi
+}
+
+activate_unverified() {
+  local unverified_csv=''
+  unverified_csv=$(
+    compose exec -T postgres psql -U postgres -d rss_site -X -Atc \
+      "select coalesce(string_agg(source, ',' order by source), '') from private.business_cron_jobs where not verified" </dev/null
+  )
+  if [[ -z "$unverified_csv" ]]; then
+    echo 'No unverified PostgreSQL Cron jobs to activate'
+    return 0
+  fi
+
+  check_old_writers_disabled
+
+  local report=''
+  if ! report=$(
+    compose exec -T web bun server/api/src/setup/cli.mjs --loopback --json --sources "$unverified_csv" </dev/null
+  ); then
+    echo "Incremental Cron verification failed before emitting a report for: $unverified_csv" >&2
+    return 1
+  fi
+
+  local summary=''
+  if ! summary=$(
+    compose exec -T postgres psql -U postgres -d rss_site -X -At -F $'\t' \
+      -v ON_ERROR_STOP=1 -v report="$report" <<'SQL'
+with input as (
+  select :'report'::jsonb as doc
+)
+select
+  jsonb_array_length(input.doc->'verified'),
+  coalesce(
+    (select string_agg(f->>'source' || ' (' || coalesce(f->>'reason', 'failed') || ')', '; ')
+     from jsonb_array_elements(input.doc->'failed') as f),
+    ''
+  ),
+  activated.applied
+from input
+cross join lateral (
+  select case
+    when jsonb_array_length(input.doc->'verified') > 0 then (
+      select true
+      from (
+        select private.activate_verified_business_jobs(
+          jsonb_build_object(
+            'database_major', 18,
+            'old_writers_disabled', true,
+            'verified_at', now(),
+            'verified_jobs', input.doc->'verified'
+          )
+        )
+      ) as activation
+    )
+    else false
+  end as applied
+) as activated;
+SQL
+  ); then
+    echo 'Failed to apply incremental Cron activation in PostgreSQL' >&2
+    return 1
+  fi
+
+  [[ "$summary" == *$'\t'* ]] || {
+    echo 'Unexpected incremental Cron activation summary from PostgreSQL' >&2
+    return 1
+  }
+
+  local verified_count=''
+  local rest=''
+  local failed_summary=''
+  verified_count=${summary%%$'\t'*}
+  rest=${summary#*$'\t'}
+  failed_summary=${rest%$'\t'*}
+  if [[ "$verified_count" =~ ^[0-9]+$ ]] && [[ "$verified_count" -gt 0 ]]; then
+    echo "Automatically verified and activated ${verified_count} PostgreSQL Cron job(s)"
+  fi
+  if [[ -n "$failed_summary" ]]; then
+    echo "Failed to auto-verify/activate PostgreSQL Cron job(s): $failed_summary" >&2
+    return 1
+  fi
+}
+
+case "${1:-}" in
+  '')
+    sync_jobs
+    ;;
+  --activate-unverified)
+    [[ $# -eq 1 ]] || { echo "Usage: $0 [--activate-unverified]" >&2; exit 2; }
+    activate_unverified
+    ;;
+  *)
+    echo "Usage: $0 [--activate-unverified]" >&2
+    exit 2
+    ;;
+esac

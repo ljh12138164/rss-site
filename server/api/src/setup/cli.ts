@@ -1,18 +1,58 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { parseArgs } from 'node:util'
 import { getSignalSource, type SignalSourceId } from '@rss-site/signals'
-import { setupSignalCron } from './cron'
+import {
+  type BusinessJobEntry,
+  createHttpCronRepository,
+  setupSignalCron,
+  verifyBusinessJobs
+} from './cron'
 
 async function main() {
-  const { values } = parseArgs({ options: { output: { type: 'string' } } })
-  if (!values.output) throw new Error('Pass --output /protected/path/cron-verification.json')
-  const apiUrl = process.env.SITE_URL
+  const { values } = parseArgs({
+    options: {
+      output: { type: 'string' },
+      sources: { type: 'string' },
+      loopback: { type: 'boolean', default: false },
+      json: { type: 'boolean', default: false }
+    }
+  })
+  if (Boolean(values.output) === Boolean(values.json)) {
+    throw new Error('Pass either --output /protected/path/cron-verification.json or --json')
+  }
+  const apiUrl = values.loopback
+    ? `http://127.0.0.1:${process.env.PORT ?? '3000'}`
+    : process.env.SITE_URL
   const cronSecret = process.env.CRON_SECRET
-  if (!apiUrl || !cronSecret) throw new Error('SITE_URL and CRON_SECRET are required')
+  if (!apiUrl || !cronSecret) throw new Error('API URL and CRON_SECRET are required')
 
   const jobs = JSON.parse(
     await readFile(new URL('../../../../deploy/server/business-jobs.json', import.meta.url), 'utf8')
-  ) as Array<{ source: string; path: string }>
+  ) as BusinessJobEntry[]
+  const repository = createHttpCronRepository({ apiUrl, cronSecret })
+
+  if (values.json) {
+    const requestedSources = (values.sources ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean)
+    const report = await verifyBusinessJobs({
+      apiUrl,
+      cronSecret,
+      jobs,
+      requestedSources,
+      repository
+    })
+    process.stdout.write(`${JSON.stringify(report)}\n`)
+    return
+  }
+
+  if (values.sources) {
+    throw new Error('--sources requires --json mode')
+  }
+  const outputPath = values.output
+  if (!outputPath) throw new Error('Pass --output /protected/path/cron-verification.json')
+
   const sources = jobs
     .filter((job) => job.path.startsWith('/cron/signals/'))
     .map((job) => {
@@ -24,19 +64,7 @@ async function main() {
     apiUrl,
     cronSecret,
     sources,
-    repository: {
-      async verifyIngestion(input) {
-        const response = await fetch(new URL(`/cron/verify/${input.source}`, apiUrl), {
-          method: 'POST',
-          redirect: 'error',
-          signal: AbortSignal.timeout(30_000),
-          headers: { Authorization: `Bearer ${cronSecret}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ batchId: input.batchId, itemCount: input.itemCount })
-        })
-        if (!response.ok || (await response.json()).verified !== true)
-          throw new Error(`Source ${input.source} failed target database verification`)
-      }
-    }
+    repository
   })
   const evidence = {
     database_major: 18,
@@ -46,7 +74,7 @@ async function main() {
     results
   }
   // Exclusive create: never leave an old successful evidence file masquerading as a new run.
-  await writeFile(values.output, `${JSON.stringify(evidence, null, 2)}\n`, {
+  await writeFile(outputPath, `${JSON.stringify(evidence, null, 2)}\n`, {
     flag: 'wx',
     mode: 0o600
   })

@@ -77,6 +77,31 @@ export interface SourceIngestionResult extends IngestionResult {
   source: SignalSourceId
 }
 
+export interface BusinessJobEntry {
+  source: string
+  path: string
+}
+
+export interface FailedBusinessJob {
+  source: string
+  reason: string
+}
+
+export interface IncrementalVerificationReport {
+  verified: string[]
+  failed: FailedBusinessJob[]
+}
+
+interface VerifyBusinessJobsOptions {
+  apiUrl: string
+  cronSecret: string
+  jobs: readonly BusinessJobEntry[]
+  requestedSources: readonly string[]
+  repository: CronRepository
+  request?: typeof fetch
+  retryDelaysMs?: readonly number[]
+}
+
 const DEFAULT_TRANSIENT_RETRY_DELAYS_MS = [1000, 3000] as const
 const TRANSIENT_INGESTION_STATUSES = new Set([502, 503, 504])
 
@@ -207,4 +232,132 @@ export async function setupSignalCron({
   // Emit evidence only after the caller has verified every configured source.
   // ECS owns scheduling; no Supabase extensions, Vault, or Cron writes occur here.
   return verifiedSources
+}
+
+function normalizeBaseUrl(apiUrl: string): string {
+  return normalizeIngestUrl(apiUrl).slice(0, -'/cron/signals'.length)
+}
+
+function formatFailureReason(error: unknown): string {
+  const raw = error instanceof Error ? error.message : 'verification_failed'
+  const cleaned = raw.replace(/[\r\n\t]+/g, ' ').trim()
+  return (cleaned || 'verification_failed').slice(0, 200)
+}
+
+export function createHttpCronRepository({
+  apiUrl,
+  cronSecret,
+  request = fetch,
+  retryDelaysMs = DEFAULT_TRANSIENT_RETRY_DELAYS_MS
+}: {
+  apiUrl: string
+  cronSecret: string
+  request?: typeof fetch
+  retryDelaysMs?: readonly number[]
+}): CronRepository {
+  const baseUrl = normalizeBaseUrl(apiUrl)
+  if (!cronSecret) throw new Error('CRON_SECRET 不能为空')
+  return {
+    async verifyIngestion(input) {
+      const response = await requestWithTransientRetries(
+        request,
+        `${baseUrl}/cron/verify/${input.source}`,
+        {
+          method: 'POST',
+          redirect: 'error',
+          signal: AbortSignal.timeout(30_000),
+          headers: {
+            Authorization: `Bearer ${cronSecret}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ batchId: input.batchId, itemCount: input.itemCount })
+        },
+        retryDelaysMs
+      )
+      if (!response.ok) {
+        await response.body?.cancel()
+        throw new Error(`Source ${input.source} failed target database verification`)
+      }
+      const body = (await response.json()) as { verified?: unknown }
+      if (body.verified !== true) {
+        throw new Error(`Source ${input.source} failed target database verification`)
+      }
+    }
+  }
+}
+
+export async function verifyBusinessJobs({
+  apiUrl,
+  cronSecret,
+  jobs,
+  requestedSources,
+  repository,
+  request = fetch,
+  retryDelaysMs = DEFAULT_TRANSIENT_RETRY_DELAYS_MS
+}: VerifyBusinessJobsOptions): Promise<IncrementalVerificationReport> {
+  const baseUrl = normalizeBaseUrl(apiUrl)
+  if (!cronSecret) throw new Error('CRON_SECRET 不能为空')
+
+  const uniqueSources = [
+    ...new Set(requestedSources.map((source) => source.trim()).filter(Boolean))
+  ]
+  if (!uniqueSources.length) throw new Error('At least one requested business job is required')
+
+  const jobBySource = new Map(jobs.map((job) => [job.source, job]))
+  const requestedJobs = uniqueSources.map((source) => {
+    const job = jobBySource.get(source)
+    if (!job) throw new Error(`Unknown business job: ${source}`)
+    if (job.path.startsWith('/cron/signals/')) {
+      const configured = getSignalSource(job.source as SignalSourceId)
+      if (job.path !== `/cron/signals/${configured.id}`) {
+        throw new Error(`Invalid configured job path for ${job.source}`)
+      }
+    } else if (!job.path.startsWith('/cron/maintenance/')) {
+      throw new Error(`Unsupported business job path for ${job.source}`)
+    }
+    return job
+  })
+
+  const verified: string[] = []
+  const failed: FailedBusinessJob[] = []
+
+  for (const job of requestedJobs) {
+    try {
+      if (job.path.startsWith('/cron/signals/')) {
+        await setupSignalCron({
+          apiUrl: baseUrl,
+          cronSecret,
+          repository,
+          request,
+          sources: [job.source as SignalSourceId],
+          retryDelaysMs
+        })
+      } else {
+        const response = await requestWithTransientRetries(
+          request,
+          `${baseUrl}${job.path}`,
+          {
+            method: 'POST',
+            redirect: 'error',
+            signal: AbortSignal.timeout(180_000),
+            headers: {
+              Authorization: `Bearer ${cronSecret}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ source: 'deploy:activate' })
+          },
+          retryDelaysMs
+        )
+        await response.body?.cancel()
+        if (!response.ok) {
+          throw new Error(`维护任务 ${job.source} 验证失败（HTTP ${response.status}）`)
+        }
+      }
+      verified.push(job.source)
+    } catch (error) {
+      failed.push({ source: job.source, reason: formatFailureReason(error) })
+    }
+  }
+
+  return { verified, failed }
 }
