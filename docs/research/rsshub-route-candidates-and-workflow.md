@@ -1,7 +1,7 @@
 # RSSHub 待新增路由候选与标准化交付工作流
 
-- **调研日期**：2026-11-13（2026-11-15 同步 MiniMax 进度与自建实例说明）
-- **`rss-site` 基线**：`master` @ `ae35a85` + `feat/minimax-source`（已接入 `cohere` 与 `minimax`，`packages/signals/src/index.ts` 已注册 `50` 个源，分属 `7` 个分区：`ai` 13、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 6、`skills` 2；`deploy/server/business-jobs.json` 含 `49` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `53` 项）
+- **调研日期**：2026-11-13（2026-11-15 同步 MiniMax 与 80 Level 进度及自建实例说明）
+- **`rss-site` 基线**：`master` @ `8855c55` + `feat/80lv`（已接入 `cohere`、`minimax` 与 `80lv`，`packages/signals/src/index.ts` 已注册 `51` 个源，分属 `7` 个分区：`ai` 13、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 7、`skills` 2；`deploy/server/business-jobs.json` 含 `50` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `54` 项）
 - **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
 
@@ -24,7 +24,7 @@
 
 | 平台 | 首页 / 列表页 | RSSHub 上游 | 官网原生 RSS | 探测实证与抓取方案 |
 | :--- | :--- | :--- | :--- | :--- |
-| **80 Level** | `https://80.lv/articles/` | 无（`80lv` / `80.lv` 均 `404`） | 无 | 列表页 `200`（`70,767` 字节，`__NEXT_DATA__:true`）；文章页实测 `https://80.lv/articles/bioware-co-founder-explains-the-usd200-million-problem-with-reviving-mass-effect` 返回 `200`（`107,570` 字节，`cf:false`），可基于 `__NEXT_DATA__` / SSR HTML 与原文页面构建全文路由。 |
+| **80 Level** | `https://80.lv/articles/` | ✅ 已完成（自建 `https://rss.ljhboard.cn/80lv/articles` 已上线，`master` @ `dba5a9557`，源分支 `feat/80lv` @ `01c11aa27`）；`rss-site` `feat/80lv` 待 PR 合并上线 | 无 | 基于官方公开 API `/api/articles/list` 与 `/api/articles/:slug` 抓取全文，支持 `:category?`（默认 `all` 及 17 个官方分类与 `80-level-china` 汉语标识）及通用 `limit`（1–100）；使用 `hono/jsx/dom/server` `renderToString` 模板还原排版正文、代码块、表格、引用块组、YouTube/Vimeo 嵌入及图片，并发限流 `DETAIL_CONCURRENCY = 5`；`rss-site` `games` 分区接入 `80lv`（`/80lv/articles?limit=30`）。 |
 | **Unity Blog** | `https://unity.com/blog` | 无（`unity` `404`） | 无 | 列表页 `200`（`761,933` 字节，`next:true`，存在 SSR 标题），可通过 SSR HTML 列表结合原文页面抓取。 |
 
 ### 1.3 较复杂的 SPA / 后端接口型候选（备选）

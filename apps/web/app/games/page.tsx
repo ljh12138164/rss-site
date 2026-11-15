@@ -9,7 +9,7 @@ export const revalidate = 21600
 
 export const metadata = createPageMetadata({
   title: '游戏热点',
-  description: '3DM、机核、游民星空、游侠网与 indienova 的游戏资讯。',
+  description: '3DM、机核、游民星空、游侠网、indienova、触乐与 80 Level 的游戏资讯。',
   path: '/games'
 })
 

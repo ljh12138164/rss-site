@@ -690,7 +690,7 @@ export const financeSources = [
   }
 ] as const
 
-// 游戏 Games (5)
+// 游戏 Games (7)
 export const gameSources = [
   {
     id: '3dmgame',
@@ -769,6 +769,19 @@ export const gameSources = [
     isArticle: true,
     cronSchedule: '25 3,9,15,21 * * *',
     cronJobName: 'signal-ingest-chuapp'
+  },
+  {
+    id: '80lv',
+    name: '80 Level',
+    code: '80',
+    shortName: '80lv',
+    description: '海外游戏美术、VFX、图形技术与开发者专访全文',
+    section: 'games',
+    itemLimit: 30,
+    rsshubPath: '/80lv/articles?limit=30',
+    isArticle: true,
+    cronSchedule: '35 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-80lv'
   }
 ] as const
 
@@ -856,7 +869,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'the-decoder',
   'arm',
   'cohere',
-  'minimax'
+  'minimax',
+  '80lv'
 ] as const
 
 // Cron jobs

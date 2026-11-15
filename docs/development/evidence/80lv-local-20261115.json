@@ -1,0 +1,47 @@
+{
+  "checkedAt": "2026-11-15T09:19:26.405Z",
+  "source": "80lv",
+  "section": "games",
+  "feedUrls": ["https://rss.ljhboard.cn/80lv/articles?limit=30"],
+  "feedByteLengths": [276559],
+  "parsedItems": 30,
+  "fullBodyMatches": 30,
+  "publicationDatesVerified": 30,
+  "namedAuthors": 30,
+  "coverImages": 30,
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 26253,
+  "ingestedItems": 30,
+  "uniqueUrls": 30,
+  "consecutiveRanks": true,
+  "manifestMatchesRegistry": true,
+  "releaseSqlIncludesSourceMigration": true,
+  "automaticActivation": false,
+  "productionDatabaseVerified": false,
+  "sampleTop3": [
+    {
+      "position": 1,
+      "title": "This Manga-Style Action FPS Uses Radial Gravity to Turn Walls into Floors",
+      "url": "https://80.lv/articles/this-manga-style-action-fps-uses-radial-gravity-to-turn-walls-into-floors",
+      "author": "Emma Collins",
+      "publishedAt": "2026-11-14T18:00:00.000Z",
+      "contentHtmlBytes": 4145
+    },
+    {
+      "position": 2,
+      "title": "VRChat Hairstyle With Ponytails That Turn Into Propellers",
+      "url": "https://80.lv/articles/vrchat-hairstyle-with-ponytails-that-turn-into-propellers",
+      "author": "Amber Rutherford",
+      "publishedAt": "2026-11-14T14:00:00.000Z",
+      "contentHtmlBytes": 6019
+    },
+    {
+      "position": 3,
+      "title": "Epic is Taking Apple's 27% Web Fee to the Supreme Court",
+      "url": "https://80.lv/articles/epic-is-taking-apple-s-27-web-fee-to-the-supreme-court",
+      "author": "David Jagneaux",
+      "publishedAt": "2026-11-13T23:34:00.000Z",
+      "contentHtmlBytes": 5783
+    }
+  ]
+}

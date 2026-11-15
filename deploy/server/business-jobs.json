@@ -294,6 +294,12 @@
     "path": "/cron/signals/minimax"
   },
   {
+    "source": "80lv",
+    "name": "signal-ingest-80lv",
+    "schedule": "35 5,11,17,23 * * *",
+    "path": "/cron/signals/80lv"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"
