@@ -364,7 +364,7 @@ export const newsSources = [
   }
 ] as const
 
-// AI 平台 (7)
+// AI 平台 (14)
 export const aiSources = [
   {
     id: 'openai',
@@ -510,6 +510,19 @@ export const aiSources = [
     isArticle: true,
     cronSchedule: '25 5,11,17,23 * * *',
     cronJobName: 'signal-ingest-minimax'
+  },
+  {
+    id: 'kimi',
+    name: 'Kimi',
+    code: 'KM',
+    shortName: 'Kimi',
+    description: 'Kimi 官方研究博客与开源模型发布，英文全文',
+    section: 'ai',
+    itemLimit: 20,
+    rsshubPath: '/kimi/blog',
+    isArticle: true,
+    cronSchedule: '40 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-kimi'
   },
   {
     id: 'lilian-weng',
@@ -870,7 +883,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'arm',
   'cohere',
   'minimax',
-  '80lv'
+  '80lv',
+  'kimi'
 ] as const
 
 // Cron jobs
