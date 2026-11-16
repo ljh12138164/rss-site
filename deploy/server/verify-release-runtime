@@ -99,7 +99,7 @@ do $$ begin
     or not exists (select 1 from private.hot_ranking_generations where batch_id='550e8400-e29b-41d4-a716-446655440000') then
     raise exception 'Hot ranking log retention did not preserve exactly the recent fixture';
   end if;
-  if (select count(*) from private.business_cron_jobs)<>54
+  if (select count(*) from private.business_cron_jobs)<>55
     or exists (select 1 from private.business_cron_jobs where verified)
     or exists (select 1 from cron.job where jobname like 'rss-site-%'
       and jobname not in ('rss-site-cron-history-cleanup','rss-site-cron-pending') and active)
