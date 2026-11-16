@@ -193,8 +193,8 @@ docker exec "$WEB" bun apps/web/scripts/render-cron-sql.mjs |
 docker exec -i "$RESTORE" psql -U postgres -d rss_site -X -q -v ON_ERROR_STOP=1 <<'SQL'
 do $$ begin
   if current_setting('cron.launch_active_jobs')<>'off'
-    or (select count(*) from private.business_cron_jobs)<>54
-    or (select count(*) from cron.job)<>56
+    or (select count(*) from private.business_cron_jobs)<>55
+    or (select count(*) from cron.job)<>57
     or has_table_privilege('rss_site_app','private.business_cron_settings','select')
     or has_function_privilege('rss_site_app','private.dispatch_business_job(text,integer)','execute')
     or has_function_privilege('rss_site_app','private.activate_business_jobs(jsonb)','execute')

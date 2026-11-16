@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-16 Kimi Research Blog 来源接入
+
+- 在自建 `RSSHub`（`feat/kimi-blog` @ `a6c1a5100` → `master` @ `c8477b403`，线上 `https://rss.ljhboard.cn/kimi/blog`）上线 Kimi 研究博客路由，覆盖 `kimi.com/en/blog/` 站内研究长文（含 Next.js Streaming Suspense 表格/视频与 KaTeX 数学公式）与外链开源模型发布，并通过 `oxfmt`、`oxlint --config=.oxlintrc.ci.json`（`0/0`）、`lizard -C 10`、`eslint`、`typecheck`、`build:docs` 与 3 轮 Codex Review 闭环。
+- 将 `kimi` 接入 `rss-site` 的 `ai` 分区（全站 `52` 个来源、`ai` 分区 `14` 个来源；`cronSchedule: '40 5,11,17,23 * * *'`），新增官方图标 `apps/web/public/source-icons/kimi.png`、`011-kimi-source.sql`、`baseline.sql`、`business-jobs.json`（`55` 条业务任务）与 `verify-release-runtime` 校验计数（`55` / `57`），并标注 `010-80lv-source.sql` 被覆盖。
+- 基于真实 `https://rss.ljhboard.cn/kimi/blog` 生成本地 `ingestSignal` 验证证据 [kimi-local-20261116.json](docs/development/evidence/kimi-local-20261116.json)（`20/20` 篇、`910,484` bytes、`0` 异常图片链接），详情见 [kimi-source.md](docs/development/kimi-source.md)。
+
 ## 2026-11-15 80 Level 线上自动激活与回归验收
 
 - `PR #92`（`08e0f5467ffa1ce18399b7fa5e2aacab98efb151`）合并后，`Verify and deploy news`（[#43699162846](https://github.com/ljh12138164/rss-site/actions/runs/43699162846)）自动执行 `sync-business-cron --activate-unverified` 首次验证并激活 `1` 个未激活 Cron 任务（`signal-ingest-80lv` / `rss-site-80lv`），`listPrewarm` 刷新 `56/56`、`failed: 0`。

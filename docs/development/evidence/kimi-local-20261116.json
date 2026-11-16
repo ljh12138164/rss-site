@@ -1,0 +1,47 @@
+{
+  "checkedAt": "2026-11-16T14:21:26.234Z",
+  "source": "kimi",
+  "section": "ai",
+  "feedUrls": ["https://rss.ljhboard.cn/kimi/blog"],
+  "feedByteLengths": [910484],
+  "parsedItems": 20,
+  "fullBodyMatches": 20,
+  "publicationDatesVerified": 20,
+  "namedAuthors": 20,
+  "coverImages": 20,
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 93589,
+  "ingestedItems": 20,
+  "uniqueUrls": 20,
+  "consecutiveRanks": true,
+  "manifestMatchesRegistry": true,
+  "releaseSqlIncludesSourceMigration": true,
+  "automaticActivation": false,
+  "productionDatabaseVerified": false,
+  "sampleTop3": [
+    {
+      "position": 1,
+      "title": "Introducing Kimi K3.1 Pro",
+      "url": "https://www.kimi.com/en/blog/kimi-k3-1-pro",
+      "author": "Kimi",
+      "publishedAt": "2026-10-23T16:00:00.000Z",
+      "contentHtmlBytes": 32179
+    },
+    {
+      "position": 2,
+      "title": "Kimi K3: Open Frontier Intelligence",
+      "url": "https://www.kimi.com/en/blog/kimi-k3",
+      "author": "Kimi",
+      "publishedAt": "2026-07-15T16:00:00.000Z",
+      "contentHtmlBytes": 73990
+    },
+    {
+      "position": 3,
+      "title": "Introducing PerceptionBench",
+      "url": "https://www.kimi.com/en/blog/perception-bench",
+      "author": "Kimi",
+      "publishedAt": "2026-07-15T16:00:00.000Z",
+      "contentHtmlBytes": 49872
+    }
+  ]
+}
