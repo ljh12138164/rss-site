@@ -1,0 +1,181 @@
+{
+  "verifiedAt": "2026-11-18T02:10:53Z",
+  "productionCommit": "f363b8c29e2a800fb020328cb0a65c69e8cf234c",
+  "prUrl": "https://github.com/ljh12138164/rss-site/pull/95",
+  "releaseWorkflowRun": "https://github.com/ljh12138164/rss-site/actions/runs/44219484831",
+  "rsshubMasterCommit": "693346b621",
+  "rsshubFeatureBranchCommit": "1d4bc5c9b",
+  "deployLogSummary": {
+    "conclusion": "success",
+    "cronSyncMessage": "PostgreSQL Cron configuration synchronized; unverified sources remain disabled",
+    "autoActivatedMessage": "Automatically verified and activated 1 PostgreSQL Cron job(s)",
+    "listPrewarm": {
+      "status": "succeeded",
+      "total": 58,
+      "succeeded": 58,
+      "failed": []
+    },
+    "healthCheck": "Deployment healthy: sha-f363b8c29e2a800fb020328cb0a65c69e8cf234c",
+    "publicSiteVerified": true
+  },
+  "ecsRuntime": {
+    "databaseVersion": "18.7",
+    "containers": [
+      {
+        "name": "rss-site-postgres-1",
+        "state": "running",
+        "health": "healthy",
+        "image": "rss-site-postgres:18-cron-v1"
+      },
+      {
+        "name": "rss-site-redis-1",
+        "state": "running",
+        "health": "healthy",
+        "image": "sha256:7b1753b4c5ad8458906c272a8132b8c15f5557b000379eb115fb239706a384b7"
+      },
+      {
+        "name": "rss-site-web-1",
+        "state": "running",
+        "health": "healthy",
+        "image": "rss-site-web:sha-f363b8c29e2a800fb020328cb0a65c69e8cf234c"
+      }
+    ],
+    "activeSystemdServices": [
+      "rss-site-supabase-keepalive.service",
+      "rss-site-postgres-backup.service"
+    ]
+  },
+  "scheduler": {
+    "businessTotal": 56,
+    "businessVerified": 56,
+    "cronTotal": 58,
+    "cronActive": 58,
+    "jobVllmVerified": true,
+    "cronVllmJobId": 1260,
+    "cronVllmJobName": "rss-site-vllm",
+    "cronVllmSchedule": "45 5,11,17,23 * * *",
+    "cronVllmActive": true,
+    "failedCronRuns24h": 0,
+    "appCanReadSecret": false,
+    "appCanDispatch": false
+  },
+  "vllm": {
+    "ingestionRun": {
+      "id": "31357ca8-05af-4e89-9a05-758f7a60fc9f",
+      "status": "succeeded",
+      "itemCount": 20,
+      "startedAt": "2026-11-18T02:04:20.134+00:00",
+      "finishedAt": "2026-11-18T02:04:20.134+00:00"
+    },
+    "sourceStatus": {
+      "source": "vllm",
+      "section": "ai",
+      "itemCount": 20,
+      "lastSuccessAt": "2026-11-18T02:04:20.134+00:00",
+      "lastBatchId": "31357ca8-05af-4e89-9a05-758f7a60fc9f"
+    },
+    "hotItemsSummary": {
+      "rows": 20,
+      "minPosition": 1,
+      "maxPosition": 20
+    },
+    "signalArticlesSummary": {
+      "totalRows": 20,
+      "indexableRows": 20,
+      "oldestPublishedAt": "2026-10-16T00:00:00+00:00",
+      "newestPublishedAt": "2026-11-12T00:00:00+00:00",
+      "minContentHtmlBytes": 11691,
+      "maxContentHtmlBytes": 70090
+    }
+  },
+  "publicRoutes": {
+    "healthz": {
+      "path": "/healthz",
+      "status": 200,
+      "bytes": 15,
+      "body": "{\"status\":\"ok\"}"
+    },
+    "icon": {
+      "path": "/source-icons/vllm.svg",
+      "status": 200,
+      "contentType": "image/svg+xml",
+      "bytes": 3531
+    },
+    "aiSection": {
+      "path": "/ai",
+      "status": 200,
+      "bytes": 205464,
+      "hasVllmLabel": true,
+      "hasVllmHref": true,
+      "hasVllmIcon": true
+    },
+    "aiVllm": {
+      "path": "/ai/vllm",
+      "status": 200,
+      "bytes": 160438,
+      "uniqueArticleLinks": 20
+    },
+    "sampleDetails": [
+      {
+        "path": "/ai/vllm/inkling-2-small-on-vllm-day-0-support--66dda7cd-2128-4a11-b7e1-5c2d6fdb3319",
+        "status": 200,
+        "bytes": 120570,
+        "robots": "index, follow"
+      },
+      {
+        "path": "/ai/vllm/reinforcement-learning-optimizing-0-6b-dense-models-on-t--a5cbe1fa-4b3a-4315-8983-93d45dc06ce9",
+        "status": 200,
+        "bytes": 214826,
+        "robots": "index, follow"
+      },
+      {
+        "path": "/ai/vllm/deepseek-v4-1-flash-on-vera-rubin-nvl72-58x-throughput-v--a64e15d8-9bab-4d28-b574-2230024ae839",
+        "status": 200,
+        "bytes": 147670,
+        "robots": "index, follow"
+      }
+    ],
+    "feedVllm": {
+      "path": "/feeds/vllm.xml",
+      "status": 200,
+      "bytes": 9602,
+      "items": 10
+    },
+    "feedAi": {
+      "path": "/feeds/ai.xml",
+      "status": 200,
+      "bytes": 138575,
+      "items": 140,
+      "itemsVllm": 20
+    },
+    "sitemapIndex": {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "locs": 32
+    },
+    "sitemap0": {
+      "path": "/sitemap/0.xml",
+      "status": 200,
+      "locs": 2000,
+      "includesVllmRoutes": true
+    }
+  },
+  "browserCheck": {
+    "origin": "https://news.ljhboard.cn",
+    "visitedRoutes": [
+      "/ai",
+      "/ai/vllm",
+      "/ai/vllm/inkling-2-small-on-vllm-day-0-support--66dda7cd-2128-4a11-b7e1-5c2d6fdb3319"
+    ],
+    "renderedArticlesOnSourcePage": 20,
+    "iconStatus": 200,
+    "iconContentType": "image/svg+xml",
+    "iconCacheStatus": "HIT",
+    "detailPreBlocks": 1,
+    "detailTables": 2,
+    "detailTextChars": 8081,
+    "detailOutboundLink": "https://vllm.ai/blog/2026-11-12-inkling2-small",
+    "httpErrorCount": 0,
+    "consoleErrorCount": 0
+  }
+}

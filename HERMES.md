@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-18 vLLM Blog 线上自动激活与回归验收
+
+- `rss-site` [PR #95](https://github.com/ljh12138164/rss-site/pull/95) 已合并至 `master`（`f363b8c`），[CI 发布 #44219484831](https://github.com/ljh12138164/rss-site/actions/runs/44219484831) 成功：`sync-business-cron --activate-unverified` 自动验证并激活 `1` 项 PostgreSQL Cron 任务，`listPrewarm` `58/58` 成功，`Verify public site` 通过。
+- ECS 容器 `rss-site-web-1`（`sha-f363b8c`）、`rss-site-postgres-1`（`18.7`、`rss-site-postgres:18-cron-v1`）与 `rss-site-redis-1` 均 healthy，无遗留业务 timer；`private.business_cron_jobs = 56/56` `verified = true`、`cron.job = 58/58` `active = true`（`rss-site-vllm` job id `1260`，UTC `45 5,11,17,23 * * *`，近 24 小时 `0` 失败，权限边界均为 `false`）。
+- 线上首抓批次 `31357ca8-05af-4e89-9a05-758f7a60fc9f` 成功入库 `20` 篇全文文章（`hot_items` 排名 `1–20`、`signal_articles` `20/20` `is_indexable = true`、`11,691–70,090` bytes）；`https://news.ljhboard.cn` `/ai`、`/ai/vllm`、`/source-icons/vllm.svg`（`image/svg+xml`）、3 篇抽样详情页、`/feeds/vllm.xml`（`10` 条）、`/feeds/ai.xml`（`140` 条含 `20` 条 `vllm`）、`/sitemap/0.xml` 与浏览器端渲染检查（`0` HTTP/console 错误）全部通过，非敏感证据归档至 [vllm-production-20261118.json](docs/development/evidence/vllm-production-20261118.json)。
+
 ## 2026-11-18 vLLM Blog 全文来源接入
 
 - 在自建 `RSSHub`（`feat/vllm-blog` @ `1d4bc5c9b` → `master` @ `693346b62`，线上 `https://rss.ljhboard.cn/vllm/blog`）上线 `vLLM Blog` 全文路由（基于 `https://vllm.ai/blog/rss.xml` 并发补全正文、MathJax 公式、代码块、表格、`<video>` 与交互 `<iframe>` 图表，并跳过动态 `/og?` 文字卡片封面），通过 `oxfmt`、`oxlint --config=.oxlintrc.ci.json`（`0/0`）、`lizard -C 10`、`eslint`、`typecheck`、`build:docs`、`RSSHub-docs` 浏览器可视化验收与 `codex review`（`gpt-6.1-sol` / `high`，无可执行缺陷）。
