@@ -114,6 +114,8 @@
 
 ## 三、暂不提上游 RSSHub PR 的排除项说明
 
+候选官方 Feed 与游研社原生 RSS 已接入现有 AI、科技和游戏分区。发布后由生产门禁逐项试抓和启用。见[采集与验收记录](../development/native-feed-ingestion.md)。
+
 1. **官方 RSS 已自带较完整正文（可直接作为 `rss-site` `feedUrl` 评估，无需额外做 RSSHub 路由）**：
    - **AI / 前沿研究与专栏（AIHOT 复测新增）**：
      - `METR`（`https://metr.org/feed.xml`，`103` 条，`encLen: 38,751` / `3,722` words — 前沿模型安全与能力评测机构）
@@ -140,7 +142,7 @@
      - `404 Media`（`https://404media.co/rss/`，`enc: 4109`）
      - `Bun`（`https://bun.com/rss.xml`，`desc: 917`）
      - `IGN`（`https://ign.com/rss/articles/feed?tags=games`，`enc: 1816`）
-     - `PC Gamer`（`https://pcgamer.com/rss/`，`enc: 2252`）
+     - `PC Gamer`（`https://www.pcgamer.com/rss/`，`enc: 2252`）
      - `PlayStation Blog 繁中`（`https://blog.zh-hant.playstation.com/feed/`，`enc: 2438`）
      - `Xbox Wire`（`https://news.xbox.com/en-us/feed/`，`enc: 6242`）
      - `GameLook`（`http://www.gamelook.com.cn/feed/`，`31` 条含全文；注意 HTTPS 会触发 `ECONNRESET`）

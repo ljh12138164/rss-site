@@ -67,6 +67,19 @@ function textValue(value: unknown): string | null {
   return null
 }
 
+function feedHtml(value: unknown): string | null {
+  if (
+    value &&
+    typeof value === 'object' &&
+    '@_type' in value &&
+    value['@_type'] === 'xhtml' &&
+    'div' in value
+  ) {
+    return textValue(value.div)
+  }
+  return textValue(value)
+}
+
 function canonicalWebUrl(value: unknown): string | null {
   const rawUrl = textValue(value)
   if (!rawUrl) return null
@@ -108,6 +121,7 @@ function extractLinkUrl(value: unknown): string | null {
 }
 
 function extractAuthor(value: unknown): string | null {
+  if (Array.isArray(value)) return value.map(extractAuthor).filter(Boolean).join(', ') || null
   if (value && typeof value === 'object') {
     if ('name' in value) return textValue((value as { name: unknown }).name)
     if ('#text' in value) return textValue((value as { '#text': unknown })['#text'])
@@ -276,19 +290,20 @@ export function parseSignalFeed(
     return items
   }
   const validation = XMLValidator.validate(xml)
-  if (validation !== true) throw new Error('RSSHub returned invalid XML')
+  if (validation !== true) throw new Error('Signal feed returned invalid XML')
 
   const parser = new XMLParser({
     ignoreAttributes: false,
-    isArray: (_name, path) => path === 'rss.channel.item' || path === 'feed.entry'
+    isArray: (_name, path) => path === 'rss.channel.item' || path === 'feed.entry',
+    stopNodes: ['feed.entry.content.div', 'feed.entry.summary.div']
   })
   const parsed = parser.parse(xml) as ParsedFeed
   const items = parsed.rss?.channel?.item ?? parsed.feed?.entry ?? []
   if (items.length === 0) throw new Error(`Feed parser returned an empty ${sourceName} feed`)
 
   const usableItems = items.flatMap((item) => {
-    const content = item['content:encoded'] ?? item.content
-    const rawDescription = item.description ?? item.summary
+    const content = feedHtml(item['content:encoded'] ?? item.content)
+    const rawDescription = feedHtml(item.description ?? item.summary)
     const rawTitle =
       (options.titleFromFirstStrong ? firstStrongText(content) : null) ?? textValue(item.title)
     const title = rawTitle ? decodeEntities(rawTitle) : null
@@ -299,7 +314,7 @@ export function parseSignalFeed(
 
     const rawGuid = textValue(item.id ?? item.guid)
     // Feed HTML is archived as untrusted content; the reader sanitizes it before rendering.
-    const rawHtml = textValue(content) ?? textValue(rawDescription)
+    const rawHtml = content ?? rawDescription
     const html = rawHtml ? cleanFeedArticleHtml(rawHtml, url) : null
     const contentHtml = html && Buffer.byteLength(html, 'utf8') <= 512 * 1024 ? html : null
     return [
@@ -311,10 +326,10 @@ export function parseSignalFeed(
           imageEnclosureUrl(item.enclosure, url) ?? firstImageUrl(url, rawDescription, content),
         summary: options.skillMetadata
           ? skillSummary(rawDescription)
-          : ((
-              plainText(cleanFeedArticleHtml(textValue(rawDescription) ?? '', url)) ??
-              plainText(html)
-            )?.slice(0, 500) ?? null),
+          : ((plainText(cleanFeedArticleHtml(rawDescription ?? '', url)) ?? plainText(html))?.slice(
+              0,
+              500
+            ) ?? null),
         contentHtml,
         author: extractAuthor(item.author) ?? extractAuthor(item['dc:creator']),
         publishedAt: publishedDate(

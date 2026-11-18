@@ -312,6 +312,174 @@
     "path": "/cron/signals/vllm"
   },
   {
+    "source": "metr",
+    "name": "signal-ingest-metr",
+    "schedule": "1 6,18 * * *",
+    "path": "/cron/signals/metr"
+  },
+  {
+    "source": "bair",
+    "name": "signal-ingest-bair",
+    "schedule": "2 6,18 * * *",
+    "path": "/cron/signals/bair"
+  },
+  {
+    "source": "ahead-of-ai",
+    "name": "signal-ingest-ahead-of-ai",
+    "schedule": "3 6,18 * * *",
+    "path": "/cron/signals/ahead-of-ai"
+  },
+  {
+    "source": "aws-ml",
+    "name": "signal-ingest-aws-ml",
+    "schedule": "4 6,18 * * *",
+    "path": "/cron/signals/aws-ml"
+  },
+  {
+    "source": "redwood-research",
+    "name": "signal-ingest-redwood-research",
+    "schedule": "6 6,18 * * *",
+    "path": "/cron/signals/redwood-research"
+  },
+  {
+    "source": "interconnects",
+    "name": "signal-ingest-interconnects",
+    "schedule": "7 6,18 * * *",
+    "path": "/cron/signals/interconnects"
+  },
+  {
+    "source": "import-ai",
+    "name": "signal-ingest-import-ai",
+    "schedule": "8 6,18 * * *",
+    "path": "/cron/signals/import-ai"
+  },
+  {
+    "source": "latent-space",
+    "name": "signal-ingest-latent-space",
+    "schedule": "9 6,18 * * *",
+    "path": "/cron/signals/latent-space"
+  },
+  {
+    "source": "dwarkesh",
+    "name": "signal-ingest-dwarkesh",
+    "schedule": "11 6,18 * * *",
+    "path": "/cron/signals/dwarkesh"
+  },
+  {
+    "source": "wheres-your-ed-at",
+    "name": "signal-ingest-wheres-your-ed-at",
+    "schedule": "12 4,16 * * *",
+    "path": "/cron/signals/wheres-your-ed-at"
+  },
+  {
+    "source": "chinatalk",
+    "name": "signal-ingest-chinatalk",
+    "schedule": "13 4,16 * * *",
+    "path": "/cron/signals/chinatalk"
+  },
+  {
+    "source": "trail-of-bits",
+    "name": "signal-ingest-trail-of-bits",
+    "schedule": "14 4,16 * * *",
+    "path": "/cron/signals/trail-of-bits"
+  },
+  {
+    "source": "big-technology",
+    "name": "signal-ingest-big-technology",
+    "schedule": "16 4,16 * * *",
+    "path": "/cron/signals/big-technology"
+  },
+  {
+    "source": "pragmatic-engineer",
+    "name": "signal-ingest-pragmatic-engineer",
+    "schedule": "17 4,16 * * *",
+    "path": "/cron/signals/pragmatic-engineer"
+  },
+  {
+    "source": "newcomer",
+    "name": "signal-ingest-newcomer",
+    "schedule": "18 4,16 * * *",
+    "path": "/cron/signals/newcomer"
+  },
+  {
+    "source": "vercel",
+    "name": "signal-ingest-vercel",
+    "schedule": "19 4,16 * * *",
+    "path": "/cron/signals/vercel"
+  },
+  {
+    "source": "voidzero",
+    "name": "signal-ingest-voidzero",
+    "schedule": "21 4,16 * * *",
+    "path": "/cron/signals/voidzero"
+  },
+  {
+    "source": "chips-and-cheese",
+    "name": "signal-ingest-chips-and-cheese",
+    "schedule": "22 4,16 * * *",
+    "path": "/cron/signals/chips-and-cheese"
+  },
+  {
+    "source": "linear",
+    "name": "signal-ingest-linear",
+    "schedule": "23 4,16 * * *",
+    "path": "/cron/signals/linear"
+  },
+  {
+    "source": "ars-technica",
+    "name": "signal-ingest-ars-technica",
+    "schedule": "24 4,16 * * *",
+    "path": "/cron/signals/ars-technica"
+  },
+  {
+    "source": "404-media",
+    "name": "signal-ingest-404-media",
+    "schedule": "26 4,16 * * *",
+    "path": "/cron/signals/404-media"
+  },
+  {
+    "source": "bun",
+    "name": "signal-ingest-bun",
+    "schedule": "27 4,16 * * *",
+    "path": "/cron/signals/bun"
+  },
+  {
+    "source": "ign",
+    "name": "signal-ingest-ign",
+    "schedule": "28 2,8,14,20 * * *",
+    "path": "/cron/signals/ign"
+  },
+  {
+    "source": "pc-gamer",
+    "name": "signal-ingest-pc-gamer",
+    "schedule": "29 2,8,14,20 * * *",
+    "path": "/cron/signals/pc-gamer"
+  },
+  {
+    "source": "playstation-blog",
+    "name": "signal-ingest-playstation-blog",
+    "schedule": "31 2,8,14,20 * * *",
+    "path": "/cron/signals/playstation-blog"
+  },
+  {
+    "source": "xbox-wire",
+    "name": "signal-ingest-xbox-wire",
+    "schedule": "32 2,8,14,20 * * *",
+    "path": "/cron/signals/xbox-wire"
+  },
+  {
+    "source": "gamelook",
+    "name": "signal-ingest-gamelook",
+    "schedule": "33 2,8,14,20 * * *",
+    "path": "/cron/signals/gamelook"
+  },
+  {
+    "source": "yystv",
+    "name": "signal-ingest-yystv",
+    "schedule": "34 2,8,14,20 * * *",
+    "path": "/cron/signals/yystv"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"
