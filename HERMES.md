@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-18 OpenAI Developers Blog 合并接入（openai）
+
+- 在自建 `RSSHub`（`feat/openai-developers-blog` @ `0f560af02` → `master` @ `41e91be7e`，Vercel Production 部署 `7875810449` 于 `2026-11-18T06:17:07Z` 完成，线上 `https://rss.ljhboard.cn/openai/developers/blog`）上线 `OpenAI Developers Blog` 全文路由（Astro SSR HTML 列表+详情页解析全量 `35` 篇、支持 `:lang?` 如 `zh-Hans`、跳过动态 OG 卡片封面并用 JSX 模板输出代码块/表格/图片全文），通过 `oxfmt`、`oxlint --config=.oxlintrc.ci.json`（`0/0`）、`lizard -C 10`、`eslint`、`typecheck`、`build:docs`、`RSSHub-docs` 浏览器可视化检查与 `codex review`（`gpt-6.1-sol` / `high`，无可执行缺陷）；线上实测 `?limit=1`、`?limit=20`（默认）、`?limit=100`（`35` 篇）与 `/zh-Hans?limit=5` 均返回 HTTP `200`。
+- 按**方案 A**在分支 `feat/openai-developers-source` 更新 `@rss-site/signals` 既有的 `openai` 配置（`feeds: ['/openai/news?limit=20', '/openai/developers/blog?limit=20']`、`itemLimit: 30`、`description: '官方新闻与开发者工程博客，英文全文'`），复用现有 `/ai/openai` 入口、`signal-ingest-openai`（`0 */2 * * *`）与 PostgreSQL 约束，无需新增迁移或变更业务 Cron 数量（仍为 `53` 源 / `56` 任务）。
+- 基于线上双 Feed 生成真实 `ingestSignal` 合并验证证据 [openai-developers-local-20261118.json](docs/development/evidence/openai-developers-local-20261118.json)（`30/30` 篇入库：`openai.com` `20` 篇 + `developers.openai.com` `10` 篇、`0` 异常图片链接、`maxContentHtmlBytes = 101,046`、`manifestMatchesRegistry: true`）；`pnpm format:check`、`pnpm lint`、`pnpm check-types`、`pnpm test`（`319 passed | 22 skipped`）、`pnpm build`（`64/64` 静态页）、`render-cron-sql.mjs` 与 `test-release-packaging.py`（`8/8`）全部通过，详情见 [openai-developers-source.md](docs/development/openai-developers-source.md)。
+
 ## 2026-11-18 vLLM Blog 线上自动激活与回归验收
 
 - `rss-site` [PR #95](https://github.com/ljh12138164/rss-site/pull/95) 已合并至 `master`（`f363b8c`），[CI 发布 #44219484831](https://github.com/ljh12138164/rss-site/actions/runs/44219484831) 成功：`sync-business-cron --activate-unverified` 自动验证并激活 `1` 项 PostgreSQL Cron 任务，`listPrewarm` `58/58` 成功，`Verify public site` 通过。

@@ -371,10 +371,13 @@ export const aiSources = [
     name: 'OpenAI',
     code: 'OA',
     shortName: 'OpenAI',
-    description: '综合新闻与官方文章',
+    description: '官方新闻与开发者工程博客，英文全文',
     section: 'ai',
-    itemLimit: 20,
-    rsshubPath: '/openai/news?limit=20',
+    itemLimit: 30,
+    feeds: [
+      { rsshubPath: '/openai/news?limit=20' },
+      { rsshubPath: '/openai/developers/blog?limit=20' }
+    ],
     isArticle: true,
     cronSchedule: '0 */2 * * *',
     cronJobName: 'signal-ingest-openai'

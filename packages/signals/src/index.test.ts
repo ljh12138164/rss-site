@@ -137,6 +137,18 @@ describe('@rss-site/signals', () => {
     ).toEqual(['https://github.blog/feed/'])
   })
 
+  it('merges OpenAI news and developers blog feeds under the openai source', () => {
+    const openai = getSignalSource('openai')
+    expect(openai.itemLimit).toBe(30)
+    expect(resolveSignalFeedUrl(openai, 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/openai/news?limit=20'
+    )
+    expect(resolveSignalFeedUrls(openai, 'https://rss.ljhboard.cn')).toEqual([
+      'https://rss.ljhboard.cn/openai/news?limit=20',
+      'https://rss.ljhboard.cn/openai/developers/blog?limit=20'
+    ])
+  })
+
   it('ensures every cron job has valid format and non-empty schedule', () => {
     for (const job of SIGNAL_CRON_JOBS) {
       expect(job.name).toMatch(/^signal-ingest-[a-z0-9-]+$/)
