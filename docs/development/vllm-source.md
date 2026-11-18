@@ -66,7 +66,23 @@
 - **Accepted follow-ups**: `0`
 - 已核对 `render-cron-sql.mjs` 输出包含 `signal-ingest-vllm` 且不含顶层 `select private.activate_*` 语句，新源 Cron 任务保持 `verified = false` 直至部署后自动验收通过。
 
+## Delivery
+
+- `rss-site` [PR #95](https://github.com/ljh12138164/rss-site/pull/95) 已合并至 `master`（`f363b8c29e2a800fb020328cb0a65c69e8cf234c`），[生产发布运行 #44219484831](https://github.com/ljh12138164/rss-site/actions/runs/44219484831) 成功完成：迁移 `012-vllm-source.sql` 生效，`sync-business-cron --activate-unverified` 自动验证并激活 `1` 项 PostgreSQL Cron 任务，`listPrewarm` `58/58` 成功，`Deployment healthy: sha-f363b8c29e2a800fb020328cb0a65c69e8cf234c` 与 `Verify public site` 通过。
+- 自建 `ljh12138164/RSSHub` 已提前上线 `master @ 693346b621`（同步自 `feat/vllm-blog @ 1d4bc5c9b`），`https://rss.ljhboard.cn/vllm/blog` 生产稳定响应。
+
+## Production regression
+
+- **ECS 运行态与只读数据库验收**：通过 `alibabacloud-workbench-cli`（`--output json`，命令末尾已清理会话与 daemon；全程仅使用容器内环境变量，未输出任何密钥）确认 `rss-site-web-1`（`sha-f363b8c29e2a800fb020328cb0a65c69e8cf234c`）、`rss-site-postgres-1`（`18.7`、`rss-site-postgres:18-cron-v1`）与 `rss-site-redis-1` 均为 `running` / `healthy`，宿主机仅运行 `rss-site-supabase-keepalive.service` 与 `rss-site-postgres-backup.service`，无任何遗留抓源 timer。
+- **调度与权限边界**：`private.business_cron_jobs = 56/56` `verified = true`、`cron.job = 58/58` `active = true`；`rss-site-vllm`（job id `1260`、UTC `45 5,11,17,23 * * *`）已激活，近 24 小时失败调度为 `0`；`rss_site_app` 对 `private.business_cron_settings` 读权限与 `private.dispatch_business_job` 执行权限均为 `false`。
+- **vLLM 生产入库核验**：`ingestion_runs` 批次 `31357ca8-05af-4e89-9a05-758f7a60fc9f` 状态为 `succeeded`（`itemCount = 20`，`2026-11-18T02:04:20.134+00:00`），`source_status`（`ai` / `itemCount = 20`）对齐同一批次；`hot_items` 写入 `20` 条（排名 `1–20` 连续）；`signal_articles` `20/20` `is_indexable = true`，发布时间跨度 `2026-10-16T00:00:00+00:00` 至 `2026-11-12T00:00:00+00:00`，`content_html` 字节数 `11,691–70,090`。
+- **线上公开路由与浏览器可视化回归（`https://news.ljhboard.cn`）**：
+  - `/healthz`（`200`、`15 B`、`{"status":"ok"}`）、`/source-icons/vllm.svg`（`200`、`image/svg+xml`、`3,531 B`）、`/ai`（`200`、`205,464 B`、含 `vLLM` 标签/链接/图标）、`/ai/vllm`（`200`、`160,438 B`、`20` 篇唯一文章链接）、3 篇抽样详情页均返回 `200` 与 `robots: index, follow`。
+  - `/feeds/vllm.xml`（`200`、`9,602 B`、`10` 条）、`/feeds/ai.xml`（`200`、`138,575 B`、`140` 条且含 `20` 条 `vllm`）、`/sitemap.xml`（`200`、`32` 个子站点地图）、`/sitemap/0.xml`（`200`、`2,000` 条且包含 `/ai/vllm/...`）。
+  - 内置浏览器实测 `/ai`、`/ai/vllm`（渲染 `20` 篇文章，`/source-icons/vllm.svg` HTTP `200` / `cf-cache-status: HIT`）及详情页 `inkling-2-small-on-vllm-day-0-support--66dda7cd-2128-4a11-b7e1-5c2d6fdb3319`（`1` 个 `<pre>` 代码块、`2` 个对比 `<table>`、`8,081` 字符正文及 `https://vllm.ai/blog/2026-11-12-inkling2-small` 原文外链，`renderArticleContent` 按预期过滤交互式 `<iframe>` 图表标签并保留图注与表格），全程 `0` 报错；非敏感回归证据记录于 [vllm-production-20261118.json](evidence/vllm-production-20261118.json)。
+
 ## Risks
 
-- 备用 `RSSHub` fork（`ljh-project/RSSHub`）尚未同步主分叉 `693346b62`；当前主站消费 `https://rss.ljhboard.cn` 不受影响，如需切换备用实例 `rss1.ljhboard.cn` 需先点击 **Sync fork**。
+- 已完成 `56/56` 业务来源自动验证并激活 `rss-site-vllm`（job id `1260`，UTC `45 5,11,17,23 * * *`），后续常规抓取由 PostgreSQL `pg_cron` 定时调度持续维护。
+- 备用 `RSSHub` fork（`ljh-project/RSSHub`）尚未同步主分叉 `693346b621`；当前主站消费 `https://rss.ljhboard.cn` 不受影响，如需切换备用实例 `rss1.ljhboard.cn` 需先点击 **Sync fork**。
 - `vLLM` 官网历史文章中个别含大量 MathJax SVG 路径的文章正文会超过 `524,288` 字节单行上限（如 `?limit=100` 中最大条目 `987,545` bytes）；当前 `rss-site` 默认消费前 `20` 篇（最大 `70,090` bytes），且 `parseSignalFeed` 对超过 `512 KiB` 的 `contentHtml` 自动回退为 `null` 并保留文本 `summary`，不会触发数据库约束异常。

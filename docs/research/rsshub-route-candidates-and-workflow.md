@@ -1,7 +1,7 @@
 # RSSHub 待新增路由候选与标准化交付工作流
 
-- **调研日期**：2026-11-13（2026-11-18 同步 Kimi 上游合并与 vLLM Blog 上线进度）
-- **`rss-site` 基线**：`master` @ `192acc0` + `feat/vllm-source`（已接入 `cohere`、`minimax`、`80lv`、`kimi` 与 `vllm`，`packages/signals/src/index.ts` 已注册 `53` 个源，分属 `7` 个分区：`ai` 15、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 7、`skills` 2；`deploy/server/business-jobs.json` 含 `52` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `56` 项）
+- **调研日期**：2026-11-13（2026-11-18 同步 Kimi 上游合并与 vLLM Blog 线上发布验收进度）
+- **`rss-site` 基线**：`master` @ `f363b8c`（PR `#95` 已合入并完成线上自动激活与回归验收；已接入 `cohere`、`minimax`、`80lv`、`kimi` 与 `vllm`，`packages/signals/src/index.ts` 已注册 `53` 个源，分属 `7` 个分区：`ai` 15、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 7、`skills` 2；`deploy/server/business-jobs.json` 含 `52` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `56` 项）
 - **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
 
@@ -44,7 +44,7 @@
 
 | 平台 | 官方 RSS / Atom 地址 | RSSHub 上游状态 | 探测实证（Feed 正文长度 / 原文页状态） |
 | :--- | :--- | :--- | :--- |
-| **vLLM Blog** | `https://vllm.ai/blog/rss.xml` | ✅ 已完成（自建 `https://rss.ljhboard.cn/vllm/blog` 已上线，`master` @ `693346b62`，源分支 `feat/vllm-blog` @ `1d4bc5c9b`）；`rss-site` `feat/vllm-source` 待 PR 合并上线 | Feed 仅含摘要（`50` 条，`rssBodyWords: 194`）；新路由通过 `rss.xml` 发现条目并发抓正文页补全全文、MathJax 公式、代码块、表格、`<video>` 与交互 `<iframe>` 图表，跳过 `/og?` 文字卡片封面；`rss-site` `ai` 分区接入 `vllm`（`/vllm/blog`，`itemLimit: 20`）。 |
+| **vLLM Blog** | `https://vllm.ai/blog/rss.xml` | ✅ 已完成（自建 `https://rss.ljhboard.cn/vllm/blog` 已上线，`master` @ `693346b621`，源分支 `feat/vllm-blog` @ `1d4bc5c9b`）；`rss-site` PR `#95` 已合并至 `master` @ `f363b8c` 并完成线上自动激活与回归验收（待提交上游 `DIYgod/RSSHub` PR） | Feed 仅含摘要（`50` 条，`rssBodyWords: 194`）；新路由通过 `rss.xml` 发现条目并发抓正文页补全全文、MathJax 公式、代码块、表格、`<video>` 与交互 `<iframe>` 图表，跳过 `/og?` 文字卡片封面；`rss-site` `ai` 分区已接入 `vllm`（`/vllm/blog`，`itemLimit: 20`，`pg_cron` job `1260` 已激活）。 |
 | **Apple ML Research** | `https://machinelearning.apple.com/rss.xml` | 缺子路由（`lib/routes/apple` 仅有 `apps.ts`、`design.ts`、`exchange-repair.ts`、`namespace.ts`、`newsroom.ts`、`podcast.ts`、`security-releases.ts`，无 ML 路由） | Feed 仅含摘要（`rssBodyWords: 597`，description only）；文章页 `200`（`31,494` 字节）。 |
 | **Supabase Blog** | `https://supabase.com/rss.xml` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 155`，description only）；文章页 `200`（`175,137` 字节）。 |
 | **Deno Blog** | `https://deno.com/feed` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 66`，description only）；文章页 `200`（`64,335` 字节）。 |
