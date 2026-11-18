@@ -1,7 +1,7 @@
 # RSSHub 待新增路由候选与标准化交付工作流
 
-- **调研日期**：2026-11-13（2026-11-16 同步 Kimi Research Blog 与 80 Level 上线进度）
-- **`rss-site` 基线**：`master` @ `115d06a` + `feat/kimi-source`（已接入 `cohere`、`minimax`、`80lv` 与 `kimi`，`packages/signals/src/index.ts` 已注册 `52` 个源，分属 `7` 个分区：`ai` 14、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 7、`skills` 2；`deploy/server/business-jobs.json` 含 `51` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `55` 项）
+- **调研日期**：2026-11-13（2026-11-18 同步 Kimi 上游合并与 vLLM Blog 上线进度）
+- **`rss-site` 基线**：`master` @ `192acc0` + `feat/vllm-source`（已接入 `cohere`、`minimax`、`80lv`、`kimi` 与 `vllm`，`packages/signals/src/index.ts` 已注册 `53` 个源，分属 `7` 个分区：`ai` 15、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 7、`skills` 2；`deploy/server/business-jobs.json` 含 `52` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `56` 项）
 - **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
 
@@ -18,13 +18,13 @@
 | **Arm Newsroom** | `https://newsroom.arm.com/` | ✅ 已完成（上游 PR `#23872`，`master` @ `0db3292f4`）；`rss-site` PR `#82` 已接入 | 无（HTML 无 RSS link） | 公开 WordPress REST API（`/arm/news` 与 `/arm/blog`）；`rss-site` `technology` 分区已上线 `arm` 合并源。 |
 | **Cohere Blog** | `https://cohere.com/blog` | ✅ 已完成（上游 PR [`#23881`](https://github.com/DIYgod/RSSHub/pull/23881) 已合入）；自建 `https://rss.ljhboard.cn/cohere/blog` 已上线；`rss-site` PR `#88` 已合并 `master` | 无 | 官网同时保留 Sanity Content Lake（`rjtqmwfu.apicdn.sanity.io` / `web3-prod`）与 Ghost Content API 两部分文章。新路由并发合并双源、按 URL 去重时间排序后截取 `limit`，支持 Portable Text 全文、行内/块级 LaTeX 公式、`blogFaqSection` 问答、`keyTakeaways`、表格、代码块及音视频嵌入，并采用 JSX 模板渲染与主机名边界安全校验。 |
 | **MiniMax** | `https://www.minimax.io/blog` / `https://www.minimax.io/news` | ✅ 已完成（自建 `https://rss.ljhboard.cn/minimax/blog` 与 `/minimax/news` 已上线，`master` @ `eaa8bc531`，源分支 `feat/minimax` @ `a31d6de3a`，上游 PR [`#23882`](https://github.com/DIYgod/RSSHub/pull/23882) 已提交）；`rss-site` PR `#89` 已合并 `master` | 无 | 支持可选参数 `:lang?`（默认 `en` 抓取 `minimax.io`，传 `zh-CN`/`zh` 切换 `minimax.cn`）；`/minimax/blog` 解析 SSR 列表并并发提取文章 `.prose` 全文、MathML/KaTeX 公式、图片及 Next.js RSC 内嵌视频；`/minimax/news` 读取官方 `/api/news` 与双排版详情页正文并按规范链接去重，采用 JSX 模板渲染与 CI 零告警重构。 |
-| **Moonshot / Kimi Blog** | `https://www.kimi.com/blog/` | ✅ 已完成（自建 `https://rss.ljhboard.cn/kimi/blog` 已上线，`master` @ `c8477b403`，源分支 `feat/kimi-blog` @ `a6c1a5100`）；`rss-site` `feat/kimi-source` 待 PR 合并上线 | 无 | 解析并重拼 Next.js RSC `__next_f` 分片中的 `articleList.items`（`20` 条，含站内 `/en/blog/*` 长文与 GitHub/HuggingFace/`moonshotai.github.io` 开源项目发布，无显式时区日期按 `UTC+8` 解析）；通过实时 DOM 节点移动循环还原嵌套 Streaming Suspense 槽位表格/视频、清理暗色重复图与隐藏内联样式、保留 KaTeX `<math>` 并基于 `markdown-it` 转换自定义 `<markdown>`/`<latex>` 标签；`rss-site` `ai` 分区接入 `kimi`（`/kimi/blog`，`itemLimit: 20`）。 |
+| **Moonshot / Kimi Blog** | `https://www.kimi.com/blog/` | ✅ 已完成（上游 PR [`#23907`](https://github.com/DIYgod/RSSHub/pull/23907) 已合入；自建 `https://rss.ljhboard.cn/kimi/blog` 已上线，`master` @ `c8477b403`，源分支 `feat/kimi-blog` @ `a6c1a5100`）；`rss-site` [PR #94](https://github.com/ljh12138164/rss-site/pull/94) 已合并 `master` | 无 | 解析并重拼 Next.js RSC `__next_f` 分片中的 `articleList.items`（`20` 条，含站内 `/en/blog/*` 长文与 GitHub/HuggingFace/`moonshotai.github.io` 开源项目发布，无显式时区日期按 `UTC+8` 解析）；通过实时 DOM 节点移动循环还原嵌套 Streaming Suspense 槽位表格/视频、清理暗色重复图与隐藏内联样式、保留 KaTeX `<math>` 并基于 `markdown-it` 转换自定义 `<markdown>`/`<latex>` 标签；`rss-site` `ai` 分区接入 `kimi`（`/kimi/blog`，`itemLimit: 20`）。 |
 
 ### 1.2 游戏 / 游戏技术
 
 | 平台 | 首页 / 列表页 | RSSHub 上游 | 官网原生 RSS | 探测实证与抓取方案 |
 | :--- | :--- | :--- | :--- | :--- |
-| **80 Level** | `https://80.lv/articles/` | ✅ 已完成（自建 `https://rss.ljhboard.cn/80lv/articles` 已上线，`master` @ `dba5a9557`，源分支 `feat/80lv` @ `01c11aa27`）；`rss-site` [PR #92](https://github.com/ljh12138164/rss-site/pull/92) 已合并上线，已完成生产自动激活与线上回归 | 无 | 基于官方公开 API `/api/articles/list` 与 `/api/articles/:slug` 抓取全文，支持 `:category?`（默认 `all` 及 17 个官方分类与 `80-level-china` 汉语标识）及通用 `limit`（1–100）；使用 `hono/jsx/dom/server` `renderToString` 模板还原排版正文、代码块、表格、引用块组、YouTube/Vimeo 嵌入及图片，并发限流 `DETAIL_CONCURRENCY = 5`；`rss-site` `games` 分区已上线 `80lv`（`/80lv/articles?limit=30`，`30/30` 入库并激活 `rss-site-80lv`）。 |
+| **80 Level** | `https://80.lv/articles/` | ✅ 已完成（上游 PR [`#23885`](https://github.com/DIYgod/RSSHub/pull/23885) 已合入；自建 `https://rss.ljhboard.cn/80lv/articles` 已上线，`master` @ `dba5a9557`，源分支 `feat/80lv` @ `01c11aa27`）；`rss-site` [PR #92](https://github.com/ljh12138164/rss-site/pull/92) 已合并上线，已完成生产自动激活与线上回归 | 无 | 基于官方公开 API `/api/articles/list` 与 `/api/articles/:slug` 抓取全文，支持 `:category?`（默认 `all` 及 17 个官方分类与 `80-level-china` 汉语标识）及通用 `limit`（1–100）；使用 `hono/jsx/dom/server` `renderToString` 模板还原排版正文、代码块、表格、引用块组、YouTube/Vimeo 嵌入及图片，并发限流 `DETAIL_CONCURRENCY = 5`；`rss-site` `games` 分区已上线 `80lv`（`/80lv/articles?limit=30`，`30/30` 入库并激活 `rss-site-80lv`）。 |
 | **Unity Blog** | `https://unity.com/blog` | 无（`unity` `404`） | 无 | 列表页 `200`（`761,933` 字节，`next:true`，存在 SSR 标题），可通过 SSR HTML 列表结合原文页面抓取。 |
 
 ### 1.3 较复杂的 SPA / 后端接口型候选（备选）
@@ -44,7 +44,7 @@
 
 | 平台 | 官方 RSS / Atom 地址 | RSSHub 上游状态 | 探测实证（Feed 正文长度 / 原文页状态） |
 | :--- | :--- | :--- | :--- |
-| **vLLM Blog** | `https://vllm.ai/blog/rss.xml` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 194`，description only）；文章页 `200`（`135,862` 字节）。 |
+| **vLLM Blog** | `https://vllm.ai/blog/rss.xml` | ✅ 已完成（自建 `https://rss.ljhboard.cn/vllm/blog` 已上线，`master` @ `693346b62`，源分支 `feat/vllm-blog` @ `1d4bc5c9b`）；`rss-site` `feat/vllm-source` 待 PR 合并上线 | Feed 仅含摘要（`50` 条，`rssBodyWords: 194`）；新路由通过 `rss.xml` 发现条目并发抓正文页补全全文、MathJax 公式、代码块、表格、`<video>` 与交互 `<iframe>` 图表，跳过 `/og?` 文字卡片封面；`rss-site` `ai` 分区接入 `vllm`（`/vllm/blog`，`itemLimit: 20`）。 |
 | **Apple ML Research** | `https://machinelearning.apple.com/rss.xml` | 缺子路由（`lib/routes/apple` 仅有 `apps.ts`、`design.ts`、`exchange-repair.ts`、`namespace.ts`、`newsroom.ts`、`podcast.ts`、`security-releases.ts`，无 ML 路由） | Feed 仅含摘要（`rssBodyWords: 597`，description only）；文章页 `200`（`31,494` 字节）。 |
 | **Supabase Blog** | `https://supabase.com/rss.xml` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 155`，description only）；文章页 `200`（`175,137` 字节）。 |
 | **Deno Blog** | `https://deno.com/feed` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 66`，description only）；文章页 `200`（`64,335` 字节）。 |

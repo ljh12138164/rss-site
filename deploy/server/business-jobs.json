@@ -306,6 +306,12 @@
     "path": "/cron/signals/kimi"
   },
   {
+    "source": "vllm",
+    "name": "signal-ingest-vllm",
+    "schedule": "45 5,11,17,23 * * *",
+    "path": "/cron/signals/vllm"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

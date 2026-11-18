@@ -1,0 +1,48 @@
+{
+  "checkedAt": "2026-11-18T01:43:09.850Z",
+  "source": "vllm",
+  "section": "ai",
+  "feedUrls": ["https://rss.ljhboard.cn/vllm/blog"],
+  "feedByteLengths": [847644],
+  "parsedItems": 20,
+  "fullBodyMatches": 20,
+  "renderedBodyMatches": 20,
+  "publicationDatesVerified": 20,
+  "namedAuthors": 20,
+  "coverImages": 20,
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 70090,
+  "ingestedItems": 20,
+  "uniqueUrls": 20,
+  "consecutiveRanks": true,
+  "manifestMatchesRegistry": true,
+  "releaseSqlIncludesSourceMigration": true,
+  "automaticActivation": false,
+  "productionDatabaseVerified": false,
+  "sampleTop3": [
+    {
+      "position": 1,
+      "title": "DeepSeek-V4.1-Flash on Vera Rubin NVL72: 58x Throughput vs. GB300 NVL72 at 387 tokens/s",
+      "url": "https://vllm.ai/blog/2026-11-12-deepseek-v41-flash-vera-rubin",
+      "author": "Inferact and the vLLM Team",
+      "publishedAt": "2026-11-12T00:00:00.000Z",
+      "contentHtmlBytes": 30471
+    },
+    {
+      "position": 2,
+      "title": "Inkling 2 Small on vLLM: Day-0 Support",
+      "url": "https://vllm.ai/blog/2026-11-12-inkling2-small",
+      "author": "Inferact and Thinking Machines",
+      "publishedAt": "2026-11-12T00:00:00.000Z",
+      "contentHtmlBytes": 15827
+    },
+    {
+      "position": 3,
+      "title": "H3-Image Day-0 Support: 4K in 0.87s with Vera Rubin",
+      "url": "https://vllm.ai/blog/2026-11-12-minimax-h3-image-rubin",
+      "author": "vLLM-Omni team",
+      "publishedAt": "2026-11-12T00:00:00.000Z",
+      "contentHtmlBytes": 19154
+    }
+  ]
+}

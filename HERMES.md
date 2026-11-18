@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-18 vLLM Blog 全文来源接入
+
+- 在自建 `RSSHub`（`feat/vllm-blog` @ `1d4bc5c9b` → `master` @ `693346b62`，线上 `https://rss.ljhboard.cn/vllm/blog`）上线 `vLLM Blog` 全文路由（基于 `https://vllm.ai/blog/rss.xml` 并发补全正文、MathJax 公式、代码块、表格、`<video>` 与交互 `<iframe>` 图表，并跳过动态 `/og?` 文字卡片封面），通过 `oxfmt`、`oxlint --config=.oxlintrc.ci.json`（`0/0`）、`lizard -C 10`、`eslint`、`typecheck`、`build:docs`、`RSSHub-docs` 浏览器可视化验收与 `codex review`（`gpt-6.1-sol` / `high`，无可执行缺陷）。
+- 将 `vllm` 接入 `rss-site` 的 `ai` 分区（全站 `53` 个来源、`ai` 分区 `15` 个来源；`cronSchedule: '45 5,11,17,23 * * *'`），新增官方矢量图标 `apps/web/public/source-icons/vllm.svg`、`012-vllm-source.sql`、`baseline.sql`、`business-jobs.json`（`56` 条业务任务）与 `verify-release-runtime` 校验计数（`56` / `58`），并标注 `011-kimi-source.sql` 被覆盖。
+- 基于真实 `https://rss.ljhboard.cn/vllm/blog` 生成本地 `ingestSignal` 验证证据 [vllm-local-20261118.json](docs/development/evidence/vllm-local-20261118.json)（`20/20` 篇、`847,644` bytes、`0` 异常图片链接、`maxContentHtmlBytes = 70,090`），`biome check`、`render-cron-sql.mjs`、`test-release-packaging.py`（`8/8`）、`pnpm check-types`、`pnpm test`（`318 passed | 22 skipped`）与 `pnpm build`（`64/64` 静态页）全部通过，详情见 [vllm-source.md](docs/development/vllm-source.md)。
+
 ## 2026-11-16 Kimi Research Blog 来源接入
 
 - 在自建 `RSSHub`（`feat/kimi-blog` @ `a6c1a5100` → `master` @ `c8477b403`，线上 `https://rss.ljhboard.cn/kimi/blog`）上线 Kimi 研究博客路由，覆盖 `kimi.com/en/blog/` 站内研究长文（含 Next.js Streaming Suspense 表格/视频与 KaTeX 数学公式）与外链开源模型发布，并通过 `oxfmt`、`oxlint --config=.oxlintrc.ci.json`（`0/0`）、`lizard -C 10`、`eslint`、`typecheck`、`build:docs` 与 3 轮 Codex Review 闭环。
