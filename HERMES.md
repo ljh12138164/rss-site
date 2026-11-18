@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-18 OpenAI Developers Blog 线上发布与回归验收
+
+- `rss-site` [PR #98](https://github.com/ljh12138164/rss-site/pull/98) 已合并至 `master`（`1f97de9`），[CI 发布 #44252855171](https://github.com/ljh12138164/rss-site/actions/runs/44252855171) 成功完成：`sync-business-cron` 同步 `56` 项任务（`No unverified PostgreSQL Cron jobs to activate`），`listPrewarm` `58/58` 成功，`Deployment healthy: sha-1f97de9c4217215daa7587e6ffedb6ff1a5ee2fc` 与 `Verify public site` 通过。
+- ECS 容器 `rss-site-web-1`（`sha-1f97de9`）、`rss-site-postgres-1`（`18.7`、`rss-site-postgres:18-cron-v1`）与 `rss-site-redis-1` 均 healthy，无遗留业务 timer；`private.business_cron_jobs = 56/56` `verified = true`、`cron.job = 58/58` `active = true`（`rss-site-openai` job id `3`，UTC `0 */2 * * *`，近 24 小时 `0` 失败，权限边界均为 `false`）。
+- 在 `rss-site-web-1` 容器内通过官方回环命令 `bun server/api/src/setup/cli.mjs --loopback --json --sources openai` 触发验证并返回 `{"verified":["openai"],"failed":[]}`：批次 `0c241b95-c31b-4aed-bc08-fd952fdee90b` 成功混合入库 `30` 条（`hot_items` 排名 `1–30` 含 `openai.com: 20` + `developers.openai.com: 10`，`signal_articles` 中开发者博客 `10/10` `is_indexable = true`、`8,374–46,795` bytes）；`https://news.ljhboard.cn` `/healthz`、`/ai`、`/ai/openai`（新描述与 `30` 条文章链接，含 `OpenClaw`）、3 篇抽样开发者博客详情页（`200` / `index, follow` / `<pre>` 代码块与 `<table>` 表格）、`/feeds/openai.xml`（`10` 条）、`/feeds/ai.xml`（`140` 条）、`/sitemap/*.xml` 与浏览器端渲染检查（`0` 报错）全部通过，非敏感证据归档至 [openai-developers-production-20261118.json](docs/development/evidence/openai-developers-production-20261118.json)。
+
 ## 2026-11-18 OpenAI Developers Blog 合并接入（openai）
 
 - 在自建 `RSSHub`（`feat/openai-developers-blog` @ `0f560af02` → `master` @ `41e91be7e`，Vercel Production 部署 `7875810449` 于 `2026-11-18T06:17:07Z` 完成，线上 `https://rss.ljhboard.cn/openai/developers/blog`）上线 `OpenAI Developers Blog` 全文路由（Astro SSR HTML 列表+详情页解析全量 `35` 篇、支持 `:lang?` 如 `zh-Hans`、跳过动态 OG 卡片封面并用 JSX 模板输出代码块/表格/图片全文），通过 `oxfmt`、`oxlint --config=.oxlintrc.ci.json`（`0/0`）、`lizard -C 10`、`eslint`、`typecheck`、`build:docs`、`RSSHub-docs` 浏览器可视化检查与 `codex review`（`gpt-6.1-sol` / `high`，无可执行缺陷）；线上实测 `?limit=1`、`?limit=20`（默认）、`?limit=100`（`35` 篇）与 `/zh-Hans?limit=5` 均返回 HTTP `200`。
