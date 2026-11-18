@@ -6,6 +6,31 @@ import { type PublicationStatus, publishSourceUpdate } from './publish'
 import { fetchStcnFeed } from './stcn'
 import { DrizzleSignalStore } from './store'
 
+// Routes from before the RSSHub candidates document, verified on both instances.
+const secondaryRsshubUrls = new Map(
+  [
+    '/hackernews',
+    '/ithome/ranking/24h',
+    '/36kr/hot-list/24',
+    '/cloudflare/blog',
+    '/nvidia/developer/zh-CN?limit=20',
+    '/arm/blog?limit=20',
+    '/news/xhsxw?limit=30',
+    '/thepaper/sidebar/hotNews',
+    '/jiemian/lists/71',
+    '/openai/news?limit=20',
+    '/anthropic/news?limit=20',
+    '/google/antigravity/blog/zh-CN',
+    '/groq/blog',
+    '/bilibili/popular/all',
+    '/coolapk/hot',
+    '/wallstreetcn/hot/day',
+    '/jin10/topic/343',
+    '/gcores/news?limit=20',
+    '/indienova/article'
+  ].map((path) => [`https://rss.ljhboard.cn${path}`, `https://rss1.ljhboard.cn${path}`])
+)
+
 export interface IngestionPipelineOptions {
   db: Database
   rsshubBaseUrl: string
@@ -40,15 +65,19 @@ export async function runIngestionPipeline(
       fetchSignalFeed(url, {
         timeoutMs: source.section === 'skills' ? 90_000 : 30_000
       }))
+  const fetchFeeds = () =>
+    Promise.all(
+      feedUrls.map((url) => {
+        const secondaryUrl = secondaryRsshubUrls.get(url)
+        return secondaryUrl ? fetcher(secondaryUrl).catch(() => fetcher(url)) : fetcher(url)
+      })
+    )
   const store = new DrizzleSignalStore(options.db, source.id, source.section)
 
   const result = await ingestSignal(
     source,
     {
-      fetchFeed:
-        source.id === 'stcn' && !options.fetchFeed
-          ? fetchStcnFeed
-          : () => Promise.all(feedUrls.map((url) => fetcher(url))),
+      fetchFeed: source.id === 'stcn' && !options.fetchFeed ? fetchStcnFeed : fetchFeeds,
       store
     },
     now
