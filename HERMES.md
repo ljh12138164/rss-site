@@ -1,5 +1,10 @@
 # HERMES
 
+## 2026-11-18 现有 RSSHub 抓取分流
+
+- 分支 `feat/rsshub-load-balancing`，基于 `origin/master` 的 `31a68d6`。范围和验收见 [现有 RSSHub 抓取分流](docs/development/rsshub-load-balancing.md)。
+- 19 条旧路径优先走备用实例，抓取失败回主实例一次。旧路径两端各约 100 次首发请求／天。19 条路径双端公网解析通过，全仓测试与类型检查通过。
+
 ## 2026-11-18 OpenAI Developers Blog 线上发布与回归验收
 
 - `rss-site` [PR #98](https://github.com/ljh12138164/rss-site/pull/98) 已合并至 `master`（`1f97de9`），[CI 发布 #44252855171](https://github.com/ljh12138164/rss-site/actions/runs/44252855171) 成功完成：`sync-business-cron` 同步 `56` 项任务（`No unverified PostgreSQL Cron jobs to activate`），`listPrewarm` `58/58` 成功，`Deployment healthy: sha-1f97de9c4217215daa7587e6ffedb6ff1a5ee2fc` 与 `Verify public site` 通过。

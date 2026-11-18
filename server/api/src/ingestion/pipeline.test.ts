@@ -20,10 +20,38 @@ function sampleRssXml(title = 'Test Article', link = 'https://example.com/1') {
 }
 
 describe('runIngestionPipeline', () => {
-  it('executes full pipeline successfully with provided dependencies', async () => {
-    const source = getSignalSource('github-blog')
+  it.each([
+    {
+      sourceId: 'github-blog',
+      expectedUrls: ['https://github.blog/feed/']
+    },
+    {
+      sourceId: 'cloudflare-blog',
+      expectedUrls: ['https://rss1.ljhboard.cn/cloudflare/blog']
+    },
+    {
+      sourceId: 'openai',
+      failUrl: 'https://rss1.ljhboard.cn/openai/news?limit=20',
+      expectedUrls: [
+        'https://rss1.ljhboard.cn/openai/news?limit=20',
+        'https://rss.ljhboard.cn/openai/developers/blog?limit=20',
+        'https://rss.ljhboard.cn/openai/news?limit=20'
+      ]
+    },
+    {
+      sourceId: 'vllm',
+      expectedUrls: ['https://rss.ljhboard.cn/vllm/blog']
+    },
+    {
+      sourceId: 'cloudflare-blog',
+      baseUrl: 'https://rsshub.test/',
+      expectedUrls: ['https://rsshub.test/cloudflare/blog']
+    }
+  ])('$sourceId fetches $expectedUrls', async ({ sourceId, baseUrl, expectedUrls, failUrl }) => {
+    const source = getSignalSource(sourceId)
     const recordedSuccesses: unknown[] = []
     const logMessages: string[] = []
+    const requestedUrls: string[] = []
 
     // Mock database transaction simulating DrizzleSignalStore
     const fakeDb = {
@@ -34,6 +62,11 @@ describe('runIngestionPipeline', () => {
               leftJoin: () => ({
                 where: () => []
               })
+            })
+          }),
+          selectDistinct: () => ({
+            from: () => ({
+              innerJoin: () => ({ innerJoin: () => ({ where: () => [] }) })
             })
           }),
           insert: () => ({
@@ -64,21 +97,26 @@ describe('runIngestionPipeline', () => {
 
     const result = await runIngestionPipeline(source, {
       db: fakeDb,
-      rsshubBaseUrl: 'https://rsshub.test',
-      fetchFeed: async () => sampleRssXml(),
+      rsshubBaseUrl: baseUrl ?? 'https://rss.ljhboard.cn',
+      fetchFeed: async (url) => {
+        requestedUrls.push(url)
+        if (url === failUrl) throw new Error('RSSHub unavailable')
+        return sampleRssXml()
+      },
       logger: {
         info: (msg) => logMessages.push(msg),
         error: vi.fn()
       }
     })
 
-    expect(result.source).toBe('github-blog')
+    expect(requestedUrls).toEqual(expectedUrls)
+    expect(result.source).toBe(sourceId)
     expect(result.itemCount).toBe(1)
     expect(result.changed).toBe(true)
     expect(result.publication).toBe('disabled') // No webAppUrl provided
     expect(logMessages).toHaveLength(1)
     expect(JSON.parse(logMessages[0] ?? '{}')).toMatchObject({
-      source: 'github-blog',
+      source: sourceId,
       itemCount: 1,
       changed: true,
       publication: 'disabled'
