@@ -364,7 +364,7 @@ export const newsSources = [
   }
 ] as const
 
-// AI 平台 (14)
+// AI 平台 (15)
 export const aiSources = [
   {
     id: 'openai',
@@ -523,6 +523,19 @@ export const aiSources = [
     isArticle: true,
     cronSchedule: '40 5,11,17,23 * * *',
     cronJobName: 'signal-ingest-kimi'
+  },
+  {
+    id: 'vllm',
+    name: 'vLLM',
+    code: 'VL',
+    shortName: 'vLLM',
+    description: 'vLLM 官方技术博客、版本发布与模型适配指南，英文全文',
+    section: 'ai',
+    itemLimit: 20,
+    rsshubPath: '/vllm/blog',
+    isArticle: true,
+    cronSchedule: '45 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-vllm'
   },
   {
     id: 'lilian-weng',
@@ -884,7 +897,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'cohere',
   'minimax',
   '80lv',
-  'kimi'
+  'kimi',
+  'vllm'
 ] as const
 
 // Cron jobs
