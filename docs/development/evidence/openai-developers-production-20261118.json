@@ -1,0 +1,184 @@
+{
+  "verifiedAt": "2026-11-18T07:06:36Z",
+  "productionCommit": "1f97de9c4217215daa7587e6ffedb6ff1a5ee2fc",
+  "prUrl": "https://github.com/ljh12138164/rss-site/pull/98",
+  "releaseWorkflowRun": "https://github.com/ljh12138164/rss-site/actions/runs/44252855171",
+  "rsshubMasterCommit": "41e91be7ef9be12692ae7105a4660f3929c10783",
+  "rsshubFeatureBranchCommit": "0f560af02b82b1e077eecf44f91a3ffe6abe67a1",
+  "deployLogSummary": {
+    "conclusion": "success",
+    "cronSyncMessage": "PostgreSQL Cron configuration synchronized; unverified sources remain disabled",
+    "unverifiedMessage": "No unverified PostgreSQL Cron jobs to activate",
+    "listPrewarm": {
+      "status": "succeeded",
+      "total": 58,
+      "succeeded": 58,
+      "failed": []
+    },
+    "healthCheck": "Deployment healthy: sha-1f97de9c4217215daa7587e6ffedb6ff1a5ee2fc",
+    "publicSiteVerified": true
+  },
+  "ecsRuntime": {
+    "databaseVersion": "18.7",
+    "containers": [
+      {
+        "name": "rss-site-postgres-1",
+        "health": "healthy",
+        "image": "rss-site-postgres:18-cron-v1"
+      },
+      {
+        "name": "rss-site-redis-1",
+        "health": "healthy",
+        "image": "7b1753b4c5ad"
+      },
+      {
+        "name": "rss-site-web-1",
+        "health": "healthy",
+        "image": "rss-site-web:sha-1f97de9c4217215daa7587e6ffedb6ff1a5ee2fc"
+      }
+    ],
+    "activeSystemdTimers": ["rss-site-postgres-backup.timer", "rss-site-supabase-keepalive.timer"]
+  },
+  "loopbackVerification": {
+    "command": "bun server/api/src/setup/cli.mjs --loopback --json --sources openai",
+    "verified": ["openai"],
+    "failed": []
+  },
+  "scheduler": {
+    "businessTotal": 56,
+    "businessVerified": 56,
+    "cronTotal": 58,
+    "cronActive": 58,
+    "jobOpenaiVerified": true,
+    "cronOpenaiJobId": 3,
+    "cronOpenaiJobName": "rss-site-openai",
+    "cronOpenaiSchedule": "0 */2 * * *",
+    "cronOpenaiActive": true,
+    "failedCronRuns24h": 0,
+    "appCanReadSecret": false,
+    "appCanDispatch": false
+  },
+  "openai": {
+    "ingestionRun": {
+      "id": "0c241b95-c31b-4aed-bc08-fd952fdee90b",
+      "status": "succeeded",
+      "itemCount": 30,
+      "startedAt": "2026-11-18T06:58:18.418+00:00",
+      "finishedAt": "2026-11-18T06:58:18.418+00:00"
+    },
+    "sourceStatus": {
+      "source": "openai",
+      "section": "ai",
+      "itemCount": 30,
+      "lastSuccessAt": "2026-11-18T06:58:18.418+00:00",
+      "lastBatchId": "0c241b95-c31b-4aed-bc08-fd952fdee90b"
+    },
+    "hotItemsSummary": {
+      "rows": 30,
+      "minPosition": 1,
+      "maxPosition": 30,
+      "openaiComRows": 20,
+      "developersOpenaiComRows": 10
+    },
+    "signalArticlesSummary": {
+      "totalRows": 229,
+      "indexableRows": 228,
+      "developersOpenaiComTotal": 10,
+      "developersOpenaiComIndexable": 10,
+      "overallOldestPublishedAt": "2026-08-26T00:00:00+00:00",
+      "overallNewestPublishedAt": "2026-11-17T17:45:00+00:00",
+      "devOldestPublishedAt": "2026-08-28T00:00:00+00:00",
+      "devNewestPublishedAt": "2026-11-12T00:00:00+00:00",
+      "devMinContentHtmlBytes": 8374,
+      "devMaxContentHtmlBytes": 46795
+    }
+  },
+  "publicRoutes": {
+    "healthz": {
+      "path": "/healthz",
+      "status": 200,
+      "bytes": 15,
+      "body": "{\"status\":\"ok\"}"
+    },
+    "aiSection": {
+      "path": "/ai",
+      "status": 200,
+      "bytes": 207488,
+      "hasOpenaiLink": true
+    },
+    "aiOpenai": {
+      "path": "/ai/openai",
+      "status": 200,
+      "bytes": 196359,
+      "uniqueArticleLinks": 30,
+      "hasUpdatedDesc": true,
+      "includesOpenClawDevPost": true
+    },
+    "sampleDevDetails": [
+      {
+        "path": "/ai/openai/securing-persistent-agents-like-openclaw-at-openai--b0526f26-edab-4b46-b841-1a41337bde89",
+        "status": 200,
+        "bytes": 131011,
+        "robots": "index, follow",
+        "outbound": "https://developers.openai.com/blog/securing-persistent-agents-like-openclaw-at-openai",
+        "hasPre": true,
+        "hasTable": false
+      },
+      {
+        "path": "/ai/openai/pushing-voice-agents-further-inside-four-gpt-live-builds--be91e035-d35c-4cb9-84b2-7c2a81592f38",
+        "status": 200,
+        "bytes": 181879,
+        "robots": "index, follow",
+        "outbound": "https://developers.openai.com/blog/pushing-voice-agents-further",
+        "hasPre": true,
+        "hasTable": true
+      },
+      {
+        "path": "/ai/openai/building-a-retro-handheld-game-with-codex-and-modretro-c--11016029-1d7c-4e39-a873-35c892b09b3b",
+        "status": 200,
+        "bytes": 115483,
+        "robots": "index, follow",
+        "outbound": "https://developers.openai.com/blog/build-a-game-with-modretro-chromatic",
+        "hasPre": false,
+        "hasTable": false
+      }
+    ],
+    "feedOpenai": {
+      "path": "/feeds/openai.xml",
+      "status": 200,
+      "bytes": 9565,
+      "items": 10
+    },
+    "feedAi": {
+      "path": "/feeds/ai.xml",
+      "status": 200,
+      "bytes": 138575,
+      "items": 140
+    },
+    "sitemaps": {
+      "indexStatus": 200,
+      "subSitemaps": 32,
+      "sitemap0Status": 200,
+      "sitemap0Locs": 2000,
+      "matchedDevUrlsCount": 6
+    }
+  },
+  "browserCheck": {
+    "origin": "https://news.ljhboard.cn",
+    "visitedRoutes": [
+      "/ai",
+      "/ai/openai",
+      "/ai/openai/securing-persistent-agents-like-openclaw-at-openai--b0526f26-edab-4b46-b841-1a41337bde89"
+    ],
+    "renderedArticlesOnSourcePage": 30,
+    "sourceDescriptionVisible": true,
+    "detailAuthor": "Kevin S Lin",
+    "detailDateDisplay": "2026年11月12日 08:00",
+    "detailPreBlocks": 2,
+    "detailCodeElements": 7,
+    "detailBodyChars": 9298,
+    "detailOutboundLink": "https://developers.openai.com/blog/securing-persistent-agents-like-openclaw-at-openai",
+    "consoleErrorCount": 0,
+    "http4xxOr5xxCount": 0
+  }
+}

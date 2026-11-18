@@ -77,7 +77,18 @@
 
 ## Delivery
 
-- 待评审与合并分支：`feat/openai-developers-source` -> `master`（通过 `gh pr create` 创建 PR）。
+- `rss-site` [PR #98](https://github.com/ljh12138164/rss-site/pull/98) 已合并至 `master`（`1f97de9c4217215daa7587e6ffedb6ff1a5ee2fc`），[生产发布运行 #44252855171](https://github.com/ljh12138164/rss-site/actions/runs/44252855171) 成功完成：`PostgreSQL Cron configuration synchronized`（存量已激活任务 `No unverified PostgreSQL Cron jobs to activate`）、`listPrewarm` `58/58` 成功、`Deployment healthy: sha-1f97de9c4217215daa7587e6ffedb6ff1a5ee2fc` 与 `Verify public site` 通过。
+- 自建 `ljh12138164/RSSHub` 已上线 `master @ 41e91be7ef9be12692ae7105a4660f3929c10783`（同步自 `feat/openai-developers-blog @ 0f560af02b82b1e077eecf44f91a3ffe6abe67a1`，Vercel Production deployment `7875810449`）。
+
+## Production regression
+
+- **ECS 运行态与只读数据库验收**：通过 `alibabacloud-workbench-cli`（`--output json`，命令末尾已清理会话与 daemon；全程仅使用容器内环境变量，未输出任何密钥）确认 `rss-site-web-1`（`sha-1f97de9c4217215daa7587e6ffedb6ff1a5ee2fc`）、`rss-site-postgres-1`（`18.7`、`rss-site-postgres:18-cron-v1`）与 `rss-site-redis-1` 均为 `healthy`，宿主机仅激活 `rss-site-postgres-backup.timer` 与 `rss-site-supabase-keepalive.timer`，无任何遗留业务抓源 timer。
+- **调度与权限边界**：`private.business_cron_jobs = 56/56` `verified = true`、`cron.job = 58/58` `active = true`；`rss-site-openai`（job id `3`、UTC `0 */2 * * *`、path `/cron/signals/openai`）保持激活且 `verified = true`，近 24 小时失败调度为 `0`；`rss_site_app` 对 `private.business_cron_settings` 读权限与 `private.dispatch_business_job(text, integer)` 执行权限均为 `false`。
+- **回环抓取校验与生产入库核验**：因 `openai` 为既有已验证任务且合并时间距下一次定时调度（`08:00 UTC`）尚有间隔，通过 `rss-site-web-1` 容器内官方回环命令 `bun server/api/src/setup/cli.mjs --loopback --json --sources openai` 触发校验，返回 `{"verified":["openai"],"failed":[]}`。`ingestion_runs` 批次 `0c241b95-c31b-4aed-bc08-fd952fdee90b` 状态为 `succeeded`（`item_count = 30`，`2026-11-18T06:58:18.418+00:00`），`source_status`（`ai` / `item_count = 30`）对齐同一批次；`hot_items` 写入 `30` 条（排名 `1–30`：`openai.com` `20` 条 + `developers.openai.com` `10` 条）；`signal_articles` 总计 `229` 条（`228` 条可索引），其中 `developers.openai.com` `10/10` 均 `is_indexable = true`，发布时间跨度 `2026-08-28T00:00:00+00:00` 至 `2026-11-12T00:00:00+00:00`，`content_html` 字节数 `8,374–46,795`。
+- **线上公开路由与浏览器可视化回归（`https://news.ljhboard.cn`）**：
+  - `/healthz`（`200`、`15 B`、`{"status":"ok"}`）、`/ai`（`200`、`207,488 B`、含 `/ai/openai` 入口）、`/ai/openai`（`200`、`196,359 B`、渲染新描述 `'官方新闻与开发者工程博客'` 与 `30` 篇唯一文章链接，其中 `#25` 为 `securing-persistent-agents-like-openclaw-at-openai--b0526f26-edab-4b46-b841-1a41337bde89`；注：因 `/ai/openai` 列表页按全量历史文章时间倒序展示前 30 条，近期已入库的多篇 `openai.com/news` 排在前列，其余开发者博客正文通过 `/sitemap/*.xml` 与直链完整可访）。
+  - 3 篇抽样 `developers.openai.com` 详情页均返回 HTTP `200` 与 `robots: index, follow`：`OpenClaw`（`131,011 B`，含 `<pre>`）、`Pushing voice agents further`（`181,879 B`，含 `<pre>` 与 `<table>`）及 `ModRetro Chromatic`（`115,483 B`），均包含对应 `https://developers.openai.com/blog/...` 原文外链；`/feeds/openai.xml`（`200`、`9,565 B`、`10` 条）、`/feeds/ai.xml`（`200`、`138,575 B`、`140` 条）与 `/sitemap.xml`（`200`、`32` 个子站点地图，在 `/sitemap/3.xml`、`/sitemap/4.xml`、`/sitemap/15.xml`、`/sitemap/18.xml` 收录开发者博客链接）均正常响应。
+  - 内置浏览器实测 `/ai`、`/ai/openai`（`30` 篇文章，新描述与 OpenAI 图标无布局异常）及点击进入 `OpenClaw` 详情页（作者 `Kevin S Lin`、`2026年11月12日 08:00`、`2` 个 `<pre>` 代码块、`7` 个 `<code>`、`9,298` 字符正文及原文外链），全程 `0` 控制台报错与 `0` 4xx/5xx 请求；非敏感证据归档至 [openai-developers-production-20261118.json](evidence/openai-developers-production-20261118.json)。
 
 ## Risks
 
