@@ -1,0 +1,93 @@
+{
+  "checkedAt": "2026-11-18T06:21:31.874Z",
+  "source": "openai",
+  "section": "ai",
+  "itemLimit": 30,
+  "feedUrls": [
+    "https://rss.ljhboard.cn/openai/news?limit=20",
+    "https://rss.ljhboard.cn/openai/developers/blog?limit=20"
+  ],
+  "feedByteLengths": [1002973, 555248],
+  "parsedAndIngestedItems": 30,
+  "hostBreakdown": {
+    "openai.com": 20,
+    "developers.openai.com": 10
+  },
+  "fullBodyMatches": 30,
+  "renderedBodyMatches": 30,
+  "publicationDatesVerified": 30,
+  "namedAuthors": 12,
+  "coverImages": 18,
+  "devBlogMetrics": {
+    "itemsInMergedTop30": 10,
+    "renderedBodyMatches": 10,
+    "namedAuthors": 10,
+    "coverImages": 10
+  },
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 101046,
+  "uniqueUrls": 30,
+  "consecutiveRanks": true,
+  "manifestMatchesRegistry": true,
+  "existingVerifiedCronPreserved": true,
+  "databaseMigrationRequired": false,
+  "productionDatabaseVerified": false,
+  "sampleTop3": [
+    {
+      "position": 1,
+      "host": "openai.com",
+      "title": "Introducing GPT-6.2 Astra and Sol",
+      "url": "https://openai.com/index/introducing-gpt-6-2-astra-sol",
+      "author": null,
+      "publishedAt": "2026-11-17T17:45:00.000Z",
+      "contentHtmlBytes": 95289
+    },
+    {
+      "position": 2,
+      "host": "openai.com",
+      "title": "Introducing ChatGPT for Sales",
+      "url": "https://openai.com/index/introducing-chatgpt-for-sales",
+      "author": null,
+      "publishedAt": "2026-11-17T08:00:00.000Z",
+      "contentHtmlBytes": 52436
+    },
+    {
+      "position": 3,
+      "host": "openai.com",
+      "title": "Strengthening NATO and allied cyber defenses with AI",
+      "url": "https://openai.com/index/strengthening-nato-allied-cyber-defences-ai",
+      "author": null,
+      "publishedAt": "2026-11-17T00:00:00.000Z",
+      "contentHtmlBytes": 21455
+    }
+  ],
+  "sampleDevTop3": [
+    {
+      "position": 21,
+      "title": "Securing persistent agents like OpenClaw at OpenAI",
+      "url": "https://developers.openai.com/blog/securing-persistent-agents-like-openclaw-at-openai",
+      "author": "Kevin S Lin",
+      "publishedAt": "2026-11-12T00:00:00.000Z",
+      "contentHtmlBytes": 20911,
+      "renderedHtmlBytes": 12604
+    },
+    {
+      "position": 22,
+      "title": "Pushing voice agents further: inside four GPT-Live builds",
+      "url": "https://developers.openai.com/blog/pushing-voice-agents-further",
+      "author": "Eva Sasson, Ethan Pereira",
+      "publishedAt": "2026-11-10T00:00:00.000Z",
+      "contentHtmlBytes": 46795,
+      "renderedHtmlBytes": 33705
+    },
+    {
+      "position": 23,
+      "title": "Building a retro handheld game with Codex and ModRetro Chromatic",
+      "url": "https://developers.openai.com/blog/build-a-game-with-modretro-chromatic",
+      "author": "Kevin Whinnery",
+      "publishedAt": "2026-11-09T00:00:00.000Z",
+      "contentHtmlBytes": 12604,
+      "renderedHtmlBytes": 7328
+    }
+  ]
+}
