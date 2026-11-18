@@ -87,7 +87,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
   }
 ] as const
 
-// 科技 Technology (12)
+// 科技 Technology (25)
 export const technologySources = [
   {
     id: 'github',
@@ -247,6 +247,178 @@ export const technologySources = [
     isArticle: true,
     cronSchedule: '15 5,11,17,23 * * *',
     cronJobName: 'signal-ingest-arm'
+  },
+  {
+    id: 'wheres-your-ed-at',
+    name: 'Where’s Your Ed At',
+    code: 'ED',
+    shortName: 'Ed Zitron',
+    description: 'Ed Zitron 的科技产业评论',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://www.wheresyoured.at/rss/',
+    isArticle: true,
+    cronSchedule: '12 4,16 * * *',
+    cronJobName: 'signal-ingest-wheres-your-ed-at'
+  },
+  {
+    id: 'chinatalk',
+    name: 'ChinaTalk',
+    code: 'CT',
+    shortName: 'ChinaTalk',
+    description: '中国科技、芯片与政策分析',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://www.chinatalk.media/feed',
+    isArticle: true,
+    cronSchedule: '13 4,16 * * *',
+    cronJobName: 'signal-ingest-chinatalk'
+  },
+  {
+    id: 'trail-of-bits',
+    name: 'Trail of Bits Blog',
+    code: 'TB',
+    shortName: 'Trail of Bits',
+    description: '软件安全研究与工程实践',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://blog.trailofbits.com/feed/',
+    isArticle: true,
+    cronSchedule: '14 4,16 * * *',
+    cronJobName: 'signal-ingest-trail-of-bits'
+  },
+  {
+    id: 'big-technology',
+    name: 'Big Technology',
+    code: 'BT',
+    shortName: 'Big Technology',
+    description: '大型科技公司与产业报道',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://www.bigtechnology.com/feed',
+    isArticle: true,
+    cronSchedule: '16 4,16 * * *',
+    cronJobName: 'signal-ingest-big-technology'
+  },
+  {
+    id: 'pragmatic-engineer',
+    name: 'The Pragmatic Engineer',
+    code: 'PE',
+    shortName: 'Pragmatic Engineer',
+    description: '软件工程团队与开发实务',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://blog.pragmaticengineer.com/rss/',
+    isArticle: true,
+    cronSchedule: '17 4,16 * * *',
+    cronJobName: 'signal-ingest-pragmatic-engineer'
+  },
+  {
+    id: 'newcomer',
+    name: 'Newcomer',
+    code: 'NC',
+    shortName: 'Newcomer',
+    description: '创业公司与科技投资报道',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://www.newcomer.co/feed',
+    isArticle: true,
+    cronSchedule: '18 4,16 * * *',
+    cronJobName: 'signal-ingest-newcomer'
+  },
+  {
+    id: 'vercel',
+    name: 'Vercel',
+    code: 'VC',
+    shortName: 'Vercel',
+    description: 'Vercel 官方博客与更新日志',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://vercel.com/atom',
+    isArticle: true,
+    cronSchedule: '19 4,16 * * *',
+    cronJobName: 'signal-ingest-vercel'
+  },
+  {
+    id: 'voidzero',
+    name: 'VoidZero',
+    code: 'VZ',
+    shortName: 'VoidZero',
+    description: 'JavaScript 工具链与开源项目动态',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://voidzero.dev/feed.xml',
+    isArticle: true,
+    cronSchedule: '21 4,16 * * *',
+    cronJobName: 'signal-ingest-voidzero'
+  },
+  {
+    id: 'chips-and-cheese',
+    name: 'Chips and Cheese',
+    code: 'CC',
+    shortName: 'Chips and Cheese',
+    description: '芯片架构与性能分析',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://chipsandcheese.com/feed/',
+    isArticle: true,
+    cronSchedule: '22 4,16 * * *',
+    cronJobName: 'signal-ingest-chips-and-cheese'
+  },
+  {
+    id: 'linear',
+    name: 'Linear Now',
+    code: 'LN',
+    shortName: 'Linear',
+    description: 'Linear 产品、设计与团队实践',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://linear.app/rss/now.xml',
+    isArticle: true,
+    cronSchedule: '23 4,16 * * *',
+    cronJobName: 'signal-ingest-linear'
+  },
+  {
+    id: 'ars-technica',
+    name: 'Ars Technica',
+    code: 'AT',
+    shortName: 'Ars Technica',
+    description: 'Ars Technica 的科技与 AI 报道',
+    section: 'technology',
+    itemLimit: 20,
+    feeds: [
+      { feedUrl: 'https://arstechnica.com/information-technology/feed/' },
+      { feedUrl: 'https://arstechnica.com/ai/feed/' }
+    ],
+    isArticle: true,
+    cronSchedule: '24 4,16 * * *',
+    cronJobName: 'signal-ingest-ars-technica'
+  },
+  {
+    id: '404-media',
+    name: '404 Media',
+    code: '404',
+    shortName: '404 Media',
+    description: '独立科技调查与报道',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://404media.co/rss/',
+    isArticle: true,
+    cronSchedule: '26 4,16 * * *',
+    cronJobName: 'signal-ingest-404-media'
+  },
+  {
+    id: 'bun',
+    name: 'Bun',
+    code: 'BN',
+    shortName: 'Bun',
+    description: 'Bun 官方版本发布与更新说明',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://bun.com/rss.xml',
+    isArticle: true,
+    cronSchedule: '27 4,16 * * *',
+    cronJobName: 'signal-ingest-bun'
   }
 ] as const
 
@@ -364,7 +536,7 @@ export const newsSources = [
   }
 ] as const
 
-// AI 平台 (15)
+// AI 平台 (24)
 export const aiSources = [
   {
     id: 'openai',
@@ -565,6 +737,123 @@ export const aiSources = [
     isArticle: true,
     cronSchedule: '55 3,9,15,21 * * *',
     cronJobName: 'signal-ingest-simon-willison'
+  },
+  {
+    id: 'metr',
+    name: 'METR',
+    code: 'MT',
+    shortName: 'METR',
+    description: 'AI 模型能力与安全评估研究',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://metr.org/feed.xml',
+    isArticle: true,
+    cronSchedule: '1 6,18 * * *',
+    cronJobName: 'signal-ingest-metr'
+  },
+  {
+    id: 'bair',
+    name: 'Berkeley AI Research',
+    code: 'BR',
+    shortName: 'BAIR',
+    description: '伯克利人工智能研究实验室博客',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://bair.berkeley.edu/blog/feed.xml',
+    isArticle: true,
+    cronSchedule: '2 6,18 * * *',
+    cronJobName: 'signal-ingest-bair'
+  },
+  {
+    id: 'ahead-of-ai',
+    name: 'Ahead of AI',
+    code: 'AA',
+    shortName: 'Ahead of AI',
+    description: 'Sebastian Raschka 的大模型技术专栏',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://magazine.sebastianraschka.com/feed',
+    isArticle: true,
+    cronSchedule: '3 6,18 * * *',
+    cronJobName: 'signal-ingest-ahead-of-ai'
+  },
+  {
+    id: 'aws-ml',
+    name: 'AWS Machine Learning Blog',
+    code: 'AW',
+    shortName: 'AWS ML',
+    description: 'AWS 机器学习工程与实践',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://aws.amazon.com/blogs/machine-learning/feed/',
+    isArticle: true,
+    cronSchedule: '4 6,18 * * *',
+    cronJobName: 'signal-ingest-aws-ml'
+  },
+  {
+    id: 'redwood-research',
+    name: 'Redwood Research',
+    code: 'RR',
+    shortName: 'Redwood',
+    description: '前沿 AI 安全研究',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://blog.redwoodresearch.org/feed',
+    isArticle: true,
+    cronSchedule: '6 6,18 * * *',
+    cronJobName: 'signal-ingest-redwood-research'
+  },
+  {
+    id: 'interconnects',
+    name: 'Interconnects',
+    code: 'IC',
+    shortName: 'Interconnects',
+    description: 'Nathan Lambert 的开放模型与 AI 研究专栏',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://www.interconnects.ai/feed',
+    isArticle: true,
+    cronSchedule: '7 6,18 * * *',
+    cronJobName: 'signal-ingest-interconnects'
+  },
+  {
+    id: 'import-ai',
+    name: 'Import AI',
+    code: 'IA',
+    shortName: 'Import AI',
+    description: 'Jack Clark 的 AI 研究与政策周报',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://importai.substack.com/feed',
+    isArticle: true,
+    cronSchedule: '8 6,18 * * *',
+    cronJobName: 'signal-ingest-import-ai'
+  },
+  {
+    id: 'latent-space',
+    name: 'Latent Space',
+    code: 'LS',
+    shortName: 'Latent Space',
+    description: 'AI 工程访谈与行业动态',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://www.latent.space/feed',
+    isArticle: true,
+    cronSchedule: '9 6,18 * * *',
+    cronJobName: 'signal-ingest-latent-space'
+  },
+  {
+    id: 'dwarkesh',
+    name: 'Dwarkesh Patel',
+    code: 'DP',
+    shortName: 'Dwarkesh',
+    description: 'AI、科技与研究者长访谈',
+    section: 'ai',
+    itemLimit: 20,
+    feedUrl: 'https://www.dwarkesh.com/feed',
+    isArticle: true,
+    cronSchedule: '11 6,18 * * *',
+    cronJobName: 'signal-ingest-dwarkesh'
   }
 ] as const
 
@@ -719,7 +1008,7 @@ export const financeSources = [
   }
 ] as const
 
-// 游戏 Games (7)
+// 游戏 Games (13)
 export const gameSources = [
   {
     id: '3dmgame',
@@ -811,6 +1100,84 @@ export const gameSources = [
     isArticle: true,
     cronSchedule: '35 5,11,17,23 * * *',
     cronJobName: 'signal-ingest-80lv'
+  },
+  {
+    id: 'ign',
+    name: 'IGN',
+    code: 'IGN',
+    shortName: 'IGN',
+    description: 'IGN 游戏报道与评测',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://ign.com/rss/articles/feed?tags=games',
+    isArticle: true,
+    cronSchedule: '28 2,8,14,20 * * *',
+    cronJobName: 'signal-ingest-ign'
+  },
+  {
+    id: 'pc-gamer',
+    name: 'PC Gamer',
+    code: 'PC',
+    shortName: 'PC Gamer',
+    description: 'PC 游戏新闻与评测',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://www.pcgamer.com/rss/',
+    isArticle: true,
+    cronSchedule: '29 2,8,14,20 * * *',
+    cronJobName: 'signal-ingest-pc-gamer'
+  },
+  {
+    id: 'playstation-blog',
+    name: 'PlayStation.Blog 繁體中文',
+    code: 'PS',
+    shortName: 'PlayStation',
+    description: 'PlayStation 官方繁体中文游戏动态',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://blog.zh-hant.playstation.com/feed/',
+    isArticle: true,
+    cronSchedule: '31 2,8,14,20 * * *',
+    cronJobName: 'signal-ingest-playstation-blog'
+  },
+  {
+    id: 'xbox-wire',
+    name: 'Xbox Wire',
+    code: 'XB',
+    shortName: 'Xbox Wire',
+    description: 'Xbox 官方游戏与平台动态',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://news.xbox.com/en-us/feed/',
+    isArticle: true,
+    cronSchedule: '32 2,8,14,20 * * *',
+    cronJobName: 'signal-ingest-xbox-wire'
+  },
+  {
+    id: 'gamelook',
+    name: 'GameLook',
+    code: 'GK',
+    shortName: 'GameLook',
+    description: '游戏产业报道与市场分析',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'http://www.gamelook.com.cn/feed/',
+    isArticle: true,
+    cronSchedule: '33 2,8,14,20 * * *',
+    cronJobName: 'signal-ingest-gamelook'
+  },
+  {
+    id: 'yystv',
+    name: '游研社',
+    code: 'YY',
+    shortName: '游研社',
+    description: '游戏新闻与文化特稿',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://www.yystv.cn/rss/feed',
+    isArticle: true,
+    cronSchedule: '34 2,8,14,20 * * *',
+    cronJobName: 'signal-ingest-yystv'
   }
 ] as const
 
@@ -901,7 +1268,35 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'minimax',
   '80lv',
   'kimi',
-  'vllm'
+  'vllm',
+  'metr',
+  'bair',
+  'ahead-of-ai',
+  'aws-ml',
+  'redwood-research',
+  'interconnects',
+  'import-ai',
+  'latent-space',
+  'dwarkesh',
+  'wheres-your-ed-at',
+  'chinatalk',
+  'trail-of-bits',
+  'big-technology',
+  'pragmatic-engineer',
+  'newcomer',
+  'vercel',
+  'voidzero',
+  'chips-and-cheese',
+  'linear',
+  'ars-technica',
+  '404-media',
+  'bun',
+  'ign',
+  'pc-gamer',
+  'playstation-blog',
+  'xbox-wire',
+  'gamelook',
+  'yystv'
 ] as const
 
 // Cron jobs

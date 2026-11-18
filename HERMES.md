@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-18 候选来源原生 Feed 采集
+
+- 分支 `feat/native-feed-ingestion`，基于 `origin/master` 的 `df22f26`。接入 28 个可直连官方 Feed 的来源，补充 Atom XHTML 解析。
+- 29 条官方 Feed 的匿名探测和 507 条采集结果通过本地验证，全仓测试、类型与发布打包检查通过。范围与证据见 [候选来源原生 Feed 采集](docs/development/native-feed-ingestion.md)。
+- [PR #101](https://github.com/ljh12138164/rss-site/pull/101) 提交至 `master`。合并发布后核对生产试抓、任务激活与页面渲染。
+
 ## 2026-11-18 现有 RSSHub 抓取分流
 
 - 分支 `feat/rsshub-load-balancing`，基于 `origin/master` 的 `31a68d6`。范围和验收见 [现有 RSSHub 抓取分流](docs/development/rsshub-load-balancing.md)。

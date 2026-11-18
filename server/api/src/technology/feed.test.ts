@@ -238,4 +238,31 @@ describe('parseTechnologyFeed', () => {
       position: 1
     })
   })
+
+  it('preserves Atom XHTML content and multiple authors', () => {
+    const xml = `<feed xmlns="http://www.w3.org/2005/Atom">
+      <entry>
+        <title>Release notes</title>
+        <link href="https://example.com/releases/1" />
+        <updated>2026-11-17T20:00:00Z</updated>
+        <content type="xhtml">
+          <div xmlns="http://www.w3.org/1999/xhtml">
+            <p>Read the <a href="https://example.com/guide">guide.</a></p>
+            <img src="/release.png" />
+          </div>
+        </content>
+        <author><name>Alice</name></author>
+        <author><name>Bob</name></author>
+      </entry>
+    </feed>`
+
+    const [item] = parseTechnologyFeed(xml, 'Tech Blog')
+    expect(item).toMatchObject({
+      author: 'Alice, Bob',
+      summary: 'Read the guide.',
+      imageUrl: 'https://example.com/release.png',
+      publishedAt: new Date('2026-11-17T20:00:00Z')
+    })
+    expect(item?.contentHtml).toContain('<a href="https://example.com/guide">guide.</a>')
+  })
 })

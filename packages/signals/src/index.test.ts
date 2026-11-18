@@ -22,22 +22,22 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 53 sources', () => {
+  it('defines 7 sections and 81 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(53)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(53)
+    expect(signalSources).toHaveLength(81)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(81)
   })
 
   it('correctly maps all section counts', () => {
-    expect(technologySources).toHaveLength(12)
-    expect(technologyArticleSources).toHaveLength(11)
+    expect(technologySources).toHaveLength(25)
+    expect(technologyArticleSources).toHaveLength(24)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
-    expect(aiSources).toHaveLength(15)
+    expect(aiSources).toHaveLength(24)
     expect(socialSources).toHaveLength(6)
     expect(financeSources).toHaveLength(5)
-    expect(gameSources).toHaveLength(7)
+    expect(gameSources).toHaveLength(13)
   })
 
   it('retrieves source and section by id', () => {
@@ -72,7 +72,7 @@ describe('@rss-site/signals', () => {
 
   it('filters sources by section and isArticle', () => {
     const techArticles = listSignalSources({ section: 'technology', isArticle: true })
-    expect(techArticles).toHaveLength(11)
+    expect(techArticles).toHaveLength(24)
     expect(techArticles.some((s) => s.id === 'github')).toBe(false)
 
     const allSkills = listSignalSources({ section: 'skills' })
@@ -84,6 +84,14 @@ describe('@rss-site/signals', () => {
     expect(resolveSignalFeedUrl(rsshubSource, 'https://rsshub.app')).toBe(
       'https://rsshub.app/hackernews'
     )
+
+    expect(resolveSignalFeedUrl(getSignalSource('metr'), 'https://rsshub.app')).toBe(
+      'https://metr.org/feed.xml'
+    )
+    expect(resolveSignalFeedUrls(getSignalSource('ars-technica'), 'https://rsshub.app')).toEqual([
+      'https://arstechnica.com/information-technology/feed/',
+      'https://arstechnica.com/ai/feed/'
+    ])
 
     expect(resolveSignalFeedUrl(getSignalSource('groq'), 'https://rss.ljhboard.cn')).toBe(
       'https://rss.ljhboard.cn/groq/blog'
