@@ -1,9 +1,32 @@
 # RSSHub 待新增路由候选与标准化交付工作流
 
-- **调研日期**：2026-11-13（2026-11-18 同步 Kimi 上游合并与 vLLM Blog 线上发布验收进度）
-- **`rss-site` 基线**：`master` @ `f363b8c`（PR `#95` 已合入并完成线上自动激活与回归验收；已接入 `cohere`、`minimax`、`80lv`、`kimi` 与 `vllm`，`packages/signals/src/index.ts` 已注册 `53` 个源，分属 `7` 个分区：`ai` 15、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 7、`skills` 2；`deploy/server/business-jobs.json` 含 `52` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `56` 项）
+- **调研日期**：2026-11-13（2026-11-18 结合 `KKKKhazix/AIHOT` 仓库与线上 `aihot.news` 925 源清单完成二轮复测与候选增补，并同步 PR `#96` 上线基线）
+- **`rss-site` 基线**：`master` @ `448484a`（PR `#95` 与 `#96` 已合入，完成 `vllm` 线上自动激活与回归验收；已接入 `cohere`、`minimax`、`80lv`、`kimi` 与 `vllm`，`packages/signals/src/index.ts` 已注册 `53` 个源，分属 `7` 个分区：`ai` 15、`technology` 12、`news` 6、`social` 6、`finance` 5、`games` 7、`skills` 2；`deploy/server/business-jobs.json` 含 `52` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务 `retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`，共 `56` 项）
+- **AIHOT 参考样本**：`KKKKhazix/AIHOT`（`industry/sources.json` 含 `18` 个示范 RSS 源）及线上 `https://aihot.news/api/site/stats`（共 `925` 个活跃源，含 `rss: 181`、`web_list: 145`、`json_list: 26`、`mp_account: 23`、`x_search: 549`、`external: 1`）+ `/api/v1/items` 近期精选来源，经交叉核对上游 `DIYgod/RSSHub` `upstream/master` 后分层筛选出本轮高优先级开源/实验室/工程新源。
 - **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
+
+### 推荐实施优先级（2026-11-18 更新）
+
+> 结合历史已完成记录、AIHOT 线上高权重信源与实测可用性，建议按以下两档优先挑选下一批要新写的 RSSHub 全文路由：
+
+- **第一档｜最顺手优先（已有官网摘要/空正文 RSS，仅需补全正文，上游 PR 通过最快）**：
+  1. **OpenAI Developers Blog**（`https://developers.openai.com/rss.xml`：`135` 条、`11` words 摘要 -> 文章 `<article>` `9,528` 字符，`lib/routes/openai` 缺失该子路由）
+  2. **Modal Blog**（`https://modal.com/blog/atom.xml`：`157` 条、`0` words 纯元数据 -> 文章 `<article>` `7,569` 字符，和 `vLLM Blog` 最相似）
+  3. **ElevenLabs Blog**（`https://elevenlabs.io/blog/rss.xml`：`50` 条、`18` words 摘要 -> 文章 `11,412` 字符）
+  4. **Suno Blog**（`https://suno.com/blog/rss.xml`：`50` 条、`22` words 摘要 -> 文章 `4,522` 字符）
+  5. **Sierra Blog**（`https://sierra.ai/rss.xml`：`147` 条、`32` words 摘要 -> 文章 `5,725` 字符）
+  6. **Together AI Blog**（`https://www.together.ai/blog/rss.xml`：`100` 条、`43` words 摘要 -> 文章 `42,581` 字符）
+  7. **Allen AI (Ai2) Blog**（`https://allenai.org/rss.xml`：`25` 条、`20` words 摘要 -> 文章 `9,796` 字符）
+  8. **Apple ML Research** / **Databricks Blog** / **Supabase Blog** / **Deno Blog** / **Tailscale Blog** / **Figma Blog** / **Mitchell Hashimoto**；游戏引擎与媒体：**Godot Engine News**、**Game Developer**、**Gematsu**、**VGC**、**Rock Paper Shotgun**。
+- **第二档｜高价值无 RSS 源（需解析列表 HTML / Next.js RSC，AIHOT 核心覆盖，均无 CF 拦截）**：
+  1. **LMSYS Org Blog**（`https://lmsys.org/blog/`：Next.js RSC `__next_f` + `<article>` `21,679` 字符，AIHOT `json_list` 核心推理/评测博客）
+  2. **Fireworks AI Blog**（`https://fireworks.ai/blog`：`<article>` `9,458` 字符）
+  3. **Liquid AI Blog**（`https://www.liquid.ai/blog`：`<article>` `6,624` 字符）
+  4. **OpenHands Blog**（`https://www.openhands.dev/blog`：`<main>` `13,363` 字符）
+  5. **Artificial Analysis Articles**（`https://artificialanalysis.ai/articles`：`<main>` `5,322` 字符）
+  6. **Lovable Blog** / **Scale AI Blog** / **Mastra Blog** / **Wiz Research** / **Berkeley RDI Blog** / **Browserbase Blog** / **Recraft Blog** / **Replit Blog** / **Goodfire**；游戏向 **Unity Blog**（`https://unity.com/blog`）。
+- **免新写 RSSHub 路由、可直接接入 `rss-site` 的高信号源**（见「三」）：`METR`、`BAIR`、`Ahead of AI (Sebastian Raschka)`、`AWS ML`、`Redwood Research`、`Interconnects`、`Import AI`、`Latent Space`、`Dwarkesh Patel`、`ChinaTalk`、`Pragmatic Engineer`、`Newcomer`，以及上游已有的 `/claude/blog`、`/claude/dev/blog`、`/anthropic/research`、`/anthropic/engineering`、`/thinkingmachines/news`、`/deepmind/blog`、`/deepseek/changelog`、`/humanlayer/blog`、`/nvidia/developer`。
 
 ---
 
@@ -19,72 +42,131 @@
 | **Cohere Blog** | `https://cohere.com/blog` | ✅ 已完成（上游 PR [`#23881`](https://github.com/DIYgod/RSSHub/pull/23881) 已合入）；自建 `https://rss.ljhboard.cn/cohere/blog` 已上线；`rss-site` PR `#88` 已合并 `master` | 无 | 官网同时保留 Sanity Content Lake（`rjtqmwfu.apicdn.sanity.io` / `web3-prod`）与 Ghost Content API 两部分文章。新路由并发合并双源、按 URL 去重时间排序后截取 `limit`，支持 Portable Text 全文、行内/块级 LaTeX 公式、`blogFaqSection` 问答、`keyTakeaways`、表格、代码块及音视频嵌入，并采用 JSX 模板渲染与主机名边界安全校验。 |
 | **MiniMax** | `https://www.minimax.io/blog` / `https://www.minimax.io/news` | ✅ 已完成（自建 `https://rss.ljhboard.cn/minimax/blog` 与 `/minimax/news` 已上线，`master` @ `eaa8bc531`，源分支 `feat/minimax` @ `a31d6de3a`，上游 PR [`#23882`](https://github.com/DIYgod/RSSHub/pull/23882) 已提交）；`rss-site` PR `#89` 已合并 `master` | 无 | 支持可选参数 `:lang?`（默认 `en` 抓取 `minimax.io`，传 `zh-CN`/`zh` 切换 `minimax.cn`）；`/minimax/blog` 解析 SSR 列表并并发提取文章 `.prose` 全文、MathML/KaTeX 公式、图片及 Next.js RSC 内嵌视频；`/minimax/news` 读取官方 `/api/news` 与双排版详情页正文并按规范链接去重，采用 JSX 模板渲染与 CI 零告警重构。 |
 | **Moonshot / Kimi Blog** | `https://www.kimi.com/blog/` | ✅ 已完成（上游 PR [`#23907`](https://github.com/DIYgod/RSSHub/pull/23907) 已合入；自建 `https://rss.ljhboard.cn/kimi/blog` 已上线，`master` @ `c8477b403`，源分支 `feat/kimi-blog` @ `a6c1a5100`）；`rss-site` [PR #94](https://github.com/ljh12138164/rss-site/pull/94) 已合并 `master` | 无 | 解析并重拼 Next.js RSC `__next_f` 分片中的 `articleList.items`（`20` 条，含站内 `/en/blog/*` 长文与 GitHub/HuggingFace/`moonshotai.github.io` 开源项目发布，无显式时区日期按 `UTC+8` 解析）；通过实时 DOM 节点移动循环还原嵌套 Streaming Suspense 槽位表格/视频、清理暗色重复图与隐藏内联样式、保留 KaTeX `<math>` 并基于 `markdown-it` 转换自定义 `<markdown>`/`<latex>` 标签；`rss-site` `ai` 分区接入 `kimi`（`/kimi/blog`，`itemLimit: 20`）。 |
+| **LMSYS Org Blog**（AIHOT 参考） | `https://lmsys.org/blog/` | 无（`lmsys` 缺失） | 无（`/rss.xml` 与 `/feed.xml` `404`） | 列表 `200`（`113,579` B），在 Next.js RSC `__next_f` 分片中暴露完整 slug、标题与发布日期；文章页如 `/blog/2026-11-17-sglang-summit-recap/` 返回 `200`（`214,305` B，`<article>` `21,679` 字符，无 CF 拦截），可沿用 `kimi` RSC 解析思路实现。 |
+| **Fireworks AI Blog**（AIHOT 参考） | `https://fireworks.ai/blog` | 无（`fireworks` 缺失） | 无 | Next.js 列表 `200`（`349,810` B，`20` 篇 `/blog/*`）；文章页 `200`（`1,344,724` B，`<article>` `9,458` 字符），推理模型与训练基础设施高价值博客。 |
+| **Liquid AI Blog**（AIHOT 参考） | `https://www.liquid.ai/blog` | 无（`liquid` 缺失） | 无 | Next.js 列表 `200`（`549,411` B，`31` 篇 `/blog/*`）；文章页 `200`（`525,634` B，`<article>` `6,624` 字符），新型基础模型实验室。 |
+| **OpenHands Blog**（AIHOT 参考） | `https://www.openhands.dev/blog` | 无（`openhands` 缺失） | 无 | SSR 列表 `200`（`217,522` B，`121` 个 `/blog/*` 链接）；文章页 `200`（`102,313` B，`<main>` `13,363` 字符），开源编码智能体头部博客。 |
+| **Artificial Analysis Articles**（AIHOT 参考） | `https://artificialanalysis.ai/articles` | 无（`artificialanalysis` 缺失） | 无 | Next.js 列表 `200`（`357,443` B，`12` 篇 `/articles/*`）；文章页 `200`（`324,379` B，`<main>` `5,322` 字符），独立 LLM 基准评测实验室长文分析。 |
+| **Lovable Blog**（AIHOT 参考） | `https://lovable.dev/blog` | 无（`lovable` 缺失） | 无 | 列表 `200`（`608,790` B，大量 `/blog/*` 链接）；文章页 `200`（`151,892` B，`3,269` 字符），AI Coding 应用平台博客。 |
+| **Scale AI Blog** | `https://scale.com/blog` | 无（`scale` 缺失） | 无 | Next.js 列表 `200`（`178,338` B，`21` 篇 `/blog/*`）；文章页 `200`（`117,640` B，`<main>` `10,468` 字符）。 |
+| **Mastra Blog**（AIHOT 参考） | `https://mastra.ai/blog` | 无（`mastra` 缺失） | 无 | Next.js 列表 `200`（`530,441` B，`17` 篇 `/blog/*`）；文章页 `200`（`392,967` B，`<article>` `2,671` 字符），TypeScript Agent 框架工程博客。 |
+| **Wiz Research**（AIHOT 参考） | `https://www.wiz.io/blog` | 无（仅存在无关 `wizfile`） | 无 | Next.js 列表 `200`（`649,909` B）；文章页如 `/blog/malicious-version-of-microsofts-agent-framework-published-to-pypi` 返回 `200`（`432,890` B，`<article>` `7,629` 字符），云与 AI 安全威胁研究。 |
+| **Berkeley RDI Blog**（AIHOT 参考） | `https://rdi.berkeley.edu/blog` | 无（`berkeley` / `rdi` 缺失） | 无 | 轻量 HTML 列表 `200`（`31,736` B，`20` 篇 `/blog/*`）；文章页 `200`（`33,366` B，`<article>` `16,409` 字符；详情页缺少语义发布时间，需重点核查列表页或元标签日期解析）。 |
+| **Browserbase Blog**（AIHOT 参考） | `https://www.browserbase.com/blog` | 无（`browserbase` 缺失） | 无 | Next.js 列表 `200`（`605,729` B，抓取链接时需过滤 `/blog/page` 与分类标签路径）；文章页 `200`（`175,110` B，`<main>` `3,098` 字符）。 |
+| **Recraft Blog**（AIHOT 参考） | `https://www.recraft.ai/blog` | 无（`recraft` 缺失） | 无 | 列表 `200`（`428,114` B）；文章页 `200`（`114,404` B，`<body>` 含 `12,422` 字符，但未使用 `<article>`/`<main>`，需针对 Webflow 正文节点定位选择器）。 |
+| **Replit Blog**（AIHOT 参考） | `https://replit.com/blog` | 无（`replit` 缺失） | 无（`/blog/rss.xml` 与 `/feed.xml` `404`） | Next.js 列表 `200`（`257,117` B，`28` 篇 `/blog/*`）；文章页 `200`（`168,564` B，`<article>` `6,574` 字符）。 |
+| **Goodfire Research / Blog**（AIHOT 参考） | `https://www.goodfire.ai/research` / `/blog` | 无（`goodfire` 缺失） | 无 | `/research`（`200`，`57,214` B）与 `/blog`（`200`，`31,813` B）；研究页单篇 SVG/交互数据体积较大（实测 `2,569,902` B），若抓取需做好体积裁剪与 `512 KiB` 超限防范。 |
+| **Dario Amodei Essays**（AIHOT 参考） | `https://www.darioamodei.com/` | 无 | 无 | Next.js 首页 `200`（`31,899` B），长文 `200`（`470,760` B，`<article>` `145,987` 字符）；更新频率极低，更适合作为 RSSHub 归档路由而非高频新闻源。 |
 
 ### 1.2 游戏 / 游戏技术
 
 | 平台 | 首页 / 列表页 | RSSHub 上游 | 官网原生 RSS | 探测实证与抓取方案 |
 | :--- | :--- | :--- | :--- | :--- |
 | **80 Level** | `https://80.lv/articles/` | ✅ 已完成（上游 PR [`#23885`](https://github.com/DIYgod/RSSHub/pull/23885) 已合入；自建 `https://rss.ljhboard.cn/80lv/articles` 已上线，`master` @ `dba5a9557`，源分支 `feat/80lv` @ `01c11aa27`）；`rss-site` [PR #92](https://github.com/ljh12138164/rss-site/pull/92) 已合并上线，已完成生产自动激活与线上回归 | 无 | 基于官方公开 API `/api/articles/list` 与 `/api/articles/:slug` 抓取全文，支持 `:category?`（默认 `all` 及 17 个官方分类与 `80-level-china` 汉语标识）及通用 `limit`（1–100）；使用 `hono/jsx/dom/server` `renderToString` 模板还原排版正文、代码块、表格、引用块组、YouTube/Vimeo 嵌入及图片，并发限流 `DETAIL_CONCURRENCY = 5`；`rss-site` `games` 分区已上线 `80lv`（`/80lv/articles?limit=30`，`30/30` 入库并激活 `rss-site-80lv`）。 |
-| **Unity Blog** | `https://unity.com/blog` | 无（`unity` `404`） | 无 | 列表页 `200`（`761,933` 字节，`next:true`，存在 SSR 标题），可通过 SSR HTML 列表结合原文页面抓取。 |
+| **Unity Blog** | `https://unity.com/blog` | 无（`unity` 缺失） | 无 | Next.js 列表页 `200`（2026-11-18 复测 `620,263` B，`16` 篇 `/blog/*`）；文章页 `200`（`494,292` B，`<main>` `7,885` 字符，无 CF 拦截），可稳定用列表 + 原文页提取。 |
 
 ### 1.3 较复杂的 SPA / 后端接口型候选（备选）
 
 | 平台 | 首页 | RSSHub 上游 | 官网原生 RSS | 探测实证与复杂度说明 |
 | :--- | :--- | :--- | :--- | :--- |
-| **游戏葡萄** | `https://youxiputao.com/` | 无（`youxiputao` `404`） | 无 | 首页 `200`（`103,519` 字节），静态 HTML 未直接暴露文章列表链接，需逆向前端新闻列表 API。 |
-| **篝火营地** | `https://gouhuo.qq.com/` | 无（`gouhuo` `404`） | 无 | 首页 `200`（`217,140` 字节），`/news` 返回 `404`，首页静态 HTML 缺少直达文章链接，需排查后端 API。 |
+| **Tencent Hunyuan Research（腾讯混元）**（AIHOT 参考） | `https://hunyuan.tencent.com/research` | 无（`tencent` 无混元研究子路由） | 无 | 国产前沿大模型研究高价值源（AIHOT 为 `json_list`）；首页 `200`（`6,886` B SPA 壳，静态 bundle 入口暂未直接暴露研究列表接口），需用浏览器抓包定位研究页动态 chunk 接口后方可开发。 |
+| **篝火营地** | `https://gouhuo.qq.com/` | 无（`gouhuo` 缺失） | 无 | 首页 `200`（`217,140` 字节），`/news` 返回 `404`，首页静态 HTML 缺少直达文章链接，需排查后端 API。 |
 
 ---
 
-## 二、RSSHub 没有（或缺子路由）+ 官方 RSS 不完整（仅摘要，需抓原文补全文后提 PR）
+## 二、RSSHub 没有（或缺子路由）+ 官方 RSS 不完整（仅摘要/元数据，需抓原文补全文后提 PR）
 
-以下平台已有官方 RSS/Atom，但**官方源仅输出摘要/短截断正文**，且上游 `DIYgod/RSSHub` 尚无对应路由（或缺少对应子路由）。通过 RSSHub 读取官方 feed 发现条目并并发抓取文章原文补全全文，即可满足上游 PR 价值。
+以下平台已有官方 RSS/Atom，但**官方源仅输出短摘要或纯标题元数据**，且上游 `DIYgod/RSSHub` 尚无对应路由（或缺少对应子路由）。通过 RSSHub 读取官方 feed 发现条目并并发抓取文章原文补全全文，实施门槛最低、稳定性最高、最容易通过上游审核。
 
 ### 2.1 科技 / AI / 开发工具
 
 | 平台 | 官方 RSS / Atom 地址 | RSSHub 上游状态 | 探测实证（Feed 正文长度 / 原文页状态） |
 | :--- | :--- | :--- | :--- |
 | **vLLM Blog** | `https://vllm.ai/blog/rss.xml` | ✅ 已完成（自建 `https://rss.ljhboard.cn/vllm/blog` 已上线，`master` @ `693346b621`，源分支 `feat/vllm-blog` @ `1d4bc5c9b`）；`rss-site` PR `#95` 已合并至 `master` @ `f363b8c` 并完成线上自动激活与回归验收（待提交上游 `DIYgod/RSSHub` PR） | Feed 仅含摘要（`50` 条，`rssBodyWords: 194`）；新路由通过 `rss.xml` 发现条目并发抓正文页补全全文、MathJax 公式、代码块、表格、`<video>` 与交互 `<iframe>` 图表，跳过 `/og?` 文字卡片封面；`rss-site` `ai` 分区已接入 `vllm`（`/vllm/blog`，`itemLimit: 20`，`pg_cron` job `1260` 已激活）。 |
-| **Apple ML Research** | `https://machinelearning.apple.com/rss.xml` | 缺子路由（`lib/routes/apple` 仅有 `apps.ts`、`design.ts`、`exchange-repair.ts`、`namespace.ts`、`newsroom.ts`、`podcast.ts`、`security-releases.ts`，无 ML 路由） | Feed 仅含摘要（`rssBodyWords: 597`，description only）；文章页 `200`（`31,494` 字节）。 |
-| **Supabase Blog** | `https://supabase.com/rss.xml` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 155`，description only）；文章页 `200`（`175,137` 字节）。 |
-| **Deno Blog** | `https://deno.com/feed` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 66`，description only）；文章页 `200`（`64,335` 字节）。 |
-| **Together AI Blog** | `https://www.together.ai/blog/rss.xml` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 155`，description only）；文章页 `200`（`682,220` 字节）。 |
-| **Tailscale Blog** | `https://tailscale.com/blog/index.xml` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 86`，description only）；文章页 `200`（`135,784` 字节）。 |
-| **Figma Blog** | `https://www.figma.com/blog/feed/atom.xml` | 无（`404`） | Atom 仅含摘要（`rssBodyWords: 136`，`content: 136`）；文章页 `200`（`1,777,788` 字节）。 |
+| **OpenAI Developers Blog**（AIHOT 参考） | `https://developers.openai.com/rss.xml` | 缺子路由（`lib/routes/openai` 仅有 `news`、`research`、`cookbook`、`chatgpt`） | RSS `200`（`135` 条、`descLen: 71` / `11` words）；文章页 `200`（`385,491` B，`<article>` `9,528` 字符），官方开发者工程博客。 |
+| **Modal Blog**（AI 开发推荐） | `https://modal.com/blog/atom.xml` | 无（`modal` 缺失） | Atom `200`（`72,284` B，`157` 条），**`sampleWords = 0`（无任何摘要与正文，仅元数据）**；文章页 `200`（`256,088` B，`<article>` `7,569` 字符，无拦截），基础设施极高信噪比，复用 `vLLM` 路线最顺手。 |
+| **ElevenLabs Blog**（AIHOT 参考） | `https://elevenlabs.io/blog/rss.xml` | 无（`elevenlabs` 缺失） | RSS `200`（`33,688` B、`50` 条、`descLen: 110` / `18` words）；文章页 `200`（`418,397` B，`<article>` `11,412` 字符），语音大模型头部实验室。 |
+| **Suno Blog**（AIHOT 参考） | `https://suno.com/blog/rss.xml` | 无（`suno` 缺失） | RSS `200`（`24,972` B、`50` 条、`descLen: 121` / `22` words）；文章页 `200`（`183,831` B，`<article>` `4,522` 字符），AI 音乐大模型官方博客。 |
+| **Sierra Blog**（AIHOT 参考） | `https://sierra.ai/rss.xml` | 无（`sierra` 缺失） | RSS `200`（`97,122` B、`147` 条、`descLen: 213` / `32` words）；文章页 `200`（`176,485` B，`<article>` `5,725` 字符），企业级 AI Agent 代表团队。 |
+| **Together AI Blog** | `https://www.together.ai/blog/rss.xml` | 无（`together` 缺失） | RSS `200`（`56,237` B、`100` 条、`descLen: 229` / `43` words）；文章页 `200`（`721,443` B，`<article>` `42,581` 字符），开源模型推理/微调研究博客。 |
+| **Allen AI (Ai2) Blog** | `https://allenai.org/rss.xml` | 无（`allenai` / `ai2` 缺失） | RSS `200`（`25` 条、`descLen: 458` / `20` words）；文章页 `200`（`1,222,437` B、`9,796` 字符），开放大模型研究实验室（OLMo/Tulu）。 |
+| **Apple ML Research** | `https://machinelearning.apple.com/rss.xml` | 缺子路由（`lib/routes/apple` 无 ML 路由） | RSS `200`（`9,712` B、`10` 条、`descLen: 598` / `85` words）；文章页 `200`（`25,146` B、`3,096` 字符正文）。 |
+| **Databricks Blog**（AIHOT 参考） | `https://www.databricks.com/feed` | 无（`databricks` 缺失） | RSS `200`（`10` 条、`descLen: 83` / `13` words）；文章页 `200`（`758,863` B、`20,151` 字符）。 |
+| **Supabase Blog** | `https://supabase.com/rss.xml` | 无（`supabase` 缺失） | RSS `200`（`171,713` B、`448` 条、`descLen: 155` / `28` words）；文章页 `200`（`174,793` B、`4,152` 字符）。 |
+| **Deno Blog** | `https://deno.com/feed` | 无（`deno` 缺失） | Atom `200`（`178,968` B、`249` 条、`descLen: 78` / `13` words）；文章页 `200`（`64,335` B，`<article>` `3,549` 字符）。 |
+| **Tailscale Blog** | `https://tailscale.com/blog/index.xml` | 无（`tailscale` 缺失） | RSS `200`（`7,957` B、`15` 条、`descLen: 141` / `21` words）；文章页 `200`（`165,765` B、`12,628` 字符）。 |
+| **Figma Blog**（AIHOT 参考） | `https://www.figma.com/blog/feed/atom.xml` | 无（`figma` 缺失） | Atom `200`（`427,200` B、`778` 条、`encLen: 158` / `23` words）；文章页 `200`（`1,780,673` B，`<main>` `11,203` 字符）。 |
+| **Mitchell Hashimoto**（AIHOT 参考） | `https://mitchellh.com/feed.xml` | 无 | RSS `200`（`55` 条、**`0` words 纯标题链接**）；文章页 `200`（`64,404` B，`<main>` `10,698` 字符），Ghostty 与开发者工具深度技术文章。 |
+| **Google Blog · AI**（AIHOT 参考） | `https://blog.google/innovation-and-ai/rss/` | 无对应 `blog.google` 子路由 | RSS `200`（`20` 条、`descLen: 234` / `16` words）；文章页 `200`（`359,572` B）。注：`rss-site` 的 `google-ai` 当前已通过自建代理 `feeds.ljhboard.cn/google-ai` 消费。 |
 
-> 注：**Mistral AI**（`lib/routes/mistral`，含 `namespace.ts` 与 `news.ts`）已通过上游 PR `#23854` 合入 `DIYgod/RSSHub` `master` 并随本次冲突解决合并至本地 `RSSHub` `master`；按用户指令，本轮跳过 Mistral AI，暂不接入 `rss-site`。
+> 注：**Mistral AI**（`lib/routes/mistral`，含 `namespace.ts` 与 `news.ts`）已通过上游 PR `#23854` 合入 `DIYgod/RSSHub` `master`；按用户指令，本轮跳过 Mistral AI，暂不接入 `rss-site`。此外，上游已有 `/google/research`（`lib/routes/google/research.ts`），但其当前仅抓取列表卡片无正文（官方 `/blog/rss/` 仅返回 `words: 2`）；如后续有需要也可直接走上游路由增强 PR。
 
 ### 2.2 游戏 / 游戏媒体与引擎
 
 | 平台 | 官方 RSS / Atom 地址 | RSSHub 上游状态 | 探测实证（Feed 正文长度 / 原文页状态） |
 | :--- | :--- | :--- | :--- |
-| **Godot Engine News** | `https://godotengine.org/rss.xml` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 84`，description only）；文章页 `200`（`19,633` 字节）。 |
-| **Game Developer** | `https://www.gamedeveloper.com/rss.xml` | 无（`404`） | Feed 仅含摘要（`rssBodyWords: 135`，description only）；文章页 `200`（`456,450` 字节，`cf:false`）。 |
-| **Gematsu** | `https://www.gematsu.com/feed` | 无（`404`） | Feed 仅含短摘要（`rssBodyWords: 120`，`enc: 120`）；文章页 `200`（`98,117` 字节）。 |
-| **VGC (Video Games Chronicle)** | `https://www.videogameschronicle.com/feed/` | 无（`vgc` / `videogameschronicle` 均 `404`） | Feed 仅含短摘要（`rssBodyWords: 87`，`enc: 87`）；文章页 `200`（`75,665` 字节）。 |
-| **Rock Paper Shotgun** | `https://www.rockpapershotgun.com/feed/` | 无（`404`） | Feed 仅含短描述（`enc: 0 \| desc: 360`）；文章页 `200`（`245,014` 字节，`cf:false`）。 |
+| **Godot Engine News** | `https://godotengine.org/rss.xml` | 无（`godot` 缺失） | RSS `200`（`307,103` B、`15` 条、`descLen: 1,463` / `223` words）；文章页 `200`（`17,742` B）。 |
+| **Game Developer** | `https://www.gamedeveloper.com/rss.xml` | 无（`gamedeveloper` 缺失） | RSS `200`（`76,906` B、`50` 条、`descLen: 164` / `21` words）；文章页 `200`（`454,566` B，`cf:false`）。 |
+| **Gematsu** | `https://www.gematsu.com/feed` | 无（`gematsu` 缺失） | RSS `200`（`32,919` B、`20` 条、`encLen: 237` / `17` words）；文章页 `200`（`101,350` B）。 |
+| **VGC (Video Games Chronicle)** | `https://www.videogameschronicle.com/feed/` | 无（`vgc` / `videogameschronicle` 均缺失） | RSS `200`（`13,426` B、`10` 条、`encLen: 220` / `11` words）；文章页 `200`（`85,535` B）。 |
+| **Rock Paper Shotgun** | `https://www.rockpapershotgun.com/feed/` | 无（`rockpapershotgun` 缺失） | RSS `200`（`231,275` B、`100` 条、`descLen: 638` / `61` words）；文章页 `200`（`225,947` B，`cf:false`）。 |
 
 ---
 
 ## 三、暂不提上游 RSSHub PR 的排除项说明
 
 1. **官方 RSS 已自带较完整正文（可直接作为 `rss-site` `feedUrl` 评估，无需额外做 RSSHub 路由）**：
-   - `Vercel`（`https://vercel.com/atom`，`bodyLen: 2465`）
-   - `VoidZero`（`https://voidzero.dev/feed.xml`，`bodyLen: 14721`）
-   - `Chips and Cheese`（`https://chipsandcheese.com/feed/`，全站 feed `1.64 MB`）
-   - `Linear Now`（`https://linear.app/rss/now.xml`，`enc: 7529`）
-   - `Ars Technica`（`https://arstechnica.com/information-technology/feed/`，`enc: 1459`）
-   - `404 Media`（`https://404media.co/rss/`，`enc: 4109`）
-   - `Bun`（`https://bun.com/rss.xml`，`desc: 917`）
-   - `IGN`（`https://ign.com/rss/articles/feed?tags=games`，`enc: 1816`）
-   - `PC Gamer`（`https://pcgamer.com/rss/`，`enc: 2252`）
-   - `PlayStation Blog 繁中`（`https://blog.zh-hant.playstation.com/feed/`，`enc: 2438`）
-   - `Xbox Wire`（`https://news.xbox.com/en-us/feed/`，`enc: 6242`）
-   - `GameLook`（`http://www.gamelook.com.cn/feed/`，`31` 条含全文；注意 HTTPS 会触发 `ECONNRESET`）
-2. **上游 `DIYgod/RSSHub` 已存在对应路由（可直接复用或按需增补子路由）**：
-   - `mistral`（已合入 `#23854`）、`cursor`、`anthropic`、`ollama`、`zed`、`huggingface`、`perplexity`、`baai`、`modelscope`、`qbitai`、`infoq`、`yystv`（原生 `yystv.cn/rss/feed` 亦有 `2,588` 字符全文）、`steam`、`eurogamer`、`lobsters`、`phoronix`、`taptap`、`xiaoheihe`、`a9vg`、`gameres`。
-3. **当前存在反爬拦截 / 纯空壳 SPA 阻碍**：
-   - `GameSpot`（文章页 `403(CF)`）、`xAI`（`403` CF）、`VideoCardz`（`403` CF）、`Intel Newsroom`（`403` Akamai）、`Unreal Engine Blog`（`/blog` `403`，`/rss` 含畸形 `&lt;p&gt;` 标题及 `341` 字符正文）、`Perplexity Hub`（直连 Web `403` CF，但 RSSHub 已有对应路由）、`机器之心`（静态页面仅 `3,251` 字节壳）、`ByteDance Seed`（静态页面仅 `10,983` 字节壳）。
+   - **AI / 前沿研究与专栏（AIHOT 复测新增）**：
+     - `METR`（`https://metr.org/feed.xml`，`103` 条，`encLen: 38,751` / `3,722` words — 前沿模型安全与能力评测机构）
+     - `Berkeley AI Research (BAIR)`（`https://bair.berkeley.edu/blog/feed.xml`，`10` 条，`descLen: 79,451` / `5,502` words）
+     - `Ahead of AI (Sebastian Raschka)`（`https://magazine.sebastianraschka.com/feed`，`20` 条，`encLen: 312,565` / `9,145` words）
+     - `Dwarkesh Patel`（`https://www.dwarkesh.com/feed`，`20` 条，`encLen: 131,546` / `19,902` words）
+     - `AWS Machine Learning Blog`（`https://aws.amazon.com/blogs/machine-learning/feed/`，`20` 条，`encLen: 26,905` / `2,553` words）
+     - `Redwood Research Blog`（`https://blog.redwoodresearch.org/feed`，`20` 条，`encLen: 37,799` / `3,319` words）
+     - `Interconnects (Nathan Lambert)`（`https://www.interconnects.ai/feed`，`20` 条，`encLen: 10,747` / `1,433` words）
+     - `Import AI (Jack Clark)`（`https://importai.substack.com/feed`，`20` 条，`encLen: 19,009` / `2,651` words）
+     - `Latent Space`（`https://www.latent.space/feed`，`20` 条，`encLen: 12,285` / `1,197` words）
+     - `Where's Your Ed At (Ed Zitron)`（`https://www.wheresyoured.at/rss/`，`15` 条，`encLen: 87,756` / `9,438` words）
+     - `ChinaTalk`（`https://www.chinatalk.media/feed`，`20` 条，`encLen: 50,892` / `5,430` words）
+     - `Trail of Bits Blog`（`https://blog.trailofbits.com/feed/`，`20` 条，`descLen: 8,399` / `896` words）
+     - `Big Technology`（`https://www.bigtechnology.com/feed`，`20` 条，`encLen: 17,476` / `847` words）
+     - `Pragmatic Engineer`（`https://blog.pragmaticengineer.com/rss/`，`15` 条，`encLen: 22,820` / `1,725` words）
+     - `Newcomer`（`https://www.newcomer.co/feed`，`20` 条，`encLen: 26,168` / `1,238` words）
+   - **原有技术 / 游戏全文 Feed**：
+     - `Vercel`（`https://vercel.com/atom`，`bodyLen: 2465`）
+     - `VoidZero`（`https://voidzero.dev/feed.xml`，`bodyLen: 14721`）
+     - `Chips and Cheese`（`https://chipsandcheese.com/feed/`，全站 feed `1.64 MB`）
+     - `Linear Now`（`https://linear.app/rss/now.xml`，`enc: 7529`）
+     - `Ars Technica`（`https://arstechnica.com/information-technology/feed/`，`enc: 1459`；AI 频道 `https://arstechnica.com/ai/feed/`）
+     - `404 Media`（`https://404media.co/rss/`，`enc: 4109`）
+     - `Bun`（`https://bun.com/rss.xml`，`desc: 917`）
+     - `IGN`（`https://ign.com/rss/articles/feed?tags=games`，`enc: 1816`）
+     - `PC Gamer`（`https://pcgamer.com/rss/`，`enc: 2252`）
+     - `PlayStation Blog 繁中`（`https://blog.zh-hant.playstation.com/feed/`，`enc: 2438`）
+     - `Xbox Wire`（`https://news.xbox.com/en-us/feed/`，`enc: 6242`）
+     - `GameLook`（`http://www.gamelook.com.cn/feed/`，`31` 条含全文；注意 HTTPS 会触发 `ECONNRESET`）
+2. **上游 `DIYgod/RSSHub` 已存在对应路由（`rss-site` 可直接评估复用或补充子路由）**：
+   - **AI / 大模型（结合 AIHOT 核对值得直接评估接入 `rss-site` 的未接路由）**：
+     - `claude`（`/claude/blog`、`/claude/dev/blog`、`/claude/code-changelog`）
+     - `anthropic`（现有 `anthropic` 仅接 `/anthropic/news`，上游已有 `/anthropic/research`、`/anthropic/engineering`、`/anthropic/red`）
+     - `thinkingmachines`（`/thinkingmachines/news`）
+     - `deepmind`（`/deepmind/blog` — 注：`deepmind.google/blog/rss.xml` 仅 `0` words，需走 RSSHub 路由或现有 `google-ai` 代理）
+     - `deepseek`（现有 `deepseek` 仅接 `/deepseek/news`，上游已有 `/deepseek/changelog/:language?` 抓取 `api-docs.deepseek.com` 更新日志）
+     - `nvidia`（现有 `nvidia` 之外，上游已有 `/nvidia/developer/:language?` 与 `/nvidia/newsroom`）
+     - `google`（`/google/developers/:locale?`、`/google/research`）
+     - `meta`（`/meta/ai/blog`）
+     - `humanlayer`（`/humanlayer/blog`）、`cognition`（`/cognition/blog`）、`windsurf`（`/windsurf/blog`）、`augmentcode`（`/augmentcode/blog`）、`cursor`（`/cursor/blog`）、`apple`（`/apple/newsroom`）、`langchain`、`huggingface`、`ollama`、`zed`、`perplexity`、`baai`、`modelscope`、`mistral`（已合入 `#23854`）
+   - **国内科技 / 游戏既有路由**：
+     - `qbitai`、`infoq`、`yystv`（原生 `yystv.cn/rss/feed` 亦有 `2,588` 字符全文）、`steam`、`eurogamer`、`lobsters`、`phoronix`、`taptap`、`xiaoheihe`、`a9vg`、`gameres`。
+3. **当前存在反爬拦截 / 已改版下线 / 纯空壳 SPA 阻碍**：
+   - **游戏葡萄**（`https://youxiputao.com/`）：2026-11-18 实测已改版为 **Sxl.cn（上线了）**纯静态单页品牌名片（`show.js` 内 `blogPosts: []`、`totalCount: 0`，`/sitemap.xml` 仅 1 条首页，`/blog`/`/news`/`/articles` 全 `404`），文章主阵地迁至微信公众号，B 站分叉路由（`/bilibili/user/video/536066324`）无鉴权返回 `503`。
+   - **Microsoft AI / Microsoft Research / TechCrunch AI**：`microsoft.ai` 列表 `200` 但 RSS 及文章详情均返回 `403`；`microsoft.com/en-us/research/feed/` 返回 `403`；`techcrunch.com/category/artificial-intelligence/feed/` 返回 `403`。
+   - **OpenAI Alignment / OpenAI Deployment Safety / Every**：`alignment.openai.com` 为 `20,852` B SPA 壳（详情页静态正文 `0` 字符）；`deploymentsafety.openai.com/rss.xml` 有 `34` 条（`0` words）但详情页静态 `<article>` 仅暴露 `501` 字符（疑富交互组件后渲染）；`every.to/p/*` 正文外层仅 `80` 字符（会员截断）。
+   - **Conductor Changelog**：`https://www.conductor.build/changelog/rss.xml` 含 `213` 条短发布说明（`18` words），详情页静态 `<article>` 仅 `146` 字符（偏简短更新日志）。
+   - **OpenMOSS**：`/blog/` 返回 55 字节重定向 `/#blog`，直连 `/blog/cn/moss-live/` 为 `13,554` B 静态壳。
+   - **a16z News**（`https://a16z.com/feed/`）：返回 `404`。
+   - **MIT Tech Review AI**：官方 feed `encLen: 3,970` 但 `words: 10`（含付费墙/截断导流）。
+   - **原有阻断项保留**：`GameSpot`（文章页 `403(CF)`）、`xAI`（`403` CF）、`VideoCardz`（`403` CF）、`Intel Newsroom`（`403` Akamai）、`Unreal Engine Blog`（`/blog` `403`，`/rss` 含畸形 `&lt;p&gt;` 标题及 `341` 字符正文）、`Perplexity Hub`（直连 Web `403` CF，但 RSSHub 已有对应路由）、`机器之心`（静态页面仅 `3,251` 字节壳）、`ByteDance Seed`（静态页面仅 `10,983` 字节壳）。
 
 ---
 
