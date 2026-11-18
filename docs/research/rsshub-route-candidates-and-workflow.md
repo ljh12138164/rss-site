@@ -6,6 +6,28 @@
 - **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
 
+### 推荐实施优先级（2026-11-18 更新）
+
+> 结合历史已完成记录、AIHOT 线上高权重信源与实测可用性，建议按以下两档优先挑选下一批要新写的 RSSHub 全文路由：
+
+- **第一档｜最顺手优先（已有官网摘要/空正文 RSS，仅需补全正文，上游 PR 通过最快）**：
+  1. **OpenAI Developers Blog**（`https://developers.openai.com/rss.xml`：`135` 条、`11` words 摘要 -> 文章 `<article>` `9,528` 字符，`lib/routes/openai` 缺失该子路由）
+  2. **Modal Blog**（`https://modal.com/blog/atom.xml`：`157` 条、`0` words 纯元数据 -> 文章 `<article>` `7,569` 字符，和 `vLLM Blog` 最相似）
+  3. **ElevenLabs Blog**（`https://elevenlabs.io/blog/rss.xml`：`50` 条、`18` words 摘要 -> 文章 `11,412` 字符）
+  4. **Suno Blog**（`https://suno.com/blog/rss.xml`：`50` 条、`22` words 摘要 -> 文章 `4,522` 字符）
+  5. **Sierra Blog**（`https://sierra.ai/rss.xml`：`147` 条、`32` words 摘要 -> 文章 `5,725` 字符）
+  6. **Together AI Blog**（`https://www.together.ai/blog/rss.xml`：`100` 条、`43` words 摘要 -> 文章 `42,581` 字符）
+  7. **Allen AI (Ai2) Blog**（`https://allenai.org/rss.xml`：`25` 条、`20` words 摘要 -> 文章 `9,796` 字符）
+  8. **Apple ML Research** / **Databricks Blog** / **Supabase Blog** / **Deno Blog** / **Tailscale Blog** / **Figma Blog** / **Mitchell Hashimoto**；游戏引擎与媒体：**Godot Engine News**、**Game Developer**、**Gematsu**、**VGC**、**Rock Paper Shotgun**。
+- **第二档｜高价值无 RSS 源（需解析列表 HTML / Next.js RSC，AIHOT 核心覆盖，均无 CF 拦截）**：
+  1. **LMSYS Org Blog**（`https://lmsys.org/blog/`：Next.js RSC `__next_f` + `<article>` `21,679` 字符，AIHOT `json_list` 核心推理/评测博客）
+  2. **Fireworks AI Blog**（`https://fireworks.ai/blog`：`<article>` `9,458` 字符）
+  3. **Liquid AI Blog**（`https://www.liquid.ai/blog`：`<article>` `6,624` 字符）
+  4. **OpenHands Blog**（`https://www.openhands.dev/blog`：`<main>` `13,363` 字符）
+  5. **Artificial Analysis Articles**（`https://artificialanalysis.ai/articles`：`<main>` `5,322` 字符）
+  6. **Lovable Blog** / **Scale AI Blog** / **Mastra Blog** / **Wiz Research** / **Berkeley RDI Blog** / **Browserbase Blog** / **Recraft Blog** / **Replit Blog** / **Goodfire**；游戏向 **Unity Blog**（`https://unity.com/blog`）。
+- **免新写 RSSHub 路由、可直接接入 `rss-site` 的高信号源**（见「三」）：`METR`、`BAIR`、`Ahead of AI (Sebastian Raschka)`、`AWS ML`、`Redwood Research`、`Interconnects`、`Import AI`、`Latent Space`、`Dwarkesh Patel`、`ChinaTalk`、`Pragmatic Engineer`、`Newcomer`，以及上游已有的 `/claude/blog`、`/claude/dev/blog`、`/anthropic/research`、`/anthropic/engineering`、`/thinkingmachines/news`、`/deepmind/blog`、`/deepseek/changelog`、`/humanlayer/blog`、`/nvidia/developer`。
+
 ---
 
 ## 一、RSSHub 没有 + 官网也无原生 RSS（必须新建抓取路由）
@@ -61,6 +83,7 @@
 | 平台 | 官方 RSS / Atom 地址 | RSSHub 上游状态 | 探测实证（Feed 正文长度 / 原文页状态） |
 | :--- | :--- | :--- | :--- |
 | **vLLM Blog** | `https://vllm.ai/blog/rss.xml` | ✅ 已完成（自建 `https://rss.ljhboard.cn/vllm/blog` 已上线，`master` @ `693346b621`，源分支 `feat/vllm-blog` @ `1d4bc5c9b`）；`rss-site` PR `#95` 已合并至 `master` @ `f363b8c` 并完成线上自动激活与回归验收（待提交上游 `DIYgod/RSSHub` PR） | Feed 仅含摘要（`50` 条，`rssBodyWords: 194`）；新路由通过 `rss.xml` 发现条目并发抓正文页补全全文、MathJax 公式、代码块、表格、`<video>` 与交互 `<iframe>` 图表，跳过 `/og?` 文字卡片封面；`rss-site` `ai` 分区已接入 `vllm`（`/vllm/blog`，`itemLimit: 20`，`pg_cron` job `1260` 已激活）。 |
+| **OpenAI Developers Blog**（AIHOT 参考） | `https://developers.openai.com/rss.xml` | 缺子路由（`lib/routes/openai` 仅有 `news`、`research`、`cookbook`、`chatgpt`） | RSS `200`（`135` 条、`descLen: 71` / `11` words）；文章页 `200`（`385,491` B，`<article>` `9,528` 字符），官方开发者工程博客。 |
 | **Modal Blog**（AI 开发推荐） | `https://modal.com/blog/atom.xml` | 无（`modal` 缺失） | Atom `200`（`72,284` B，`157` 条），**`sampleWords = 0`（无任何摘要与正文，仅元数据）**；文章页 `200`（`256,088` B，`<article>` `7,569` 字符，无拦截），基础设施极高信噪比，复用 `vLLM` 路线最顺手。 |
 | **ElevenLabs Blog**（AIHOT 参考） | `https://elevenlabs.io/blog/rss.xml` | 无（`elevenlabs` 缺失） | RSS `200`（`33,688` B、`50` 条、`descLen: 110` / `18` words）；文章页 `200`（`418,397` B，`<article>` `11,412` 字符），语音大模型头部实验室。 |
 | **Suno Blog**（AIHOT 参考） | `https://suno.com/blog/rss.xml` | 无（`suno` 缺失） | RSS `200`（`24,972` B、`50` 条、`descLen: 121` / `22` words）；文章页 `200`（`183,831` B，`<article>` `4,522` 字符），AI 音乐大模型官方博客。 |
@@ -73,6 +96,8 @@
 | **Deno Blog** | `https://deno.com/feed` | 无（`deno` 缺失） | Atom `200`（`178,968` B、`249` 条、`descLen: 78` / `13` words）；文章页 `200`（`64,335` B，`<article>` `3,549` 字符）。 |
 | **Tailscale Blog** | `https://tailscale.com/blog/index.xml` | 无（`tailscale` 缺失） | RSS `200`（`7,957` B、`15` 条、`descLen: 141` / `21` words）；文章页 `200`（`165,765` B、`12,628` 字符）。 |
 | **Figma Blog**（AIHOT 参考） | `https://www.figma.com/blog/feed/atom.xml` | 无（`figma` 缺失） | Atom `200`（`427,200` B、`778` 条、`encLen: 158` / `23` words）；文章页 `200`（`1,780,673` B，`<main>` `11,203` 字符）。 |
+| **Mitchell Hashimoto**（AIHOT 参考） | `https://mitchellh.com/feed.xml` | 无 | RSS `200`（`55` 条、**`0` words 纯标题链接**）；文章页 `200`（`64,404` B，`<main>` `10,698` 字符），Ghostty 与开发者工具深度技术文章。 |
+| **Google Blog · AI**（AIHOT 参考） | `https://blog.google/innovation-and-ai/rss/` | 无对应 `blog.google` 子路由 | RSS `200`（`20` 条、`descLen: 234` / `16` words）；文章页 `200`（`359,572` B）。注：`rss-site` 的 `google-ai` 当前已通过自建代理 `feeds.ljhboard.cn/google-ai` 消费。 |
 
 > 注：**Mistral AI**（`lib/routes/mistral`，含 `namespace.ts` 与 `news.ts`）已通过上游 PR `#23854` 合入 `DIYgod/RSSHub` `master`；按用户指令，本轮跳过 Mistral AI，暂不接入 `rss-site`。此外，上游已有 `/google/research`（`lib/routes/google/research.ts`），但其当前仅抓取列表卡片无正文（官方 `/blog/rss/` 仅返回 `words: 2`）；如后续有需要也可直接走上游路由增强 PR。
 
@@ -94,11 +119,17 @@
    - **AI / 前沿研究与专栏（AIHOT 复测新增）**：
      - `METR`（`https://metr.org/feed.xml`，`103` 条，`encLen: 38,751` / `3,722` words — 前沿模型安全与能力评测机构）
      - `Berkeley AI Research (BAIR)`（`https://bair.berkeley.edu/blog/feed.xml`，`10` 条，`descLen: 79,451` / `5,502` words）
+     - `Ahead of AI (Sebastian Raschka)`（`https://magazine.sebastianraschka.com/feed`，`20` 条，`encLen: 312,565` / `9,145` words）
+     - `Dwarkesh Patel`（`https://www.dwarkesh.com/feed`，`20` 条，`encLen: 131,546` / `19,902` words）
      - `AWS Machine Learning Blog`（`https://aws.amazon.com/blogs/machine-learning/feed/`，`20` 条，`encLen: 26,905` / `2,553` words）
      - `Redwood Research Blog`（`https://blog.redwoodresearch.org/feed`，`20` 条，`encLen: 37,799` / `3,319` words）
      - `Interconnects (Nathan Lambert)`（`https://www.interconnects.ai/feed`，`20` 条，`encLen: 10,747` / `1,433` words）
      - `Import AI (Jack Clark)`（`https://importai.substack.com/feed`，`20` 条，`encLen: 19,009` / `2,651` words）
      - `Latent Space`（`https://www.latent.space/feed`，`20` 条，`encLen: 12,285` / `1,197` words）
+     - `Where's Your Ed At (Ed Zitron)`（`https://www.wheresyoured.at/rss/`，`15` 条，`encLen: 87,756` / `9,438` words）
+     - `ChinaTalk`（`https://www.chinatalk.media/feed`，`20` 条，`encLen: 50,892` / `5,430` words）
+     - `Trail of Bits Blog`（`https://blog.trailofbits.com/feed/`，`20` 条，`descLen: 8,399` / `896` words）
+     - `Big Technology`（`https://www.bigtechnology.com/feed`，`20` 条，`encLen: 17,476` / `847` words）
      - `Pragmatic Engineer`（`https://blog.pragmaticengineer.com/rss/`，`15` 条，`encLen: 22,820` / `1,725` words）
      - `Newcomer`（`https://www.newcomer.co/feed`，`20` 条，`encLen: 26,168` / `1,238` words）
    - **原有技术 / 游戏全文 Feed**：
@@ -121,15 +152,18 @@
      - `thinkingmachines`（`/thinkingmachines/news`）
      - `deepmind`（`/deepmind/blog` — 注：`deepmind.google/blog/rss.xml` 仅 `0` words，需走 RSSHub 路由或现有 `google-ai` 代理）
      - `deepseek`（现有 `deepseek` 仅接 `/deepseek/news`，上游已有 `/deepseek/changelog/:language?` 抓取 `api-docs.deepseek.com` 更新日志）
+     - `nvidia`（现有 `nvidia` 之外，上游已有 `/nvidia/developer/:language?` 与 `/nvidia/newsroom`）
      - `google`（`/google/developers/:locale?`、`/google/research`）
      - `meta`（`/meta/ai/blog`）
-     - `cognition`（`/cognition/blog`）、`windsurf`（`/windsurf/blog`）、`augmentcode`（`/augmentcode/blog`）、`cursor`（`/cursor/blog`）、`apple`（`/apple/newsroom`）、`langchain`、`huggingface`、`ollama`、`zed`、`perplexity`、`baai`、`modelscope`、`mistral`（已合入 `#23854`）
+     - `humanlayer`（`/humanlayer/blog`）、`cognition`（`/cognition/blog`）、`windsurf`（`/windsurf/blog`）、`augmentcode`（`/augmentcode/blog`）、`cursor`（`/cursor/blog`）、`apple`（`/apple/newsroom`）、`langchain`、`huggingface`、`ollama`、`zed`、`perplexity`、`baai`、`modelscope`、`mistral`（已合入 `#23854`）
    - **国内科技 / 游戏既有路由**：
      - `qbitai`、`infoq`、`yystv`（原生 `yystv.cn/rss/feed` 亦有 `2,588` 字符全文）、`steam`、`eurogamer`、`lobsters`、`phoronix`、`taptap`、`xiaoheihe`、`a9vg`、`gameres`。
 3. **当前存在反爬拦截 / 已改版下线 / 纯空壳 SPA 阻碍**：
    - **游戏葡萄**（`https://youxiputao.com/`）：2026-11-18 实测已改版为 **Sxl.cn（上线了）**纯静态单页品牌名片（`show.js` 内 `blogPosts: []`、`totalCount: 0`，`/sitemap.xml` 仅 1 条首页，`/blog`/`/news`/`/articles` 全 `404`），文章主阵地迁至微信公众号，B 站分叉路由（`/bilibili/user/video/536066324`）无鉴权返回 `503`。
    - **Microsoft AI / Microsoft Research / TechCrunch AI**：`microsoft.ai` 列表 `200` 但 RSS 及文章详情均返回 `403`；`microsoft.com/en-us/research/feed/` 返回 `403`；`techcrunch.com/category/artificial-intelligence/feed/` 返回 `403`。
-   - **OpenMOSS**（`https://openmoss.ai/blog/`）：仅返回 55 字节重定向 `/#blog` 静态壳。
+   - **OpenAI Alignment / OpenAI Deployment Safety / Every**：`alignment.openai.com` 为 `20,852` B SPA 壳（详情页静态正文 `0` 字符）；`deploymentsafety.openai.com/rss.xml` 有 `34` 条（`0` words）但详情页静态 `<article>` 仅暴露 `501` 字符（疑富交互组件后渲染）；`every.to/p/*` 正文外层仅 `80` 字符（会员截断）。
+   - **Conductor Changelog**：`https://www.conductor.build/changelog/rss.xml` 含 `213` 条短发布说明（`18` words），详情页静态 `<article>` 仅 `146` 字符（偏简短更新日志）。
+   - **OpenMOSS**：`/blog/` 返回 55 字节重定向 `/#blog`，直连 `/blog/cn/moss-live/` 为 `13,554` B 静态壳。
    - **a16z News**（`https://a16z.com/feed/`）：返回 `404`。
    - **MIT Tech Review AI**：官方 feed `encLen: 3,970` 但 `words: 10`（含付费墙/截断导流）。
    - **原有阻断项保留**：`GameSpot`（文章页 `403(CF)`）、`xAI`（`403` CF）、`VideoCardz`（`403` CF）、`Intel Newsroom`（`403` Akamai）、`Unreal Engine Blog`（`/blog` `403`，`/rss` 含畸形 `&lt;p&gt;` 标题及 `341` 字符正文）、`Perplexity Hub`（直连 Web `403` CF，但 RSSHub 已有对应路由）、`机器之心`（静态页面仅 `3,251` 字节壳）、`ByteDance Seed`（静态页面仅 `10,983` 字节壳）。
