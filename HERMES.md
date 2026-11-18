@@ -4,6 +4,7 @@
 
 - 分支 `feat/rsshub-load-balancing`，基于 `origin/master` 的 `31a68d6`。范围和验收见 [现有 RSSHub 抓取分流](docs/development/rsshub-load-balancing.md)。
 - 19 条旧路径优先走备用实例，抓取失败回主实例一次。旧路径两端各约 100 次首发请求／天。19 条路径双端公网解析通过，全仓测试与类型检查通过。
+- [PR #100](https://github.com/ljh12138164/rss-site/pull/100) 提交至 `master`。合并后由现有发布流程上线。
 
 ## 2026-11-18 OpenAI Developers Blog 线上发布与回归验收
 
