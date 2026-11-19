@@ -536,7 +536,7 @@ export const newsSources = [
   }
 ] as const
 
-// AI 平台 (24)
+// AI 平台 (25)
 export const aiSources = [
   {
     id: 'openai',
@@ -711,6 +711,19 @@ export const aiSources = [
     isArticle: true,
     cronSchedule: '45 5,11,17,23 * * *',
     cronJobName: 'signal-ingest-vllm'
+  },
+  {
+    id: 'modal',
+    name: 'Modal',
+    code: 'MD',
+    shortName: 'Modal',
+    description: 'Modal 官方工程博客、AI 基础设施与沙箱技术，英文全文',
+    section: 'ai',
+    itemLimit: 20,
+    rsshubPath: '/modal/blog',
+    isArticle: true,
+    cronSchedule: '50 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-modal'
   },
   {
     id: 'lilian-weng',
@@ -1296,7 +1309,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'playstation-blog',
   'xbox-wire',
   'gamelook',
-  'yystv'
+  'yystv',
+  'modal'
 ] as const
 
 // Cron jobs

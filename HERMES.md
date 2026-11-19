@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-11-19 Modal Blog 全文来源接入
+
+- 分支 `feat/modal-source`，基于 `origin/master` 的 `5537763`。自建 `RSSHub`（`master` @ `90cd7c7b7d`，已合并 `upstream/master` 的 `Temporal` 重构）线上 `https://rss.ljhboard.cn/modal/blog`。
+- 在 `ai` 分区接入 `modal`（`itemLimit: 20`、`50 5,11,17,23 * * *`），新增 `014-modal-source.sql`；全站 `82` 个来源、`85` 项业务任务、`87` 项 `cron.job`。范围与证据见 [Modal Blog 全文来源接入](docs/development/modal-source.md)。
+- 真实 `ingestSignal` 入库 `20/20`；`biome`、`check-types`、`signals` 测试、`render-cron-sql.mjs`、`bash -n` 通过。
+- 下一步：推送并通过 `gh pr create` 创建合入 `master` 的 PR；合并发布后核对自动激活与页面渲染。
+
 ## 2026-11-18 候选来源原生 Feed 采集
 
 - 分支 `feat/native-feed-ingestion`，基于 `origin/master` 的 `df22f26`。接入 28 个可直连官方 Feed 的来源，补充 Atom XHTML 解析。
