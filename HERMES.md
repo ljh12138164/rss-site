@@ -5,6 +5,7 @@
 - `rss-site` 的 `feat/elevenlabs-source` 基于 `6d0e4fc`。RSSHub 的 `feat/elevenlabs-blog` 基于上游 `fd1051c4c8`。
 - 官方 Feed 发现条目，RSSHub 补正文和媒体，AI 分区沿用既有采集及 PostgreSQL 自动门禁。验收见 [ElevenLabs Blog 全文来源](docs/development/elevenlabs-source.md)。
 - 自建 RSSHub 的 `master` @ `d09520a4b5` 已在 Vercel 上线，公开 Feed 的 50 篇全量、默认 20 篇站点采集通过。本地全仓测试、类型和构建通过。
+- [PR #104](https://github.com/ljh12138164/rss-site/pull/104) 提交至 `master`。站点合并后核对 ECS 自动试抓、Cron 和来源页。
 
 ## 2026-11-19 Modal Blog 全文来源接入
 
