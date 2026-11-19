@@ -480,6 +480,12 @@
     "path": "/cron/signals/yystv"
   },
   {
+    "source": "modal",
+    "name": "signal-ingest-modal",
+    "schedule": "50 5,11,17,23 * * *",
+    "path": "/cron/signals/modal"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

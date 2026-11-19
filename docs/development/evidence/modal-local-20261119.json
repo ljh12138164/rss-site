@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-11-19T03:44:42.959Z",
+  "source": "modal",
+  "section": "ai",
+  "itemLimit": 20,
+  "feedUrls": ["https://rss.ljhboard.cn/modal/blog"],
+  "feedByteLengths": [1246474],
+  "parsedAndIngestedItems": 20,
+  "fullBodyMatches": 20,
+  "publicationDatesVerified": 20,
+  "namedAuthors": 20,
+  "coverImages": 20,
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 426886,
+  "uniqueUrls": 20,
+  "consecutiveRanks": true,
+  "sampleTop3": [
+    {
+      "position": 1,
+      "title": "Building new research tools for Maya epigraphy on Modal",
+      "url": "https://modal.com/blog/scaling-intelligence-asya",
+      "author": "Peri Langlois",
+      "publishedAt": "2026-11-18T00:00:00.000Z",
+      "contentHtmlBytes": 9565
+    },
+    {
+      "position": 2,
+      "title": "Scaling Intelligence: A landmark commission and exhibition",
+      "url": "https://modal.com/blog/scaling-intelligence",
+      "author": "Peri Langlois",
+      "publishedAt": "2026-11-13T00:00:00.000Z",
+      "contentHtmlBytes": 11456
+    },
+    {
+      "position": 3,
+      "title": "Sandbox resourcing: burst, don't reserve",
+      "url": "https://modal.com/blog/sandbox-bursting",
+      "author": "Kevin Yang",
+      "publishedAt": "2026-11-12T17:00:00.000Z",
+      "contentHtmlBytes": 426886
+    }
+  ]
+}

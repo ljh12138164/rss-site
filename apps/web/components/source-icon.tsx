@@ -72,6 +72,7 @@ const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
   cohere: { src: '/source-icons/cohere.svg' },
   kimi: { src: '/source-icons/kimi.png' },
   vllm: { src: '/source-icons/vllm.svg' },
+  modal: { src: '/source-icons/modal.svg' },
   coolapk: { src: '/source-icons/coolapk.png' },
   hupu: { src: '/source-icons/hupu.png' },
   sspai: { src: '/source-icons/sspai.png' },
