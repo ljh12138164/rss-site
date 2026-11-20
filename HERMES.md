@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-11-20 修复北京 ECS 4 个未激活来源的采集链路
+
+- 通过 `alibabacloud-workbench-cli` 核查北京 ECS（`i-2ze77shgsxr3nwn6ghra`）`private.business_cron_jobs`（`83/87` 已激活），确认 `aws-ml`、`import-ai`、`dwarkesh`、`chinatalk` 因直连域名遭遇 DNS 污染持续 `ECONNREFUSED`/超时而未激活。
+- 基于 `upstream/master`（`79a6bed886`）切出独立 `RSSHub` 分支 `feat/amazon-blogs`（`1f86843ede`）新增 `/amazon/blogs/:category?`（通过 `build:docs`、`oxfmt`、`oxlint --type-aware`、`eslint`、`typecheck`、`lizard -C 10`、`RSSHub-docs` 构建与 `codex review`），并 cherry-pick 至自建 `master`（`67971cd6c5`）部署上线 `https://rss.ljhboard.cn/amazon/blogs/machine-learning`。
+- 在 `rss-site` 分支 `feat/fix-ecs-unverified-feeds`（基于 `origin/master` `3aafdbf`）将 `chinatalk`（`/substack/subscribe/chinatalk`）、`aws-ml`（`/amazon/blogs/machine-learning`）、`import-ai`（`/substack/subscribe/importai`）、`dwarkesh`（`/substack/subscribe/dwarkesh`）由直连 `feedUrl` 切换至 `rsshubPath`，保留原 Cron 清单与迁移约束不变，详情见 [修复北京 ECS 4 个未激活来源的采集链路](docs/development/fix-ecs-unverified-feeds.md)。
+- 在 ECS `rss-site-web-1` 容器内实测 4 条新 RSSHub URL 全部返回 HTTP `200`（`20` 条/源），本地 `ingestSignal` + `renderArticleContent` 全部通过（[证据文件](docs/development/evidence/fix-ecs-unverified-feeds-local-20261120.json)）。
+
 ## 2026-11-20 Sierra Blog 全文来源接入
 
 - `rss-site` 分支 `feat/sierra-source` 基于 `origin/master`（`517d17f`）；自建 `RSSHub` 分支 `feat/sierra-blog`（`f07a8fd4ae`，基于上游 `decd2375d0`）已 cherry-pick 至 `master` @ `8e0c31ccb2` 并在 `https://rss.ljhboard.cn/sierra/blog` 上线。

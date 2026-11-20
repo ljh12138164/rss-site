@@ -121,14 +121,14 @@
      - `METR`（`https://metr.org/feed.xml`，`103` 条，`encLen: 38,751` / `3,722` words — 前沿模型安全与能力评测机构）
      - `Berkeley AI Research (BAIR)`（`https://bair.berkeley.edu/blog/feed.xml`，`10` 条，`descLen: 79,451` / `5,502` words）
      - `Ahead of AI (Sebastian Raschka)`（`https://magazine.sebastianraschka.com/feed`，`20` 条，`encLen: 312,565` / `9,145` words）
-     - `Dwarkesh Patel`（`https://www.dwarkesh.com/feed`，`20` 条，`encLen: 131,546` / `19,902` words）
-     - `AWS Machine Learning Blog`（`https://aws.amazon.com/blogs/machine-learning/feed/`，`20` 条，`encLen: 26,905` / `2,553` words）
+     - `Dwarkesh Patel`（原直连 `https://www.dwarkesh.com/feed` 在北京 ECS 受 DNS 污染阻塞，已切至自建 RSSHub `/substack/subscribe/dwarkesh`）
+     - `AWS Machine Learning Blog`（原直连 `https://aws.amazon.com/blogs/machine-learning/feed/` 在北京 ECS 受 DNS 污染阻塞；已在自建 RSSHub `master` @ `67971cd6c5` 上线 `/amazon/blogs/:category?` 并切至 `/amazon/blogs/machine-learning`，`feat/amazon-blogs` @ `1f86843ede` 待提交上游 `DIYgod/RSSHub` PR）
      - `Redwood Research Blog`（`https://blog.redwoodresearch.org/feed`，`20` 条，`encLen: 37,799` / `3,319` words）
      - `Interconnects (Nathan Lambert)`（`https://www.interconnects.ai/feed`，`20` 条，`encLen: 10,747` / `1,433` words）
-     - `Import AI (Jack Clark)`（`https://importai.substack.com/feed`，`20` 条，`encLen: 19,009` / `2,651` words）
+     - `Import AI (Jack Clark)`（原直连 `https://importai.substack.com/feed` 在北京 ECS 受 DNS 污染阻塞，已切至自建 RSSHub `/substack/subscribe/importai`）
      - `Latent Space`（`https://www.latent.space/feed`，`20` 条，`encLen: 12,285` / `1,197` words）
      - `Where's Your Ed At (Ed Zitron)`（`https://www.wheresyoured.at/rss/`，`15` 条，`encLen: 87,756` / `9,438` words）
-     - `ChinaTalk`（`https://www.chinatalk.media/feed`，`20` 条，`encLen: 50,892` / `5,430` words）
+     - `ChinaTalk`（原直连 `https://www.chinatalk.media/feed` 在北京 ECS 受 DNS 污染阻塞，已切至自建 RSSHub `/substack/subscribe/chinatalk`）
      - `Trail of Bits Blog`（`https://blog.trailofbits.com/feed/`，`20` 条，`descLen: 8,399` / `896` words）
      - `Big Technology`（`https://www.bigtechnology.com/feed`，`20` 条，`encLen: 17,476` / `847` words）
      - `Pragmatic Engineer`（`https://blog.pragmaticengineer.com/rss/`，`15` 条，`encLen: 22,820` / `1,725` words）

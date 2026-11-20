@@ -123,6 +123,18 @@ describe('@rss-site/signals', () => {
     expect(resolveSignalFeedUrl(getSignalSource('sierra'), 'https://rss.ljhboard.cn')).toBe(
       'https://rss.ljhboard.cn/sierra/blog'
     )
+    expect(resolveSignalFeedUrl(getSignalSource('chinatalk'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/substack/subscribe/chinatalk'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('aws-ml'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/amazon/blogs/machine-learning'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('import-ai'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/substack/subscribe/importai'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('dwarkesh'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/substack/subscribe/dwarkesh'
+    )
 
     const directSource = getSignalSource('github-blog')
     expect(resolveSignalFeedUrl(directSource, 'https://rsshub.app')).toBe(

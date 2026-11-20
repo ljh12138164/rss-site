@@ -1,0 +1,178 @@
+{
+  "checkedAt": "2026-11-20T10:05:32.316Z",
+  "rsshubBaseUrl": "https://rss.ljhboard.cn",
+  "sources": [
+    {
+      "source": "chinatalk",
+      "section": "technology",
+      "itemLimit": 20,
+      "feedUrls": ["https://rss.ljhboard.cn/substack/subscribe/chinatalk"],
+      "feedByteLengths": [876545],
+      "parsedAndIngestedItems": 20,
+      "fullBodyMatches": 20,
+      "renderedNonEmpty": 20,
+      "publicationDatesVerified": 20,
+      "namedAuthors": 20,
+      "coverImages": 19,
+      "badImageUrls": 0,
+      "maxContentHtmlBytes": 107818,
+      "uniqueUrls": 20,
+      "consecutiveRanks": true,
+      "sampleTop3": [
+        {
+          "position": 1,
+          "title": "New Congress, New Rare Earths Policy?",
+          "url": "https://www.chinatalk.media/p/new-congress-new-rare-earths-policy",
+          "author": "chinatalk",
+          "publishedAt": "2026-11-19T11:56:28.000Z",
+          "contentHtmlBytes": 14682
+        },
+        {
+          "position": 2,
+          "title": "BIS Takes on Compute Leakage",
+          "url": "https://www.chinatalk.media/p/bis-finally-takes-a-stand",
+          "author": "Jordan Schneider",
+          "publishedAt": "2026-11-17T11:03:33.000Z",
+          "contentHtmlBytes": 49827
+        },
+        {
+          "position": 3,
+          "title": "MOFCOM's New Rules: Digging For Leverage",
+          "url": "https://www.chinatalk.media/p/mofcoms-new-weapons-of-mass-construction",
+          "author": "Irene Zhang",
+          "publishedAt": "2026-11-16T11:33:30.000Z",
+          "contentHtmlBytes": 90264
+        }
+      ]
+    },
+    {
+      "source": "aws-ml",
+      "section": "ai",
+      "itemLimit": 20,
+      "feedUrls": ["https://rss.ljhboard.cn/amazon/blogs/machine-learning"],
+      "feedByteLengths": [682133],
+      "parsedAndIngestedItems": 20,
+      "fullBodyMatches": 20,
+      "renderedNonEmpty": 20,
+      "publicationDatesVerified": 20,
+      "namedAuthors": 20,
+      "coverImages": 20,
+      "badImageUrls": 0,
+      "maxContentHtmlBytes": 55394,
+      "uniqueUrls": 20,
+      "consecutiveRanks": true,
+      "sampleTop3": [
+        {
+          "position": 1,
+          "title": "Amazon SageMaker Inference: 2026 launches in review, part 2",
+          "url": "https://aws.amazon.com/blogs/machine-learning/amazon-sagemaker-inference-2026-launches-in-review-part-2",
+          "author": "Aryaman Kothari",
+          "publishedAt": "2026-11-20T00:34:07.000Z",
+          "contentHtmlBytes": 41014
+        },
+        {
+          "position": 2,
+          "title": "Use Kimi Code CLI with models on Amazon Bedrock",
+          "url": "https://aws.amazon.com/blogs/machine-learning/use-kimi-code-cli-with-models-on-amazon-bedrock",
+          "author": "Alex Thewsey",
+          "publishedAt": "2026-11-20T00:33:30.000Z",
+          "contentHtmlBytes": 26992
+        },
+        {
+          "position": 3,
+          "title": "Enable AI agents to pay for AWS Marketplace x402 products with Amazon Bedrock AgentCore payments",
+          "url": "https://aws.amazon.com/blogs/machine-learning/enable-ai-agents-to-pay-for-aws-marketplace-x402-products-with-amazon-bedrock-agentcore-payments",
+          "author": "Madhu Samhitha Vangara",
+          "publishedAt": "2026-11-19T23:02:16.000Z",
+          "contentHtmlBytes": 19451
+        }
+      ]
+    },
+    {
+      "source": "import-ai",
+      "section": "ai",
+      "itemLimit": 20,
+      "feedUrls": ["https://rss.ljhboard.cn/substack/subscribe/importai"],
+      "feedByteLengths": [471984],
+      "parsedAndIngestedItems": 20,
+      "fullBodyMatches": 20,
+      "renderedNonEmpty": 20,
+      "publicationDatesVerified": 20,
+      "namedAuthors": 20,
+      "coverImages": 19,
+      "badImageUrls": 0,
+      "maxContentHtmlBytes": 30077,
+      "uniqueUrls": 20,
+      "consecutiveRanks": true,
+      "sampleTop3": [
+        {
+          "position": 1,
+          "title": "Import AI 481: AI sub-contractors; a wet lab for AI; and subterfuge during development",
+          "url": "https://importai.substack.com/p/import-ai-481-ai-sub-contractors",
+          "author": "Jack Clark",
+          "publishedAt": "2026-11-16T14:01:15.000Z",
+          "contentHtmlBytes": 18717
+        },
+        {
+          "position": 2,
+          "title": "Import AI 480: Self-sustaining space economies; AI for science progress, and Meta builds perfect hands for a superintelligence",
+          "url": "https://importai.substack.com/p/import-ai-480-self-sustaining-space",
+          "author": "Jack Clark",
+          "publishedAt": "2026-11-09T13:31:34.000Z",
+          "contentHtmlBytes": 18473
+        },
+        {
+          "position": 3,
+          "title": "Import AI 479: Spacewar; low-latency tasks versus LLMs; Genie 4",
+          "url": "https://importai.substack.com/p/import-ai-479-spacewar-low-latency",
+          "author": "Jack Clark",
+          "publishedAt": "2026-11-02T14:30:54.000Z",
+          "contentHtmlBytes": 17400
+        }
+      ]
+    },
+    {
+      "source": "dwarkesh",
+      "section": "ai",
+      "itemLimit": 20,
+      "feedUrls": ["https://rss.ljhboard.cn/substack/subscribe/dwarkesh"],
+      "feedByteLengths": [1601145],
+      "parsedAndIngestedItems": 20,
+      "fullBodyMatches": 20,
+      "renderedNonEmpty": 20,
+      "publicationDatesVerified": 20,
+      "namedAuthors": 20,
+      "coverImages": 6,
+      "badImageUrls": 0,
+      "maxContentHtmlBytes": 171060,
+      "uniqueUrls": 20,
+      "consecutiveRanks": true,
+      "sampleTop3": [
+        {
+          "position": 1,
+          "title": "Paul Christiano – We could be 12 months away from AIs that can overthrow the government",
+          "url": "https://www.dwarkesh.com/p/paul-christiano-2",
+          "author": "Dwarkesh Patel",
+          "publishedAt": "2026-11-16T17:46:28.000Z",
+          "contentHtmlBytes": 128744
+        },
+        {
+          "position": 2,
+          "title": "The avalanche that hit math is coming for AI development",
+          "url": "https://www.dwarkesh.com/p/rsi",
+          "author": "Dwarkesh Patel",
+          "publishedAt": "2026-11-13T18:37:51.000Z",
+          "contentHtmlBytes": 84767
+        },
+        {
+          "position": 3,
+          "title": "The benchmark where AIs have to lie to win",
+          "url": "https://www.dwarkesh.com/p/clocktower",
+          "author": "Dwarkesh Patel",
+          "publishedAt": "2026-11-05T21:05:50.000Z",
+          "contentHtmlBytes": 49616
+        }
+      ]
+    }
+  ]
+}
