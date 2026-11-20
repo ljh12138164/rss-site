@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-20 Sierra Blog 全文来源接入
+
+- `rss-site` 分支 `feat/sierra-source` 基于 `origin/master`（`517d17f`）；自建 `RSSHub` 分支 `feat/sierra-blog`（`f07a8fd4ae`，基于上游 `decd2375d0`）已 cherry-pick 至 `master` @ `8e0c31ccb2` 并在 `https://rss.ljhboard.cn/sierra/blog` 上线。
+- 在 `ai` 分区注册 `sierra`（`itemLimit: 20`、`cronSchedule: '0 0,6,12,18 * * *'`），新增官网矢量图标 `apps/web/public/source-icons/sierra.svg`、迁移 `016-sierra-source.sql`（覆盖 `015-elevenlabs-source.sql`）并同步 `baseline.sql`、`business-jobs.json`（`87` 项任务）与 `verify-release-runtime`（`87` / `89`），详情见 [Sierra Blog 全文来源](docs/development/sierra-source.md)。
+- 公网 `https://rss.ljhboard.cn/sierra/blog`（`?limit=1`/默认/`?limit=100`）HTTP `200`，真实 `ingestSignal` 入库 `20/20`（最大单篇 `11,580` B，全数通过 `renderArticleContent`），全仓 `biome check`（`374` 文件）、`check-types`（`3/3`）、`vitest`（`324 passed | 22 skipped`）、`build`（`95/95` 页）、`render-cron-sql.mjs`、`test-release-packaging.py`（`8/8`）及 `bash -n` 全部通过。
+
 ## 2026-11-20 ElevenLabs Blog 全文来源接入
 
 - `rss-site` 的 `feat/elevenlabs-source` 基于 `6d0e4fc`。RSSHub 的 `feat/elevenlabs-blog` 基于上游 `fd1051c4c8`。
