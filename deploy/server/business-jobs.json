@@ -486,6 +486,12 @@
     "path": "/cron/signals/modal"
   },
   {
+    "source": "elevenlabs",
+    "name": "signal-ingest-elevenlabs",
+    "schedule": "55 5,11,17,23 * * *",
+    "path": "/cron/signals/elevenlabs"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

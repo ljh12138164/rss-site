@@ -22,11 +22,11 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 82 sources', () => {
+  it('defines 7 sections and 83 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(82)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(82)
+    expect(signalSources).toHaveLength(83)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(83)
   })
 
   it('correctly maps all section counts', () => {
@@ -34,7 +34,7 @@ describe('@rss-site/signals', () => {
     expect(technologyArticleSources).toHaveLength(24)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
-    expect(aiSources).toHaveLength(25)
+    expect(aiSources).toHaveLength(26)
     expect(socialSources).toHaveLength(6)
     expect(financeSources).toHaveLength(5)
     expect(gameSources).toHaveLength(13)
@@ -64,6 +64,7 @@ describe('@rss-site/signals', () => {
     expect(isSignalSourceId('kimi')).toBe(true)
     expect(isSignalSourceId('vllm')).toBe(true)
     expect(isSignalSourceId('modal')).toBe(true)
+    expect(isSignalSourceId('elevenlabs')).toBe(true)
     expect(isSignalSourceId('chuapp')).toBe(true)
     expect(isSignalSourceId('80lv')).toBe(true)
     expect(isSignalSourceId('invalid')).toBe(false)
@@ -114,6 +115,9 @@ describe('@rss-site/signals', () => {
     )
     expect(resolveSignalFeedUrl(getSignalSource('modal'), 'https://rss.ljhboard.cn')).toBe(
       'https://rss.ljhboard.cn/modal/blog'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('elevenlabs'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/elevenlabs/blog'
     )
 
     const directSource = getSignalSource('github-blog')
