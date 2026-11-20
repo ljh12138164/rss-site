@@ -269,7 +269,7 @@ export const technologySources = [
     description: '中国科技、芯片与政策分析',
     section: 'technology',
     itemLimit: 20,
-    feedUrl: 'https://www.chinatalk.media/feed',
+    rsshubPath: '/substack/subscribe/chinatalk',
     isArticle: true,
     cronSchedule: '13 4,16 * * *',
     cronJobName: 'signal-ingest-chinatalk'
@@ -824,7 +824,7 @@ export const aiSources = [
     description: 'AWS 机器学习工程与实践',
     section: 'ai',
     itemLimit: 20,
-    feedUrl: 'https://aws.amazon.com/blogs/machine-learning/feed/',
+    rsshubPath: '/amazon/blogs/machine-learning',
     isArticle: true,
     cronSchedule: '4 6,18 * * *',
     cronJobName: 'signal-ingest-aws-ml'
@@ -863,7 +863,7 @@ export const aiSources = [
     description: 'Jack Clark 的 AI 研究与政策周报',
     section: 'ai',
     itemLimit: 20,
-    feedUrl: 'https://importai.substack.com/feed',
+    rsshubPath: '/substack/subscribe/importai',
     isArticle: true,
     cronSchedule: '8 6,18 * * *',
     cronJobName: 'signal-ingest-import-ai'
@@ -889,7 +889,7 @@ export const aiSources = [
     description: 'AI、科技与研究者长访谈',
     section: 'ai',
     itemLimit: 20,
-    feedUrl: 'https://www.dwarkesh.com/feed',
+    rsshubPath: '/substack/subscribe/dwarkesh',
     isArticle: true,
     cronSchedule: '11 6,18 * * *',
     cronJobName: 'signal-ingest-dwarkesh'
