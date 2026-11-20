@@ -14,7 +14,7 @@
   1. **Modal Blog**（`https://modal.com/blog/atom.xml`：`157` 条、`0` words 纯元数据 -> 文章 `<article>` `7,569` 字符，和 `vLLM Blog` 最相似；`OpenAI Developers Blog` 已完成自建路由 `/openai/developers/blog` 与 `rss-site` `openai` 合并接入）
   2. **ElevenLabs Blog**（自建全文路由已上线，`rss-site` 接入待合并发布，见[验证记录](../development/elevenlabs-source.md)）
   3. **Suno Blog**（`https://suno.com/blog/rss.xml`：`50` 条、`22` words 摘要 -> 文章 `4,522` 字符）
-  4. **Sierra Blog**（`https://sierra.ai/rss.xml`：`147` 条、`32` words 摘要 -> 文章 `5,725` 字符）
+  4. **Sierra Blog**（自建全文路由 `/sierra/blog` 已上线，`rss-site` `feat/sierra-source` 接入中，见[验证记录](../development/sierra-source.md)）
   5. **Together AI Blog**（`https://www.together.ai/blog/rss.xml`：`100` 条、`43` words 摘要 -> 文章 `42,581` 字符）
   6. **Allen AI (Ai2) Blog**（`https://allenai.org/rss.xml`：`25` 条、`20` words 摘要 -> 文章 `9,796` 字符）
   7. **Apple ML Research** / **Databricks Blog** / **Supabase Blog** / **Deno Blog** / **Tailscale Blog** / **Figma Blog** / **Mitchell Hashimoto**；游戏引擎与媒体：**Godot Engine News**、**Game Developer**、**Gematsu**、**VGC**、**Rock Paper Shotgun**。
@@ -86,7 +86,7 @@
 | **Modal Blog**（AI 开发推荐） | `https://modal.com/blog/atom.xml` | ✅ 已完成（自建 `https://rss.ljhboard.cn/modal/blog` 已上线，`master` @ `90cd7c7b7d`，源分支 `feat/modal-blog` @ `d3654a0b89`；待提交上游 `DIYgod/RSSHub` PR）；`rss-site` `ai` 分区接入 `modal`（`itemLimit: 20`） | Atom `158` 条且无摘要与正文；新路由并发抓取文章页补全分类、作者、封面、全文并内联 SVG 图表样式，`100` 篇实时审计通过。 |
 | **ElevenLabs Blog**（AIHOT 参考） | `https://elevenlabs.io/blog/rss.xml` | ✅ 自建 [`/elevenlabs/blog`](https://rss.ljhboard.cn/elevenlabs/blog) 已上线（`master` @ `d09520a4b5`，源分支 `feat/elevenlabs-blog` @ `a9625b8464`）；`rss-site` AI 分区接入待合并发布 | 通过官方 RSS 发现条目并补全正文、封面、FAQ、表格和音视频。50 篇全量比对通过；默认 20 篇经站点采集器验证。 |
 | **Suno Blog**（AIHOT 参考） | `https://suno.com/blog/rss.xml` | 无（`suno` 缺失） | RSS `200`（`24,972` B、`50` 条、`descLen: 121` / `22` words）；文章页 `200`（`183,831` B，`<article>` `4,522` 字符），AI 音乐大模型官方博客。 |
-| **Sierra Blog**（AIHOT 参考） | `https://sierra.ai/rss.xml` | 无（`sierra` 缺失） | RSS `200`（`97,122` B、`147` 条、`descLen: 213` / `32` words）；文章页 `200`（`176,485` B，`<article>` `5,725` 字符），企业级 AI Agent 代表团队。 |
+| **Sierra Blog**（AIHOT 参考） | `https://sierra.ai/rss.xml` | ✅ 自建 [`/sierra/blog`](https://rss.ljhboard.cn/sierra/blog) 已上线（`master` @ `8e0c31ccb2`，源分支 `feat/sierra-blog` @ `f07a8fd4ae`）；`rss-site` AI 分区接入待合并发布 | 读取 `sierra.ai/rss.xml`（`147` 篇）并发提取正文主栏、Wistia/YouTube 嵌入、Sanity `mediaResponsiveVideo` 与交互图外链；全量 `147` 篇本地通过，公网 `limit=1`/默认/`limit=100` HTTP `200` 且站点 `ingestSignal` `20/20` 验证通过。 |
 | **Together AI Blog** | `https://www.together.ai/blog/rss.xml` | 无（`together` 缺失） | RSS `200`（`56,237` B、`100` 条、`descLen: 229` / `43` words）；文章页 `200`（`721,443` B，`<article>` `42,581` 字符），开源模型推理/微调研究博客。 |
 | **Allen AI (Ai2) Blog** | `https://allenai.org/rss.xml` | 无（`allenai` / `ai2` 缺失） | RSS `200`（`25` 条、`descLen: 458` / `20` words）；文章页 `200`（`1,222,437` B、`9,796` 字符），开放大模型研究实验室（OLMo/Tulu）。 |
 | **Apple ML Research** | `https://machinelearning.apple.com/rss.xml` | 缺子路由（`lib/routes/apple` 无 ML 路由） | RSS `200`（`9,712` B、`10` 条、`descLen: 598` / `85` words）；文章页 `200`（`25,146` B、`3,096` 字符正文）。 |

@@ -492,6 +492,12 @@
     "path": "/cron/signals/elevenlabs"
   },
   {
+    "source": "sierra",
+    "name": "signal-ingest-sierra",
+    "schedule": "0 0,6,12,18 * * *",
+    "path": "/cron/signals/sierra"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

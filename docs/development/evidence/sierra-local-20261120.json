@@ -1,0 +1,44 @@
+{
+  "checkedAt": "2026-11-20T08:00:16.369Z",
+  "source": "sierra",
+  "section": "ai",
+  "itemLimit": 20,
+  "feedUrls": ["https://rss.ljhboard.cn/sierra/blog"],
+  "feedByteLengths": [115995],
+  "parsedAndIngestedItems": 20,
+  "fullBodyMatches": 20,
+  "renderedNonEmpty": 20,
+  "publicationDatesVerified": 20,
+  "namedAuthors": 20,
+  "coverImages": 20,
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 11580,
+  "uniqueUrls": 20,
+  "consecutiveRanks": true,
+  "sampleTop3": [
+    {
+      "position": 1,
+      "title": "Insights from our whitepaper: Personal agents and the enterprise",
+      "url": "https://sierra.ai/blog/personal-agents-insights",
+      "author": "Sierra",
+      "publishedAt": "2026-11-19T12:30:00.000Z",
+      "contentHtmlBytes": 5043
+    },
+    {
+      "position": 2,
+      "title": "Ghostwriter’s performance review",
+      "url": "https://sierra.ai/blog/ghostwriters-performance-review",
+      "author": "Mike Ottavi-Brannon",
+      "publishedAt": "2026-11-18T16:02:05.000Z",
+      "contentHtmlBytes": 5038
+    },
+    {
+      "position": 3,
+      "title": "Releasing Personal Agent Protocol 1.0",
+      "url": "https://sierra.ai/blog/releasing-poppy",
+      "author": "Bret Taylor, Clay Bavor",
+      "publishedAt": "2026-11-13T17:00:00.000Z",
+      "contentHtmlBytes": 6611
+    }
+  ]
+}
