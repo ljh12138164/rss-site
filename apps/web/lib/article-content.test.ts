@@ -13,11 +13,21 @@ describe('article HTML', () => {
   })
   it('removes AWS blog author bio footer chrome while preserving article content', () => {
     const html =
-      '<p>Main article body.</p><hr /><h2 id="about-the-author">About the authors</h2><footer><div class="blog-author-box"><div class="blog-author-image"><img src="https://d2908q01vomqb2.cloudfront.net/author.jpg" alt="Alex" /></div><h3 class="lb-h4">Alex</h3><p>Bio text.</p></div></footer>'
+      '<p>Main article body.</p><hr /><h2><strong>About the authors</strong></h2><footer><div class="blog-author-box"><div class="blog-author-image"><img src="https://d2908q01vomqb2.cloudfront.net/author.jpg" alt="Alex" /></div><h3 class="lb-h4">Alex</h3><p>Bio text.</p></div></footer>'
     expect(
       renderArticleContent(
         html,
         'https://aws.amazon.com/blogs/machine-learning/use-kimi-code-cli-with-models-on-amazon-bedrock/'
+      )
+    ).toBe('<p>Main article body.</p>')
+  })
+  it('removes orphaned trailing AWS author headings even without a footer box', () => {
+    const html =
+      '<p>Main article body.</p><p>&nbsp;</p><hr style="width: 100%"><h2>About the authors</h2>'
+    expect(
+      renderArticleContent(
+        html,
+        'https://aws.amazon.com/blogs/storage/how-ignyte-runs-candidate-search-with-amazon-s3-vectors/'
       )
     ).toBe('<p>Main article body.</p>')
   })

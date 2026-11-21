@@ -12,8 +12,9 @@ describe('parseSignalFeed AWS cleaning', () => {
       <link>https://aws.amazon.com/blogs/machine-learning/use-kimi-code-cli-with-models-on-amazon-bedrock/</link>
       <dc:creator>Alex Thewsey</dc:creator>
       <pubDate>Thu, 19 Nov 2026 23:00:00 GMT</pubDate>
+      <enclosure url="https://d2908q01vomqb2.cloudfront.net/avatar.jpg" type="image/jpeg" />
       <description><![CDATA[Short excerpt.]]></description>
-      <content:encoded><![CDATA[<p>Body paragraph without images.</p><hr /><h2 id="about-the-author">About the authors</h2><footer><div class="blog-author-box"><div class="blog-author-image"><img src="https://d2908q01vomqb2.cloudfront.net/avatar.jpg" alt="Alex Thewsey" /></div><h3>Alex Thewsey</h3><p>Author bio.</p></div></footer>]]></content:encoded>
+      <content:encoded><![CDATA[<p>Body paragraph without images.</p><hr /><h2><strong>About the authors</strong></h2><footer><div class="blog-author-box"><div class="blog-author-image"><img src="https://d2908q01vomqb2.cloudfront.net/avatar.jpg" alt="Alex Thewsey" /></div><h3>Alex Thewsey</h3><p>Author bio.</p></div></footer>]]></content:encoded>
     </item>
   </channel>
 </rss>`
