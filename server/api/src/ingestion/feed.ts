@@ -316,6 +316,14 @@ export function parseSignalFeed(
     // Feed HTML is archived as untrusted content; the reader sanitizes it before rendering.
     const rawHtml = content ?? rawDescription
     const html = rawHtml ? cleanFeedArticleHtml(rawHtml, url) : null
+    const cleanedDescription =
+      rawDescription == null
+        ? null
+        : rawDescription === rawHtml
+          ? html
+          : cleanFeedArticleHtml(rawDescription, url)
+    const cleanedContent =
+      content == null ? null : content === rawHtml ? html : cleanFeedArticleHtml(content, url)
     const contentHtml = html && Buffer.byteLength(html, 'utf8') <= 512 * 1024 ? html : null
     return [
       {
@@ -323,13 +331,11 @@ export function parseSignalFeed(
         title,
         url,
         imageUrl:
-          imageEnclosureUrl(item.enclosure, url) ?? firstImageUrl(url, rawDescription, content),
+          imageEnclosureUrl(item.enclosure, url) ??
+          firstImageUrl(url, cleanedDescription, cleanedContent),
         summary: options.skillMetadata
           ? skillSummary(rawDescription)
-          : ((plainText(cleanFeedArticleHtml(rawDescription ?? '', url)) ?? plainText(html))?.slice(
-              0,
-              500
-            ) ?? null),
+          : ((plainText(cleanedDescription ?? '') ?? plainText(html))?.slice(0, 500) ?? null),
         contentHtml,
         author: extractAuthor(item.author) ?? extractAuthor(item['dc:creator']),
         publishedAt: publishedDate(
