@@ -230,7 +230,7 @@ export const technologySources = [
     description: 'AI 新闻与分析，英文全文',
     section: 'technology',
     itemLimit: 30,
-    rsshubPath: '/the-decoder/news',
+    rsshubPath: '/the-decoder/news?limit=60&filter_description=%5E%5Cs*%3C',
     isArticle: true,
     cronSchedule: '0 5,11,17,23 * * *',
     cronJobName: 'signal-ingest-the-decoder'
