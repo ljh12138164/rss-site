@@ -367,6 +367,11 @@
   border-top: 1px solid var(--border);
   margin-block: 2em;
 }
+.article-content math[display="block"] {
+  margin-block: 1.35em;
+  max-width: 100%;
+  overflow-x: auto;
+}
 @media (min-width: 640px) {
   .article-content {
     font-size: 1.0625rem;

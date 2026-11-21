@@ -66,6 +66,23 @@ describe('article HTML', () => {
     expect(html).not.toContain('ping=')
     expect(render(html)).toBe(html)
   })
+  it('preserves MathML equations while stripping KaTeX duplicate markup and unsafe payloads', () => {
+    const html = render(
+      '<p>We use <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>l</mi></msub></mrow><annotation encoding="application/x-tex">h_l</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base">h_l</span></span></span> in training.</p><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><mfrac><mn>1</mn><mi>ε</mi></mfrac><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(1/\\varepsilon)</annotation></semantics></math></span></span></span><math><mtext><table><mglyph><style><!--</style><img src=x onerror=alert(1)></table></mtext><script>alert(1)</script><mi href="javascript:alert(1)" onclick="evil()">z</mi></math>'
+    )
+    expect(html).toContain('<math><mrow><msub><mi>h</mi><mi>l</mi></msub></mrow></math>')
+    expect(html).toContain(
+      '<math display="block"><mrow><mi>O</mi><mo stretchy="false">(</mo><mfrac><mn>1</mn><mi>ε</mi></mfrac><mo stretchy="false">)</mo></mrow></math>'
+    )
+    expect(html).not.toContain('katex')
+    expect(html).not.toContain('x-tex')
+    expect(html).not.toContain('h_l')
+    expect(html).not.toContain('<img')
+    expect(html).not.toContain('<script')
+    expect(html).not.toContain('onerror')
+    expect(html).not.toContain('onclick')
+    expect(html).not.toContain('javascript:')
+  })
   it('rejects an oversized body rather than rendering a truncated HTML fragment', () => {
     expect(render('中'.repeat(180000))).toBe('')
   })

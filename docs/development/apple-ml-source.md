@@ -11,6 +11,7 @@
 - 自建 `RSSHub`（分支 `feat/apple-ml-research` @ `473976be15`，基于 `upstream/master` `2eb5724294`；已 cherry-pick 至 `master` @ `57cd7adafd`）新增 `lib/routes/apple/ml-research.ts` 与 `lib/routes/apple/templates/ml-research.tsx`，暴露 `/apple/ml-research/:category?`。
 - `rss-site` 在 `packages/signals/src/index.ts` 的 `aiSources` 注册 `apple-ml`（`name: 'Apple ML'`、`code: 'AM'`、`itemLimit: 20`、`rsshubPath: '/apple/ml-research'`、`isArticle: true`、`cronSchedule: '5 0,6,12,18 * * *'`），同步更新 `packages/signals/src/index.test.ts`（总源 `85`、AI 分区 `28`）。
 - 在 `apps/web/components/source-icon.tsx` 使用 `react-icons/si` 官方品牌图标 `SiApple`（`#000000` / `#f2f0ea` 浅底徽章）注册 `apple-ml`。
+- 在 [apps/web/lib/article-content.ts](../../apps/web/lib/article-content.ts)、[apps/web/app/globals.css](../../apps/web/app/globals.css) 与 [server/api/src/ingestion/feed.ts](../../server/api/src/ingestion/feed.ts) 放行安全的 MathML 核心展示标签与块级公式滚动样式，过滤 KaTeX `.katex-html` / `<annotation>` / `<annotation-xml>` 冗余文本并脱包 `.katex` 嵌套 `<span>`，同时保留对 `<mtext><table><mglyph>` 等 mXSS 载荷的阻断。
 - 新增 PostgreSQL 检查约束迁移 `deploy/postgres/migrations/017-apple-ml-source.sql`（标注 `016-sierra-source.sql` 已被覆盖），同步更新 `deploy/postgres/baseline.sql`、`deploy/server/business-jobs.json`（总计 `88` 项 Cron 任务）与 `deploy/server/verify-release-runtime` 预期计数（`88` / `90`）。
 
 ## 验收标准
@@ -34,7 +35,8 @@
 - **`RSSHub`**：分支 `feat/apple-ml-research` 提交 `473976be15`（已同步 `master` @ `57cd7adafd` 并部署上线 `https://rss.ljhboard.cn/apple/ml-research`）。
 - **`rss-site`**：
   - [packages/signals/src/index.ts](../../packages/signals/src/index.ts)、[packages/signals/src/index.test.ts](../../packages/signals/src/index.test.ts)
-  - [apps/web/components/source-icon.tsx](../../apps/web/components/source-icon.tsx)
+  - [apps/web/components/source-icon.tsx](../../apps/web/components/source-icon.tsx)、[apps/web/lib/article-content.ts](../../apps/web/lib/article-content.ts)、[apps/web/lib/article-content.test.ts](../../apps/web/lib/article-content.test.ts)、[apps/web/app/globals.css](../../apps/web/app/globals.css)
+  - [server/api/src/ingestion/feed.ts](../../server/api/src/ingestion/feed.ts)、[server/api/src/ingestion/feed.test.ts](../../server/api/src/ingestion/feed.test.ts)
   - [deploy/postgres/migrations/017-apple-ml-source.sql](../../deploy/postgres/migrations/017-apple-ml-source.sql)、[016-sierra-source.sql](../../deploy/postgres/migrations/016-sierra-source.sql)、[baseline.sql](../../deploy/postgres/baseline.sql)
   - [deploy/server/business-jobs.json](../../deploy/server/business-jobs.json)、[deploy/server/verify-release-runtime](../../deploy/server/verify-release-runtime)
   - [docs/development/evidence/apple-ml-local-20261121.json](evidence/apple-ml-local-20261121.json)、[docs/research/rsshub-route-candidates-and-workflow.md](../research/rsshub-route-candidates-and-workflow.md)、[HERMES.md](../../HERMES.md)
@@ -46,11 +48,12 @@
   - 本地实时全量审计：`/apple/ml-research`（`20/20`）、`/apple/ml-research/highlights?limit=100`（`56/56`）与 `/apple/ml-research/research?limit=100`（`100/100`）均返回 `200` 且 `problems=[]`；`RSSHub-docs`（`5174`）双语路由页 `200` 且 `/routes.json` 已收录。
   - 公网 `https://rss.ljhboard.cn` 实测：`/apple/ml-research?limit=1`（`3,351 B` / `1` 条）、`/apple/ml-research`（`116,311 B` / `20` 条）、`/apple/ml-research/highlights?limit=1`（`28,275 B` / `1` 条）与 `/apple/ml-research/research?limit=1`（`3,370 B` / `1` 条）均返回 `200`。
 - **`rss-site` 采集与仓库门禁**：
-  - `ingestSignal` + `renderArticleContent` 实测（[apple-ml-local-20261121.json](evidence/apple-ml-local-20261121.json)）：`parsedAndIngestedItems = 20`、`fullBodyMatches = 20`、`renderedNonEmpty = 20`、`publicationDatesVerified = 20`、`namedAuthors = 20`、`coverImages = 2`（仅精选博客带真实配图，论文不误取泛用图）、`badImageUrls = 0`、`maxContentHtmlBytes = 31,230`、`uniqueUrls = 20`、`consecutiveRanks = true`。
-  - 工具链校验：`biome check`（变更的 5 个文件通过；注：工作区原有未跟踪提交的 `apps/web/components/article-search.tsx` 末尾换行差异及部分旧文件在 Windows 下的 CRLF 检出差异触发全仓 `pnpm lint` 格式告警，本次未改动这些文件）、`pnpm check-types`（`3/3`）、`pnpm test`（`3/3`：`@rss-site/signals` `9 passed`，`@rss-site/api` `125 passed`，`@rss-site/web` `194 passed | 22 skipped` 跳过 4 个依赖 Docker DB/Redis 的集成测试文件）、`pnpm build`（`2/2`，生成 `96/96` 静态页 + `sw.js`）、`render-cron-sql.mjs`（`30,602` 字符 / `353` 行，含 `'apple-ml'` 与 `signal-ingest-apple-ml`，无顶层 `select private.activate_*`）、`wsl bash -n deploy/server/verify-release-runtime`（退出码 `0`）与 `wsl python3 -B deploy/server/test-release-packaging.py -v`（`8/8 OK`）均通过。
+  - `ingestSignal` + `renderArticleContent` 实测（[apple-ml-local-20261121.json](evidence/apple-ml-local-20261121.json)）：`parsedAndIngestedItems = 20`、`fullBodyMatches = 20`、`renderedNonEmpty = 20`、`rawMathTags = 14`、`renderedMathTags = 14`、`publicationDatesVerified = 20`、`namedAuthors = 20`、`coverImages = 2`（仅精选博客带真实配图，论文不误取泛用图）、`badImageUrls = 0`、`maxContentHtmlBytes = 31,230`、`uniqueUrls = 20`、`consecutiveRanks = true`。
+  - 工具链校验：`biome check`（含新增 MathML 与迁移在内的所有变更文件通过；注：工作区原有未跟踪提交的 `apps/web/components/article-search.tsx` 末尾换行差异及部分旧文件在 Windows 下的 CRLF 检出差异触发全仓 `pnpm lint` 格式告警，本次未改动这些文件）、`pnpm check-types`（`3/3`）、`pnpm test`（`3/3`：`@rss-site/signals` `9 passed`，`@rss-site/api` `126 passed`，`@rss-site/web` `195 passed | 22 skipped` 跳过 4 个依赖 Docker DB/Redis 的集成测试文件）、`pnpm build`（`2/2`，生成 `96/96` 静态页 + `sw.js`）、`render-cron-sql.mjs`（含 `'apple-ml'` 与 `signal-ingest-apple-ml`，无顶层 `select private.activate_*`）、`wsl bash -n deploy/server/verify-release-runtime`（退出码 `0`）与 `wsl python3 -B deploy/server/test-release-packaging.py -v`（`8/8 OK`）均通过。
   - 无未决后续跟进事项，故不另建空 roadmap 文档。
 
 ## 风险
 
 - 若 `machinelearning.apple.com` 后续调整 `__NEXT_DATA__` `pageProps.posts` 结构或 `.post-article` / `.postBody` 类名，需同步更新 `RSSHub` `/apple/ml-research` 路由选择器。
+- `deploy/postgres/migrations/017-apple-ml-source.sql` 沿用仓库 `002`–`016` 单一重放约束策略（`render-cron-sql.mjs` 每次发布重放全量 `*.sql`）：发布失败时的自动回滚发生在 `--activate-unverified` 写入 `apple-ml` 数据之前（且 `rollback()` 不执行新 SQL），但一旦 `apple-ml` 实际写入数据，直接重跑旧镜像（`a057be2` 内含不含 `apple-ml` 的旧 `016` 检查约束）会被库表 `CHECK` 拒绝，后续若需下线应通过前向兼容变更/迁移关闭而非回放旧版约束。
 - 备用 `RSSHub` fork（`ljh-project/RSSHub`）尚未执行 **Sync fork -> Update branch**，当前主站接入主实例 `https://rss.ljhboard.cn` 不受影响。

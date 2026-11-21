@@ -45,4 +45,22 @@ describe('parseSignalFeed AWS cleaning', () => {
     expect(item?.author).toBe('Vaishnavi Merugu, Ryan Peng')
     expect(item?.contentHtml).toBe('<p>Security guidance body.</p>')
   })
+
+  it('drops KaTeX annotation nodes from extracted plain-text summaries', () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Apple ML</title>
+    <item>
+      <title>Best-of-N alignment</title>
+      <link>https://machinelearning.apple.com/research/example</link>
+      <pubDate>Fri, 20 Nov 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[<p>Best-of-<math><semantics><mrow><mi>N</mi></mrow><annotation encoding="application/x-tex">N</annotation></semantics></math> bound.</p>]]></description>
+    </item>
+  </channel>
+</rss>`
+
+    const [item] = parseSignalFeed(xml, 'Apple ML')
+    expect(item?.summary).toBe('Best-of- N bound.')
+  })
 })

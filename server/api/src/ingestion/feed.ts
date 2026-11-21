@@ -172,7 +172,9 @@ function plainText(value: unknown): string | null {
 
   const cleaned = cleanCmsTemplateTags(html)
   const text = decodeEntities(
-    cleaned.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ')
+    cleaned
+      .replace(/<(script|style|annotation-xml|annotation)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
   )
     .replace(/\s+/g, ' ')
     .trim()
