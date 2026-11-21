@@ -44,21 +44,19 @@
 
 ## Verification
 
-- **`RSSHub` 校验（`feat/amazon-blogs` 基于 `upstream/master` `b8dbcf0c08`）**：
-  - `pnpm exec oxfmt --check lib/routes/amazon/blogs.tsx`：通过
-  - `pnpm exec oxlint --type-aware --config=oxlint.ci.config.ts --deny-warnings lib/routes/amazon/blogs.tsx`：`Found 0 warnings and 0 errors`（`607` rules）
-  - `pnpm exec eslint lib/routes/amazon/blogs.tsx`、`pnpm typecheck`、`uvx --from lizard lizard -l typescript -C 10 -w lib/routes/amazon/blogs.tsx`、`pnpm run build:docs`：全部通过
-  - 真实 `app.request` 实测：`/amazon/blogs/machine-learning?limit=100&format=json`（`200`、`20/20` 含图、`0` 页脚、`19` 多作者）、`/amazon/blogs/security?format=json`（`200`、`20/20` 含图、`0` 页脚、`10` 多作者）、`/amazon/blogs/containers?format=json`（`200`、`10/10` 含图、`0` 页脚、`9` 多作者）、`/amazon/blogs?limit=5&format=json`（`200`、`5/5` 含图）、`/amazon/blogs/invalid_cat!`（`503` `InvalidParameterError`）、`/amazon/blogs/nonexistent-cat-xyz`（`503` 上游 `404`）。
-- **端到端采集与渲染校验**：将 `RSSHub` `/amazon/blogs/machine-learning`（`535,526` B）与 `/amazon/blogs/security`（`649,220` B）实抓 XML 输入 `ingestSignal` + `renderArticleContent`：两组均为 `20/20`、`emptyBodies: 0`、`authorBoxes: 0`、`renderedFooterText: 0`、`covers: 20`、`badCovers: 0`（`ml` `multiAuthorCount: 19`、`maxBytes: 41,434`；`sec` `multiAuthorCount: 10`、`maxBytes: 49,220`）。
-- **`rss-site` 全仓校验**：
-  - `pnpm lint`（`biome check .`，`371` 文件通过）
-  - `pnpm check-types`（`3/3` 包通过）
-  - `pnpm test`（`@rss-site/signals` `9 passed`、`@rss-site/api` `125 passed`、`@rss-site/web` `193 passed | 22 skipped`）
-  - `pnpm build`（`@rss-site/api` + `@rss-site/web` `95/95` 静态页 + `early-hints` + `sw.js`）
+- **`RSSHub` 校验（`feat/amazon-blogs` @ `4f989466a9` 基于 `upstream/master` `b8dbcf0c08`，并同步至自建 `master`）**：
+  - `pnpm exec oxfmt --check lib/routes/amazon/blogs.tsx`、`pnpm exec oxlint --type-aware --config=oxlint.ci.config.ts --deny-warnings lib/routes/amazon/blogs.tsx`（`Found 0 warnings and 0 errors`，`607` rules）、`pnpm exec eslint lib/routes/amazon/blogs.tsx`、`pnpm typecheck`、`uvx --from lizard lizard -l typescript -C 10 -w lib/routes/amazon/blogs.tsx`、`pnpm run build:docs` 及 `prek` 全项检查全部通过。
+  - `gpt-6.2-sol`（`reasoning effort: high`）Codex review 闭环修复：有正文章节图但缺失内联作者框时（如 `compute` 的 Lambda Durable Functions 3 位合著作者）照常并发补抓页面元数据（传入 `publicOnly: true` 防护私网跳转）；保留上游 `video/mp4` / `audio/mpeg` `<enclosure>`；规范化作者空白字符（消除 `Dr.\u00a0Jens Kohl` 重复）且仅在缺失显式作者时回退 `dc:creator`（消除 `Zach Jacobson` / `Zachary Jacobson`、`Abrom Douglas` / `Abrom Douglas III` 重复）；在提取正文首图前清理 `<footer>`、独立 `.blog-author-box` 与孤立/表格/段落形式的 `About the author(s)` / `About Author(s)` / `Author Bio(s)` 区块并保留后续 `References`、`Related resources` 与 `ol.blog-footnotes`。
+  - 真实 `app.request` 实测：`contact-center`（`200`、`20/20`、`headshotCovers: 0`、保留 `References: 2` / `Related resources: 2` / `footnotes: 1`）、`awsmarketplace`（`200`、`20/20`）、`machine-learning?limit=100`（`200`、`20/20`、`4` 个 `video/mp4` 与 `audio/mpeg` `<enclosure>` 保留）、`compute`（`200`、`20/20`）、`storage`（`200`、`20/20`、`orphanHeads: 0`）、`containers`（`200`、`10/10`）、`security`（`200`、`20/20`）与 `aws?limit=5`（`200`、`5/5`）全部通过，错误参数与不存在分类返回 `503`。
+- **端到端采集与渲染校验**：将最新 `RSSHub` XML（`ml.xml` `535,477` B、`sec.xml` `649,205` B、`storage.xml` `645,185` B、`cc.xml` `556,390` B）输入 `parseSignalFeed` + `renderArticleContent`：四组均 `20/20`、`emptyBodies: 0`、`authorBoxes: 0`、`renderedFooterText: 0`、`badCovers: 0`（`sec`/`storage`/`cc` 均 `20/20` 封面；`ml` 为 `19/20` 封面，余下 1 篇为正文无图且保留 `video/mp4` 原生 `<enclosure>` 的视频文章）。
+- **`rss-site` `gpt-6.2-sol` Codex review 与全仓校验**：
+  - 修复 Codex `[P2]`（被 `cleanFeedArticleHtml` 移除的作者头像若出现在 `<enclosure>` 中，在 `parseSignalFeed` 中过滤掉再选封面）与 `[P3]`（`stripTrailingAwsHeading` 支持剥离带 `<strong>` 等内联标签以及无 `<footer>` 孤立的 `About the author(s)` / `About Author(s)` / `Author Bio(s)` 尾部标题），并在 `article-content.test.ts`（`8` 项）与 `feed.test.ts`（`2` 项）补测通过。
+  - 更新 `AGENTS.md` 与 `.agents/skills/develop-with-pr/SKILL.md`，固化单轮 `gpt-6.2-sol` Codex review 与强制输出中英文双语上游 PR 文案规范。
+  - 将在本轮最终编辑完成后重新执行全仓 `pnpm lint`、`pnpm check-types`、`pnpm test`、`pnpm build` 并核对 PR #107 CI。
 
 ## Review
 
-- 按仓库规范与验收标准复核：仅作用于 AWS 博客 URL 与泛用清洗先后顺序，不改源配置/调度/迁移且无未解决阻塞项；无需追加后续拆分任务，不创建空 roadmap。
+- 按仓库规范与 `gpt-6.2-sol` Codex review 结论完成双向闭环：阻塞与非阻塞（`P2`/`P3`）发现均已修复并由单元与端到端实测验证，无遗留阻塞项，不创建空 roadmap。
 
 ## Risks
 

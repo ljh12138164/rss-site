@@ -78,7 +78,7 @@ For new signal sources, follow the [production-data gate](../../../AGENTS.md#new
 
 ## Close reviews and create the roadmap
 
-1. Review the completed diff against both repository standards and the development document's acceptance criteria. Use a dedicated review skill when the user requests one or repository instructions require it.
+1. Review the completed diff against both repository standards and the development document's acceptance criteria. Run `codex review --base <base> -c 'model="gpt-6.2-sol"' -c 'model_reasoning_effort="high"'` alongside repository checks and any dedicated review skill when the user requests one or repository instructions require it.
 2. Classify every finding as:
    - **Blocking:** required for correctness, acceptance criteria, security, compatibility, or safe delivery. Resolve it in the current branch and review again.
    - **Accepted follow-up:** valuable, evidence-backed work that is explicitly outside the current PR scope and does not make the PR unsafe or incomplete.
@@ -115,7 +115,7 @@ Related development document: [<Task title>](../development/<short-kebab-name>.m
 
 ## Open and maintain the pull request
 
-1. Push the feature branch and open or update its pull request only after local verification is proportionate to the change.
+1. Push the feature branch and open or update its pull request only after local verification is proportionate to the change. Never open `DIYgod/RSSHub` upstream PRs directly from tools; when companion `RSSHub` routes are included, always output both clean English (paste-ready) and corresponding Chinese upstream PR copy in chat per `AGENTS.md`.
 2. Summarize scope, important decisions, affected workspaces, verification, migration or environment requirements, and the roadmap link when one exists.
 3. Inspect CI and review feedback. Resolve blocking findings, update the development document and roadmap classification, rerun affected checks, and push focused commits until the PR is reviewable and no blocker remains.
 4. Update `/HERMES.md` with the PR, final status, remaining accepted follow-ups, and the next concrete action.

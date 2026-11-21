@@ -233,18 +233,8 @@ function resolveImageUrl(value: unknown, baseUrl: string): string | null {
   }
 }
 
-function imageEnclosureUrl(value: unknown, baseUrl: string): string | null {
-  for (const enclosure of Array.isArray(value) ? value : [value]) {
-    if (!enclosure || typeof enclosure !== 'object' || !('@_type' in enclosure)) continue
-    const type = textValue(enclosure['@_type'])
-    if (!type?.toLowerCase().startsWith('image/') || !('@_url' in enclosure)) continue
-    const imageUrl = resolveImageUrl(enclosure['@_url'], baseUrl)
-    if (imageUrl) return imageUrl
-  }
-  return null
-}
-
-function firstImageUrl(baseUrl: string, ...values: unknown[]): string | null {
+function collectImageUrls(baseUrl: string, ...values: unknown[]): string[] {
+  const urls: string[] = []
   for (const value of values) {
     const html = textValue(value)
     if (!html) continue
@@ -253,10 +243,24 @@ function firstImageUrl(baseUrl: string, ...values: unknown[]): string | null {
       /<img\b[^>]*\bsrc\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi
     )) {
       const imageUrl = resolveImageUrl(match[1] ?? match[2] ?? match[3], baseUrl)
-      if (imageUrl) return imageUrl
+      if (imageUrl) urls.push(imageUrl)
     }
   }
+  return urls
+}
 
+function imageEnclosureUrl(
+  value: unknown,
+  baseUrl: string,
+  blockedUrls?: ReadonlySet<string>
+): string | null {
+  for (const enclosure of Array.isArray(value) ? value : [value]) {
+    if (!enclosure || typeof enclosure !== 'object' || !('@_type' in enclosure)) continue
+    const type = textValue(enclosure['@_type'])
+    if (!type?.toLowerCase().startsWith('image/') || !('@_url' in enclosure)) continue
+    const imageUrl = resolveImageUrl(enclosure['@_url'], baseUrl)
+    if (imageUrl && !blockedUrls?.has(imageUrl)) return imageUrl
+  }
   return null
 }
 
@@ -324,15 +328,20 @@ export function parseSignalFeed(
           : cleanFeedArticleHtml(rawDescription, url)
     const cleanedContent =
       content == null ? null : content === rawHtml ? html : cleanFeedArticleHtml(content, url)
+    const cleanedImages = collectImageUrls(url, cleanedDescription, cleanedContent)
+    const cleanedImageSet = new Set(cleanedImages)
+    const removedImages = new Set(
+      collectImageUrls(url, rawDescription, content).filter(
+        (imageUrl) => !cleanedImageSet.has(imageUrl)
+      )
+    )
     const contentHtml = html && Buffer.byteLength(html, 'utf8') <= 512 * 1024 ? html : null
     return [
       {
         sourceKey: canonicalSourceKey(rawGuid, url),
         title,
         url,
-        imageUrl:
-          imageEnclosureUrl(item.enclosure, url) ??
-          firstImageUrl(url, cleanedDescription, cleanedContent),
+        imageUrl: imageEnclosureUrl(item.enclosure, url, removedImages) ?? cleanedImages[0] ?? null,
         summary: options.skillMetadata
           ? skillSummary(rawDescription)
           : ((plainText(cleanedDescription ?? '') ?? plainText(html))?.slice(0, 500) ?? null),
