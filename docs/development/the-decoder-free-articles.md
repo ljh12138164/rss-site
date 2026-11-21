@@ -20,7 +20,7 @@ The Decoder 的 WordPress API 向匿名客户端返回付费文章元数据，�
 ## 验证
 
 - 2026-11-21 匿名请求原 URL 和过滤 URL 均返回 HTTP 200。原 Feed 含 30 条、7 条空正文。过滤后的 Feed 含 49 条、零空正文。使用变更后的来源配置和实际采集器取得前 30 条，URL 全部唯一，按发布时间顺序排列，渲染后正文长度为 830–12,236 字符。模拟零条目 Feed 时记录了一次失败，未写入替换批次。
-- `pnpm check-types` 三个包均通过。`pnpm test` 共 330 项通过，22 项依赖数据库或 Redis 的测试在本地跳过。变更文件的 Biome 检查和全仓 lint（关闭 formatter）通过。Windows 工作区已有文件使用 CRLF，全仓的格式检查交由 CI 核验。
+- `pnpm check-types` 三个包均通过。`pnpm test` 共 330 项通过，22 项依赖数据库或 Redis 的测试在本地跳过。变更文件的 Biome 检查和全仓 lint（关闭 formatter）通过。全仓格式检查报告了 Windows 工作区里其他文件已有的 CRLF 行尾。
 - 已按采集目标和仓库规范核对差异。Codex CLI 的分支审查无法在本地启动 `git diff`，改为直接提供完整的配置差异和实测结果，审查没有阻塞项或需另列路线图的事项。
 
 ## 风险
