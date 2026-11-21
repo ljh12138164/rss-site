@@ -32,10 +32,49 @@ export function cleanOpenAiContent(html: string, url: string): string {
   )
 }
 
+function isAwsBlogUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url)
+    return parsed.hostname === 'aws.amazon.com' && parsed.pathname.includes('/blogs/')
+  } catch {
+    return false
+  }
+}
+
+function stripTrailingAwsAuthorChrome(prefix: string): string {
+  let result = prefix.trimEnd()
+  while (result) {
+    const stripped = result
+      .replace(/<(?:h[1-6]|p)\b[^>]*>\s*About the authors?:?\s*<\/(?:h[1-6]|p)>$/i, '')
+      .replace(/<hr\b[^>]*\/?>$/i, '')
+      .trimEnd()
+    if (stripped === result) break
+    result = stripped
+  }
+  return result
+}
+
+// AWS blog WordPress feeds append an author bio footer (and optional About heading / <hr>) inside body HTML.
+export function cleanAwsBlogContent(html: string, url: string): string {
+  if (!html || !isAwsBlogUrl(url)) return html
+  let output = ''
+  let cursor = 0
+  for (const match of html.matchAll(/<footer\b[^>]*>[\s\S]*?<\/footer>/gi)) {
+    const index = match.index ?? 0
+    const footer = match[0]
+    if (!/\bblog-author-box\b/i.test(footer)) continue
+    output += stripTrailingAwsAuthorChrome(html.slice(cursor, index))
+    cursor = index + footer.length
+  }
+  if (cursor === 0) return html
+  return (output + html.slice(cursor)).trim()
+}
+
 export function cleanFeedArticleHtml(html: string, url?: string): string {
   let cleaned = cleanCmsTemplateTags(html)
   if (url) {
     cleaned = cleanOpenAiContent(cleaned, url)
+    cleaned = cleanAwsBlogContent(cleaned, url)
   }
   return cleaned
 }

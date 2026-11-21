@@ -11,6 +11,16 @@ describe('article HTML', () => {
       renderArticleContent(openAiToc + openAiToc + openAiBody, 'https://openai.com/index/example')
     ).toBe(openAiBody)
   })
+  it('removes AWS blog author bio footer chrome while preserving article content', () => {
+    const html =
+      '<p>Main article body.</p><hr /><h2 id="about-the-author">About the authors</h2><footer><div class="blog-author-box"><div class="blog-author-image"><img src="https://d2908q01vomqb2.cloudfront.net/author.jpg" alt="Alex" /></div><h3 class="lb-h4">Alex</h3><p>Bio text.</p></div></footer>'
+    expect(
+      renderArticleContent(
+        html,
+        'https://aws.amazon.com/blogs/machine-learning/use-kimi-code-cli-with-models-on-amazon-bedrock/'
+      )
+    ).toBe('<p>Main article body.</p>')
+  })
   it('converts CCTV video codes into playable mount divs while stripping other template tags', () => {
     const html =
       '<p>[!--begin:htmlVideoCode--]fdec9a65d6a34784bec390395b9431f2,0,1,16:9,newPlayer[!--end:htmlVideoCode--]</p><p>央视快讯：秋粮喜获丰收。[!--page--]</p>'

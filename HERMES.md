@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-11-21 清理 AWS 博客作者页脚与封面提取链路
+
+- **分支与文档**：`feat/clean-aws-blog-content`（基于 `master` `4ae962f`），详情见 [清理 AWS 博客作者页脚与封面提取链路](docs/development/clean-aws-blog-content.md)；无阻塞项或衍生 roadmap。
+- **`rss-site` 修复**：在 [shared/openai-content.ts](shared/openai-content.ts) 的 `cleanFeedArticleHtml` 增加 `cleanAwsBlogContent`，剥离 `aws.amazon.com/.../blogs/` 文章末尾的 `blog-author-box` `<footer>` 及其前置 `About the author(s)` 标题与 `<hr>`；在 [server/api/src/ingestion/feed.ts](server/api/src/ingestion/feed.ts) 将 `firstImageUrl` 与摘要提取统一改为基于清洗后的 HTML，优先消费 `<enclosure>` 封面图；在 [feed.test.ts](server/api/src/ingestion/feed.test.ts) 与 [article-content.test.ts](apps/web/lib/article-content.test.ts) 补齐单元测试。
+- **`RSSHub` 同步修复**：将 `feat/amazon-blogs` rebase 至最新 `upstream/master`（`b8dbcf0c08`），整合为单文件 `lib/routes/amazon/blogs.tsx`（去除冗余 `templates/description.tsx`），剥离作者简介页脚与 `wp-caption` 固定宽度内联 `style`、合并 `.blog-author-box` 合著作者、在正文无图时并发抓取 `og:image`（`cache.tryGet`）作为封面并修正 `radar[].target` 为 `'/blogs/:category?'`，通过最新 `#23968` `oxlint.ci.config.ts`（`0/0`）、`oxfmt`、`eslint`、`typecheck`、`lizard -C 10` 与 `build:docs`。
+- **验证**：`RSSHub` XML 输入 `ingestSignal` + `renderArticleContent` 实测 `machine-learning` 与 `security` 均为 `20/20`（`authorBoxes: 0`、`renderedFooterText: 0`、`badCovers: 0`、`covers: 20`）；`rss-site` `pnpm lint`、`pnpm check-types`、`pnpm test`（`9 + 125 + 193 passed`、`22 skipped`）与 `pnpm build`（`95/95` 页）通过。
+
 ## 2026-11-20 修复北京 ECS 4 个未激活来源的采集链路
 
 - 通过 `alibabacloud-workbench-cli` 核查北京 ECS（`i-2ze77shgsxr3nwn6ghra`）`private.business_cron_jobs`（`83/87` 已激活），确认 `aws-ml`、`import-ai`、`dwarkesh`、`chinatalk` 因直连域名遭遇 DNS 污染持续 `ECONNREFUSED`/超时而未激活。
