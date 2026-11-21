@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-21 Apple Machine Learning Research 全文来源接入
+
+- **分支与上游**：`rss-site` 分支 `feat/apple-ml-source` 基于 `origin/master`（`6dceba7`）；自建 `RSSHub` 分支 `feat/apple-ml-research`（`473976be15`，基于 `upstream/master` `2eb5724294`）已 cherry-pick 至 `master` @ `57cd7adafd` 并部署上线 `https://rss.ljhboard.cn/apple/ml-research`。
+- **接入与迁移**：在 `ai` 分区注册 `apple-ml`（`name: 'Apple ML'`、`code: 'AM'`、`itemLimit: 20`、`rsshubPath: '/apple/ml-research'`、`cronSchedule: '5 0,6,12,18 * * *'`），复用 `react-icons/si` `SiApple` 图标，在 [article-content.ts](apps/web/lib/article-content.ts)、[globals.css](apps/web/app/globals.css) 与 [feed.ts](server/api/src/ingestion/feed.ts) 支持安全 MathML 渲染并过滤 KaTeX `<annotation>` / `.katex-html` 冗余文本，新增迁移 `017-apple-ml-source.sql`（覆盖 `016-sierra-source.sql`）并同步 `baseline.sql`、`business-jobs.json`（`88` 项）与 `verify-release-runtime`（`88` / `90`），详情见 [Apple Machine Learning Research 全文来源](docs/development/apple-ml-source.md)。
+- **验证**：公网 `https://rss.ljhboard.cn/apple/ml-research`（`?limit=1`、`default 20`、`/highlights?limit=1`、`/research?limit=1`）全部 HTTP `200`；真实 `ingestSignal` 入库 `20/20`（最大单篇 `31,230` B，`14/14` MathML 公式完整保留且全数通过 `renderArticleContent`）；全仓 `check-types`（`3/3`）、`vitest`（`330 passed | 22 skipped`）、`build`（`96/96` 静态页）、`render-cron-sql.mjs`、`test-release-packaging.py`（`8/8`）及 `bash -n` 全部通过。
+
 ## 2026-11-21 清理 AWS 博客作者页脚与封面提取链路
 
 - **分支、PR 与文档**：`feat/clean-aws-blog-content`（基于 `master` `4ae962f`），已开启 [PR #107](https://github.com/ljh12138164/rss-site/pull/107)，详情见 [清理 AWS 博客作者页脚与封面提取链路](docs/development/clean-aws-blog-content.md)；无阻塞项或衍生 roadmap。

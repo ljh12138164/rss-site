@@ -1,0 +1,46 @@
+{
+  "checkedAt": "2026-11-21T11:03:52.163Z",
+  "source": "apple-ml",
+  "section": "ai",
+  "itemLimit": 20,
+  "feedUrls": ["https://rss.ljhboard.cn/apple/ml-research"],
+  "feedByteLengths": [116311],
+  "parsedAndIngestedItems": 20,
+  "fullBodyMatches": 20,
+  "renderedNonEmpty": 20,
+  "rawMathTags": 14,
+  "renderedMathTags": 14,
+  "publicationDatesVerified": 20,
+  "namedAuthors": 20,
+  "coverImages": 2,
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 31230,
+  "uniqueUrls": 20,
+  "consecutiveRanks": true,
+  "sampleTop3": [
+    {
+      "position": 1,
+      "title": "Depth Pro 2: Sharp and Temporally Consistent Metric Monocular Depth",
+      "url": "https://machinelearning.apple.com/research/depth-pro-2-monocular",
+      "author": "Peiyun Hu, Marko Mihajlovic, Lyndon Duong, Lahav Lipson, Wei Dong, Amaël Delaunoy, Stephan R. Richter, Vladlen Koltun",
+      "publishedAt": "2026-11-20T00:00:00.000Z",
+      "contentHtmlBytes": 1777
+    },
+    {
+      "position": 2,
+      "title": "Split-and-Scale Latent 3D Representations",
+      "url": "https://machinelearning.apple.com/research/split-scale-latent-3d",
+      "author": "Dorian Chan, Muhammed Kocabas, Xiaoming Zhao, Oncel Tuzel, Jen-Hao Rick Chang",
+      "publishedAt": "2026-11-16T00:00:00.000Z",
+      "contentHtmlBytes": 1607
+    },
+    {
+      "position": 3,
+      "title": "Theoretical Limits of Language Model Alignment",
+      "url": "https://machinelearning.apple.com/research/theoretical-limits-alignment",
+      "author": "Lucas Monteiro Paes*, Natalie Mackraz*, Barry-John Theobald, Federico Danieli",
+      "publishedAt": "2026-11-12T00:00:00.000Z",
+      "contentHtmlBytes": 2864
+    }
+  ]
+}

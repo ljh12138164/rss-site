@@ -3,6 +3,7 @@ import type { ComponentType } from 'react'
 import {
   SiAmd,
   SiAnthropic,
+  SiApple,
   SiArm,
   SiBaidu,
   SiBilibili,
@@ -54,6 +55,7 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
   qwen: { Icon: SiQwen, color: '#615ced', bg: '#ecebfe' },
   minimax: { Icon: SiMinimax, color: '#e21f64', bg: '#fdebf1' },
   elevenlabs: { Icon: SiElevenlabs, color: '#000000', bg: '#f2f0ea' },
+  'apple-ml': { Icon: SiApple, color: '#000000', bg: '#f2f0ea' },
   bilibili: { Icon: SiBilibili, color: '#00a1d6', bg: '#e0f4fb' },
   zhihu: { Icon: SiZhihu, color: '#ffffff', bg: '#0084ff' },
   toutiao: { Icon: SiBytedance, color: '#325ab4', bg: '#e7edfb' }

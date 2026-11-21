@@ -17,7 +17,7 @@
   4. **Sierra Blog**（自建全文路由 `/sierra/blog` 已上线，`rss-site` `feat/sierra-source` 接入中，见[验证记录](../development/sierra-source.md)）
   5. **Together AI Blog**（`https://www.together.ai/blog/rss.xml`：`100` 条、`43` words 摘要 -> 文章 `42,581` 字符）
   6. **Allen AI (Ai2) Blog**（`https://allenai.org/rss.xml`：`25` 条、`20` words 摘要 -> 文章 `9,796` 字符）
-  7. **Apple ML Research** / **Databricks Blog** / **Supabase Blog** / **Deno Blog** / **Tailscale Blog** / **Figma Blog** / **Mitchell Hashimoto**；游戏引擎与媒体：**Godot Engine News**、**Game Developer**、**Gematsu**、**VGC**、**Rock Paper Shotgun**。
+  7. **Apple ML Research**（自建全文路由 `/apple/ml-research` 已上线，`rss-site` 接入见[验证记录](../development/apple-ml-source.md)） / **Databricks Blog** / **Supabase Blog** / **Deno Blog** / **Tailscale Blog** / **Figma Blog** / **Mitchell Hashimoto**；游戏引擎与媒体：**Godot Engine News**、**Game Developer**、**Gematsu**、**VGC**、**Rock Paper Shotgun**。
 - **第二档｜高价值无 RSS 源（需解析列表 HTML / Next.js RSC，AIHOT 核心覆盖，均无 CF 拦截）**：
   1. **LMSYS Org Blog**（`https://lmsys.org/blog/`：Next.js RSC `__next_f` + `<article>` `21,679` 字符，AIHOT `json_list` 核心推理/评测博客）
   2. **Fireworks AI Blog**（`https://fireworks.ai/blog`：`<article>` `9,458` 字符）
@@ -89,7 +89,7 @@
 | **Sierra Blog**（AIHOT 参考） | `https://sierra.ai/rss.xml` | ✅ 自建 [`/sierra/blog`](https://rss.ljhboard.cn/sierra/blog) 已上线（`master` @ `8e0c31ccb2`，源分支 `feat/sierra-blog` @ `f07a8fd4ae`）；`rss-site` AI 分区接入待合并发布 | 读取 `sierra.ai/rss.xml`（`147` 篇）并发提取正文主栏、Wistia/YouTube 嵌入、Sanity `mediaResponsiveVideo` 与交互图外链；全量 `147` 篇本地通过，公网 `limit=1`/默认/`limit=100` HTTP `200` 且站点 `ingestSignal` `20/20` 验证通过。 |
 | **Together AI Blog** | `https://www.together.ai/blog/rss.xml` | 无（`together` 缺失） | RSS `200`（`56,237` B、`100` 条、`descLen: 229` / `43` words）；文章页 `200`（`721,443` B，`<article>` `42,581` 字符），开源模型推理/微调研究博客。 |
 | **Allen AI (Ai2) Blog** | `https://allenai.org/rss.xml` | 无（`allenai` / `ai2` 缺失） | RSS `200`（`25` 条、`descLen: 458` / `20` words）；文章页 `200`（`1,222,437` B、`9,796` 字符），开放大模型研究实验室（OLMo/Tulu）。 |
-| **Apple ML Research** | `https://machinelearning.apple.com/rss.xml` | 缺子路由（`lib/routes/apple` 无 ML 路由） | RSS `200`（`9,712` B、`10` 条、`descLen: 598` / `85` words）；文章页 `200`（`25,146` B、`3,096` 字符正文）。 |
+| **Apple ML Research** | `https://machinelearning.apple.com/rss.xml` | ✅ 自建 [`/apple/ml-research`](https://rss.ljhboard.cn/apple/ml-research) 已上线（`master` @ `57cd7adafd`，源分支 `feat/apple-ml-research` @ `473976be15`）；`rss-site` `ai` 分区接入 `apple-ml`（`itemLimit: 20`） | 官方 RSS 仅 `10` 条截断摘要（`592–600` 字符）；新路由 `/apple/ml-research/:category?` 合并 `/highlights`（`56` 篇工程长文）与 `/research`（`1,194` 篇论文）并补全正文、Hero 媒体、音频、KaTeX `<math>` 及 arXiv/GitHub 链接，公网 `/apple/ml-research`（`20/20`）与本地 `highlights` `56/56`、`research` `100/100` 全部通过。 |
 | **Databricks Blog**（AIHOT 参考） | `https://www.databricks.com/feed` | 无（`databricks` 缺失） | RSS `200`（`10` 条、`descLen: 83` / `13` words）；文章页 `200`（`758,863` B、`20,151` 字符）。 |
 | **Supabase Blog** | `https://supabase.com/rss.xml` | 无（`supabase` 缺失） | RSS `200`（`171,713` B、`448` 条、`descLen: 155` / `28` words）；文章页 `200`（`174,793` B、`4,152` 字符）。 |
 | **Deno Blog** | `https://deno.com/feed` | 无（`deno` 缺失） | Atom `200`（`178,968` B、`249` 条、`descLen: 78` / `13` words）；文章页 `200`（`64,335` B，`<article>` `3,549` 字符）。 |

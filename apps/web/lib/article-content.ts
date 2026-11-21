@@ -38,6 +38,40 @@ function removeOpenAiContents(html: string, originalUrl: string) {
   })
 }
 
+const MATHML_TAGS = [
+  'math',
+  'mrow',
+  'mi',
+  'mo',
+  'mn',
+  'ms',
+  'mtext',
+  'mspace',
+  'msup',
+  'msub',
+  'msubsup',
+  'mover',
+  'munder',
+  'munderover',
+  'mfrac',
+  'msqrt',
+  'mroot',
+  'mfenced',
+  'mstyle',
+  'mpadded',
+  'mphantom',
+  'menclose',
+  'mtable',
+  'mtr',
+  'mtd',
+  'mmultiscripts',
+  'mprescripts',
+  'none',
+  'merror'
+]
+
+const KATEX_WRAPPER_CLASSES = new Set(['katex', 'katex-mathml', 'katex-display'])
+
 // This function must run before stored, untrusted Feed HTML reaches the document.
 export function renderArticleContent(html: string, originalUrl: string, _section?: string) {
   if (Buffer.byteLength(html, 'utf8') > 512 * 1024) return ''
@@ -75,7 +109,8 @@ export function renderArticleContent(html: string, originalUrl: string, _section
       'tr',
       'th',
       'td',
-      'a'
+      'a',
+      ...MATHML_TAGS
     ],
     allowedAttributes: {
       a: ['href', 'rel', 'target', 'data-outbound'],
@@ -83,7 +118,26 @@ export function renderArticleContent(html: string, originalUrl: string, _section
       div: ['data-cctv-video', 'data-cctv-type', 'class'],
       th: ['colspan', 'rowspan', 'scope'],
       td: ['colspan', 'rowspan'],
-      ol: ['start']
+      ol: ['start'],
+      math: [{ name: 'display', values: ['block', 'inline'] }],
+      mi: ['mathvariant'],
+      mn: ['mathvariant'],
+      ms: ['mathvariant'],
+      mtext: ['mathvariant'],
+      mo: [
+        'mathvariant',
+        'stretchy',
+        'fence',
+        'separator',
+        'lspace',
+        'rspace',
+        'accent',
+        'symmetric'
+      ],
+      mfrac: ['linethickness'],
+      mspace: ['width', 'height', 'depth'],
+      mstyle: ['mathvariant'],
+      mtd: ['columnspan', 'rowspan']
     },
     allowedClasses: { code: ['language-mermaid', 'lang-mermaid'] },
     allowedSchemes: ['https', 'http'],
@@ -96,11 +150,24 @@ export function renderArticleContent(html: string, originalUrl: string, _section
       'iframe',
       'object',
       'svg',
-      'math',
       'form',
       'button',
-      'select'
+      'select',
+      'annotation',
+      'annotation-xml',
+      'title',
+      'noscript',
+      'xmp',
+      'noembed',
+      'noframes',
+      'plaintext'
     ],
+    exclusiveFilter: (frame) => {
+      if (frame.tag !== 'span') return false
+      const classes = (frame.attribs.class ?? '').split(/\s+/)
+      if (classes.includes('katex-html')) return true
+      return classes.some((name) => KATEX_WRAPPER_CLASSES.has(name)) ? 'excludeTag' : false
+    },
     transformTags: {
       h1: 'h2',
       a: (_tag, attributes): sanitizeHtml.Tag => {

@@ -536,7 +536,7 @@ export const newsSources = [
   }
 ] as const
 
-// AI 平台 (27)
+// AI 平台 (28)
 export const aiSources = [
   {
     id: 'openai',
@@ -750,6 +750,19 @@ export const aiSources = [
     isArticle: true,
     cronSchedule: '0 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-sierra'
+  },
+  {
+    id: 'apple-ml',
+    name: 'Apple ML',
+    code: 'AM',
+    shortName: 'Apple ML',
+    description: '机器学习研究博客、工程长文与论文摘要全文',
+    section: 'ai',
+    itemLimit: 20,
+    rsshubPath: '/apple/ml-research',
+    isArticle: true,
+    cronSchedule: '5 0,6,12,18 * * *',
+    cronJobName: 'signal-ingest-apple-ml'
   },
   {
     id: 'lilian-weng',
@@ -1338,7 +1351,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'yystv',
   'modal',
   'elevenlabs',
-  'sierra'
+  'sierra',
+  'apple-ml'
 ] as const
 
 // Cron jobs
