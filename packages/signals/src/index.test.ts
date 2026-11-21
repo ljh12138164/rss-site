@@ -22,11 +22,11 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 84 sources', () => {
+  it('defines 7 sections and 85 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(84)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(84)
+    expect(signalSources).toHaveLength(85)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(85)
   })
 
   it('correctly maps all section counts', () => {
@@ -34,7 +34,7 @@ describe('@rss-site/signals', () => {
     expect(technologyArticleSources).toHaveLength(24)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
-    expect(aiSources).toHaveLength(27)
+    expect(aiSources).toHaveLength(28)
     expect(socialSources).toHaveLength(6)
     expect(financeSources).toHaveLength(5)
     expect(gameSources).toHaveLength(13)
@@ -66,6 +66,7 @@ describe('@rss-site/signals', () => {
     expect(isSignalSourceId('modal')).toBe(true)
     expect(isSignalSourceId('elevenlabs')).toBe(true)
     expect(isSignalSourceId('sierra')).toBe(true)
+    expect(isSignalSourceId('apple-ml')).toBe(true)
     expect(isSignalSourceId('chuapp')).toBe(true)
     expect(isSignalSourceId('80lv')).toBe(true)
     expect(isSignalSourceId('invalid')).toBe(false)
@@ -122,6 +123,9 @@ describe('@rss-site/signals', () => {
     )
     expect(resolveSignalFeedUrl(getSignalSource('sierra'), 'https://rss.ljhboard.cn')).toBe(
       'https://rss.ljhboard.cn/sierra/blog'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('apple-ml'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/apple/ml-research'
     )
     expect(resolveSignalFeedUrl(getSignalSource('chinatalk'), 'https://rss.ljhboard.cn')).toBe(
       'https://rss.ljhboard.cn/substack/subscribe/chinatalk'
