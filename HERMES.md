@@ -1,5 +1,10 @@
 # HERMES
 
+## 2026-11-21 The Decoder 采集公开全文
+
+- 分支 `feat/the-decoder-free-articles` 基于 `origin/master` 的 `6d3ecae`。使用 RSSHub 通用过滤参数从 60 篇候选中筛选带正文 HTML 的条目，由站点按原顺序取前 30 篇。[开发记录](docs/development/the-decoder-free-articles.md)
+- 线上 Feed 筛得 49 篇，采集与渲染验证 30 篇均有正文。类型检查和测试通过，代码审查没有阻塞项。交付目标是 `master`，合并上线后由正常调度刷新公开列表。
+
 ## 2026-11-21 Apple Machine Learning Research 全文来源接入
 
 - **分支与上游**：`rss-site` 分支 `feat/apple-ml-source` 基于 `origin/master`（`6dceba7`）；自建 `RSSHub` 分支 `feat/apple-ml-research`（`473976be15`，基于 `upstream/master` `2eb5724294`）已 cherry-pick 至 `master` @ `57cd7adafd` 并部署上线 `https://rss.ljhboard.cn/apple/ml-research`。
