@@ -17,13 +17,57 @@ import { skillPath } from '../../../shared/skills'
 import type { FeedResult, SkillFeeds } from '../lib/hot-feed'
 import { parseSkillMetadata } from '../lib/skill-metadata'
 import { searchSkillFeed } from '../lib/skill-search'
-import { cn } from '../lib/utils'
 import { EmptyFeed, FeedError } from './feed-state'
 import { UiSegmentedGroup } from './ui/segmented-group'
 
 export { parseSkillMetadata } from '../lib/skill-metadata'
 
 const countFormatter = new Intl.NumberFormat('en-US')
+
+function SkillInstalls({ installs, trending }: { installs: number | null; trending?: boolean }) {
+  if (installs === null) return null
+  return (
+    <span
+      className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap"
+      title={trending ? '近 24 小时安装' : '累计安装'}
+    >
+      <Download aria-hidden="true" className="size-3.5" />
+      <span>{countFormatter.format(installs)}</span>
+      <span>{trending ? '24h' : '总计'}</span>
+    </span>
+  )
+}
+
+function SkillSourceLink({ source }: { source: string | null }) {
+  if (!source) return null
+  return (
+    <a
+      className="inline-flex min-w-0 max-w-full items-center gap-1 font-mono text-xs text-muted-foreground transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-ring"
+      href={source.includes('/') ? `https://github.com/${source}` : `https://${source}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-outbound
+      title={source}
+    >
+      <span className="truncate">{source}</span>
+      <ArrowUpRight className="size-3 shrink-0" aria-hidden="true" />
+    </a>
+  )
+}
+
+function SkillTitle({ name }: { name: string }) {
+  return (
+    <span className="flex min-w-0 items-center gap-1.5 text-base font-semibold leading-6 transition-colors group-hover:text-primary">
+      <span className="min-w-0 truncate" title={name}>
+        {name}
+      </span>
+      <ArrowRight
+        aria-hidden="true"
+        className="size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
+      />
+    </span>
+  )
+}
 
 function SkillFeed({
   feed,
@@ -51,11 +95,13 @@ function SkillFeed({
       </div>
     )
 
+  const isCards = view === 'cards'
+
   return (
     <ol
       className={
-        view === 'cards'
-          ? 'grid gap-4 sm:grid-cols-2 xl:grid-cols-3'
+        isCards
+          ? 'grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'
           : 'divide-y divide-border rounded-sm border border-border bg-card'
       }
     >
@@ -63,65 +109,83 @@ function SkillFeed({
         const metadata = parseSkillMetadata(item.summary)
         const name = item.title.replace(/^#\d+\s+/, '')
         const href = skillPath(item.sourceKey) ?? item.url
+        const rankLabel = String(item.position).padStart(2, '0')
+        const hasMeta = metadata.installs !== null || Boolean(metadata.source)
+
+        if (isCards) {
+          return (
+            <li
+              className="h-[12rem] min-w-0 rounded-sm border border-border bg-card p-5 transition-colors hover:bg-row-highlight"
+              key={item.sourceKey}
+            >
+              <article className="flex h-full min-w-0 flex-col">
+                <Link
+                  className="group flex min-h-0 flex-1 flex-col text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                  href={href}
+                >
+                  <span className="flex min-h-7 w-full min-w-0 items-center gap-2.5">
+                    <span
+                      aria-hidden="true"
+                      className="rank-numeral shrink-0 leading-none"
+                      data-rank={item.position}
+                    >
+                      {rankLabel}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <SkillTitle name={name} />
+                    </span>
+                  </span>
+                  {metadata.description ? (
+                    <span className="mt-2.5 line-clamp-3 wrap-anywhere text-sm font-normal leading-5 text-muted-foreground">
+                      {metadata.description}
+                    </span>
+                  ) : null}
+                </Link>
+                {hasMeta ? (
+                  <div className="mt-auto flex items-center justify-between gap-3 border-t border-border/60 pt-3 font-mono text-xs tabular-nums text-muted-foreground">
+                    {metadata.installs !== null ? (
+                      <SkillInstalls installs={metadata.installs} trending={trending} />
+                    ) : (
+                      <span />
+                    )}
+                    <SkillSourceLink source={metadata.source} />
+                  </div>
+                ) : null}
+              </article>
+            </li>
+          )
+        }
+
         return (
           <li
-            className={cn(
-              'grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 transition-colors hover:bg-row-highlight',
-              view === 'cards'
-                ? 'rounded-sm border border-border bg-card p-5'
-                : 'px-4 py-4 sm:grid-cols-[3.25rem_minmax(0,1fr)] sm:gap-5 sm:px-5 sm:py-5'
-            )}
+            className="h-32 px-4 py-3.5 transition-colors hover:bg-row-highlight sm:h-[6.25rem] sm:px-5 sm:py-4"
             key={item.sourceKey}
           >
-            <span aria-hidden="true" className="rank-numeral pt-0.5" data-rank={item.position}>
-              {String(item.position).padStart(2, '0')}
-            </span>
-            <article className="min-w-0">
+            <article className="grid h-full min-w-0 grid-cols-[2.25rem_minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 sm:grid-cols-[3rem_minmax(0,1fr)_13rem] sm:grid-rows-1 sm:gap-x-5 sm:gap-y-0 md:grid-cols-[3rem_minmax(0,1fr)_15rem]">
+              <span aria-hidden="true" className="rank-numeral leading-6" data-rank={item.position}>
+                {rankLabel}
+              </span>
               <Link
-                className="group block text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+                className="group min-w-0 self-start text-foreground focus-visible:outline-2 focus-visible:outline-ring"
                 href={href}
               >
-                <span className="inline-flex max-w-full items-start gap-1.5 text-base font-semibold leading-6 transition-colors group-hover:text-primary">
-                  <span className="min-w-0 wrap-anywhere">{name}</span>
-                  <ArrowRight
-                    aria-hidden="true"
-                    className="mt-1 size-3.5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary"
-                  />
-                </span>
+                <SkillTitle name={name} />
                 {metadata.description ? (
-                  <span className="mt-1.5 line-clamp-2 block max-w-prose text-sm font-normal leading-6 text-muted-foreground">
+                  <span className="mt-1 line-clamp-2 wrap-anywhere text-sm font-normal leading-5 text-muted-foreground">
                     {metadata.description}
                   </span>
                 ) : null}
-                <span className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 font-mono text-xs tabular-nums text-muted-foreground">
-                  {metadata.installs !== null ? (
-                    <span
-                      className="inline-flex items-center gap-1"
-                      title={trending ? '近 24 小时安装' : '累计安装'}
-                    >
-                      <Download aria-hidden="true" className="size-3.5" />
-                      {countFormatter.format(metadata.installs)}
-                      <span>{trending ? '24h' : '总计'}</span>
-                    </span>
-                  ) : null}
-                </span>
               </Link>
-              {metadata.source && (
-                <a
-                  className="mt-2 inline-flex max-w-full items-center gap-1 font-mono text-xs text-muted-foreground hover:text-primary"
-                  href={
-                    metadata.source.includes('/')
-                      ? `https://github.com/${metadata.source}`
-                      : `https://${metadata.source}`
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-outbound
-                >
-                  <span className="truncate">{metadata.source}</span>
-                  <ArrowUpRight className="size-3 shrink-0" aria-hidden="true" />
-                </a>
-              )}
+              {hasMeta ? (
+                <div className="col-start-2 flex items-center justify-between gap-3 self-end font-mono text-xs tabular-nums text-muted-foreground sm:col-start-3 sm:flex-col sm:items-end sm:justify-center sm:gap-1.5 sm:self-center sm:text-right">
+                  {metadata.installs !== null ? (
+                    <SkillInstalls installs={metadata.installs} trending={trending} />
+                  ) : (
+                    <span className="sm:hidden" />
+                  )}
+                  <SkillSourceLink source={metadata.source} />
+                </div>
+              ) : null}
             </article>
           </li>
         )
