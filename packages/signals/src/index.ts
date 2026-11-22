@@ -536,7 +536,7 @@ export const newsSources = [
   }
 ] as const
 
-// AI 平台 (28)
+// AI 平台 (29)
 export const aiSources = [
   {
     id: 'openai',
@@ -763,6 +763,19 @@ export const aiSources = [
     isArticle: true,
     cronSchedule: '5 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-apple-ml'
+  },
+  {
+    id: 'together',
+    name: 'Together AI',
+    code: 'TA',
+    shortName: 'Together',
+    description: 'AI 模型发布、推理工程与系统研究博客全文',
+    section: 'ai',
+    itemLimit: 20,
+    rsshubPath: '/together/blog',
+    isArticle: true,
+    cronSchedule: '10 0,6,12,18 * * *',
+    cronJobName: 'signal-ingest-together'
   },
   {
     id: 'lilian-weng',
@@ -1352,7 +1365,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'modal',
   'elevenlabs',
   'sierra',
-  'apple-ml'
+  'apple-ml',
+  'together'
 ] as const
 
 // Cron jobs

@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-22 Together AI Blog 全文来源接入
+
+- **分支与上游**：`rss-site` 分支 `feat/together-source` 基于 `origin/master`（`d126961`）；自建 `RSSHub` 分支 `feat/together-blog`（`52e78a140d`，基于 `upstream/master` `c31bc27991`）已 cherry-pick 至 `master` @ `9c942d4f77` 并部署上线 `https://rss.ljhboard.cn/together/blog`。
+- **接入与迁移**：在 `ai` 分区注册 `together`（`name: 'Together AI'`、`code: 'TA'`、`shortName: 'Together'`、`itemLimit: 20`、`rsshubPath: '/together/blog'`、`cronSchedule: '10 0,6,12,18 * * *'`），新增官方三圆图标 [together.svg](apps/web/public/source-icons/together.svg) 并注册至 [source-icon.tsx](apps/web/components/source-icon.tsx)，新增迁移 `018-together-source.sql`（覆盖 `017-apple-ml-source.sql`）并同步 `baseline.sql`、`business-jobs.json`（`89` 项）与 `verify-release-runtime`（`89` / `91`），详情见 [Together AI Blog 全文来源](docs/development/together-source.md)。
+- **验证**：公网 `https://rss.ljhboard.cn/together/blog`（`?limit=1`、`default 20`、`?limit=5&format=atom`）全部 HTTP `200`；真实 `ingestSignal` 入库 `20/20`（最大单篇 `54,542` B、`20/20` 独立封面且 `0` 错链，全数通过 `renderArticleContent`）；全仓 `check-types`（`3/3`）、`vitest`（`330 passed | 22 skipped`）、`build`（`97/97` 静态页）、`render-cron-sql.mjs`、`test-release-packaging.py`（`8/8`）及 `bash -n` 全部通过。
+
 ## 2026-11-21 The Decoder 采集公开全文
 
 - 分支 `feat/the-decoder-free-articles` 基于 `origin/master` 的 `6d3ecae`。使用 RSSHub 通用过滤参数从 60 篇候选中筛选带正文 HTML 的条目，由站点按原顺序取前 30 篇。[开发记录](docs/development/the-decoder-free-articles.md)
