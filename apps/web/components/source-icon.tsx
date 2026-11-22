@@ -78,6 +78,7 @@ const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
   vllm: { src: '/source-icons/vllm.svg' },
   modal: { src: '/source-icons/modal.svg' },
   sierra: { src: '/source-icons/sierra.svg' },
+  together: { src: '/source-icons/together.svg' },
   coolapk: { src: '/source-icons/coolapk.png' },
   hupu: { src: '/source-icons/hupu.png' },
   sspai: { src: '/source-icons/sspai.png' },
