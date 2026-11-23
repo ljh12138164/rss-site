@@ -1,7 +1,7 @@
 # RSSHub 待新增路由候选与标准化交付工作流
 
-- **调研日期**：2026-11-13（2026-11-18 结合 `KKKKhazix/AIHOT` 增补候选；2026-11-23 结合 `JackyST0/awesome-rsshub-routes` 105 条官方源与 28 条 RSSHub 路由复测，接入 15 路可直连原生全文源至 `technology` 分区，并增补“官方 RSS 缺正文”新候选与现有上游失效路由清单）
-- **`rss-site` 基线**：`feat/native-tech-feeds`（基于 `master` @ `fa8928d`；`packages/signals/src/index.ts` 已注册 `101` 个源，分属 `7` 个分区：`ai` 29、`technology` 40、`news` 6、`social` 6、`finance` 5、`games` 13、`skills` 2；`deploy/server/business-jobs.json` 含 `100` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务，共 `104` 项）
+- **调研日期**：2026-11-13（2026-11-18 结合 `KKKKhazix/AIHOT` 增补候选；2026-11-23 结合 `JackyST0/awesome-rsshub-routes` 105 条官方源与 28 条 RSSHub 路由复测，接入 15 路可直连原生全文源至 `technology` 分区并合入 [PR #113](https://github.com/ljh12138164/rss-site/pull/113)，同步提交 `/nextjs/blog` 上游修复 PR [`#23992`](https://github.com/DIYgod/RSSHub/pull/23992) 并补齐最新 CI/PR 模板检验规范）
+- **`rss-site` 基线**：`master` @ `f4fe025`（已合入 `PR #113`；`packages/signals/src/index.ts` 已注册 `101` 个源，分属 `7` 个分区：`ai` 29、`technology` 40、`news` 6、`social` 6、`finance` 5、`games` 13、`skills` 2；`deploy/server/business-jobs.json` 含 `100` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务，共 `104` 项）
 - **AIHOT 参考样本**：`KKKKhazix/AIHOT`（`industry/sources.json` 含 `18` 个示范 RSS 源）及线上 `https://aihot.news/api/site/stats`（共 `925` 个活跃源，含 `rss: 181`、`web_list: 145`、`json_list: 26`、`mp_account: 23`、`x_search: 549`、`external: 1`）+ `/api/v1/items` 近期精选来源，经交叉核对上游 `DIYgod/RSSHub` `upstream/master` 后分层筛选出本轮高优先级开源/实验室/工程新源。
 - **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
@@ -23,10 +23,10 @@
      - **AIHOT 日报**（`https://aihot.news/feed/daily.xml`：`30` 条、`77` words 摘要 -> 文章页 `<main>` `2,658` 字符，200 无反爬；可直接加到既有 `RSSHub/lib/routes/aihot` 命名空间 `/aihot/daily`）
      - 其余既有待开发：**Suno Blog**（`4,522` 字符）、**Allen AI (Ai2) Blog**（`9,796` 字符）、**Databricks Blog**、**Tailscale Blog**、**Figma Blog**、**Mitchell Hashimoto**、**CISA News**、**Schneier on Security**、**Python Blog**；游戏引擎与媒体：**Godot Engine News**、**Game Developer**、**Gematsu**、**VGC**、**Rock Paper Shotgun**。
 - **第一档并列｜已有上游 RSSHub 路由但失效/缺失全文或 `limit`（修复 PR）**：
-  1. **`/nextjs/blog`**（`lib/routes/nextjs/blog.ts`）：2026-11-23 实测 HTTP `200` 但**正文 `0` 字符**（`$('div.prose').html()` 选择器已失效；官网文章页 200 且 `<article>` 含 `10,093` 字符正文）。
-  2. **`/deepmind/blog`**（`lib/routes/deepmind/blog.ts`）：未支持通用 `limit` 参数，冷缓存全量并发抓 `100` 篇导致 Serverless 15s 超时。
-  3. **`/google/developers/:locale?`**（`lib/routes/google/developers.ts`）：实测仅抓搜索卡片摘要（`220` 字符），缺失详情页全文。
-  4. **`/meta/ai/blog`**（`lib/routes/meta/ai-blog.ts`）：2026-11-23 实测返回 HTTP `200` 但正文 `0` 字符且内容停留在 `2026-07-27`（GraphQL 抓取已失效）。
+  - **✅ 已完成修复（待上游审核合并）**：**`/nextjs/blog`**（`lib/routes/nextjs/blog.ts` + `templates/description.tsx`，分支 `feat/nextjs-blog` @ `8d57faea95` 基于 `upstream/master` `@ d75a3fc57a`，上游 PR [`#23992`](https://github.com/DIYgod/RSSHub/pull/23992)）。改用官方 `https://nextjs.org/feed.xml`、`--article-full-width` 容器、`templates/description.tsx`（基准柱状图转表格、SVG 叠层标签内嵌与主题色变量回退）、`4x3` 视频放大至 `800x600`、通用 `limit` 参数、同源/`publicOnly: true` 防护及单篇失败回退摘要；本地实测 `?limit=100` 全量 `89/89` 篇均含正文，PR 代码检查（`Anti Slop`/`CodeFactor`/`CodeQL`/`Lint`/`oxlint`/`Vitest`/`Docker build`）全绿。
+  1. **`/deepmind/blog`**（`lib/routes/deepmind/blog.ts`）：未支持通用 `limit` 参数，冷缓存全量并发抓 `100` 篇导致 Serverless 15s 超时。
+  2. **`/google/developers/:locale?`**（`lib/routes/google/developers.ts`）：实测仅抓搜索卡片摘要（`220` 字符），缺失详情页全文。
+  3. **`/meta/ai/blog`**（`lib/routes/meta/ai-blog.ts`）：2026-11-23 实测返回 HTTP `200` 但正文 `0` 字符且内容停留在 `2026-07-27`（GraphQL 抓取已失效）。
 - **第二档｜高价值无 RSS 源（需解析列表 HTML / Next.js RSC，AIHOT 核心覆盖，均无 CF 拦截）**：
   1. **LMSYS Org Blog**（`https://lmsys.org/blog/`：Next.js RSC `__next_f` + `<article>` `21,679` 字符，AIHOT `json_list` 核心推理/评测博客）
   2. **Fireworks AI Blog**（`https://fireworks.ai/blog`：`<article>` `9,458` 字符）
@@ -115,7 +115,7 @@
 | **Google Blog · AI**（AIHOT 参考） | `https://blog.google/innovation-and-ai/rss/` | 无对应 `blog.google` 子路由 | RSS `200`（`20` 条、`descLen: 234` / `16` words）；文章页 `200`（`359,572` B）。注：`rss-site` 的 `google-ai` 当前已通过自建代理 `feeds.ljhboard.cn/google-ai` 消费。 |
 
 > 注：**Mistral AI**（`lib/routes/mistral`，含 `namespace.ts` 与 `news.ts`）已通过上游 PR `#23854` 合入 `DIYgod/RSSHub` `master`；按用户指令，本轮跳过 Mistral AI，暂不接入 `rss-site`。此外，上游 `/google/research`（`lib/routes/google/research.ts`）已补齐正文抓取（2026-11-23 `rss.ljhboard.cn/google/research?limit=3` 实测 `200`、`15,589` 字符全文）；而以下现有路由需待修复/增强 PR：
-> - **`/nextjs/blog`**（`lib/routes/nextjs/blog.ts`）：2026-11-23 实测 HTTP `200` 但 **`description` 全空（`0` 字符）**，`$('div.prose').html()` 选择器已失效，官网文章页 `<article>` 实测含 `10,093` 字符全文。
+> - **`/nextjs/blog`**（`lib/routes/nextjs/blog.ts`）：2026-11-23 实测原线上版本 HTTP `200` 但 `description` 全空（`$('div.prose').html()` 选择器已失效）；已在分支 `feat/nextjs-blog`（`8d57faea95`，PR [`#23992`](https://github.com/DIYgod/RSSHub/pull/23992)）改用 `feed.xml` + `--article-full-width` 修复全文抓取与图表/视频还原（`?limit=100` `89/89` 篇全量实测通过），待上游合并。
 > - **`/deepmind/blog`**（`lib/routes/deepmind/blog.ts`）：未实现 `limit` 截断，冷缓存并发抓取全量 `100` 篇导致 Serverless 15s 超时。
 > - **`/google/developers/:locale?`**（`lib/routes/google/developers.ts`）：当前仅输出 `.search-result__summary` 摘要（`220` 字符），未抓正文页。
 > - **`/meta/ai/blog`**（`lib/routes/meta/ai-blog.ts`）：2026-11-23 实测 HTTP `200` 但正文 `0` 字符且内容停留在 `2026-07-27`。
@@ -224,11 +224,11 @@ pnpm run format:check
 pnpm run eslint
 pnpm run typecheck
 pnpm exec oxfmt --check lib/routes/<namespace>
-pnpm exec oxlint --type-aware --config=.oxlintrc.ci.json --deny-warnings lib/routes/<namespace>
+pnpm exec oxlint --type-aware --config oxlint.ci.config.ts --deny-warnings lib/routes/<namespace>
 uvx --from lizard lizard -l typescript -C 10 -w lib/routes/<namespace>
 ```
 
-> **CI / Windows 必跑提示**：普通 `pnpm run eslint` 或默认 `.oxlintrc.json` 不会暴露 CI 的 `anti-slop/*` 规则，务必显式用 `--config=.oxlintrc.ci.json --deny-warnings` 验证；`lizard -C 10` 用于提前拦截 CodeFactor 圈复杂度超标；若 Windows 因 `core.autocrlf = true` 出现仅行尾差异（`git diff --ignore-all-space` 为空），提交前清理工作区噪音后再 `git push`。
+> **CI / Windows 必跑提示**：上游已将 CI 配置迁至 `oxlint.ci.config.ts`（旧 `.oxlintrc.ci.json` 已移除），普通 `pnpm run eslint` 或默认配置无法完整暴露 `anti-slop/*` / `quality/*` 与严格 `no-restricted-syntax` 规则，务必显式使用 `--config oxlint.ci.config.ts --deny-warnings` 验证；`2026-11-23` `#23986` 后上游新增禁用 `Number.isSafeInteger()`、`Number.isFinite()`、Cheerio `.clone()`、`Array#some` 内冗余 `Boolean()`、`.catch(() => undefined)` 以及动态替换 `String#replaceAll(token, val)`（需改用正则回调或显式函数）；`lizard -C 10` 用于提前拦截 CodeFactor 圈复杂度超标；若 Windows 因 `core.autocrlf = true` 出现仅行尾差异（`git diff --ignore-all-space` 为空），可先 `pnpm exec oxfmt <files>` 归一化 LF 并确认差异后再 `git push`。
 
 检查与本地启动验收要点：
 1. **构建与 i18n 文档生成**：`pnpm run build:docs` 会先运行 `pnpm run build:routes`（通过 `scripts/workflow/build-routes.ts` 校验 `findOrphanFiles()` 孤立文件，并产出 `assets/build/radar-rules.json`、`radar-rules.js`、`maintainers.json`、`routes.json`、`routes.js`、`route-paths.ts`），随后执行 `scripts/workflow/build-docs.ts` 加载全部命名空间并生成 `assets/build/docs/routes.json` 与 `assets/build/docs/categories.json`。
@@ -245,11 +245,11 @@ uvx --from lizard lizard -l typescript -C 10 -w lib/routes/<namespace>
      pnpm exec tsx lib/index.ts
      ```
    - 访问 `http://localhost:1200/<route>` 实测关键参数组合（如 `?limit=1`、默认路由、专题/分类过滤、`?format=json` 等），检查标题、链接、发布时间、`author`、封面/正文图片、`description` 全文质量及无 `http://` 混合内容问题。
-4. **使用 Codex（`gpt-6.1-sol` + 高思考程度 `high`）进行代码 Review**：
-   - 若本机尚未安装 Codex CLI（或版本过旧不支持 `gpt-6.1-sol`），先全局安装/升级：`npm install -g @openai/codex@latest`（若使用 Vite+ 工具链可执行 `vp add -g @openai/codex@latest`）；
+4. **使用 Codex（`gpt-6.2-sol` + 高思考程度 `high`）进行代码 Review**：
+   - 若本机尚未安装 Codex CLI（或版本过旧不支持 `gpt-6.2-sol`），先全局安装/升级：`npm install -g @openai/codex@latest`（若使用 Vite+ 工具链可执行 `vp add -g @openai/codex@latest`）；
    - 在提交前针对未提交代码执行高思考力度 Review：
      ```bash
-     codex review --uncommitted -c model="gpt-6.1-sol" -c model_reasoning_effort="high"
+     codex review --uncommitted -c model="gpt-6.2-sol" -c model_reasoning_effort="high"
      ```
    - 用真实线上数据核查 Codex 指出的 P0/P1/P2 问题，修复并重跑静态校验与本地实测后，将 **本地文档预览地址**、**Review 修复结论** 与 **真实抓取的数据样本/质量统计** 一并提交给用户验收；验收通过后再进入第 3 步合并部署到自建 `ljh12138164/RSSHub`。
 
@@ -304,21 +304,29 @@ PR 合并并经发布工作流将 Next 服务及 `deploy/postgres/migrations/` �
 
 > **执行边界**：代理**不调用 CLI / 网页向上游 `DIYgod/RSSHub` 创建 PR**，仅推送分叉分支并在本步给出可直接复制提交的 PR 标题与正文文案，由用户自行检查并向上游发起 PR。
 
-对照本人既往上游 PR 的实际风格（[`#23882`](https://github.com/DIYgod/RSSHub/pull/23882) MiniMax、[`#23881`](https://github.com/DIYgod/RSSHub/pull/23881) Cohere、[`#23872`](https://github.com/DIYgod/RSSHub/pull/23872) Arm、[`#23861`](https://github.com/DIYgod/RSSHub/pull/23861) Groq、[`#23854`](https://github.com/DIYgod/RSSHub/pull/23854) Mistral）以及 `.github/PULL_REQUEST_TEMPLATE.md` 结构，生成上游 PR 文案时必须遵守以下硬性约定：
+对照本人既往上游 PR 的实际风格（[`#23882`](https://github.com/DIYgod/RSSHub/pull/23882) MiniMax、[`#23881`](https://github.com/DIYgod/RSSHub/pull/23881) Cohere、[`#23872`](https://github.com/DIYgod/RSSHub/pull/23872) Arm、[`#23861`](https://github.com/DIYgod/RSSHub/pull/23861) Groq、[`#23854`](https://github.com/DIYgod/RSSHub/pull/23854) Mistral）以及上游 `scripts/workflow/test-route/identify.mjs` / `.github/PULL_REQUEST_TEMPLATE.md` 强制校验规则，生成上游 PR 文案时必须遵守以下硬性约定：
 
-1. **Issue 固定写法**：无关联 Issue 时统一写 `N/A`（不要留空、不要保留 `Close #` 或 HTML 注释占位）。
-2. **`routes` 块精简写法（不展开分类子路径）**：` ```routes``` ` 仅填写默认主路由（如 `/80lv/articles`、`/arm/news`、`#23882` 中并列路由 `/minimax/blog` + `/minimax/news` 等），**不要把 `:category?` / `:topic?` 等可穷举分类路径全部展开塞进 PR 文案**。
-3. **正文风格统一为精炼英文（对齐 `#23872` / `#23881` / `#23882`）**：
-   - **禁止**在同一份 PR 正文中拆成 `### English` 与 `### 中文说明` 双段模板；
+1. **禁止删改 4 个双语 `##` 模板标题及检查栏（`identify.mjs` 精确校验红线）**：
+   - 上游 CI（`scripts/workflow/test-route/identify.mjs`）会用 `remarkParse` 对非写权限提交者的 PR 逐字校验 4 个 `##` 二级标题：
+     - `Involved Issue / 该 PR 相关 Issue`
+     - `Example for the Proposed Route(s) / 路由地址示例`
+     - `New RSS Route Checklist / 新 RSS 路由检查表`
+     - `Note / 说明`
+   - 并且要求检查表下至少包含 `5` 个标准 `- [ ]` / `- [x]` 复选框。**即使输出“纯英文复制粘贴版 GitHub PR 正文”，也必须原字保留这 4 个双语 `##` 标题和完整检查表项（切勿擅自删掉 `/ 中文`）**，否则会在 `routes` 写法正确的情况下仍被判为 `auto: route no found` 并自动关闭 PR（`#23992` 踩坑实证）；对于修复既有路由的 PR，检查表中 `New Route / 新的路由` 与 `Follows Script Standard` 保持 `- [ ]` 不勾选。
+2. **Issue 固定写法**：无关联 Issue 时统一写 `N/A`（不要留空、不要保留 `Close #` 或 HTML 注释占位）。
+3. **`routes` 块精简写法（不展开分类子路径）**：` ```routes``` ` 仅填写默认主路由（如 `/80lv/articles`、`/arm/news`、`#23882` 中并列路由 `/minimax/blog` + `/minimax/news` 等），**不要把 `:category?` / `:topic?` 等可穷举分类路径全部展开塞进 PR 文案**。
+4. **正文风格统一为精炼英文（对齐 `#23872` / `#23881` / `#23882`）**：
+   - **禁止**在 `## Note / 说明` 正文中拆成 `### English` 与 `### 中文说明` 双段模板；
    - **禁止**使用 `Highlights:` / `主要实现：` 等 AI 模板小标题，也**不要**把 `oxlint`、`lizard`、`oxfmt` 等本地代码检查命令堆进上游 PR 说明；
    - `## Note / 说明` 用 1 句综述 + 2–3 条简明英文要点说明上游接口/抓取方式、`cache.tryGet` 缓存与渲染内容、参数/`Radar`/无新增依赖及无 Puppeteer；
-   - `### Validation` 直接列出针对线上路由的真实实测项（如默认路由、`?limit=1`、`?limit=100` 等条数、HTTP `200`、正文与合法 `pubDate`）。
-4. 若需给用户提供中文理解或核对，仅在对话中简述或按需单独附注，不混入 PR 正文。
+   - `### Validation` 直接列出针对线上/本地实测路由的结果（如默认路由、`?limit=1`、`?limit=100` 等条数、HTTP `200`、正文与合法 `pubDate`）。
+5. 若需给用户提供中文理解或核对，仅在对话中简述或按需单独附注，不混入 PR 正文。
+6. 若使用外层 Markdown 代码块包裹带 ```` ```routes ```` 的 PR 正文供复制，外层须使用 **4 个反引号（````` ````markdown `````）**，避免内层三反引号提前闭合。
 
 #### 7.1 PR 标题模板
 
 - **新增路由（默认）**：`feat(route): add <Platform> full-text <articles/news/blog> route`（如 `feat(route): add 80 Level full-text articles route`、`feat(route): add MiniMax full-text blog and news routes`）
-- **升级现有路由**：`feat(route/<namespace>): upgrade /<namespace>/<route> to full-text feed ...`（如 `#23881`）
+- **升级/修复现有路由**：`feat(route/<namespace>): upgrade /<namespace>/<route> to full-text feed ...`（如 `#23881`）或 `fix(<namespace>): ...`（如 `#23992`）
 
 #### 7.2 上游 PR 正文模板（对照 `#23872` / `#23881` / `#23882` 与 `.github/PULL_REQUEST_TEMPLATE.md`）
 
@@ -364,15 +372,16 @@ Adds a full-text feed for <Platform> under `/<namespace>/<route>`:
 
 在 `Cohere`（`DIYgod/RSSHub#23881`）与 `MiniMax`（`DIYgod/RSSHub#23882`）开发、Codex 复审及 `rss-site` / ECS 上线过程中真实暴露过以下问题。后续新增任何平台路由或接入 `rss-site` 前，必须在本地逐项核对清零，避免提交 PR 后反复返工。
 
-### 5.1 CI 严格 Lint 规则（`.oxlintrc.ci.json` / `anti-slop/*`）
+### 5.1 CI 严格 Lint 规则（`oxlint.ci.config.ts` / `anti-slop/*` / `#23986`）
 
-- **问题表现**：PR `#23881` 遭 `github-advanced-security` Bot 报多条 `oxlint / anti-slop(no-known-value-widening)`（如 `const HEADING_MAP: Record<string, string> = { ... }`、`const DECORATOR_MAP: Record<string, [string, string]> = { ... }`、渲染函数返回匿名宽泛对象类型）；`#23882` 初版 `utils.ts` 触发 `anti-slop(no-unknown-parameters)`（`(node: unknown, urls: string[])`）及 `Record<...>` 注解。
-- **根因**：上游 CI（`.github/workflows/lint.yml`）实际执行 `pnpm exec oxlint --type-aware --config=.oxlintrc.ci.json`，其中启用了 `anti-slop/*` 且设置了 `respectEslintDisableDirectives: false`（禁止用注释压制告警）。
+- **问题表现**：PR `#23881` 遭 `github-advanced-security` Bot 报多条 `oxlint / anti-slop(no-known-value-widening)`（如 `const HEADING_MAP: Record<string, string> = { ... }`、`const DECORATOR_MAP: Record<string, [string, string]> = { ... }`、渲染函数返回匿名宽泛对象类型）；`#23882` 初版 `utils.ts` 触发 `anti-slop(no-unknown-parameters)`（`(node: unknown, urls: string[])`）及 `Record<...>` 注解；2026-11-23 `#23986` 后上游新增禁用 `Number.isSafeInteger()`、`Number.isFinite()`、Cheerio `.clone()`、`Array#some` 中 `Boolean()`、`.catch(() => undefined)` 以及动态 `String#replaceAll()` 等严格限制，并把配置文件从 `.oxlintrc.ci.json` 迁至 `oxlint.ci.config.ts`。
+- **根因**：上游 CI（`.github/workflows/lint.yml`）实际执行 `pnpm exec oxlint --type-aware --config oxlint.ci.config.ts`，其中启用了 `anti-slop/*` / `quality/*` 且设置了 `respectEslintDisableDirectives: false`（禁止用注释压制告警）。
 - **硬性规避**：
   1. 静态映射表（语言配置、标题/标签映射、样式字典）保留类型推导或使用 `as const` / `as const satisfies ...`，**严禁**声明 `Record<string, ...>` 或宽松匿名对象返回类型；
   2. **严禁**给函数参数或返回值标注 `unknown` / `Record<string, unknown>`（仅保留显式边界 `JSON.parse` + 窄类型守卫 `isRecordObject`，例如直接在行文本解析边界完成字段读取）；
-  3. 提交前必须运行：
-     `pnpm exec oxlint --type-aware --config=.oxlintrc.ci.json --deny-warnings lib/routes/<namespace>`。
+  3. 避免使用被禁用的 `Number.isFinite` / `Number.isSafeInteger` / `.clone()` / `.catch(() => undefined)`；
+  4. 提交前必须运行：
+     `pnpm exec oxlint --type-aware --config oxlint.ci.config.ts --deny-warnings lib/routes/<namespace>`。
 
 ### 5.2 JSX 正文模板、无手写转义与文件精简边界（PR Auto Review 第 25 条 & `#23881` `6503c54`）
 
@@ -421,3 +430,12 @@ Adds a full-text feed for <Platform> under `/<namespace>/<route>`:
   2. 多行远端脚本统一先编码为单行 Base64，再通过 `bash -c 'source <(echo <b64>|base64 -d)'` 执行，且内部 `docker compose exec -T` 命令末尾均加 `</dev/null`；
   3. 用单次集成脚本尽量减少开启会话次数，且**无论成败**命令末尾都必须执行 `workbench session close --all` 与 `workbench daemon stop`，严禁泄漏半开会话；
   4. 执行敏感操作（如 `POST /cron/*` 或 `private.activate_business_jobs`）优先在 `rss-site-web-1` 容器内直接读取内存中的 `process.env.CRON_SECRET` 发起回环调用，只输出脱敏状态与数量统计，**严禁**回显、打印或落盘任何密钥与数据库 URL。
+
+### 5.8 PR 正文模板标题强校验与 `#23992` `/nextjs/blog` 实证
+
+- **问题表现**：PR `#23992` 代码检查（`Anti Slop` / `CodeFactor` / `CodeQL` / `Lint` / `oxlint` / `Vitest` / `Docker build`）全部通过，但因把模板的 4 个双语 `##` 标题裁为纯英文（删掉了 `/ 该 PR 相关 Issue` 等中文部分），仍被 `github-actions` 判定 `auto: route no found`、`auto: DO NOT merge` 并自动关闭。
+- **根因**：`scripts/workflow/test-route/identify.mjs` 对无写权限贡献者的 PR 强制精确匹配 4 个 `##` 标题文本（`Involved Issue / 该 PR 相关 Issue`、`Example for the Proposed Route(s) / 路由地址示例`、`New RSS Route Checklist / 新 RSS 路由检查表`、`Note / 说明`）及不少于 `5` 个检查表复选框，任意一项缺失即置 `searchStart = -1` 放弃扫描 ```` ```routes ````。
+- **硬性规避**：
+  1. 复制给用户的 GitHub PR 文案**必须**原字保留 `.github/PULL_REQUEST_TEMPLATE.md` 的 4 个双语 `##` 标题及检查表骨架，仅保持 `Note / 说明` 正文为简洁英文；
+  2. 提交修复前先同步确认最新 `upstream/master` 是否顺带改到同一文件或 `oxlint.config.ts`（如 `#23986` 同步改了 `lib/routes/nextjs/blog.ts` 导致 compare 页显示 `Can't automatically merge`）；
+  3. 遇 `auto: route no found` 关闭时，先修改 PR 正文为合法双语模板标题再点击 `Reopen pull request`（或编辑正文触发 `PR - Docker build test` -> `PR - route test`）。

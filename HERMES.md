@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-23 `/nextjs/blog` 上游修复与 RSSHub 交付工作流同步
+
+- **主站 PR 合并基线**：`rss-site` [PR #113](https://github.com/ljh12138164/rss-site/pull/113)（15 路原生全文科技源）已合并至 `master` @ `f4fe025`。
+- **RSSHub 上游修复分支**：在 `RSSHub` 基于最新 `upstream/master`（`d75a3fc57a`）创建 `feat/nextjs-blog`（`8d57faea95`，已推送至 `origin/feat/nextjs-blog`）并提交上游 [PR #23992](https://github.com/DIYgod/RSSHub/pull/23992)：改用官方 `https://nextjs.org/feed.xml` + `--article-full-width` 全文抽取、清除暗色模式重复元素、解包 `/_next/image`、通过 JSX 模板把 `[role="progressbar"]` 性能基准图转为表格并内嵌 SVG 坐标标签与颜色回退、修正 `4x3` 视频尺寸为 `800x600`，同时增加同源校验 + `publicOnly: true` 与单篇失败摘要降级（代码层 `Anti Slop` / `CodeFactor` / `CodeQL` / `Lint` / `oxlint` / `Vitest` / `Docker build` 全绿，待更新 PR 模板双语标题并 Reopen 后触发自动路由测试）。
+- **文档同步与踩坑记录**：更新 [docs/research/rsshub-route-candidates-and-workflow.md](docs/research/rsshub-route-candidates-and-workflow.md)，同步 `PR #113` 与 `/nextjs/blog`（`#23992`）状态，修正 CI `oxlint` 配置文件路径为 `oxlint.ci.config.ts`（并补充 `#23986` 禁用的 `Number.isFinite` / `Number.isSafeInteger` / Cheerio `.clone()` 等新规则），并在第 7 步明确记录 `scripts/workflow/test-route/identify.mjs` 对 4 个双语 `##` 标题及检查表的精确匹配红线。
+
 ## 2026-11-23 科技专区 15 路原生全文 RSS 接入与上游候选整理
 
 - **分支与文档**：`rss-site` 分支 `feat/native-tech-feeds` 基于 `origin/master`（`fa8928d`），配套开发文档见 [docs/development/native-tech-feeds.md](docs/development/native-tech-feeds.md)，采集证据见 [docs/development/evidence/native-tech-feeds-local-20261123.json](docs/development/evidence/native-tech-feeds-local-20261123.json)。
