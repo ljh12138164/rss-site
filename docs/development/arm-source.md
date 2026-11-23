@@ -56,8 +56,15 @@
 - 新 Cron 任务保持未激活状态，未绕过生产数据验收门禁
 - 分类结果：Blocking `0` 项；Accepted follow-up `0` 项；Rejected `0` 项（无需新建空 roadmap 文档；待 PR 合并并部署到 ECS 后再按 `AGENTS.md` 执行 `POST /cron/signals/arm` 与 `setup:cron` 门禁验证）
 
+## Production regression
+
+- 2026-11-13 PR #82（`feat/arm-source` -> `master`）与 PR #83（`docs/allow-gh-cli-pr` -> `master`）已合并并部署至 ECS（`sha-2aa08b746e79863b13c6bab4c36be5c7aa76d545`，`rss-site-postgres:18-cron-v1`），宿主机无遗留业务 systemd timer
+- 全量 47 路采集源通过 `/cron/verify/:source`（HTTP 200、`verified: true`、`databaseMajor: 18`），4 项维护端点（`retention`、`hot-ranking-log-retention`、`zhihu-cookie`、`publication-outbox`）均返回 HTTP 200
+- 通过 `private.activate_business_jobs(jsonb)` 激活全部未启用任务（`arm`、`groq`、`hot-ranking-log-retention`、`the-decoder`），激活后 `private.business_cron_jobs` 为 `51 / 51`（`verified = true`），`cron.job` 为 `53 / 53`（`active = true`），权限隔离检查保持 `false`
+- 重点核验：`arm` 最新批次 `d1588311-e6a2-4904-99f7-c1160b922464`（`30` 条：`/news/` `10` 条 + `/blog/` `20` 条，`24 / 30` 作者，`29 / 30` 可索引，`content_html` 长度 `856..24101`）；`groq` 最新批次 `5f2486a6-229b-4fb6-b18c-099ad51d095e`（`20` 条）；`the-decoder` 最新批次 `0000bb26-83b5-497e-915f-5fb519565f70`（`30` 条，`30 / 30` 作者）
+- 公网验证 `/healthz`、`/`、`/technology`、`/technology/arm`、`/technology/the-decoder`、`/ai`、`/ai/groq`、详情页与 `/feeds/{arm,groq,the-decoder,technology,ai}.xml`（分别为 `10`、`10`、`10`、`108`、`100` 条）均返回 HTTP 200，非敏感证据见 [生产验收证据](evidence/arm-production-20261113.json)
+
 ## Risks
 
 - 正文保留英文原文，未接入自动整篇翻译；Arm 官网 WordPress API 若变更文章结构，需在自建 RSSHub 仓库调整后重新部署
-- 部署执行 `006-arm-source.sql` 重建四张表 CHECK 约束时需要短暂表锁
-- 在 PR 合并部署并通过 ECS 生产数据门禁前，`signal-ingest-arm` 不会在生产环境自动定时抓取
+- 生产门禁与 `private.business_cron_jobs` 全部 `51 / 51` 调度已启用，`signal-ingest-arm`（`rss-site-arm`）已按 `15 5,11,17,23 * * *` 投入运行
