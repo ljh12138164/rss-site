@@ -510,6 +510,96 @@
     "path": "/cron/signals/together"
   },
   {
+    "source": "rust-blog",
+    "name": "signal-ingest-rust-blog",
+    "schedule": "28 4,16 * * *",
+    "path": "/cron/signals/rust-blog"
+  },
+  {
+    "source": "go-blog",
+    "name": "signal-ingest-go-blog",
+    "schedule": "29 4,16 * * *",
+    "path": "/cron/signals/go-blog"
+  },
+  {
+    "source": "svelte-blog",
+    "name": "signal-ingest-svelte-blog",
+    "schedule": "31 4,16 * * *",
+    "path": "/cron/signals/svelte-blog"
+  },
+  {
+    "source": "typescript-blog",
+    "name": "signal-ingest-typescript-blog",
+    "schedule": "32 4,16 * * *",
+    "path": "/cron/signals/typescript-blog"
+  },
+  {
+    "source": "swift-blog",
+    "name": "signal-ingest-swift-blog",
+    "schedule": "33 4,16 * * *",
+    "path": "/cron/signals/swift-blog"
+  },
+  {
+    "source": "kotlin-blog",
+    "name": "signal-ingest-kotlin-blog",
+    "schedule": "34 4,16 * * *",
+    "path": "/cron/signals/kotlin-blog"
+  },
+  {
+    "source": "netflix-tech",
+    "name": "signal-ingest-netflix-tech",
+    "schedule": "37 4,16 * * *",
+    "path": "/cron/signals/netflix-tech"
+  },
+  {
+    "source": "meta-engineering",
+    "name": "signal-ingest-meta-engineering",
+    "schedule": "38 4,16 * * *",
+    "path": "/cron/signals/meta-engineering"
+  },
+  {
+    "source": "smashing-magazine",
+    "name": "signal-ingest-smashing-magazine",
+    "schedule": "41 4,16 * * *",
+    "path": "/cron/signals/smashing-magazine"
+  },
+  {
+    "source": "js-weekly",
+    "name": "signal-ingest-js-weekly",
+    "schedule": "42 4,16 * * *",
+    "path": "/cron/signals/js-weekly"
+  },
+  {
+    "source": "golang-weekly",
+    "name": "signal-ingest-golang-weekly",
+    "schedule": "43 4,16 * * *",
+    "path": "/cron/signals/golang-weekly"
+  },
+  {
+    "source": "this-week-in-rust",
+    "name": "signal-ingest-this-week-in-rust",
+    "schedule": "44 4,16 * * *",
+    "path": "/cron/signals/this-week-in-rust"
+  },
+  {
+    "source": "krebs-security",
+    "name": "signal-ingest-krebs-security",
+    "schedule": "45 4,16 * * *",
+    "path": "/cron/signals/krebs-security"
+  },
+  {
+    "source": "mit-tech-review",
+    "name": "signal-ingest-mit-tech-review",
+    "schedule": "46 4,16 * * *",
+    "path": "/cron/signals/mit-tech-review"
+  },
+  {
+    "source": "ruanyifeng",
+    "name": "signal-ingest-ruanyifeng",
+    "schedule": "47 4,16 * * *",
+    "path": "/cron/signals/ruanyifeng"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

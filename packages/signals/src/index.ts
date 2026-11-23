@@ -87,7 +87,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
   }
 ] as const
 
-// 科技 Technology (25)
+// 科技 Technology (40)
 export const technologySources = [
   {
     id: 'github',
@@ -419,6 +419,201 @@ export const technologySources = [
     isArticle: true,
     cronSchedule: '27 4,16 * * *',
     cronJobName: 'signal-ingest-bun'
+  },
+  {
+    id: 'rust-blog',
+    name: 'Rust Blog',
+    code: 'RS',
+    shortName: 'Rust',
+    description: 'Rust 官方博客与版本发布动态',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://blog.rust-lang.org/feed.xml',
+    isArticle: true,
+    cronSchedule: '28 4,16 * * *',
+    cronJobName: 'signal-ingest-rust-blog'
+  },
+  {
+    id: 'go-blog',
+    name: 'Go Blog',
+    code: 'GO',
+    shortName: 'Go',
+    description: 'Go 语言官方技术博客与生态更新',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://go.dev/blog/feed.atom',
+    isArticle: true,
+    cronSchedule: '29 4,16 * * *',
+    cronJobName: 'signal-ingest-go-blog'
+  },
+  {
+    id: 'svelte-blog',
+    name: 'Svelte Blog',
+    code: 'SV',
+    shortName: 'Svelte',
+    description: 'Svelte 与 SvelteKit 官方博客动态',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://svelte.dev/blog/rss.xml',
+    isArticle: true,
+    cronSchedule: '31 4,16 * * *',
+    cronJobName: 'signal-ingest-svelte-blog'
+  },
+  {
+    id: 'typescript-blog',
+    name: 'TypeScript Blog',
+    code: 'TS',
+    shortName: 'TypeScript',
+    description: 'TypeScript 官方发布说明与语言特性解析',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://devblogs.microsoft.com/typescript/feed/',
+    isArticle: true,
+    cronSchedule: '32 4,16 * * *',
+    cronJobName: 'signal-ingest-typescript-blog'
+  },
+  {
+    id: 'swift-blog',
+    name: 'Swift Blog',
+    code: 'SWF',
+    shortName: 'Swift',
+    description: 'Swift 官方语言更新与工程博客',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://www.swift.org/atom.xml',
+    isArticle: true,
+    cronSchedule: '33 4,16 * * *',
+    cronJobName: 'signal-ingest-swift-blog'
+  },
+  {
+    id: 'kotlin-blog',
+    name: 'Kotlin Blog',
+    code: 'KT',
+    shortName: 'Kotlin',
+    description: 'Kotlin 官方博客、多平台与工具链动态',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://blog.jetbrains.com/kotlin/feed/',
+    isArticle: true,
+    cronSchedule: '34 4,16 * * *',
+    cronJobName: 'signal-ingest-kotlin-blog'
+  },
+  {
+    id: 'netflix-tech',
+    name: 'Netflix Tech Blog',
+    code: 'NF',
+    shortName: 'Netflix',
+    description: 'Netflix 工程团队架构与系统实践博客',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://netflixtechblog.com/feed',
+    isArticle: true,
+    cronSchedule: '37 4,16 * * *',
+    cronJobName: 'signal-ingest-netflix-tech'
+  },
+  {
+    id: 'meta-engineering',
+    name: 'Meta Engineering',
+    code: 'ME',
+    shortName: 'Meta Eng',
+    description: 'Meta 工程团队系统、基础设施与 AI 实践',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://engineering.fb.com/feed/',
+    isArticle: true,
+    cronSchedule: '38 4,16 * * *',
+    cronJobName: 'signal-ingest-meta-engineering'
+  },
+  {
+    id: 'smashing-magazine',
+    name: 'Smashing Magazine',
+    code: 'SM',
+    shortName: 'Smashing',
+    description: 'Web 前端工程、CSS 与交互设计长文',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://www.smashingmagazine.com/feed/',
+    isArticle: true,
+    cronSchedule: '41 4,16 * * *',
+    cronJobName: 'signal-ingest-smashing-magazine'
+  },
+  {
+    id: 'js-weekly',
+    name: 'JavaScript Weekly',
+    code: 'JW',
+    shortName: 'JS Weekly',
+    description: 'JavaScript 生态与前端工具精选周刊',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://javascriptweekly.com/rss/',
+    isArticle: true,
+    cronSchedule: '42 4,16 * * *',
+    cronJobName: 'signal-ingest-js-weekly'
+  },
+  {
+    id: 'golang-weekly',
+    name: 'Golang Weekly',
+    code: 'GW',
+    shortName: 'Go Weekly',
+    description: 'Go 语言社区开源库与工程实践周刊',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://golangweekly.com/rss/',
+    isArticle: true,
+    cronSchedule: '43 4,16 * * *',
+    cronJobName: 'signal-ingest-golang-weekly'
+  },
+  {
+    id: 'this-week-in-rust',
+    name: 'This Week in Rust',
+    code: 'TW',
+    shortName: 'Rust Weekly',
+    description: 'Rust 社区每周进展、RFC 与热门项目汇总',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://this-week-in-rust.org/atom.xml',
+    isArticle: true,
+    cronSchedule: '44 4,16 * * *',
+    cronJobName: 'signal-ingest-this-week-in-rust'
+  },
+  {
+    id: 'krebs-security',
+    name: 'Krebs on Security',
+    code: 'KS',
+    shortName: 'Krebs',
+    description: '网络安全深度调查与漏洞事件报道',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://krebsonsecurity.com/feed/',
+    isArticle: true,
+    cronSchedule: '45 4,16 * * *',
+    cronJobName: 'signal-ingest-krebs-security'
+  },
+  {
+    id: 'mit-tech-review',
+    name: 'MIT Technology Review',
+    code: 'MTR',
+    shortName: 'MIT Tech',
+    description: '麻省理工科技评论前沿科技与 AI 报道',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://www.technologyreview.com/feed/',
+    isArticle: true,
+    cronSchedule: '46 4,16 * * *',
+    cronJobName: 'signal-ingest-mit-tech-review'
+  },
+  {
+    id: 'ruanyifeng',
+    name: '阮一峰科技爱好者周刊',
+    code: 'RYF',
+    shortName: '阮一峰',
+    description: '科技爱好者周刊，记录每周值得分享的科技内容',
+    section: 'technology',
+    itemLimit: 20,
+    feedUrl: 'https://www.ruanyifeng.com/blog/atom.xml',
+    isArticle: true,
+    cronSchedule: '47 4,16 * * *',
+    cronJobName: 'signal-ingest-ruanyifeng'
   }
 ] as const
 
@@ -1366,7 +1561,22 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'elevenlabs',
   'sierra',
   'apple-ml',
-  'together'
+  'together',
+  'rust-blog',
+  'go-blog',
+  'svelte-blog',
+  'typescript-blog',
+  'swift-blog',
+  'kotlin-blog',
+  'netflix-tech',
+  'meta-engineering',
+  'smashing-magazine',
+  'js-weekly',
+  'golang-weekly',
+  'this-week-in-rust',
+  'krebs-security',
+  'mit-tech-review',
+  'ruanyifeng'
 ] as const
 
 // Cron jobs

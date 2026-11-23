@@ -1,5 +1,13 @@
 # HERMES
 
+## 2026-11-23 科技专区 15 路原生全文 RSS 接入与上游候选整理
+
+- **分支与文档**：`rss-site` 分支 `feat/native-tech-feeds` 基于 `origin/master`（`fa8928d`），配套开发文档见 [docs/development/native-tech-feeds.md](docs/development/native-tech-feeds.md)，采集证据见 [docs/development/evidence/native-tech-feeds-local-20261123.json](docs/development/evidence/native-tech-feeds-local-20261123.json)。
+- **新增直连来源（15 路，全部归入 `technology`）**：`rust-blog`、`go-blog`、`svelte-blog`、`typescript-blog`、`swift-blog`、`kotlin-blog`、`netflix-tech`、`meta-engineering`、`smashing-magazine`、`js-weekly`、`golang-weekly`、`this-week-in-rust`、`krebs-security`、`mit-tech-review`、`ruanyifeng`。以上均已在北京生产 ECS（`i-2ze77shgsxr3nwn6ghra`、`rss-site-web-1`）实地验证可直连返回 `200` 且经全文抽检无截断预览或短时垃圾流，未修改 `deploy/feed-relay/index.ts`。
+- **评审淘汰说明**：Codex Review（`[P2]`）与用户确认后已移除 `bytebytego`（实测含 `4/20` 篇付费预览截断 `"Read more"` 条目及课程促销）与 `devto`（`dev.to/feed` 为 6–9 分钟级未过滤全站最新帖、含加密货币广告且官方无 `/top` RSS）。
+- **上游调研归档**：更新 [docs/research/rsshub-route-candidates-and-workflow.md](docs/research/rsshub-route-candidates-and-workflow.md)（全站基线更新至 `101` 个信号源 / `104` 项 cron 任务），记录来自 `JackyST0/awesome-rsshub-routes` 且官方原生 Feed 仅提供摘要/缺正文的重点候选（`Supabase`、`Deno`、`Astro`、`Nuxt`、`Chrome Developer`、`Stripe`、`Spotify`、`AIHOT 日报` 等），以及已发现存在缺陷待修复的现有 RSSHub 路由（`/nextjs/blog`、`/deepmind/blog`、`/google/developers/:locale?`、`/meta/ai/blog`）。
+- **迁移与调度注意**：`deploy/postgres/migrations/019-native-tech-feeds.sql` 覆盖 `018-together-source.sql` 的 CHECK 约束；新任务在 `deploy/server/business-jobs.json` 中占用 UTC `4,16 * *` 空闲分钟槽 `28–34, 37–38, 41–47`，发布时将由 `sync-business-cron --activate-unverified` 增量验证并逐个激活，待上线后按常规门禁观察各源激活状态。
+
 ## 2026-11-22 Together AI Blog 全文来源接入
 
 - **分支与上游**：`rss-site` 分支 `feat/together-source` 基于 `origin/master`（`d126961`）；自建 `RSSHub` 分支 `feat/together-blog`（`52e78a140d`，基于 `upstream/master` `c31bc27991`）已 cherry-pick 至 `master` @ `9c942d4f77` 并部署上线 `https://rss.ljhboard.cn/together/blog`。
