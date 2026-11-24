@@ -80,6 +80,7 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
 }
 
 const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
+  chrome: { src: '/source-icons/chrome.svg' },
   geekpark: { src: '/source-icons/geekpark.svg' },
   ithome: { src: '/source-icons/ithome.png' },
   '36kr': { src: '/source-icons/36kr.svg' },

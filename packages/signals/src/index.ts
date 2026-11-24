@@ -614,6 +614,19 @@ export const technologySources = [
     isArticle: true,
     cronSchedule: '47 4,16 * * *',
     cronJobName: 'signal-ingest-ruanyifeng'
+  },
+  {
+    id: 'chrome',
+    name: 'Chrome Developers',
+    code: 'CR',
+    shortName: 'Chrome',
+    description: 'Chrome 官方开发者博客，涵盖 Web 平台、DevTools 与端侧 AI',
+    section: 'technology',
+    itemLimit: 20,
+    rsshubPath: '/chrome/blog',
+    isArticle: true,
+    cronSchedule: '48 4,16 * * *',
+    cronJobName: 'signal-ingest-chrome'
   }
 ] as const
 
@@ -1576,7 +1589,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'this-week-in-rust',
   'krebs-security',
   'mit-tech-review',
-  'ruanyifeng'
+  'ruanyifeng',
+  'chrome'
 ] as const
 
 // Cron jobs

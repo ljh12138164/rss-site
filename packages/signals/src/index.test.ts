@@ -22,16 +22,16 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 101 sources', () => {
+  it('defines 7 sections and 102 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(101)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(101)
+    expect(signalSources).toHaveLength(102)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(102)
   })
 
   it('correctly maps all section counts', () => {
-    expect(technologySources).toHaveLength(40)
-    expect(technologyArticleSources).toHaveLength(39)
+    expect(technologySources).toHaveLength(41)
+    expect(technologyArticleSources).toHaveLength(40)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(6)
     expect(aiSources).toHaveLength(29)
@@ -70,6 +70,7 @@ describe('@rss-site/signals', () => {
     expect(isSignalSourceId('together')).toBe(true)
     expect(isSignalSourceId('rust-blog')).toBe(true)
     expect(isSignalSourceId('ruanyifeng')).toBe(true)
+    expect(isSignalSourceId('chrome')).toBe(true)
     expect(isSignalSourceId('chuapp')).toBe(true)
     expect(isSignalSourceId('80lv')).toBe(true)
     expect(isSignalSourceId('invalid')).toBe(false)
@@ -79,7 +80,7 @@ describe('@rss-site/signals', () => {
 
   it('filters sources by section and isArticle', () => {
     const techArticles = listSignalSources({ section: 'technology', isArticle: true })
-    expect(techArticles).toHaveLength(39)
+    expect(techArticles).toHaveLength(40)
     expect(techArticles.some((s) => s.id === 'github')).toBe(false)
 
     const allSkills = listSignalSources({ section: 'skills' })
@@ -167,6 +168,9 @@ describe('@rss-site/signals', () => {
     )
     expect(resolveSignalFeedUrl(getSignalSource('ruanyifeng'), 'https://rss.ljhboard.cn')).toBe(
       'https://www.ruanyifeng.com/blog/atom.xml'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('chrome'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/chrome/blog'
     )
   })
 

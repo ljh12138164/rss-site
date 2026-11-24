@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-11-24T01:59:42.374Z",
+  "sourceId": "chrome",
+  "section": "technology",
+  "feedUrl": "https://rss.ljhboard.cn/chrome/blog",
+  "xmlBytes": 474367,
+  "parsedAndIngestedItems": 20,
+  "fullBodyMatches": 20,
+  "renderedNonEmpty": 20,
+  "publicationDatesVerified": 20,
+  "namedAuthors": 17,
+  "coverImages": 19,
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 46249,
+  "uniqueUrls": 20,
+  "withinDatabaseLimit": true,
+  "sampleItems": [
+    {
+      "title": "Build and import agent skills in Gemini in Chrome",
+      "url": "https://developer.chrome.com/blog/skills-in-gemini-in-chrome?hl=en",
+      "author": "Milica Mihajlija",
+      "publishedAt": "2026-11-17T08:00:00.000Z",
+      "imageUrl": "https://developer.chrome.com/static/blog/skills-in-gemini-in-chrome/image/skills-library.png",
+      "contentBytes": 12681,
+      "renderedBytes": 9531
+    },
+    {
+      "title": "ICYMI: Modern Web Guidance is now stable",
+      "url": "https://developer.chrome.com/blog/modern-web-guidance-recap?hl=en",
+      "author": "Matthias Rohmer, Alexandra Klepper",
+      "publishedAt": "2026-11-13T08:00:00.000Z",
+      "imageUrl": "https://developer.chrome.com/static/blog/modern-web-guidance-recap/image/modern-web-guidance-launch-week.png",
+      "contentBytes": 9942,
+      "renderedBytes": 8959
+    },
+    {
+      "title": "New in DevTools - December 2026",
+      "url": "https://developer.chrome.com/blog/new-in-devtools-december-2026?hl=en",
+      "author": "Matthias Rohmer",
+      "publishedAt": "2026-11-13T08:00:00.000Z",
+      "imageUrl": "https://developer.chrome.com/static/blog/new-in-devtools-december-2026/images/mcp.webp",
+      "contentBytes": 20837,
+      "renderedBytes": 19413
+    },
+    {
+      "title": "Cross-browser by default: How Baseline fallbacks work in Modern Web Guidance",
+      "url": "https://developer.chrome.com/blog/cross-browser-by-default?hl=en",
+      "author": "Tara Agyemang",
+      "publishedAt": "2026-11-12T08:00:00.000Z",
+      "imageUrl": "https://developer.chrome.com/static/blog/cross-browser-by-default/image/hero.png",
+      "contentBytes": 26214,
+      "renderedBytes": 17414
+    },
+    {
+      "title": "Local vector search for coding agents: From 507 MB to a 7-line loop",
+      "url": "https://developer.chrome.com/blog/mwg-technical-deep-dive?hl=en",
+      "author": "Paul Irish",
+      "publishedAt": "2026-11-12T08:00:00.000Z",
+      "imageUrl": "https://developer.chrome.com/static/blog/mwg-technical-deep-dive/image/fig-1.png",
+      "contentBytes": 34860,
+      "renderedBytes": 24413
+    }
+  ]
+}

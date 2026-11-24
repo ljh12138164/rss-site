@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-24 Chrome for Developers Blog 全文来源接入
+
+- **分支与上游**：`rss-site` 分支 `feat/chrome-source` 基于 `origin/master`（`c963150`），配套开发文档见 [Chrome for Developers Blog 全文来源](docs/development/chrome-source.md)；自建 `RSSHub` 分支 `feat/chrome-developer-blog`（`b5a8f2a87d`，基于 `upstream/master` `0bff31a319`）已 cherry-pick 至 `master` @ `05d98dd64a` 并部署上线 `https://rss.ljhboard.cn/chrome/blog`（Vercel `success`）。
+- **接入与迁移**：在 `technology` 分区注册 `chrome`（`name: 'Chrome Developers'`、`code: 'CR'`、`shortName: 'Chrome'`、`itemLimit: 20`、`rsshubPath: '/chrome/blog'`、`cronSchedule: '48 4,16 * * *'`），新增官方多色徽标 [chrome.svg](apps/web/public/source-icons/chrome.svg) 并注册至 [source-icon.tsx](apps/web/components/source-icon.tsx)，新增迁移 [020-chrome-source.sql](deploy/postgres/migrations/020-chrome-source.sql)（覆盖 [019-native-tech-feeds.sql](deploy/postgres/migrations/019-native-tech-feeds.sql)）并同步 [baseline.sql](deploy/postgres/baseline.sql)、[business-jobs.json](deploy/server/business-jobs.json)（`105` 项任务）与 [verify-release-runtime](deploy/server/verify-release-runtime)（`105` / `107`），全站更新为 `102` 个信号源。
+- **验证**：公网 `https://rss.ljhboard.cn/chrome/blog`（`?limit=1` `16,894` B、默认 `20` 篇 `474,367` B、`?limit=5&format=atom` `137,951` B）均返回 `200`；真实 `parseSignalFeed` + `renderArticleContent` 验证 `20/20`（[证据文件](docs/development/evidence/chrome-local-20261124.json)，`namedAuthors: 17`、`coverImages: 19`、`maxContentHtmlBytes: 46,249`、`badImageUrls: 0`）；全仓 `pnpm lint`（`379` 个文件）、`check-types`（`3/3`）、`vitest`（`331 passed | 22 skipped`）、`build`（`113/113` 静态页）、`render-cron-sql.mjs`、`test-release-packaging.py`（`8/8`）及 `bash -n` 全部通过。
+
 ## 2026-11-23 `/nextjs/blog` 上游修复与 RSSHub 交付工作流同步
 
 - **主站 PR 合并基线**：`rss-site` [PR #113](https://github.com/ljh12138164/rss-site/pull/113)（15 路原生全文科技源）已合并至 `master` @ `f4fe025`。
