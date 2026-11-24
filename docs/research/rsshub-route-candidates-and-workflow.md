@@ -1,7 +1,7 @@
 # RSSHub 待新增路由候选与标准化交付工作流
 
 - **调研日期**：2026-11-13（2026-11-18 结合 `KKKKhazix/AIHOT` 增补候选；2026-11-23 结合 `JackyST0/awesome-rsshub-routes` 105 条官方源与 28 条 RSSHub 路由复测，接入 15 路可直连原生全文源至 `technology` 分区并合入 [PR #113](https://github.com/ljh12138164/rss-site/pull/113)，同步提交 `/nextjs/blog` 上游修复 PR [`#23992`](https://github.com/DIYgod/RSSHub/pull/23992) 并补齐最新 CI/PR 模板检验规范）
-- **`rss-site` 基线**：`master` @ `f4fe025`（已合入 `PR #113`；`packages/signals/src/index.ts` 已注册 `101` 个源，分属 `7` 个分区：`ai` 29、`technology` 40、`news` 6、`social` 6、`finance` 5、`games` 13、`skills` 2；`deploy/server/business-jobs.json` 含 `100` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务，共 `104` 项）
+- **`rss-site` 基线**：`master` @ `c963150`（已合入 `PR #113` / `#114` / `#84`，`feat/chrome-source` 接入 `chrome` 后共 `102` 个源，分属 `7` 个分区：`ai` 29、`technology` 41、`news` 6、`social` 6、`finance` 5、`games` 13、`skills` 2；`deploy/server/business-jobs.json` 含 `101` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务，共 `105` 项）
 - **AIHOT 参考样本**：`KKKKhazix/AIHOT`（`industry/sources.json` 含 `18` 个示范 RSS 源）及线上 `https://aihot.news/api/site/stats`（共 `925` 个活跃源，含 `rss: 181`、`web_list: 145`、`json_list: 26`、`mp_account: 23`、`x_search: 549`、`external: 1`）+ `/api/v1/items` 近期精选来源，经交叉核对上游 `DIYgod/RSSHub` `upstream/master` 后分层筛选出本轮高优先级开源/实验室/工程新源。
 - **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
@@ -11,13 +11,12 @@
 > 结合历史已完成记录、`AIHOT` 线上信源、`awesome-rsshub-routes` 实测可用性与生产接入进度，建议按以下几档优先挑选下一批要新写或修复的 RSSHub 全文路由：
 
 - **第一档｜最顺手优先（已有官网摘要/空正文 RSS，仅需补全正文，上游 PR 通过最快）**：
-  1. **已完成自建与接入 `rss-site`**：`Modal Blog`（`/modal/blog`）、`ElevenLabs Blog`（`/elevenlabs/blog`）、`Sierra Blog`（`/sierra/blog`）、`Together AI Blog`（`/together/blog`，上游 PR `#23980` 已合入）、`Apple ML Research`（`/apple/ml-research`，上游 PR `#23973` 已合入）、`OpenAI Developers Blog`（`/openai/developers/blog`，上游 PR `#23920` 已合入）、`vLLM Blog`（`/vllm/blog`，上游 PR `#23918` 已合入）。
+  1. **已完成自建与接入 `rss-site`**：`Modal Blog`（`/modal/blog`）、`ElevenLabs Blog`（`/elevenlabs/blog`）、`Sierra Blog`（`/sierra/blog`）、`Together AI Blog`（`/together/blog`，上游 PR `#23980` 已合入）、`Apple ML Research`（`/apple/ml-research`，上游 PR `#23973` 已合入）、`OpenAI Developers Blog`（`/openai/developers/blog`，上游 PR `#23920` 已合入）、`vLLM Blog`（`/vllm/blog`，上游 PR `#23918` 已合入）、`Chrome Developer Blog`（`/chrome/blog`，自建 `05d98dd64a` 已上线，待合入上游 PR 与 `rss-site` `feat/chrome-source`）。
   2. **待开发新全文路由（`AI` / `开发工具` / `awesome-rsshub-routes` 增补）**：
      - **Supabase Blog**（`https://supabase.com/rss.xml`：`448` 条、`20` words 摘要 -> 文章页 `<article>` `4,155` 字符，200 无反爬）
      - **Deno Blog**（`https://deno.com/feed`：`249` 条、`21` words 摘要 -> 文章页 `<article>` `3,549` 字符，200 无反爬）
      - **Astro Blog**（`https://astro.build/rss.xml`：`191` 条、`20` words 摘要 -> 文章页 `<main>` `52,753` 字符，200 无反爬）
      - **Nuxt Blog**（`https://nuxt.com/blog/rss.xml`：`52` 条、`28` words 摘要 -> 文章页 `<article>` `9,840` 字符，200 无反爬）
-     - **Chrome Developer Blog**（`https://developer.chrome.com/blog/feed.xml`：`16` words 摘要 -> 文章页 `<article>` `12,577` 字符，200 无反爬；北京 ECS 直连 `173.194.203.*` 25s 超时，做好 RSSHub 全文路由可同步解决连通性）
      - **Stripe Blog**（`https://stripe.com/blog/feed.rss`：`33` words 摘要 -> 文章页 `<article>` `4,374` 字符，200 无反爬）
      - **Spotify Engineering**（`https://engineering.atspotify.com/feed/`：`34` words 摘要 -> 文章页 `body` `17,111` 字符，200 无反爬）
      - **AIHOT 日报**（`https://aihot.news/feed/daily.xml`：`30` 条、`77` words 摘要 -> 文章页 `<main>` `2,658` 字符，200 无反爬；可直接加到既有 `RSSHub/lib/routes/aihot` 命名空间 `/aihot/daily`）
@@ -104,7 +103,7 @@
 | **Deno Blog** | `https://deno.com/feed` | 无（`deno` 缺失） | Atom `200`（`179,221` B、`249` 条、`descLen: 144` / `21` words）；文章页 `200`（`64,335` B，`<article>` `3,549` 字符）；北京 ECS 直连 `1,622ms` `200`。 |
 | **Astro Blog**（`awesome` 增补） | `https://astro.build/rss.xml` | 无（`astro` 缺失） | RSS `200`（`74,044` B、`191` 条、`descLen: 133` / `20` words）；文章页 `200`（`482,990` B，`<main>` `52,753` 字符）；北京 ECS 直连 `845ms` `200`。 |
 | **Nuxt Blog**（`awesome` 增补） | `https://nuxt.com/blog/rss.xml` | 无（`nuxt` 缺失） | RSS `200`（`32,946` B、`52` 条、`descLen: 169` / `28` words）；文章页 `200`（`262,452` B，`<article>` `9,840` 字符）；北京 ECS 直连 `996ms` `200`。 |
-| **Chrome Developer Blog**（`awesome` 增补） | `https://developer.chrome.com/blog/feed.xml` | 无（`chrome` 缺失） | RSS `200`（`10` 条、`descLen: 119` / `16` words）；文章页 `200`（`133,632` B，`<article>` `12,577` 字符）。注：北京 ECS 直连 `173.194.203.*` 25s 超时，适合通过 RSSHub 路由补全文并兼顾海外抓取。 |
+| **Chrome Developer Blog**（`awesome` 增补） | `https://developer.chrome.com/blog/feed.xml` | ✅ 自建 [`/chrome/blog`](https://rss.ljhboard.cn/chrome/blog) 已上线（`master` @ `05d98dd64a`，源分支 `feat/chrome-developer-blog` @ `b5a8f2a87d`）；`rss-site` `feat/chrome-source` 待合并 | 调用 DevSite 动态接口 `/_d/dynamic_content`（解决静态 `feed.xml` 滞后与北京 ECS `25s` 直连超时），清理内联 `<style>`、作者卡片与 `.wd-pubdates`、渲染 `<devsite-video>` 并区分发布/更新时间；实测 `100/100` 全文、`22` 种语言与站点 `20/20` 采集渲染通过。 |
 | **Stripe Blog**（`awesome` 增补） | `https://stripe.com/blog/feed.rss` | 无（`stripe` 缺失） | RSS `200`（`9,641` B、`10` 条、`descLen: 223` / `33` words）；文章页 `200`（`403,161` B，`<article>` `4,374` 字符）；北京 ECS 直连 `414ms` `200`。 |
 | **Spotify Engineering**（`awesome` 增补） | `https://engineering.atspotify.com/feed/` | 无（仅存在用户/歌单路由，缺工程博客） | RSS `200`（`6,232` B、`5` 条、`descLen: 213` / `34` words）；文章页 `200`（`122,098` B、`body` `17,111` 字符）；北京 ECS 直连 `1,616ms` `200`。 |
 | **AIHOT 日报**（`awesome` 增补） | `https://aihot.news/feed/daily.xml` | 已有 `aihot` 榜单/模型路由，缺 `/aihot/daily` | RSS `200`（`68,484` B、`30` 条、`descLen: 597` / `77` words）；文章页 `200`（`98,848` B，`<main>` `2,658` 字符）；北京 ECS 直连 `182ms` `200`。 |

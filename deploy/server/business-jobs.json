@@ -600,6 +600,12 @@
     "path": "/cron/signals/ruanyifeng"
   },
   {
+    "source": "chrome",
+    "name": "signal-ingest-chrome",
+    "schedule": "48 4,16 * * *",
+    "path": "/cron/signals/chrome"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"
