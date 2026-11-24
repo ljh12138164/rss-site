@@ -4,10 +4,12 @@ import type { FailedIngestion, SignalStore, SuccessfulIngestion } from './store'
 
 export type { FailedIngestion, SignalStore, SuccessfulIngestion }
 
-export interface IngestionDependencies {
-  fetchFeed(): Promise<string | string[]>
-  store: SignalStore
-}
+type ParseFeed = (xml: string) => SignalFeedItem[]
+
+export type IngestionDependencies = { store: SignalStore } & (
+  | { fetchFeed(): Promise<string | string[]> }
+  | { fetchItems(parseFeed: ParseFeed): Promise<SignalFeedItem[]> }
+)
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message.slice(0, 500) : 'Unknown ingestion error'
@@ -21,8 +23,7 @@ export async function ingestSignal(
   const batchId = crypto.randomUUID()
 
   try {
-    const feeds = await deps.fetchFeed()
-    const candidates = [feeds].flat().flatMap((feed) =>
+    const parseFeed: ParseFeed = (feed) =>
       parseSignalFeed(feed, source.name, {
         useUpdatedDate: source.section !== 'news',
         titleFromFirstStrong:
@@ -30,7 +31,10 @@ export async function ingestSignal(
         urlFromFirstAnchor: 'urlFromFirstAnchor' in source ? source.urlFromFirstAnchor : undefined,
         skillMetadata: 'skillMetadata' in source ? source.skillMetadata : undefined
       })
-    )
+    const candidates =
+      'fetchItems' in deps
+        ? await deps.fetchItems(parseFeed)
+        : [await deps.fetchFeed()].flat().flatMap(parseFeed)
     const merged = new Map<string, SignalFeedItem>()
     if ('feeds' in source) {
       for (const item of candidates) {

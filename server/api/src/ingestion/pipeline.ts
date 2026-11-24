@@ -6,22 +6,32 @@ import { type PublicationStatus, publishSourceUpdate } from './publish'
 import { fetchStcnFeed } from './stcn'
 import { DrizzleSignalStore } from './store'
 
-// Routes from before the RSSHub candidates document, verified on both instances.
+// Feed URLs verified on rss1, with the primary instance as the fallback.
 const secondaryRsshubUrls = new Map(
   [
+    '/github/trending/weekly/any/zh',
     '/hackernews',
+    '/juejin/trending/all/weekly',
     '/ithome/ranking/24h',
     '/36kr/hot-list/24',
     '/cloudflare/blog',
     '/nvidia/developer/zh-CN?limit=20',
+    '/the-decoder/news?limit=60&filter_description=%5E%5Cs*%3C',
     '/arm/blog?limit=20',
+    '/chrome/blog',
     '/news/xhsxw?limit=30',
     '/thepaper/sidebar/hotNews',
     '/jiemian/lists/71',
     '/openai/news?limit=20',
+    '/openai/developers/blog?limit=20',
     '/anthropic/news?limit=20',
+    '/deepseek/news',
+    '/qwen/blog/zh-CN',
     '/google/antigravity/blog/zh-CN',
     '/groq/blog',
+    '/cohere/blog?limit=20',
+    '/elevenlabs/blog',
+    '/together/blog',
     '/bilibili/popular/all',
     '/coolapk/hot',
     '/wallstreetcn/hot/day',
@@ -65,20 +75,26 @@ export async function runIngestionPipeline(
       fetchSignalFeed(url, {
         timeoutMs: source.section === 'skills' ? 90_000 : 30_000
       }))
-  const fetchFeeds = () =>
-    Promise.all(
-      feedUrls.map((url) => {
-        const secondaryUrl = secondaryRsshubUrls.get(url)
-        return secondaryUrl ? fetcher(secondaryUrl).catch(() => fetcher(url)) : fetcher(url)
-      })
-    )
   const store = new DrizzleSignalStore(options.db, source.id, source.section)
 
   const result = await ingestSignal(
     source,
     {
-      fetchFeed: source.id === 'stcn' && !options.fetchFeed ? fetchStcnFeed : fetchFeeds,
-      store
+      store,
+      async fetchItems(parseFeed) {
+        if (source.id === 'stcn' && !options.fetchFeed) return parseFeed(await fetchStcnFeed())
+
+        const fetchItemsFrom = async (url: string) => parseFeed(await fetcher(url))
+        const feeds = await Promise.all(
+          feedUrls.map((url) => {
+            const secondaryUrl = secondaryRsshubUrls.get(url)
+            return secondaryUrl
+              ? fetchItemsFrom(secondaryUrl).catch(() => fetchItemsFrom(url))
+              : fetchItemsFrom(url)
+          })
+        )
+        return feeds.flat()
+      }
     },
     now
   )

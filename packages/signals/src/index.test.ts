@@ -207,10 +207,15 @@ describe('@rss-site/signals', () => {
     ])
   })
 
-  it('ensures every cron job has valid format and non-empty schedule', () => {
+  it('schedules each signal every six hours in a distinct minute', () => {
+    const schedules = new Set<string>()
     for (const job of SIGNAL_CRON_JOBS) {
       expect(job.name).toMatch(/^signal-ingest-[a-z0-9-]+$/)
-      expect(job.schedule.split(' ')).toHaveLength(5)
+      expect(job.schedule).toMatch(/^(?:\d|[1-5]\d) [0-5](?:,\d{1,2}){3} \* \* \*$/)
+      const hours = job.schedule.split(' ')[1].split(',').map(Number)
+      expect(hours).toEqual([0, 6, 12, 18].map((offset) => hours[0] + offset))
+      expect(schedules.has(job.schedule)).toBe(false)
+      schedules.add(job.schedule)
     }
   })
 })

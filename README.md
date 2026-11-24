@@ -4,7 +4,7 @@
 掘金、IT之家和 36氪；国内新闻区包含新华社、央视国内、中新网、澎湃热榜、界面中国和百度热搜；AI
 平台区包含 OpenAI、ChatGPT、Anthropic、DeepSeek、智谱 GLM、Google AI / Gemini 和 Qwen；另有六路社交热点与
 五路财经、五路游戏信号。首页以 AI 为主展示三十五路摘要，各分区总览与 `[source]` 路由展示独立列表。
-AI 每 2 小时、其他分区每 6 小时错峰采集。生产业务已迁到 ECS，由一个 Next 服务承载业务入口，使用 PostgreSQL 18。切换过程见[迁移记录](docs/development/business-postgres-migration.md)。
+各分区每 6 小时错峰采集。生产业务已迁到 ECS，由一个 Next 服务承载业务入口，使用 PostgreSQL 18。切换过程见[迁移记录](docs/development/business-postgres-migration.md)。
 
 ## Architecture
 
