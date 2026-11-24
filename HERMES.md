@@ -2,8 +2,8 @@
 
 ## 2026-11-24 RSS 抓取间隔与实例分流
 
-- 在 `feat/rss-cadence-balance` 将生产信号抓取统一为每 6 小时，并扩展 `rss1` 首选路由至 29 条。[开发记录](docs/development/rss-cadence-balance.md)
-- 验证排程一致性、首选实例及失败回退后，向 `master` 提交 PR。
+- `feat/rss-cadence-balance` 将生产信号抓取统一为每 6 小时，并扩展 `rss1` 首选路由至 29 条。[开发记录](docs/development/rss-cadence-balance.md)
+- 本地验证和审查问题修复完成。等待合并到 `master`，由发布流程同步 ECS 排程。[PR #116](https://github.com/ljh12138164/rss-site/pull/116)
 
 ## 2026-11-24 Chrome for Developers Blog 全文来源接入
 
