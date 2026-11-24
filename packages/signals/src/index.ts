@@ -258,7 +258,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://www.wheresyoured.at/rss/',
     isArticle: true,
-    cronSchedule: '12 4,16 * * *',
+    cronSchedule: '12 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-wheres-your-ed-at'
   },
   {
@@ -271,7 +271,7 @@ export const technologySources = [
     itemLimit: 20,
     rsshubPath: '/substack/subscribe/chinatalk',
     isArticle: true,
-    cronSchedule: '13 4,16 * * *',
+    cronSchedule: '13 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-chinatalk'
   },
   {
@@ -284,7 +284,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://blog.trailofbits.com/feed/',
     isArticle: true,
-    cronSchedule: '14 4,16 * * *',
+    cronSchedule: '14 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-trail-of-bits'
   },
   {
@@ -297,7 +297,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://www.bigtechnology.com/feed',
     isArticle: true,
-    cronSchedule: '16 4,16 * * *',
+    cronSchedule: '16 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-big-technology'
   },
   {
@@ -310,7 +310,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://blog.pragmaticengineer.com/rss/',
     isArticle: true,
-    cronSchedule: '17 4,16 * * *',
+    cronSchedule: '17 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-pragmatic-engineer'
   },
   {
@@ -323,7 +323,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://www.newcomer.co/feed',
     isArticle: true,
-    cronSchedule: '18 4,16 * * *',
+    cronSchedule: '18 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-newcomer'
   },
   {
@@ -336,7 +336,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://vercel.com/atom',
     isArticle: true,
-    cronSchedule: '19 4,16 * * *',
+    cronSchedule: '19 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-vercel'
   },
   {
@@ -349,7 +349,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://voidzero.dev/feed.xml',
     isArticle: true,
-    cronSchedule: '21 4,16 * * *',
+    cronSchedule: '21 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-voidzero'
   },
   {
@@ -362,7 +362,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://chipsandcheese.com/feed/',
     isArticle: true,
-    cronSchedule: '22 4,16 * * *',
+    cronSchedule: '22 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-chips-and-cheese'
   },
   {
@@ -375,7 +375,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://linear.app/rss/now.xml',
     isArticle: true,
-    cronSchedule: '23 4,16 * * *',
+    cronSchedule: '23 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-linear'
   },
   {
@@ -391,7 +391,7 @@ export const technologySources = [
       { feedUrl: 'https://arstechnica.com/ai/feed/' }
     ],
     isArticle: true,
-    cronSchedule: '24 4,16 * * *',
+    cronSchedule: '24 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-ars-technica'
   },
   {
@@ -404,7 +404,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://404media.co/rss/',
     isArticle: true,
-    cronSchedule: '26 4,16 * * *',
+    cronSchedule: '26 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-404-media'
   },
   {
@@ -417,7 +417,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://bun.com/rss.xml',
     isArticle: true,
-    cronSchedule: '27 4,16 * * *',
+    cronSchedule: '27 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-bun'
   },
   {
@@ -430,7 +430,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://blog.rust-lang.org/feed.xml',
     isArticle: true,
-    cronSchedule: '28 4,16 * * *',
+    cronSchedule: '28 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-rust-blog'
   },
   {
@@ -443,7 +443,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://go.dev/blog/feed.atom',
     isArticle: true,
-    cronSchedule: '29 4,16 * * *',
+    cronSchedule: '29 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-go-blog'
   },
   {
@@ -456,7 +456,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://svelte.dev/blog/rss.xml',
     isArticle: true,
-    cronSchedule: '31 4,16 * * *',
+    cronSchedule: '31 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-svelte-blog'
   },
   {
@@ -469,7 +469,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://devblogs.microsoft.com/typescript/feed/',
     isArticle: true,
-    cronSchedule: '32 4,16 * * *',
+    cronSchedule: '32 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-typescript-blog'
   },
   {
@@ -482,7 +482,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://www.swift.org/atom.xml',
     isArticle: true,
-    cronSchedule: '33 4,16 * * *',
+    cronSchedule: '33 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-swift-blog'
   },
   {
@@ -495,7 +495,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://blog.jetbrains.com/kotlin/feed/',
     isArticle: true,
-    cronSchedule: '34 4,16 * * *',
+    cronSchedule: '34 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-kotlin-blog'
   },
   {
@@ -508,7 +508,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://netflixtechblog.com/feed',
     isArticle: true,
-    cronSchedule: '37 4,16 * * *',
+    cronSchedule: '37 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-netflix-tech'
   },
   {
@@ -521,7 +521,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://engineering.fb.com/feed/',
     isArticle: true,
-    cronSchedule: '38 4,16 * * *',
+    cronSchedule: '38 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-meta-engineering'
   },
   {
@@ -534,7 +534,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://www.smashingmagazine.com/feed/',
     isArticle: true,
-    cronSchedule: '41 4,16 * * *',
+    cronSchedule: '41 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-smashing-magazine'
   },
   {
@@ -547,7 +547,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://javascriptweekly.com/rss/',
     isArticle: true,
-    cronSchedule: '42 4,16 * * *',
+    cronSchedule: '42 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-js-weekly'
   },
   {
@@ -560,7 +560,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://golangweekly.com/rss/',
     isArticle: true,
-    cronSchedule: '43 4,16 * * *',
+    cronSchedule: '43 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-golang-weekly'
   },
   {
@@ -573,7 +573,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://this-week-in-rust.org/atom.xml',
     isArticle: true,
-    cronSchedule: '44 4,16 * * *',
+    cronSchedule: '44 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-this-week-in-rust'
   },
   {
@@ -586,7 +586,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://krebsonsecurity.com/feed/',
     isArticle: true,
-    cronSchedule: '45 4,16 * * *',
+    cronSchedule: '45 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-krebs-security'
   },
   {
@@ -599,7 +599,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://www.technologyreview.com/feed/',
     isArticle: true,
-    cronSchedule: '46 4,16 * * *',
+    cronSchedule: '46 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-mit-tech-review'
   },
   {
@@ -612,7 +612,7 @@ export const technologySources = [
     itemLimit: 20,
     feedUrl: 'https://www.ruanyifeng.com/blog/atom.xml',
     isArticle: true,
-    cronSchedule: '47 4,16 * * *',
+    cronSchedule: '47 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-ruanyifeng'
   },
   {
@@ -625,7 +625,7 @@ export const technologySources = [
     itemLimit: 20,
     rsshubPath: '/chrome/blog',
     isArticle: true,
-    cronSchedule: '48 4,16 * * *',
+    cronSchedule: '48 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-chrome'
   }
 ] as const
@@ -759,7 +759,7 @@ export const aiSources = [
       { rsshubPath: '/openai/developers/blog?limit=20' }
     ],
     isArticle: true,
-    cronSchedule: '0 */2 * * *',
+    cronSchedule: '0 2,8,14,20 * * *',
     cronJobName: 'signal-ingest-openai'
   },
   {
@@ -772,7 +772,7 @@ export const aiSources = [
     itemLimit: 20,
     rsshubPath: '/openai/chatgpt/release-notes',
     isArticle: true,
-    cronSchedule: '45 */2 * * *',
+    cronSchedule: '45 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-chatgpt'
   },
   {
@@ -785,7 +785,7 @@ export const aiSources = [
     itemLimit: 20,
     rsshubPath: '/anthropic/news?limit=20',
     isArticle: true,
-    cronSchedule: '5 */2 * * *',
+    cronSchedule: '5 2,8,14,20 * * *',
     cronJobName: 'signal-ingest-anthropic'
   },
   {
@@ -798,7 +798,7 @@ export const aiSources = [
     itemLimit: 20,
     rsshubPath: '/deepseek/news',
     isArticle: true,
-    cronSchedule: '10 */2 * * *',
+    cronSchedule: '10 2,8,14,20 * * *',
     cronJobName: 'signal-ingest-deepseek'
   },
   {
@@ -813,7 +813,7 @@ export const aiSources = [
     titleFromFirstStrong: true,
     urlFromFirstAnchor: true,
     isArticle: true,
-    cronSchedule: '15 */2 * * *',
+    cronSchedule: '15 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-glm'
   },
   {
@@ -826,7 +826,7 @@ export const aiSources = [
     itemLimit: 20,
     feedUrl: 'https://feeds.ljhboard.cn/google-ai',
     isArticle: true,
-    cronSchedule: '20 */2 * * *',
+    cronSchedule: '20 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-google-ai'
   },
   {
@@ -852,7 +852,7 @@ export const aiSources = [
     itemLimit: 20,
     rsshubPath: '/qwen/blog/zh-CN',
     isArticle: true,
-    cronSchedule: '25 */2 * * *',
+    cronSchedule: '25 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-qwen'
   },
   {
@@ -865,7 +865,7 @@ export const aiSources = [
     itemLimit: 20,
     rsshubPath: '/groq/blog',
     isArticle: true,
-    cronSchedule: '50 */2 * * *',
+    cronSchedule: '51 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-groq'
   },
   {
@@ -1021,7 +1021,7 @@ export const aiSources = [
     itemLimit: 20,
     feedUrl: 'https://metr.org/feed.xml',
     isArticle: true,
-    cronSchedule: '1 6,18 * * *',
+    cronSchedule: '1 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-metr'
   },
   {
@@ -1034,7 +1034,7 @@ export const aiSources = [
     itemLimit: 20,
     feedUrl: 'https://bair.berkeley.edu/blog/feed.xml',
     isArticle: true,
-    cronSchedule: '2 6,18 * * *',
+    cronSchedule: '2 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-bair'
   },
   {
@@ -1047,7 +1047,7 @@ export const aiSources = [
     itemLimit: 20,
     feedUrl: 'https://magazine.sebastianraschka.com/feed',
     isArticle: true,
-    cronSchedule: '3 6,18 * * *',
+    cronSchedule: '3 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-ahead-of-ai'
   },
   {
@@ -1060,7 +1060,7 @@ export const aiSources = [
     itemLimit: 20,
     rsshubPath: '/amazon/blogs/machine-learning',
     isArticle: true,
-    cronSchedule: '4 6,18 * * *',
+    cronSchedule: '4 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-aws-ml'
   },
   {
@@ -1073,7 +1073,7 @@ export const aiSources = [
     itemLimit: 20,
     feedUrl: 'https://blog.redwoodresearch.org/feed',
     isArticle: true,
-    cronSchedule: '6 6,18 * * *',
+    cronSchedule: '6 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-redwood-research'
   },
   {
@@ -1086,7 +1086,7 @@ export const aiSources = [
     itemLimit: 20,
     feedUrl: 'https://www.interconnects.ai/feed',
     isArticle: true,
-    cronSchedule: '7 6,18 * * *',
+    cronSchedule: '7 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-interconnects'
   },
   {
@@ -1099,7 +1099,7 @@ export const aiSources = [
     itemLimit: 20,
     rsshubPath: '/substack/subscribe/importai',
     isArticle: true,
-    cronSchedule: '8 6,18 * * *',
+    cronSchedule: '8 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-import-ai'
   },
   {
@@ -1112,7 +1112,7 @@ export const aiSources = [
     itemLimit: 20,
     feedUrl: 'https://www.latent.space/feed',
     isArticle: true,
-    cronSchedule: '9 6,18 * * *',
+    cronSchedule: '9 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-latent-space'
   },
   {
@@ -1125,7 +1125,7 @@ export const aiSources = [
     itemLimit: 20,
     rsshubPath: '/substack/subscribe/dwarkesh',
     isArticle: true,
-    cronSchedule: '11 6,18 * * *',
+    cronSchedule: '11 0,6,12,18 * * *',
     cronJobName: 'signal-ingest-dwarkesh'
   }
 ] as const

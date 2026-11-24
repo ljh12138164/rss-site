@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { getSignalSource } from '@rss-site/signals'
 import { describe, expect, it, vi } from 'vitest'
 import {
@@ -33,6 +34,18 @@ describe('normalizeIngestUrl', () => {
 })
 
 describe('ECS source acceptance gate', () => {
+  it('keeps production signal schedules in sync with the registry', () => {
+    const jobs = JSON.parse(
+      readFileSync(new URL('../../../../deploy/server/business-jobs.json', import.meta.url), 'utf8')
+    ) as { path: string }[]
+    const signalJobs = jobs.filter(({ path }) => path.startsWith('/cron/signals/'))
+    const registeredJobs = SIGNAL_CRON_JOBS.filter(({ source }) => source !== 'chatgpt').map(
+      (job) => ({ ...job, path: `/cron/signals/${job.source}` })
+    )
+    expect(signalJobs).toHaveLength(registeredJobs.length)
+    expect(signalJobs).toEqual(expect.arrayContaining(registeredJobs))
+  })
+
   it('validates every registered source before returning acceptance evidence', async () => {
     const calls: string[] = []
     const verified = await setupSignalCron({

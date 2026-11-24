@@ -2,31 +2,31 @@
   {
     "source": "openai",
     "name": "signal-ingest-openai",
-    "schedule": "0 */2 * * *",
+    "schedule": "0 2,8,14,20 * * *",
     "path": "/cron/signals/openai"
   },
   {
     "source": "anthropic",
     "name": "signal-ingest-anthropic",
-    "schedule": "5 */2 * * *",
+    "schedule": "5 2,8,14,20 * * *",
     "path": "/cron/signals/anthropic"
   },
   {
     "source": "deepseek",
     "name": "signal-ingest-deepseek",
-    "schedule": "10 */2 * * *",
+    "schedule": "10 2,8,14,20 * * *",
     "path": "/cron/signals/deepseek"
   },
   {
     "source": "glm",
     "name": "signal-ingest-glm",
-    "schedule": "15 */2 * * *",
+    "schedule": "15 0,6,12,18 * * *",
     "path": "/cron/signals/glm"
   },
   {
     "source": "google-ai",
     "name": "signal-ingest-google-ai",
-    "schedule": "20 */2 * * *",
+    "schedule": "20 0,6,12,18 * * *",
     "path": "/cron/signals/google-ai"
   },
   {
@@ -38,13 +38,13 @@
   {
     "source": "qwen",
     "name": "signal-ingest-qwen",
-    "schedule": "25 */2 * * *",
+    "schedule": "25 0,6,12,18 * * *",
     "path": "/cron/signals/qwen"
   },
   {
     "source": "groq",
     "name": "signal-ingest-groq",
-    "schedule": "50 */2 * * *",
+    "schedule": "51 0,6,12,18 * * *",
     "path": "/cron/signals/groq"
   },
   {
@@ -314,133 +314,133 @@
   {
     "source": "metr",
     "name": "signal-ingest-metr",
-    "schedule": "1 6,18 * * *",
+    "schedule": "1 0,6,12,18 * * *",
     "path": "/cron/signals/metr"
   },
   {
     "source": "bair",
     "name": "signal-ingest-bair",
-    "schedule": "2 6,18 * * *",
+    "schedule": "2 0,6,12,18 * * *",
     "path": "/cron/signals/bair"
   },
   {
     "source": "ahead-of-ai",
     "name": "signal-ingest-ahead-of-ai",
-    "schedule": "3 6,18 * * *",
+    "schedule": "3 0,6,12,18 * * *",
     "path": "/cron/signals/ahead-of-ai"
   },
   {
     "source": "aws-ml",
     "name": "signal-ingest-aws-ml",
-    "schedule": "4 6,18 * * *",
+    "schedule": "4 0,6,12,18 * * *",
     "path": "/cron/signals/aws-ml"
   },
   {
     "source": "redwood-research",
     "name": "signal-ingest-redwood-research",
-    "schedule": "6 6,18 * * *",
+    "schedule": "6 0,6,12,18 * * *",
     "path": "/cron/signals/redwood-research"
   },
   {
     "source": "interconnects",
     "name": "signal-ingest-interconnects",
-    "schedule": "7 6,18 * * *",
+    "schedule": "7 0,6,12,18 * * *",
     "path": "/cron/signals/interconnects"
   },
   {
     "source": "import-ai",
     "name": "signal-ingest-import-ai",
-    "schedule": "8 6,18 * * *",
+    "schedule": "8 0,6,12,18 * * *",
     "path": "/cron/signals/import-ai"
   },
   {
     "source": "latent-space",
     "name": "signal-ingest-latent-space",
-    "schedule": "9 6,18 * * *",
+    "schedule": "9 0,6,12,18 * * *",
     "path": "/cron/signals/latent-space"
   },
   {
     "source": "dwarkesh",
     "name": "signal-ingest-dwarkesh",
-    "schedule": "11 6,18 * * *",
+    "schedule": "11 0,6,12,18 * * *",
     "path": "/cron/signals/dwarkesh"
   },
   {
     "source": "wheres-your-ed-at",
     "name": "signal-ingest-wheres-your-ed-at",
-    "schedule": "12 4,16 * * *",
+    "schedule": "12 4,10,16,22 * * *",
     "path": "/cron/signals/wheres-your-ed-at"
   },
   {
     "source": "chinatalk",
     "name": "signal-ingest-chinatalk",
-    "schedule": "13 4,16 * * *",
+    "schedule": "13 4,10,16,22 * * *",
     "path": "/cron/signals/chinatalk"
   },
   {
     "source": "trail-of-bits",
     "name": "signal-ingest-trail-of-bits",
-    "schedule": "14 4,16 * * *",
+    "schedule": "14 4,10,16,22 * * *",
     "path": "/cron/signals/trail-of-bits"
   },
   {
     "source": "big-technology",
     "name": "signal-ingest-big-technology",
-    "schedule": "16 4,16 * * *",
+    "schedule": "16 4,10,16,22 * * *",
     "path": "/cron/signals/big-technology"
   },
   {
     "source": "pragmatic-engineer",
     "name": "signal-ingest-pragmatic-engineer",
-    "schedule": "17 4,16 * * *",
+    "schedule": "17 4,10,16,22 * * *",
     "path": "/cron/signals/pragmatic-engineer"
   },
   {
     "source": "newcomer",
     "name": "signal-ingest-newcomer",
-    "schedule": "18 4,16 * * *",
+    "schedule": "18 4,10,16,22 * * *",
     "path": "/cron/signals/newcomer"
   },
   {
     "source": "vercel",
     "name": "signal-ingest-vercel",
-    "schedule": "19 4,16 * * *",
+    "schedule": "19 4,10,16,22 * * *",
     "path": "/cron/signals/vercel"
   },
   {
     "source": "voidzero",
     "name": "signal-ingest-voidzero",
-    "schedule": "21 4,16 * * *",
+    "schedule": "21 4,10,16,22 * * *",
     "path": "/cron/signals/voidzero"
   },
   {
     "source": "chips-and-cheese",
     "name": "signal-ingest-chips-and-cheese",
-    "schedule": "22 4,16 * * *",
+    "schedule": "22 4,10,16,22 * * *",
     "path": "/cron/signals/chips-and-cheese"
   },
   {
     "source": "linear",
     "name": "signal-ingest-linear",
-    "schedule": "23 4,16 * * *",
+    "schedule": "23 4,10,16,22 * * *",
     "path": "/cron/signals/linear"
   },
   {
     "source": "ars-technica",
     "name": "signal-ingest-ars-technica",
-    "schedule": "24 4,16 * * *",
+    "schedule": "24 4,10,16,22 * * *",
     "path": "/cron/signals/ars-technica"
   },
   {
     "source": "404-media",
     "name": "signal-ingest-404-media",
-    "schedule": "26 4,16 * * *",
+    "schedule": "26 4,10,16,22 * * *",
     "path": "/cron/signals/404-media"
   },
   {
     "source": "bun",
     "name": "signal-ingest-bun",
-    "schedule": "27 4,16 * * *",
+    "schedule": "27 4,10,16,22 * * *",
     "path": "/cron/signals/bun"
   },
   {
@@ -512,97 +512,97 @@
   {
     "source": "rust-blog",
     "name": "signal-ingest-rust-blog",
-    "schedule": "28 4,16 * * *",
+    "schedule": "28 4,10,16,22 * * *",
     "path": "/cron/signals/rust-blog"
   },
   {
     "source": "go-blog",
     "name": "signal-ingest-go-blog",
-    "schedule": "29 4,16 * * *",
+    "schedule": "29 4,10,16,22 * * *",
     "path": "/cron/signals/go-blog"
   },
   {
     "source": "svelte-blog",
     "name": "signal-ingest-svelte-blog",
-    "schedule": "31 4,16 * * *",
+    "schedule": "31 4,10,16,22 * * *",
     "path": "/cron/signals/svelte-blog"
   },
   {
     "source": "typescript-blog",
     "name": "signal-ingest-typescript-blog",
-    "schedule": "32 4,16 * * *",
+    "schedule": "32 4,10,16,22 * * *",
     "path": "/cron/signals/typescript-blog"
   },
   {
     "source": "swift-blog",
     "name": "signal-ingest-swift-blog",
-    "schedule": "33 4,16 * * *",
+    "schedule": "33 4,10,16,22 * * *",
     "path": "/cron/signals/swift-blog"
   },
   {
     "source": "kotlin-blog",
     "name": "signal-ingest-kotlin-blog",
-    "schedule": "34 4,16 * * *",
+    "schedule": "34 4,10,16,22 * * *",
     "path": "/cron/signals/kotlin-blog"
   },
   {
     "source": "netflix-tech",
     "name": "signal-ingest-netflix-tech",
-    "schedule": "37 4,16 * * *",
+    "schedule": "37 4,10,16,22 * * *",
     "path": "/cron/signals/netflix-tech"
   },
   {
     "source": "meta-engineering",
     "name": "signal-ingest-meta-engineering",
-    "schedule": "38 4,16 * * *",
+    "schedule": "38 4,10,16,22 * * *",
     "path": "/cron/signals/meta-engineering"
   },
   {
     "source": "smashing-magazine",
     "name": "signal-ingest-smashing-magazine",
-    "schedule": "41 4,16 * * *",
+    "schedule": "41 4,10,16,22 * * *",
     "path": "/cron/signals/smashing-magazine"
   },
   {
     "source": "js-weekly",
     "name": "signal-ingest-js-weekly",
-    "schedule": "42 4,16 * * *",
+    "schedule": "42 4,10,16,22 * * *",
     "path": "/cron/signals/js-weekly"
   },
   {
     "source": "golang-weekly",
     "name": "signal-ingest-golang-weekly",
-    "schedule": "43 4,16 * * *",
+    "schedule": "43 4,10,16,22 * * *",
     "path": "/cron/signals/golang-weekly"
   },
   {
     "source": "this-week-in-rust",
     "name": "signal-ingest-this-week-in-rust",
-    "schedule": "44 4,16 * * *",
+    "schedule": "44 4,10,16,22 * * *",
     "path": "/cron/signals/this-week-in-rust"
   },
   {
     "source": "krebs-security",
     "name": "signal-ingest-krebs-security",
-    "schedule": "45 4,16 * * *",
+    "schedule": "45 4,10,16,22 * * *",
     "path": "/cron/signals/krebs-security"
   },
   {
     "source": "mit-tech-review",
     "name": "signal-ingest-mit-tech-review",
-    "schedule": "46 4,16 * * *",
+    "schedule": "46 4,10,16,22 * * *",
     "path": "/cron/signals/mit-tech-review"
   },
   {
     "source": "ruanyifeng",
     "name": "signal-ingest-ruanyifeng",
-    "schedule": "47 4,16 * * *",
+    "schedule": "47 4,10,16,22 * * *",
     "path": "/cron/signals/ruanyifeng"
   },
   {
     "source": "chrome",
     "name": "signal-ingest-chrome",
-    "schedule": "48 4,16 * * *",
+    "schedule": "48 4,10,16,22 * * *",
     "path": "/cron/signals/chrome"
   },
   {

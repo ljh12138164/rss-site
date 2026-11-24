@@ -1,5 +1,10 @@
 # HERMES
 
+## 2026-11-24 RSS 抓取间隔与实例分流
+
+- 在 `feat/rss-cadence-balance` 将生产信号抓取统一为每 6 小时，并扩展 `rss1` 首选路由至 29 条。[开发记录](docs/development/rss-cadence-balance.md)
+- 验证排程一致性、首选实例及失败回退后，向 `master` 提交 PR。
+
 ## 2026-11-24 Chrome for Developers Blog 全文来源接入
 
 - **分支与上游**：`rss-site` 分支 `feat/chrome-source` 基于 `origin/master`（`c963150`），配套开发文档见 [Chrome for Developers Blog 全文来源](docs/development/chrome-source.md)；自建 `RSSHub` 分支 `feat/chrome-developer-blog`（`b5a8f2a87d`，基于 `upstream/master` `0bff31a319`）已 cherry-pick 至 `master` @ `05d98dd64a` 并部署上线 `https://rss.ljhboard.cn/chrome/blog`（Vercel `success`）。

@@ -34,8 +34,22 @@ describe('runIngestionPipeline', () => {
       failUrl: 'https://rss1.ljhboard.cn/openai/news?limit=20',
       expectedUrls: [
         'https://rss1.ljhboard.cn/openai/news?limit=20',
-        'https://rss.ljhboard.cn/openai/developers/blog?limit=20',
+        'https://rss1.ljhboard.cn/openai/developers/blog?limit=20',
         'https://rss.ljhboard.cn/openai/news?limit=20'
+      ]
+    },
+    {
+      sourceId: 'chrome',
+      failUrl: 'https://rss1.ljhboard.cn/chrome/blog',
+      expectedUrls: ['https://rss1.ljhboard.cn/chrome/blog', 'https://rss.ljhboard.cn/chrome/blog']
+    },
+    {
+      sourceId: 'openai',
+      emptyFeedUrl: 'https://rss1.ljhboard.cn/openai/developers/blog?limit=20',
+      expectedUrls: [
+        'https://rss1.ljhboard.cn/openai/news?limit=20',
+        'https://rss1.ljhboard.cn/openai/developers/blog?limit=20',
+        'https://rss.ljhboard.cn/openai/developers/blog?limit=20'
       ]
     },
     {
@@ -47,7 +61,8 @@ describe('runIngestionPipeline', () => {
       baseUrl: 'https://rsshub.test/',
       expectedUrls: ['https://rsshub.test/cloudflare/blog']
     }
-  ])('$sourceId fetches $expectedUrls', async ({ sourceId, baseUrl, expectedUrls, failUrl }) => {
+  ])('$sourceId fetches $expectedUrls', async (testCase) => {
+    const { sourceId, baseUrl, expectedUrls, failUrl, emptyFeedUrl } = testCase
     const source = getSignalSource(sourceId)
     const recordedSuccesses: unknown[] = []
     const logMessages: string[] = []
@@ -101,6 +116,7 @@ describe('runIngestionPipeline', () => {
       fetchFeed: async (url) => {
         requestedUrls.push(url)
         if (url === failUrl) throw new Error('RSSHub unavailable')
+        if (url === emptyFeedUrl) return '<rss><channel></channel></rss>'
         return sampleRssXml()
       },
       logger: {
