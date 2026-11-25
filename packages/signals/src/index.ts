@@ -1316,7 +1316,7 @@ export const socialSources = [
   }
 ] as const
 
-// 财经 Finance (12)
+// 财经 Finance (13)
 export const financeSources = [
   {
     id: 'wallstreetcn',
@@ -1473,6 +1473,19 @@ export const financeSources = [
     isArticle: true,
     cronSchedule: '16 5,11,17,23 * * *',
     cronJobName: 'signal-ingest-unchained'
+  },
+  {
+    id: 'sherwood',
+    name: 'Sherwood News',
+    code: 'SN',
+    shortName: 'Sherwood',
+    description: 'Robinhood 旗下全球金融市场资讯与 Sherwood Snacks 每日早报，英文全文',
+    section: 'finance',
+    itemLimit: 30,
+    feeds: [{ rsshubPath: '/sherwood/news?limit=20' }, { rsshubPath: '/sherwood/snacks?limit=10' }],
+    isArticle: true,
+    cronSchedule: '23 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-sherwood'
   }
 ] as const
 
@@ -1870,7 +1883,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'ars-gaming',
   'rpgfan',
   'playstation-lifestyle',
-  'overkill'
+  'overkill',
+  'sherwood'
 ] as const
 
 // Cron jobs

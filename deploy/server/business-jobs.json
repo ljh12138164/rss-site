@@ -726,6 +726,12 @@
     "path": "/cron/signals/overkill"
   },
   {
+    "source": "sherwood",
+    "name": "signal-ingest-sherwood",
+    "schedule": "23 5,11,17,23 * * *",
+    "path": "/cron/signals/sherwood"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

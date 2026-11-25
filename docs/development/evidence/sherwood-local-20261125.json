@@ -1,0 +1,50 @@
+{
+  "verifiedAt": "2026-11-25T02:56:59.326Z",
+  "source": "sherwood",
+  "section": "finance",
+  "feeds": [
+    "http://localhost:1200/sherwood/news?limit=20",
+    "http://localhost:1200/sherwood/snacks?limit=10"
+  ],
+  "parsedAndIngestedItems": 30,
+  "uniqueUrls": 30,
+  "renderedNonEmpty": 30,
+  "publicationDatesVerified": 30,
+  "namedAuthors": 20,
+  "coverImages": 30,
+  "badImageUrls": 0,
+  "maxContentHtmlBytes": 23672,
+  "maxRenderedHtmlBytes": 27948,
+  "sampleTitles": [
+    {
+      "title": "Too big to relegate",
+      "url": "https://sherwood.news/culture/too-big-to-relegate",
+      "author": "Neil Paine",
+      "publishedAt": "2026-11-24T18:29:59.000Z"
+    },
+    {
+      "title": "🗝️ Key man reward",
+      "url": "https://sherwood.news/snacks/newsletters/key-man-reward",
+      "author": null,
+      "publishedAt": "2026-11-24T12:30:00.000Z"
+    },
+    {
+      "title": "Mets gonna Mets",
+      "url": "https://sherwood.news/culture/mets-gonna-mets",
+      "author": "Neil Paine",
+      "publishedAt": "2026-11-23T18:35:03.000Z"
+    },
+    {
+      "title": "Retail capitulates with biggest day of selling in 2026",
+      "url": "https://sherwood.news/markets/retail-capitulates-with-biggest-day-of-selling-in-2026",
+      "author": "Luke Kawa",
+      "publishedAt": "2026-11-23T13:30:03.000Z"
+    },
+    {
+      "title": "☠️ Quickbooks of revelation",
+      "url": "https://sherwood.news/snacks/newsletters/quickbooks-of-revelation",
+      "author": null,
+      "publishedAt": "2026-11-23T11:30:00.000Z"
+    }
+  ]
+}

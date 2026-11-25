@@ -162,6 +162,7 @@ const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
   'abnormal-returns': { src: '/source-icons/abnormal-returns.webp' },
   'of-dollars-and-data': { src: '/source-icons/of-dollars-and-data.jpg' },
   unchained: { src: '/source-icons/unchained.webp' },
+  sherwood: { src: '/source-icons/sherwood.webp' },
   '3dmgame': { src: '/source-icons/3dmgame.svg' },
   gcores: { src: '/source-icons/gcores.webp' },
   gamersky: { src: '/source-icons/gamersky.webp' },

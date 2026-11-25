@@ -22,11 +22,11 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 122 sources', () => {
+  it('defines 7 sections and 123 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(122)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(122)
+    expect(signalSources).toHaveLength(123)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(123)
   })
 
   it('correctly maps all section counts', () => {
@@ -36,7 +36,7 @@ describe('@rss-site/signals', () => {
     expect(newsSources).toHaveLength(8)
     expect(aiSources).toHaveLength(29)
     expect(socialSources).toHaveLength(12)
-    expect(financeSources).toHaveLength(12)
+    expect(financeSources).toHaveLength(13)
     expect(gameSources).toHaveLength(18)
   })
 
@@ -86,6 +86,7 @@ describe('@rss-site/signals', () => {
     expect(isSignalSourceId('abnormal-returns')).toBe(true)
     expect(isSignalSourceId('of-dollars-and-data')).toBe(true)
     expect(isSignalSourceId('unchained')).toBe(true)
+    expect(isSignalSourceId('sherwood')).toBe(true)
     expect(isSignalSourceId('aftermath')).toBe(true)
     expect(isSignalSourceId('ars-gaming')).toBe(true)
     expect(isSignalSourceId('rpgfan')).toBe(true)
@@ -204,6 +205,10 @@ describe('@rss-site/signals', () => {
     expect(resolveSignalFeedUrl(getSignalSource('aftermath'), 'https://rss.ljhboard.cn')).toBe(
       'https://aftermath.site/feed'
     )
+    expect(resolveSignalFeedUrls(getSignalSource('sherwood'), 'https://rss.ljhboard.cn')).toEqual([
+      'https://rss.ljhboard.cn/sherwood/news?limit=20',
+      'https://rss.ljhboard.cn/sherwood/snacks?limit=10'
+    ])
   })
 
   it('groups only Chinese NVIDIA and AMD feeds under two technology platforms', () => {
