@@ -13,7 +13,7 @@
     - **财经 `finance`（`5 -> 12`）**：`fortune`、`dl-news`、`marginal-revolution`、`ritholtz`、`abnormal-returns`、`of-dollars-and-data`、`unchained`
     - **游戏 `games`（`13 -> 18`）**：`aftermath`、`ars-gaming`、`rpgfan`、`playstation-lifestyle`、`overkill`
   - 同步更新 `news`、`social`、`finance`、`games` 分区说明描述，不改动既有页面路径、标题与抓取管道。
-- **[apps/web/components/source-icon.tsx](../../apps/web/components/source-icon.tsx)**：为 `ars-gaming` 配置 `SiArstechnica`，其余来源复用各自唯一 `code` 徽标渲染。
+- **[apps/web/components/source-icon.tsx](../../apps/web/components/source-icon.tsx)** & **[apps/web/public/source-icons/](../../apps/web/public/source-icons/)**：顺带补齐并统一抓取全站此前缺失的 `59` 路官方品牌/站点图标（新增 `6` 枚 `react-icons/si`：`SiVercel`、`SiLinear`、`SiArstechnica`、`SiBun`、`SiIgn`、`SiPlaystation` 对应 `vercel`/`linear`/`ars-technica`/`bun`/`ign`/`playstation-blog` 及 `ars-gaming`，并为其余 `53` 个来源抓取并校验官网 SVG/PNG/ICO/WebP 图标），实现全站 `122/122` 来源 `100%` 图标覆盖。
 - **[deploy/postgres/migrations/021-direct-section-feeds.sql](../../deploy/postgres/migrations/021-direct-section-feeds.sql)**（覆盖 [020-chrome-source.sql](../../deploy/postgres/migrations/020-chrome-source.sql)）与 **[baseline.sql](../../deploy/postgres/baseline.sql)**：同步 4 张表的来源与分区 CHECK 约束。
 - **[deploy/server/business-jobs.json](../../deploy/server/business-jobs.json)** & **[verify-release-runtime](../../deploy/server/verify-release-runtime)**：新增 `20` 项 `signal-ingest-*` 任务（业务任务合计 `125` 项，`cron.job` 合计 `127` 项），合并部署后由 `sync-business-cron --activate-unverified` 增量验证并逐项启用。
 
