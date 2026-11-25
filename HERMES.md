@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-25 Sherwood News 财经全文来源接入（`rss-site` 侧）
+
+- **分支与策略**：基于最新 `master`（`76cb220`）创建 `feat/sherwood-source`，在 `finance` 分区注册 `sherwood`（双路由合并 `/sherwood/news?limit=20` + `/sherwood/snacks?limit=10`，`itemLimit: 30`、`cronSchedule: '23 5,11,17,23 * * *'`），配套说明见 [Sherwood News 全文来源接入](docs/development/sherwood-source.md)。
+- **图标、迁移与调度**：从官网抓取 `180x180` 标志图标并压缩转为 [sherwood.webp](apps/web/public/source-icons/sherwood.webp)（`3,464 B`）注册到 [source-icon.tsx](apps/web/components/source-icon.tsx)；新增 [022-sherwood-source.sql](deploy/postgres/migrations/022-sherwood-source.sql) 与 [baseline.sql](deploy/postgres/baseline.sql) 四表 CHECK 约束，更新 [business-jobs.json](deploy/server/business-jobs.json)（`126` 项任务）与 [verify-release-runtime](deploy/server/verify-release-runtime)（`126` / `128`），全站信号源更新为 `123` 路。
+- **验证与依赖提醒**：基于本地实测 `RSSHub` 路由跑通真实 `ingestSignal` + `renderArticleContent`（`30/30` 有效、`0` 坏图、最大正文 `27,948 B`，[证据文件](docs/development/evidence/sherwood-local-20261125.json)）；待自建 `RSSHub`（`feat/sherwood` @ `6bba48a12b`）合入并部署至 `https://rss.ljhboard.cn` 后激活生产任务。
+
 ## 2026-11-25 新闻、社交、财经与游戏分区 20 路原生直连源接入
 
 - **分支与策略**：基于最新 `master`（`b0f3f32`）创建 `feat/direct-section-feeds`，严格只接入零消耗 `rss` / `rss1` Vercel `RSSHub` 实例的官方原生全文直连来源（`feedUrl`），见 [20 路原生直连开发记录](docs/development/direct-section-feeds.md)。
