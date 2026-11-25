@@ -225,9 +225,10 @@ pnpm run typecheck
 pnpm exec oxfmt --check lib/routes/<namespace>
 pnpm exec oxlint --type-aware --config oxlint.ci.config.ts --deny-warnings lib/routes/<namespace>
 uvx --from lizard lizard -l typescript -C 10 -w lib/routes/<namespace>
+pnpm knip # 若 Windows 报 oxc-parser ArrayBuffer 分配失败，改用 rg -n "export " lib/routes/<namespace>/ 逐一核对跨文件引用
 ```
 
-> **CI / Windows 必跑提示**：上游已将 CI 配置迁至 `oxlint.ci.config.ts`（旧 `.oxlintrc.ci.json` 已移除），普通 `pnpm run eslint` 或默认配置无法完整暴露 `anti-slop/*` / `quality/*` 与严格 `no-restricted-syntax` 规则，务必显式使用 `--config oxlint.ci.config.ts --deny-warnings` 验证；`2026-11-23` `#23986` 后上游新增禁用 `Number.isSafeInteger()`、`Number.isFinite()`、Cheerio `.clone()`、`Array#some` 内冗余 `Boolean()`、`.catch(() => undefined)` 以及动态替换 `String#replaceAll(token, val)`（需改用正则回调或显式函数）；`lizard -C 10` 用于提前拦截 CodeFactor 圈复杂度超标；若 Windows 因 `core.autocrlf = true` 出现仅行尾差异（`git diff --ignore-all-space` 为空），可先 `pnpm exec oxfmt <files>` 归一化 LF 并确认差异后再 `git push`。
+> **CI / Windows 必跑提示**：上游已将 CI 配置迁至 `oxlint.ci.config.ts`（旧 `.oxlintrc.ci.json` 已移除），普通 `pnpm run eslint` 或默认配置无法完整暴露 `anti-slop/*` / `quality/*` 与严格 `no-restricted-syntax` 规则，务必显式使用 `--config oxlint.ci.config.ts --deny-warnings` 验证；`2026-11-23` `#23986` 后上游新增禁用 `Number.isSafeInteger()`、`Number.isFinite()`、Cheerio `.clone()`、`Array#some` 内冗余 `Boolean()`、`.catch(() => undefined)` 以及动态替换 `String#replaceAll(token, val)`（需改用正则回调或显式函数）；`Linter / Lint` 同步运行 `pnpm knip` 检查未使用导出，所有仅在文件内部使用的 `interface` / `type` / helper 一律不要写 `export`；`lizard -C 10` 用于提前拦截 CodeFactor 圈复杂度超标；若 Windows 因 `core.autocrlf = true` 出现仅行尾差异（`git diff --ignore-all-space` 为空），可先 `pnpm exec oxfmt <files>` 归一化 LF 并确认差异后再 `git push`。
 
 检查与本地启动验收要点：
 1. **构建与 i18n 文档生成**：`pnpm run build:docs` 会先运行 `pnpm run build:routes`（通过 `scripts/workflow/build-routes.ts` 校验 `findOrphanFiles()` 孤立文件，并产出 `assets/build/radar-rules.json`、`radar-rules.js`、`maintainers.json`、`routes.json`、`routes.js`、`route-paths.ts`），随后执行 `scripts/workflow/build-docs.ts` 加载全部命名空间并生成 `assets/build/docs/routes.json` 与 `assets/build/docs/categories.json`。
@@ -438,3 +439,11 @@ Adds a full-text feed for <Platform> under `/<namespace>/<route>`:
   1. 复制给用户的 GitHub PR 文案**必须**原字保留 `.github/PULL_REQUEST_TEMPLATE.md` 的 4 个双语 `##` 标题及检查表骨架，仅保持 `Note / 说明` 正文为简洁英文；
   2. 提交修复前先同步确认最新 `upstream/master` 是否顺带改到同一文件或 `oxlint.config.ts`（如 `#23986` 同步改了 `lib/routes/nextjs/blog.ts` 导致 compare 页显示 `Can't automatically merge`）；
   3. 遇 `auto: route no found` 关闭时，先修改 PR 正文为合法双语模板标题再点击 `Reopen pull request`（或编辑正文触发 `PR - Docker build test` -> `PR - route test`）。
+
+### 5.9 Knip 未使用导出检查（Unused exported types / symbols，`#24027` 实证）
+
+- **问题表现**：PR `#24027`（`/sherwood/snacks` 与 `/sherwood/news`）在 `oxlint`、`eslint`、`typecheck`、`CodeFactor`、`CodeQL`、`Anti Slop` 全部通过的情况下，`Linter / Lint` 仍因 `Knip` 报 `Unused exported types (9)`（`lib/routes/sherwood/utils.ts` 内仅文件内部引用的 `interface` 写了 `export`）而失败。
+- **根因**：上游 `.github/workflows/lint.yml` 在 `Lint` 并行组内执行 `pnpm knip --reporter github-actions`，会拦截一切未被其他文件 `import` 的导出类型、常量或函数；而在 Windows 本地跑全仓 `pnpm knip` 时，`oxc-parser` 易报 `RangeError: Array buffer allocation failed`，导致提交前容易漏检。
+- **硬性规避**：
+  1. `lib/routes/<namespace>/utils.ts`、模板与路由文件中，**仅对确实被同命名空间其他文件 `import` 的类型、常量和函数添加 `export`**（除 `namespace` 与 `route` 外，凡仅当前文件内部使用的 `interface` / `type` / helper 一律不导出）；
+  2. 提交前优先运行 `pnpm knip`；若 Windows 触发 `ArrayBuffer` 分配失败，必须执行 `rg -n "export " lib/routes/<namespace>/` 与跨文件 `import` 清单逐项核对，确认零冗余导出后再推送。
