@@ -1,7 +1,7 @@
 # RSSHub 待新增路由候选与标准化交付工作流
 
 - **调研日期**：2026-11-13（2026-11-18 结合 `KKKKhazix/AIHOT` 增补候选；2026-11-23 结合 `JackyST0/awesome-rsshub-routes` 105 条官方源与 28 条 RSSHub 路由复测，接入 15 路可直连原生全文源至 `technology` 分区并合入 [PR #113](https://github.com/ljh12138164/rss-site/pull/113)，同步提交 `/nextjs/blog` 上游修复 PR [`#23992`](https://github.com/DIYgod/RSSHub/pull/23992) 并补齐最新 CI/PR 模板检验规范）
-- **`rss-site` 基线**：`master`（`PR #115` / `#116` 合并后，`feat/direct-section-feeds` 新增 `20` 路直连源后共 `122` 个源，分属 `7` 个分区：`ai` 29、`technology` 41、`news` 8、`social` 12、`finance` 12、`games` 18、`skills` 2；`deploy/server/business-jobs.json` 含 `121` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务，共 `125` 项）
+- **`rss-site` 基线**：`master`（`PR #115` / `#116` / `#117` / `#118` 合并后共 `123` 个源，分属 `7` 个分区：`ai` 29、`technology` 41、`news` 8、`social` 12、`finance` 13、`games` 18、`skills` 2；`deploy/server/business-jobs.json` 含 `122` 个信号抓取任务（不含 `chatgpt`）及 `4` 个维护任务，共 `126` 项）
 - **AIHOT 参考样本**：`KKKKhazix/AIHOT`（`industry/sources.json` 含 `18` 个示范 RSS 源）及线上 `https://aihot.news/api/site/stats`（共 `925` 个活跃源，含 `rss: 181`、`web_list: 145`、`json_list: 26`、`mp_account: 23`、`x_search: 549`、`external: 1`）+ `/api/v1/items` 近期精选来源，经交叉核对上游 `DIYgod/RSSHub` `upstream/master` 后分层筛选出本轮高优先级开源/实验室/工程新源。
 - **RSSHub 基线与自建实例**：上游 `DIYgod/RSSHub`（`master`）与自建分叉 `ljh12138164/RSSHub`（本地 `master` 已解决冲突并合并同步至 `upstream/master`）。线上部署两个自建实例：**主实例 `https://rss.ljhboard.cn`**（部署自 `ljh12138164/RSSHub` `master`）与 **备用/分流实例 `https://rss1.ljhboard.cn`**（部署自二次 fork 仓库 `ljh-project/RSSHub` `master`，fork 自 `ljh12138164/RSSHub`，用于分担请求、防止单个 Vercel 项目免费额度提前用完；主分叉 `master` 更新后需同步 `ljh-project/RSSHub` 的 `Sync fork -> Update branch` 才会触发 `rss1.ljhboard.cn` 重新部署）。
 - **分支与 PR 边界约定**：后续所有 RSSHub 新路由开发**统一从上游 `DIYgod/RSSHub` 的 `master` 分支切出独立 `feat/*` 分支实现**（例如 `git checkout -b feat/<route> upstream/master`）；**代理仅负责实现路由、本地校验、部署自建与生成中英文上游 PR 文案，禁止自行向上游 `DIYgod/RSSHub` 提交 PR**，上游 PR 统一由用户本人提交。
@@ -11,7 +11,7 @@
 > 结合历史已完成记录、`AIHOT` 线上信源、`awesome-rsshub-routes` 实测可用性与生产接入进度，建议按以下几档优先挑选下一批要新写或修复的 RSSHub 全文路由：
 
 - **第一档｜最顺手优先（已有官网摘要/空正文 RSS，仅需补全正文，上游 PR 通过最快）**：
-  1. **已完成自建与接入 `rss-site`**：`Modal Blog`（`/modal/blog`）、`ElevenLabs Blog`（`/elevenlabs/blog`）、`Sierra Blog`（`/sierra/blog`）、`Together AI Blog`（`/together/blog`，上游 PR `#23980` 已合入）、`Apple ML Research`（`/apple/ml-research`，上游 PR `#23973` 已合入）、`OpenAI Developers Blog`（`/openai/developers/blog`，上游 PR `#23920` 已合入）、`vLLM Blog`（`/vllm/blog`，上游 PR `#23918` 已合入）、`Chrome Developer Blog`（`/chrome/blog`，自建 `05d98dd64a` 已上线，待合入上游 PR 与 `rss-site` `feat/chrome-source`）。
+  1. **已完成自建与接入 `rss-site`**：`Modal Blog`（`/modal/blog`）、`ElevenLabs Blog`（`/elevenlabs/blog`）、`Sierra Blog`（`/sierra/blog`）、`Together AI Blog`（`/together/blog`，上游 PR `#23980` 已合入）、`Apple ML Research`（`/apple/ml-research`，上游 PR `#23973` 已合入）、`OpenAI Developers Blog`（`/openai/developers/blog`，上游 PR `#23920` 已合入）、`vLLM Blog`（`/vllm/blog`，上游 PR `#23918` 已合入）、`Chrome Developer Blog`（`/chrome/blog`，自建 `05d98dd64a` 已上线，`rss-site` PR `#115` 已合入）、`Sherwood News`（`/sherwood/snacks` 与 `/sherwood/news`，自建 `4b2494df50` 已上线、`rss-site` PR `#118` 已合入并自动激活、上游 PR [`#24027`](https://github.com/DIYgod/RSSHub/pull/24027) 待审核）。
   2. **待开发新全文路由（`AI` / `开发工具` / `awesome-rsshub-routes` 增补）**：
      - **Supabase Blog**（`https://supabase.com/rss.xml`：`448` 条、`20` words 摘要 -> 文章页 `<article>` `4,155` 字符，200 无反爬）
      - **Deno Blog**（`https://deno.com/feed`：`249` 条、`21` words 摘要 -> 文章页 `<article>` `3,549` 字符，200 无反爬）
