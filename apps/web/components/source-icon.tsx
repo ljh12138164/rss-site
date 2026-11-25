@@ -8,7 +8,6 @@ import {
   SiArstechnica,
   SiBaidu,
   SiBilibili,
-  SiBun,
   SiBytedance,
   SiCloudflare,
   SiDeepseek,
@@ -59,7 +58,8 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
   nvidia: { Icon: SiNvidia, color: '#76b900', bg: '#f0f8e4' },
   amd: { Icon: SiAmd, color: '#ed1c24', bg: '#fde8e9' },
   arm: { Icon: SiArm, color: '#0091bd', bg: '#e6f5fa' },
-  'rust-blog': { Icon: SiRust, color: '#000000', bg: '#f2f0ea' },
+  'rust-blog': { Icon: SiRust, color: '#ce422b', bg: '#fcebe8' },
+  'this-week-in-rust': { Icon: SiRust, color: '#ce422b', bg: '#fcebe8' },
   'go-blog': { Icon: SiGo, color: '#00add8', bg: '#e5f7fc' },
   'svelte-blog': { Icon: SiSvelte, color: '#ff3e00', bg: '#ffece5' },
   'typescript-blog': { Icon: SiTypescript, color: '#3178c6', bg: '#e8f1fb' },
@@ -86,7 +86,6 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
   vercel: { Icon: SiVercel, color: '#000000', bg: '#f2f0ea' },
   linear: { Icon: SiLinear, color: '#5e6ad2', bg: '#eef0fc' },
   'ars-technica': { Icon: SiArstechnica, color: '#ff4e00', bg: '#ffece5' },
-  bun: { Icon: SiBun, color: '#000000', bg: '#f5f0e6' },
   ign: { Icon: SiIgn, color: '#bf1313', bg: '#fbe8e8' },
   'playstation-blog': { Icon: SiPlaystation, color: '#003791', bg: '#e6eefb' },
   'ars-gaming': { Icon: SiArstechnica, color: '#ff4e00', bg: '#ffece5' }
@@ -94,6 +93,7 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
 
 const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
   chrome: { src: '/source-icons/chrome.svg' },
+  bun: { src: '/source-icons/bun.svg' },
   geekpark: { src: '/source-icons/geekpark.svg' },
   ithome: { src: '/source-icons/ithome.png' },
   '36kr': { src: '/source-icons/36kr.svg' },
@@ -109,9 +109,8 @@ const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
   '404-media': { src: '/source-icons/404-media.png' },
   'js-weekly': { src: '/source-icons/js-weekly.png' },
   'golang-weekly': { src: '/source-icons/golang-weekly.png' },
-  'this-week-in-rust': { src: '/source-icons/this-week-in-rust.svg' },
   'krebs-security': { src: '/source-icons/krebs-security.ico' },
-  'mit-tech-review': { src: '/source-icons/mit-tech-review.ico' },
+  'mit-tech-review': { src: '/source-icons/mit-tech-review.png' },
   ruanyifeng: { src: '/source-icons/ruanyifeng.ico' },
   xinhua: { src: '/source-icons/xinhua.png' },
   cctv: { src: '/source-icons/cctv.svg' },
@@ -145,12 +144,12 @@ const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
   coolapk: { src: '/source-icons/coolapk.png' },
   hupu: { src: '/source-icons/hupu.png' },
   sspai: { src: '/source-icons/sspai.png' },
-  ifanr: { src: '/source-icons/ifanr.ico' },
+  ifanr: { src: '/source-icons/ifanr.png' },
   appinn: { src: '/source-icons/appinn.jpg' },
   solidot: { src: '/source-icons/solidot.ico' },
   lifehacker: { src: '/source-icons/lifehacker.png' },
-  torrentfreak: { src: '/source-icons/torrentfreak.svg' },
-  'daring-fireball': { src: '/source-icons/daring-fireball.svg' },
+  torrentfreak: { src: '/source-icons/torrentfreak.png' },
+  'daring-fireball': { src: '/source-icons/daring-fireball.png' },
   wallstreetcn: { src: '/source-icons/wallstreetcn.png' },
   cls: { src: '/source-icons/cls.svg' },
   jin10: { src: '/source-icons/jin10.png' },
@@ -177,7 +176,7 @@ const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
   aftermath: { src: '/source-icons/aftermath.png' },
   rpgfan: { src: '/source-icons/rpgfan.png' },
   'playstation-lifestyle': { src: '/source-icons/playstation-lifestyle.webp' },
-  overkill: { src: '/source-icons/overkill.svg' }
+  overkill: { src: '/source-icons/overkill.png' }
 }
 
 export function SourceIcon({
