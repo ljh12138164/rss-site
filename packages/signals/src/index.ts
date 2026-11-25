@@ -44,7 +44,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
     id: 'news',
     title: '国内新闻',
     shortTitle: '新闻',
-    description: '新华社、央视、中新网、澎湃、界面和百度的新闻与热榜',
+    description: '新华社、央视、中新网、澎湃、界面、百度与国际深度新闻报道',
     path: '/news',
     hasArticles: true,
     hasRss: true
@@ -53,7 +53,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
     id: 'social',
     title: '社交热点',
     shortTitle: '社交',
-    description: '视频、问答与社区平台的当前热门内容',
+    description: '视频、问答、极客社区与数字文化平台的当前热门内容',
     path: '/social',
     hasArticles: true,
     hasRss: true
@@ -62,7 +62,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
     id: 'finance',
     title: '财经',
     shortTitle: '财经',
-    description: '市场快讯、商业新闻与财经媒体的当前热点',
+    description: '市场快讯、商业新闻、宏观分析与财经媒体的当前热点',
     path: '/finance',
     hasArticles: true,
     hasRss: true
@@ -71,7 +71,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
     id: 'games',
     title: '游戏',
     shortTitle: '游戏',
-    description: '游戏媒体、编辑内容与商店榜单的当前条目',
+    description: '游戏媒体、深度评论、独立游戏与主机平台动态',
     path: '/games',
     hasArticles: true,
     hasRss: true
@@ -662,7 +662,7 @@ export const skillSources = [
   }
 ] as const
 
-// 国内新闻 News (6)
+// 新闻 News (8)
 export const newsSources = [
   {
     id: 'xinhua',
@@ -741,6 +741,32 @@ export const newsSources = [
     isArticle: true,
     cronSchedule: '25 1,7,13,19 * * *',
     cronJobName: 'signal-ingest-baidu'
+  },
+  {
+    id: 'propublica',
+    name: 'ProPublica',
+    code: 'PB',
+    shortName: 'ProPublica',
+    description: '非营利调查新闻与公共利益深度报道，英文全文',
+    section: 'news',
+    itemLimit: 20,
+    feedUrl: 'https://www.propublica.org/feeds/propublica/main',
+    isArticle: true,
+    cronSchedule: '1 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-propublica'
+  },
+  {
+    id: 'grist',
+    name: 'Grist',
+    code: 'GR',
+    shortName: 'Grist',
+    description: '气候、能源与环境调查新闻，英文全文',
+    section: 'news',
+    itemLimit: 20,
+    feedUrl: 'https://grist.org/feed/',
+    isArticle: true,
+    cronSchedule: '2 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-grist'
   }
 ] as const
 
@@ -1130,7 +1156,7 @@ export const aiSources = [
   }
 ] as const
 
-// 社交热点 Social (6)
+// 社交热点 Social (12)
 export const socialSources = [
   {
     id: 'bilibili',
@@ -1209,10 +1235,88 @@ export const socialSources = [
     isArticle: true,
     cronSchedule: '55 1,7,13,19 * * *',
     cronJobName: 'signal-ingest-toutiao'
+  },
+  {
+    id: 'ifanr',
+    name: '爱范儿',
+    code: 'IF',
+    shortName: '爱范儿',
+    description: '数字消费、产品文化与生活方式社区报道',
+    section: 'social',
+    itemLimit: 20,
+    feedUrl: 'https://www.ifanr.com/feed',
+    isArticle: true,
+    cronSchedule: '3 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-ifanr'
+  },
+  {
+    id: 'appinn',
+    name: '小众软件',
+    code: 'AP',
+    shortName: '小众软件',
+    description: '实用软件推荐与数字效率工具社区',
+    section: 'social',
+    itemLimit: 20,
+    feedUrl: 'https://www.appinn.com/feed/',
+    isArticle: true,
+    cronSchedule: '4 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-appinn'
+  },
+  {
+    id: 'solidot',
+    name: 'Solidot',
+    code: 'SD',
+    shortName: 'Solidot',
+    description: '中文开源、极客与互联网社区资讯',
+    section: 'social',
+    itemLimit: 20,
+    feedUrl: 'https://www.solidot.org/index.rss',
+    isArticle: true,
+    cronSchedule: '5 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-solidot'
+  },
+  {
+    id: 'lifehacker',
+    name: 'Lifehacker',
+    code: 'LH',
+    shortName: 'Lifehacker',
+    description: '数字生活技巧、效率实践与消费社区指南，英文全文',
+    section: 'social',
+    itemLimit: 20,
+    feedUrl: 'https://lifehacker.com/feed/rss',
+    isArticle: true,
+    cronSchedule: '6 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-lifehacker'
+  },
+  {
+    id: 'torrentfreak',
+    name: 'TorrentFreak',
+    code: 'TF',
+    shortName: 'TorrentFreak',
+    description: '数字版权、流媒体政策与 P2P 社区文化报道，英文全文',
+    section: 'social',
+    itemLimit: 20,
+    feedUrl: 'https://torrentfreak.com/feed/',
+    isArticle: true,
+    cronSchedule: '7 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-torrentfreak'
+  },
+  {
+    id: 'daring-fireball',
+    name: 'Daring Fireball',
+    code: 'DF',
+    shortName: 'Daring Fireball',
+    description: '互联网生态与苹果社区观察评论，英文全文',
+    section: 'social',
+    itemLimit: 20,
+    feedUrl: 'https://daringfireball.net/feeds/main',
+    isArticle: true,
+    cronSchedule: '8 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-daring-fireball'
   }
 ] as const
 
-// 财经 Finance (5)
+// 财经 Finance (12)
 export const financeSources = [
   {
     id: 'wallstreetcn',
@@ -1278,10 +1382,101 @@ export const financeSources = [
     isArticle: true,
     cronSchedule: '55 2,8,14,20 * * *',
     cronJobName: 'signal-ingest-stcn'
+  },
+  {
+    id: 'fortune',
+    name: 'Fortune',
+    code: 'FO',
+    shortName: 'Fortune',
+    description: '财富商业、科技公司与全球市场深度报道，英文全文',
+    section: 'finance',
+    itemLimit: 20,
+    feedUrl: 'https://fortune.com/feed/',
+    isArticle: true,
+    cronSchedule: '9 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-fortune'
+  },
+  {
+    id: 'dl-news',
+    name: 'DL News',
+    code: 'DL',
+    shortName: 'DL News',
+    description: '全球加密金融、监管与 DeFi 机构市场报道，英文全文',
+    section: 'finance',
+    itemLimit: 20,
+    feedUrl: 'https://www.dlnews.com/arc/outboundfeeds/rss/',
+    isArticle: true,
+    cronSchedule: '10 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-dl-news'
+  },
+  {
+    id: 'marginal-revolution',
+    name: 'Marginal Revolution',
+    code: 'MR',
+    shortName: 'Marginal Rev',
+    description: 'Tyler Cowen 经济学、市场制度与宏观研究专栏，英文全文',
+    section: 'finance',
+    itemLimit: 20,
+    feedUrl: 'https://marginalrevolution.com/feed',
+    isArticle: true,
+    cronSchedule: '11 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-marginal-revolution'
+  },
+  {
+    id: 'ritholtz',
+    name: 'The Big Picture',
+    code: 'BP',
+    shortName: 'Big Picture',
+    description: 'Barry Ritholtz 宏观市场策略与财富管理观察，英文全文',
+    section: 'finance',
+    itemLimit: 20,
+    feedUrl: 'https://ritholtz.com/feed/',
+    isArticle: true,
+    cronSchedule: '12 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-ritholtz'
+  },
+  {
+    id: 'abnormal-returns',
+    name: 'Abnormal Returns',
+    code: 'AR',
+    shortName: 'Abnormal',
+    description: '每日金融市场、量化与资产配置深度文摘，英文全文',
+    section: 'finance',
+    itemLimit: 20,
+    feedUrl: 'https://abnormalreturns.com/feed/',
+    isArticle: true,
+    cronSchedule: '13 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-abnormal-returns'
+  },
+  {
+    id: 'of-dollars-and-data',
+    name: 'Of Dollars And Data',
+    code: 'DD',
+    shortName: 'Dollars&Data',
+    description: 'Nick Maggiulli 数据驱动投资、收益与个人理财长文，英文全文',
+    section: 'finance',
+    itemLimit: 20,
+    feedUrl: 'https://ofdollarsanddata.com/feed/',
+    isArticle: true,
+    cronSchedule: '14 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-of-dollars-and-data'
+  },
+  {
+    id: 'unchained',
+    name: 'Unchained',
+    code: 'UC',
+    shortName: 'Unchained',
+    description: 'Laura Shin 加密货币市场、行业公司与政策深度报道，英文全文',
+    section: 'finance',
+    itemLimit: 20,
+    feedUrl: 'https://unchainedcrypto.com/feed/',
+    isArticle: true,
+    cronSchedule: '16 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-unchained'
   }
 ] as const
 
-// 游戏 Games (13)
+// 游戏 Games (18)
 export const gameSources = [
   {
     id: '3dmgame',
@@ -1451,6 +1646,71 @@ export const gameSources = [
     isArticle: true,
     cronSchedule: '34 2,8,14,20 * * *',
     cronJobName: 'signal-ingest-yystv'
+  },
+  {
+    id: 'aftermath',
+    name: 'Aftermath',
+    code: 'AM',
+    shortName: 'Aftermath',
+    description: '独立编辑运营的游戏行业深度报道与评论，英文全文',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://aftermath.site/feed',
+    isArticle: true,
+    cronSchedule: '17 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-aftermath'
+  },
+  {
+    id: 'ars-gaming',
+    name: 'Ars Technica Gaming',
+    code: 'AG',
+    shortName: 'Ars Gaming',
+    description: 'Ars Technica 游戏主机、PC 硬件与游戏产业专题，英文全文',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://arstechnica.com/gaming/feed/',
+    isArticle: true,
+    cronSchedule: '18 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-ars-gaming'
+  },
+  {
+    id: 'rpgfan',
+    name: 'RPGFan',
+    code: 'RF',
+    shortName: 'RPGFan',
+    description: '角色扮演游戏评测、新闻与专题专栏，英文全文',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://www.rpgfan.com/feed/',
+    isArticle: true,
+    cronSchedule: '19 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-rpgfan'
+  },
+  {
+    id: 'playstation-lifestyle',
+    name: 'PlayStation LifeStyle',
+    code: 'PL',
+    shortName: 'PS LifeStyle',
+    description: 'PlayStation 生态游戏资讯、评测与新游动态，英文全文',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://www.playstationlifestyle.net/feed/',
+    isArticle: true,
+    cronSchedule: '21 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-playstation-lifestyle'
+  },
+  {
+    id: 'overkill',
+    name: 'OVERKILL',
+    code: 'OK',
+    shortName: 'OVERKILL',
+    description: 'Steam Deck、掌机 PC 与独立游戏深度报道，英文全文',
+    section: 'games',
+    itemLimit: 20,
+    feedUrl: 'https://overkill.wtf/rss/',
+    isArticle: true,
+    cronSchedule: '22 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-overkill'
   }
 ] as const
 
@@ -1590,7 +1850,27 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'krebs-security',
   'mit-tech-review',
   'ruanyifeng',
-  'chrome'
+  'chrome',
+  'propublica',
+  'grist',
+  'ifanr',
+  'appinn',
+  'solidot',
+  'lifehacker',
+  'torrentfreak',
+  'daring-fireball',
+  'fortune',
+  'dl-news',
+  'marginal-revolution',
+  'ritholtz',
+  'abnormal-returns',
+  'of-dollars-and-data',
+  'unchained',
+  'aftermath',
+  'ars-gaming',
+  'rpgfan',
+  'playstation-lifestyle',
+  'overkill'
 ] as const
 
 // Cron jobs

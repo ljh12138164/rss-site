@@ -37,8 +37,8 @@ async function waitForImage(src: string) {
       )
     )
     await waitForImage('/article-cover-default.svg')
-    flushSync(() => root.render(<CoverImage src="/source-icons/ithome.png" loading="eager" />))
-    await waitForImage('/source-icons/ithome.png')
+    flushSync(() => root.render(<CoverImage src="/source-icons/ithome.webp" loading="eager" />))
+    await waitForImage('/source-icons/ithome.webp')
     flushSync(() =>
       root.render(<CoverImage fallbackSrc="/source-icons/geekpark.svg" loading="eager" />)
     )
@@ -62,8 +62,8 @@ async function waitForImage(src: string) {
     }
     if (!container.querySelector('[aria-label="Platform icon"]'))
       throw new Error('Expected platform icon fallback')
-    flushSync(() => root.render(<CoverImage src="/source-icons/ithome.png" loading="eager" />))
-    await waitForImage('/source-icons/ithome.png')
+    flushSync(() => root.render(<CoverImage src="/source-icons/ithome.webp" loading="eager" />))
+    await waitForImage('/source-icons/ithome.webp')
     result.textContent = 'PASS: loading error, invalid fallback, changed cover and changed fallback'
   } catch (error) {
     result.textContent = `FAIL: ${(error as Error).message}`

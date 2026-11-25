@@ -22,22 +22,22 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 102 sources', () => {
+  it('defines 7 sections and 122 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(102)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(102)
+    expect(signalSources).toHaveLength(122)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(122)
   })
 
   it('correctly maps all section counts', () => {
     expect(technologySources).toHaveLength(41)
     expect(technologyArticleSources).toHaveLength(40)
     expect(skillSources).toHaveLength(2)
-    expect(newsSources).toHaveLength(6)
+    expect(newsSources).toHaveLength(8)
     expect(aiSources).toHaveLength(29)
-    expect(socialSources).toHaveLength(6)
-    expect(financeSources).toHaveLength(5)
-    expect(gameSources).toHaveLength(13)
+    expect(socialSources).toHaveLength(12)
+    expect(financeSources).toHaveLength(12)
+    expect(gameSources).toHaveLength(18)
   })
 
   it('retrieves source and section by id', () => {
@@ -71,6 +71,26 @@ describe('@rss-site/signals', () => {
     expect(isSignalSourceId('rust-blog')).toBe(true)
     expect(isSignalSourceId('ruanyifeng')).toBe(true)
     expect(isSignalSourceId('chrome')).toBe(true)
+    expect(isSignalSourceId('propublica')).toBe(true)
+    expect(isSignalSourceId('grist')).toBe(true)
+    expect(isSignalSourceId('ifanr')).toBe(true)
+    expect(isSignalSourceId('appinn')).toBe(true)
+    expect(isSignalSourceId('solidot')).toBe(true)
+    expect(isSignalSourceId('lifehacker')).toBe(true)
+    expect(isSignalSourceId('torrentfreak')).toBe(true)
+    expect(isSignalSourceId('daring-fireball')).toBe(true)
+    expect(isSignalSourceId('fortune')).toBe(true)
+    expect(isSignalSourceId('dl-news')).toBe(true)
+    expect(isSignalSourceId('marginal-revolution')).toBe(true)
+    expect(isSignalSourceId('ritholtz')).toBe(true)
+    expect(isSignalSourceId('abnormal-returns')).toBe(true)
+    expect(isSignalSourceId('of-dollars-and-data')).toBe(true)
+    expect(isSignalSourceId('unchained')).toBe(true)
+    expect(isSignalSourceId('aftermath')).toBe(true)
+    expect(isSignalSourceId('ars-gaming')).toBe(true)
+    expect(isSignalSourceId('rpgfan')).toBe(true)
+    expect(isSignalSourceId('playstation-lifestyle')).toBe(true)
+    expect(isSignalSourceId('overkill')).toBe(true)
     expect(isSignalSourceId('chuapp')).toBe(true)
     expect(isSignalSourceId('80lv')).toBe(true)
     expect(isSignalSourceId('invalid')).toBe(false)
@@ -171,6 +191,18 @@ describe('@rss-site/signals', () => {
     )
     expect(resolveSignalFeedUrl(getSignalSource('chrome'), 'https://rss.ljhboard.cn')).toBe(
       'https://rss.ljhboard.cn/chrome/blog'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('propublica'), 'https://rss.ljhboard.cn')).toBe(
+      'https://www.propublica.org/feeds/propublica/main'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('ifanr'), 'https://rss.ljhboard.cn')).toBe(
+      'https://www.ifanr.com/feed'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('fortune'), 'https://rss.ljhboard.cn')).toBe(
+      'https://fortune.com/feed/'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('aftermath'), 'https://rss.ljhboard.cn')).toBe(
+      'https://aftermath.site/feed'
     )
   })
 

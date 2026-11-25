@@ -606,6 +606,126 @@
     "path": "/cron/signals/chrome"
   },
   {
+    "source": "propublica",
+    "name": "signal-ingest-propublica",
+    "schedule": "1 5,11,17,23 * * *",
+    "path": "/cron/signals/propublica"
+  },
+  {
+    "source": "grist",
+    "name": "signal-ingest-grist",
+    "schedule": "2 5,11,17,23 * * *",
+    "path": "/cron/signals/grist"
+  },
+  {
+    "source": "ifanr",
+    "name": "signal-ingest-ifanr",
+    "schedule": "3 5,11,17,23 * * *",
+    "path": "/cron/signals/ifanr"
+  },
+  {
+    "source": "appinn",
+    "name": "signal-ingest-appinn",
+    "schedule": "4 5,11,17,23 * * *",
+    "path": "/cron/signals/appinn"
+  },
+  {
+    "source": "solidot",
+    "name": "signal-ingest-solidot",
+    "schedule": "5 5,11,17,23 * * *",
+    "path": "/cron/signals/solidot"
+  },
+  {
+    "source": "lifehacker",
+    "name": "signal-ingest-lifehacker",
+    "schedule": "6 5,11,17,23 * * *",
+    "path": "/cron/signals/lifehacker"
+  },
+  {
+    "source": "torrentfreak",
+    "name": "signal-ingest-torrentfreak",
+    "schedule": "7 5,11,17,23 * * *",
+    "path": "/cron/signals/torrentfreak"
+  },
+  {
+    "source": "daring-fireball",
+    "name": "signal-ingest-daring-fireball",
+    "schedule": "8 5,11,17,23 * * *",
+    "path": "/cron/signals/daring-fireball"
+  },
+  {
+    "source": "fortune",
+    "name": "signal-ingest-fortune",
+    "schedule": "9 5,11,17,23 * * *",
+    "path": "/cron/signals/fortune"
+  },
+  {
+    "source": "dl-news",
+    "name": "signal-ingest-dl-news",
+    "schedule": "10 5,11,17,23 * * *",
+    "path": "/cron/signals/dl-news"
+  },
+  {
+    "source": "marginal-revolution",
+    "name": "signal-ingest-marginal-revolution",
+    "schedule": "11 5,11,17,23 * * *",
+    "path": "/cron/signals/marginal-revolution"
+  },
+  {
+    "source": "ritholtz",
+    "name": "signal-ingest-ritholtz",
+    "schedule": "12 5,11,17,23 * * *",
+    "path": "/cron/signals/ritholtz"
+  },
+  {
+    "source": "abnormal-returns",
+    "name": "signal-ingest-abnormal-returns",
+    "schedule": "13 5,11,17,23 * * *",
+    "path": "/cron/signals/abnormal-returns"
+  },
+  {
+    "source": "of-dollars-and-data",
+    "name": "signal-ingest-of-dollars-and-data",
+    "schedule": "14 5,11,17,23 * * *",
+    "path": "/cron/signals/of-dollars-and-data"
+  },
+  {
+    "source": "unchained",
+    "name": "signal-ingest-unchained",
+    "schedule": "16 5,11,17,23 * * *",
+    "path": "/cron/signals/unchained"
+  },
+  {
+    "source": "aftermath",
+    "name": "signal-ingest-aftermath",
+    "schedule": "17 5,11,17,23 * * *",
+    "path": "/cron/signals/aftermath"
+  },
+  {
+    "source": "ars-gaming",
+    "name": "signal-ingest-ars-gaming",
+    "schedule": "18 5,11,17,23 * * *",
+    "path": "/cron/signals/ars-gaming"
+  },
+  {
+    "source": "rpgfan",
+    "name": "signal-ingest-rpgfan",
+    "schedule": "19 5,11,17,23 * * *",
+    "path": "/cron/signals/rpgfan"
+  },
+  {
+    "source": "playstation-lifestyle",
+    "name": "signal-ingest-playstation-lifestyle",
+    "schedule": "21 5,11,17,23 * * *",
+    "path": "/cron/signals/playstation-lifestyle"
+  },
+  {
+    "source": "overkill",
+    "name": "signal-ingest-overkill",
+    "schedule": "22 5,11,17,23 * * *",
+    "path": "/cron/signals/overkill"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"
