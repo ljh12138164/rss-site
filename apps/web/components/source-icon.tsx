@@ -5,6 +5,7 @@ import {
   SiAnthropic,
   SiApple,
   SiArm,
+  SiArstechnica,
   SiBaidu,
   SiBilibili,
   SiBytedance,
@@ -76,7 +77,8 @@ const brandIcons: Partial<Record<SignalSourceId, BrandIcon>> = {
   'apple-ml': { Icon: SiApple, color: '#000000', bg: '#f2f0ea' },
   bilibili: { Icon: SiBilibili, color: '#00a1d6', bg: '#e0f4fb' },
   zhihu: { Icon: SiZhihu, color: '#ffffff', bg: '#0084ff' },
-  toutiao: { Icon: SiBytedance, color: '#325ab4', bg: '#e7edfb' }
+  toutiao: { Icon: SiBytedance, color: '#325ab4', bg: '#e7edfb' },
+  'ars-gaming': { Icon: SiArstechnica, color: '#ff4e00', bg: '#ffece5' }
 }
 
 const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
