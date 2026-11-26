@@ -3,6 +3,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { ArticleSummary } from './article-summary'
+import { SiteLanguageProvider } from './site-language'
 
 const cache = vi.hoisted(() => ({ read: vi.fn(), write: vi.fn() }))
 vi.mock('../lib/article-summary-cache', () => ({
@@ -95,6 +96,56 @@ it('restores completed local summaries without a network call', async () => {
   await act(async () => root.render(<ArticleSummary articleId="one" cacheKey="one:v1" />))
   expect(container.textContent).toContain(summary.overview)
   expect(fetcher).not.toHaveBeenCalled()
+})
+
+it('switches displayed summaries and IndexedDB keys when the browser language changes', async () => {
+  const language = vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['zh-CN'])
+  const english = {
+    overview: 'An English overview',
+    keyPoints: ['First', 'Second', 'Third'],
+    basis: 'content'
+  }
+  cache.read.mockImplementation(async (key: string) => (key === 'one:v1' ? summary : null))
+  const fetcher = vi.fn(
+    async (_url: unknown, _init?: RequestInit) =>
+      new Response(`${JSON.stringify({ type: 'done', summary: english })}\n`, {
+        headers: { 'content-type': 'application/x-ndjson' }
+      })
+  )
+  vi.stubGlobal('fetch', fetcher)
+  try {
+    await act(async () =>
+      root.render(
+        <SiteLanguageProvider>
+          <ArticleSummary articleId="one" cacheKey="one:v1" />
+        </SiteLanguageProvider>
+      )
+    )
+    expect(container.textContent).toContain(summary.overview)
+    expect(fetcher).not.toHaveBeenCalled()
+    await act(async () => {
+      language.mockReturnValue(['en-GB', 'zh-CN'])
+      window.dispatchEvent(new Event('languagechange'))
+    })
+    expect(document.documentElement.lang).toBe('en')
+    expect(container.textContent).not.toContain(summary.overview)
+    expect(cache.read).toHaveBeenLastCalledWith('en:one:v1')
+    await act(async () => container.querySelector('button')?.click())
+    expect(JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body))).toEqual({
+      id: 'one',
+      locale: 'en'
+    })
+    expect(container.textContent).toContain(english.overview)
+    expect(cache.write).toHaveBeenCalledExactlyOnceWith('en:one:v1', english)
+    await act(async () => {
+      language.mockReturnValue(['zh-CN'])
+      window.dispatchEvent(new Event('languagechange'))
+    })
+    expect(container.textContent).toContain(summary.overview)
+    expect(container.textContent).not.toContain(english.overview)
+  } finally {
+    language.mockRestore()
+  }
 })
 
 it('aborts an in-flight request when leaving the page', async () => {

@@ -6,6 +6,7 @@ import { Button, Disclosure, DisclosurePanel } from 'react-aria-components'
 import { getReadingPosition, saveReadingPosition } from '../lib/reading-progress'
 import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
+import { useSiteText } from './site-language'
 
 interface Heading {
   id: string
@@ -24,6 +25,7 @@ export function ArticleReadingTools({
   minutes: number | null
   children: ReactNode
 }) {
+  const t = useSiteText()
   const body = useRef<HTMLDivElement>(null)
   const [headings, setHeadings] = useState<Heading[]>([])
   const [resume, setResume] = useState<number | null>(null)
@@ -93,17 +95,19 @@ export function ArticleReadingTools({
     <>
       {(minutes !== null || resume !== null) && (
         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          {minutes !== null && <p className="tabular-nums">预计阅读 {minutes} 分钟</p>}
+          {minutes !== null && (
+            <p className="tabular-nums">{t('预计阅读 {count} 分钟', { count: minutes })}</p>
+          )}
           {resume !== null && (
             <ActionButton variant="outline" onPress={continueReading}>
-              继续上次阅读 · {Math.round(resume * 100)}%
+              {t('继续上次阅读 ·')} {Math.round(resume * 100)}%
             </ActionButton>
           )}
         </div>
       )}
       {error && (
         <p role="alert" className="mt-3 text-sm text-destructive">
-          {error}
+          {t(error)}
         </p>
       )}
       {headings.length > 1 && (
@@ -112,8 +116,8 @@ export function ArticleReadingTools({
             slot="trigger"
             className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-left text-sm font-medium text-foreground outline-none transition-colors hover:bg-row-highlight focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
           >
-            <span>
-              文章目录 · <span className="font-mono tabular-nums">{headings.length}</span> 节
+            <span className="tabular-nums">
+              {t('文章目录 · {count} 节', { count: headings.length })}
             </span>
             <ChevronDown
               aria-hidden="true"
@@ -121,7 +125,7 @@ export function ArticleReadingTools({
             />
           </Button>
           <DisclosurePanel className="border-t border-border/70 px-4 py-2">
-            <nav aria-label="文章目录">
+            <nav aria-label={t('文章目录')}>
               <ol className="space-y-0.5">
                 {headings.map((heading) => (
                   <li key={heading.id} className={cn(heading.level > 2 && 'pl-4')}>

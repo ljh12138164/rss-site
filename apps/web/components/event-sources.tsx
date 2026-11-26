@@ -1,11 +1,14 @@
 import Link from 'next/link'
 import { findSignalSource } from '../lib/technology-sources'
+import { UiText } from './site-language'
 import { SourceIcon } from './source-icon'
 
 export function EventSources({ sources }: { sources: string[] }) {
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-      <span>来源：</span>
+      <span>
+        <UiText>{'来源：'}</UiText>
+      </span>
       {sources.length ? (
         [...new Set(sources)].map((id) => {
           const source = findSignalSource(id)
@@ -26,7 +29,9 @@ export function EventSources({ sources }: { sources: string[] }) {
           )
         })
       ) : (
-        <span>来源暂缺</span>
+        <span>
+          <UiText>{'来源暂缺'}</UiText>
+        </span>
       )}
     </div>
   )

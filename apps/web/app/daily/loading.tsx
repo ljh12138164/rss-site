@@ -1,10 +1,12 @@
 import { SignalSkeleton } from '../../components/signal-skeleton'
+import { UiRegion } from '../../components/site-language'
 import { SiteShell } from '../../components/site-shell'
 
 export default function DailyLoading() {
   return (
     <SiteShell>
-      <div
+      <UiRegion
+        as="div"
         role="status"
         aria-label="加载中"
         className="grid gap-8 lg:grid-cols-[192px_minmax(0,1fr)]"
@@ -19,7 +21,7 @@ export default function DailyLoading() {
           <SignalSkeleton className="h-28 w-full" />
           <SignalSkeleton className="h-64 w-full" />
         </div>
-      </div>
+      </UiRegion>
     </SiteShell>
   )
 }

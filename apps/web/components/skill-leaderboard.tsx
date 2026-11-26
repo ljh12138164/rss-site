@@ -18,6 +18,7 @@ import type { FeedResult, SkillFeeds } from '../lib/hot-feed'
 import { parseSkillMetadata } from '../lib/skill-metadata'
 import { searchSkillFeed } from '../lib/skill-search'
 import { EmptyFeed, FeedError } from './feed-state'
+import { UiDate, useSiteText } from './site-language'
 import { UiSegmentedGroup } from './ui/segmented-group'
 
 export { parseSkillMetadata } from '../lib/skill-metadata'
@@ -25,15 +26,16 @@ export { parseSkillMetadata } from '../lib/skill-metadata'
 const countFormatter = new Intl.NumberFormat('en-US')
 
 function SkillInstalls({ installs, trending }: { installs: number | null; trending?: boolean }) {
+  const t = useSiteText()
   if (installs === null) return null
   return (
     <span
       className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap"
-      title={trending ? '近 24 小时安装' : '累计安装'}
+      title={trending ? t('近 24 小时安装') : t('累计安装')}
     >
       <Download aria-hidden="true" className="size-3.5" />
       <span>{countFormatter.format(installs)}</span>
-      <span>{trending ? '24h' : '总计'}</span>
+      <span>{trending ? '24h' : t('总计')}</span>
     </span>
   )
 }
@@ -80,17 +82,18 @@ function SkillFeed({
   trending?: boolean
   onClear: () => void
 }) {
+  const t = useSiteText()
   if (feed.state === 'empty') return <EmptyFeed />
   if (feed.state === 'error') return <FeedError />
   if (!feed.items.length)
     return (
       <div className="rounded-sm border border-border bg-card py-12 text-center">
-        <p className="text-sm text-muted-foreground">未找到匹配的 Skill</p>
+        <p className="text-sm text-muted-foreground">{t('未找到匹配的 Skill')}</p>
         <Button
           onPress={onClear}
           className="mt-3 min-h-10 cursor-pointer px-3 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
         >
-          清除筛选
+          {t('清除筛选')}
         </Button>
       </div>
     )
@@ -195,6 +198,7 @@ function SkillFeed({
 }
 
 export function SkillLeaderboard({ feeds }: { feeds: SkillFeeds }) {
+  const t = useSiteText()
   const [view, setView] = useState('list')
   const [tab, setTab] = useState('all-time')
   const [query, setQuery] = useState('')
@@ -234,17 +238,17 @@ export function SkillLeaderboard({ feeds }: { feeds: SkillFeeds }) {
           onChange={(value) => remember(view, tab, value)}
           className="max-w-lg flex-1"
         >
-          <Label className="sr-only">搜索 Skills</Label>
+          <Label className="sr-only">{t('搜索 Skills')}</Label>
           <div className="flex min-h-10 items-center gap-2.5 rounded-sm border border-input bg-card px-3 focus-within:ring-2 focus-within:ring-ring">
             <Search aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
             <Input
-              placeholder="筛选名称或仓库…"
+              placeholder={t('筛选名称或仓库…')}
               maxLength={200}
               className="min-h-10 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
             />
             {query && (
               <Button
-                aria-label="清除搜索"
+                aria-label={t('清除搜索')}
                 onPress={clearSearch}
                 className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
               >
@@ -255,19 +259,19 @@ export function SkillLeaderboard({ feeds }: { feeds: SkillFeeds }) {
         </SearchField>
 
         <UiSegmentedGroup
-          ariaLabel="视图"
+          ariaLabel={t('视图')}
           value={view === 'cards' ? 'cards' : 'list'}
           onChange={(next) => remember(next, tab)}
           className="self-end sm:self-auto"
           options={[
             {
               value: 'list',
-              label: '列表',
+              label: t('列表'),
               icon: <List aria-hidden="true" className="size-3.5" />
             },
             {
               value: 'cards',
-              label: '卡片',
+              label: t('卡片'),
               icon: <LayoutGrid aria-hidden="true" className="size-3.5" />
             }
           ]}
@@ -275,36 +279,42 @@ export function SkillLeaderboard({ feeds }: { feeds: SkillFeeds }) {
       </div>
 
       <TabList
-        aria-label="Skills 排行"
+        aria-label={t('Skills 排行')}
         className="mb-5 flex w-full overflow-x-auto overflow-y-hidden border-b border-border slim-scrollbar"
       >
         <Tab
           id="all-time"
           className="min-h-10 cursor-pointer whitespace-nowrap border-b-2 border-transparent px-4 pl-0 font-mono text-xs text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-[selected]:border-primary data-[selected]:font-semibold data-[selected]:text-primary"
         >
-          总榜
+          {t('总榜')}
         </Tab>
         <Tab
           id="trending"
           className="min-h-10 cursor-pointer whitespace-nowrap border-b-2 border-transparent px-4 font-mono text-xs text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring data-[selected]:border-primary data-[selected]:font-semibold data-[selected]:text-primary"
         >
-          上升最快
+          {t('上升最快')}
         </Tab>
       </TabList>
       {activeFeed.state === 'ready' && (
         <p role="status" className="mb-4 font-mono text-xs tabular-nums text-muted-foreground">
           {query.trim() && filteredFeed.state === 'ready'
-            ? `${filteredFeed.items.length} / ${activeFeed.items.length} 条`
-            : `${activeFeed.items.length} 条`}{' '}
+            ? t('{shown} / {total} 条', {
+                shown: filteredFeed.items.length,
+                total: activeFeed.items.length
+              })
+            : t('{count} 条', { count: activeFeed.items.length })}{' '}
           ·{' '}
-          {new Intl.DateTimeFormat('zh-CN', {
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hourCycle: 'h23',
-            timeZone: 'Asia/Shanghai'
-          }).format(activeFeed.status.lastSuccessAt)}
+          <UiDate
+            date={activeFeed.status.lastSuccessAt}
+            options={{
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hourCycle: 'h23',
+              timeZone: 'Asia/Shanghai'
+            }}
+          />
         </p>
       )}
       <TabPanel id="all-time" className="outline-none">

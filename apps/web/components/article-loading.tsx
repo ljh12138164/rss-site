@@ -1,11 +1,14 @@
 import { SignalSkeleton } from './signal-skeleton'
+import { UiText } from './site-language'
 import { SiteShell } from './site-shell'
 
 export default function ArticleLoading() {
   return (
     <SiteShell mainClassName="py-6 sm:py-10">
       <div aria-busy="true" className="mx-auto w-full max-w-[46rem] min-w-0" role="status">
-        <span className="sr-only">正在加载文章</span>
+        <span className="sr-only">
+          <UiText>{'正在加载文章'}</UiText>
+        </span>
         <SignalSkeleton className="h-4 w-40" />
         <SignalSkeleton className="mt-10 h-5 w-24" />
         <SignalSkeleton className="mt-5 h-12 w-full sm:w-5/6" />

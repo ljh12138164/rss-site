@@ -19,6 +19,7 @@ import {
   type ModelLeaderboardItem
 } from '../../lib/leaderboard'
 import { cn } from '../../lib/utils'
+import { UiDate, useSiteText } from '../site-language'
 import { UiSegmentedGroup } from '../ui/segmented-group'
 
 interface ModelLeaderboardProps {
@@ -26,6 +27,7 @@ interface ModelLeaderboardProps {
 }
 
 function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list' | 'cards' }) {
+  const t = useSiteText()
   const isCards = view === 'cards'
 
   return (
@@ -67,7 +69,7 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
           {!isCards && (
             <span className="font-mono text-base font-bold tabular-nums text-primary sm:text-lg">
               {item.overallScore}{' '}
-              <span className="text-xs font-normal text-muted-foreground">分</span>
+              <span className="text-xs font-normal text-muted-foreground">{t('分')}</span>
             </span>
           )}
         </div>
@@ -76,16 +78,13 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
           <span className="font-medium text-foreground/85">{item.creator}</span>
           {item.releasedAt && (
             <span>
-              {new Date(item.releasedAt).toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit'
-              })}
+              <UiDate date={item.releasedAt} options={{ year: 'numeric', month: '2-digit' }} />
             </span>
           )}
           {item.coverage && (
             <span className="inline-flex items-center gap-1">
               <Cpu className="size-3" aria-hidden="true" />
-              {item.coverage.count} 项 ({item.coverage.percentage}%)
+              {item.coverage.count} {t('项')} ({item.coverage.percentage}%)
             </span>
           )}
         </div>
@@ -97,7 +96,7 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
                 key={domain}
                 className="inline-flex items-center gap-1 rounded-sm border border-border bg-background/80 px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground"
               >
-                <span>{domain}</span>
+                <span>{t(domain)}</span>
                 <strong className="text-foreground">{info.score}</strong>
                 {info.rank && (
                   <span className="text-[10px] text-muted-foreground/80">({info.rank})</span>
@@ -111,11 +110,13 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
           {item.pricing?.input || item.pricing?.output ? (
             <span className="inline-flex items-center gap-1 text-foreground/85">
               <Coins className="size-3 text-muted-foreground" aria-hidden="true" />
-              输入 ¥{item.pricing.input || '-'} / 输出 ¥{item.pricing.output || '-'}
-              <span className="text-[10px] text-muted-foreground">/ 百万 Token</span>
+              {t('输入 ¥')}
+              {item.pricing.input || '-'} {t('/ 输出 ¥')}
+              {item.pricing.output || '-'}
+              <span className="text-[10px] text-muted-foreground">{t('/ 百万 Token')}</span>
             </span>
           ) : (
-            <span>暂无官方定价</span>
+            <span>{t('暂无官方定价')}</span>
           )}
         </div>
       </div>
@@ -124,6 +125,7 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
 }
 
 export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
+  const t = useSiteText()
   const [view, setView] = useState<'list' | 'cards'>('list')
   const [tab, setTab] = useState<LeaderboardCategoryId>('overall')
   const [query, setQuery] = useState('')
@@ -180,17 +182,17 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
           onChange={(val) => remember(view, tab, val)}
           className="max-w-lg flex-1"
         >
-          <Label className="sr-only">搜索模型</Label>
+          <Label className="sr-only">{t('搜索模型')}</Label>
           <div className="flex min-h-10 items-center gap-2.5 rounded-sm border border-input bg-card px-3 focus-within:ring-2 focus-within:ring-ring">
             <Search aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
             <Input
-              placeholder="筛选模型或机构…"
+              placeholder={t('筛选模型或机构…')}
               maxLength={100}
               className="min-h-10 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
             />
             {query && (
               <Button
-                aria-label="清除搜索"
+                aria-label={t('清除搜索')}
                 onPress={clearSearch}
                 className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
               >
@@ -201,19 +203,19 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
         </SearchField>
 
         <UiSegmentedGroup
-          ariaLabel="视图"
+          ariaLabel={t('视图')}
           value={view}
           onChange={(next) => remember(next, tab)}
           className="self-end sm:self-auto"
           options={[
             {
               value: 'list',
-              label: '列表',
+              label: t('列表'),
               icon: <List className="size-3.5" aria-hidden="true" />
             },
             {
               value: 'cards',
-              label: '卡片',
+              label: t('卡片'),
               icon: <LayoutGrid className="size-3.5" aria-hidden="true" />
             }
           ]}
@@ -221,7 +223,7 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
       </div>
 
       <TabList
-        aria-label="评测维度"
+        aria-label={t('评测维度')}
         className="mb-5 flex w-full overflow-x-auto overflow-y-hidden border-b border-border slim-scrollbar"
       >
         {LEADERBOARD_CATEGORIES.map((cat, idx) => (
@@ -233,26 +235,28 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
               idx === 0 && 'pl-0'
             )}
           >
-            {cat.label}
+            {t(cat.label)}
           </Tab>
         ))}
       </TabList>
 
       <div className="mb-4 font-mono text-xs tabular-nums text-muted-foreground">
-        {query.trim() ? `${filteredList.length} / ${rawList.length} 款` : `共 ${rawList.length} 款`}
+        {query.trim()
+          ? t('{shown} / {total} 款', { shown: filteredList.length, total: rawList.length })
+          : t('共 {total} 款', { total: rawList.length })}
       </div>
 
       {LEADERBOARD_CATEGORIES.map((cat) => (
         <TabPanel key={cat.id} id={cat.id} className="outline-none">
           {filteredList.length === 0 ? (
             <div className="rounded-sm border border-border bg-card py-12 text-center">
-              <p className="text-sm text-muted-foreground">未找到匹配模型</p>
+              <p className="text-sm text-muted-foreground">{t('未找到匹配模型')}</p>
               {query && (
                 <Button
                   onPress={clearSearch}
                   className="mt-3 min-h-10 cursor-pointer rounded-sm px-3 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
                 >
-                  清除筛选
+                  {t('清除筛选')}
                 </Button>
               )}
             </div>

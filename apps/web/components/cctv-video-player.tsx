@@ -3,6 +3,7 @@
 import { AlertCircle, Play, RotateCw, Tv } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '../lib/utils'
+import { useSiteText } from './site-language'
 
 interface CctvVideoInfo {
   title: string
@@ -27,11 +28,12 @@ function formatDuration(secondsStr?: string): string {
 }
 
 export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerProps) {
+  const t = useSiteText()
   const containerRef = useRef<HTMLDivElement>(null)
   const [videoInfo, setVideoInfo] = useState<CctvVideoInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | number | null>(null)
 
   const isVertical = type === '6'
 
@@ -47,7 +49,8 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         }
       )
       if (!response.ok) {
-        throw new Error(`视频接口请求失败 (${response.status})`)
+        setError(response.status)
+        return
       }
       const data = await response.json()
       if (!data.hls_url) {
@@ -152,15 +155,19 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         )}
       >
         <AlertCircle className="size-8 text-destructive/80 mb-2" />
-        <p className="font-medium text-foreground mb-1">无法加载视频</p>
-        <p className="text-xs text-muted-foreground mb-4">{error}</p>
+        <p className="font-medium text-foreground mb-1">{t('无法加载视频')}</p>
+        <p className="text-xs text-muted-foreground mb-4">
+          {typeof error === 'number'
+            ? t('视频接口请求失败 ({status})', { status: error })
+            : t(error)}
+        </p>
         <button
           type="button"
           onClick={fetchVideoInfo}
           className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent transition-colors cursor-pointer"
         >
           <RotateCw className="size-3.5" />
-          重试
+          {t('重试')}
         </button>
       </div>
     )
@@ -176,7 +183,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         )}
       >
         <Tv className="size-8 text-muted-foreground/40 mb-2" />
-        <span className="text-xs text-muted-foreground">正在加载央视新闻视频...</span>
+        <span className="text-xs text-muted-foreground">{t('正在加载央视新闻视频...')}</span>
       </div>
     )
   }
@@ -224,7 +231,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
       {/* Top Channel Badge */}
       <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-white/90 border border-white/10">
         <Tv className="size-3.5 text-red-500" />
-        <span>央视新闻 · 视频报道</span>
+        <span>{t('央视新闻 · 视频报道')}</span>
       </div>
 
       {/* Duration Badge */}
@@ -238,7 +245,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
       <button
         type="button"
         onClick={() => setIsPlaying(true)}
-        aria-label={`播放视频: ${videoInfo?.title ?? ''}`}
+        aria-label={t('播放视频: {title}', { title: videoInfo?.title ?? '' })}
         className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 text-center cursor-pointer focus:outline-none"
       >
         <div className="relative mb-2 flex size-14 items-center justify-center rounded-full bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary">
@@ -252,7 +259,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
 
       {/* Bottom Title Bar */}
       <div className="absolute bottom-0 inset-x-0 p-3.5 z-10 pointer-events-none">
-        <p className="text-xs text-white/70 line-clamp-1">点击即可在线播放高清视频新闻</p>
+        <p className="text-xs text-white/70 line-clamp-1">{t('点击即可在线播放高清视频新闻')}</p>
       </div>
     </div>
   )

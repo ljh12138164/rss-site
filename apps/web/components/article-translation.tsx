@@ -11,6 +11,7 @@ import { estimateReadingMinutes } from '../lib/reading-progress'
 import { ActionButton } from './action-button'
 import { ArticleHtmlBody } from './article-html-body'
 import { ArticleReadingTools } from './article-reading-tools'
+import { useSiteLocale, useSiteText } from './site-language'
 import { UiSegmentedGroup } from './ui/segmented-group'
 
 const api = hc<AppType>('/')
@@ -46,6 +47,9 @@ export function ArticleTranslation({
   metadata,
   summaryControl
 }: ArticleTranslationProps) {
+  const t = useSiteText()
+  const locale = useSiteLocale()
+  const translationEnabled = canTranslate && locale === 'zh-CN'
   const [translation, setTranslation] = useState<Translation | null>(null)
   const [mode, setMode] = useState<ReadingMode>('original')
   const [isLoading, setIsLoading] = useState(false)
@@ -54,6 +58,7 @@ export function ArticleTranslation({
   const hasBody = Boolean(contentHtml?.replace(/<[^>]*>/g, '').trim())
 
   async function requestTranslation() {
+    if (!translationEnabled) return
     if (translation) {
       setMode((current) => (current === 'original' ? 'bilingual' : 'original'))
       return
@@ -72,17 +77,17 @@ export function ArticleTranslation({
       )
       const payload = await response.json()
       if (!response.ok || !('translation' in payload)) {
-        throw new Error('error' in payload ? payload.error : '暂时无法翻译，请稍后重试')
+        throw new Error('error' in payload ? payload.error : t('暂时无法翻译，请稍后重试'))
       }
       setTranslation(payload.translation)
       setMode('bilingual')
     } catch (requestError) {
       setError(
         requestError instanceof DOMException && requestError.name === 'TimeoutError'
-          ? '翻译超时，请稍后重试'
+          ? t('翻译超时，请稍后重试')
           : requestError instanceof Error
             ? requestError.message
-            : '暂时无法翻译，请稍后重试'
+            : t('暂时无法翻译，请稍后重试')
       )
     } finally {
       setIsLoading(false)
@@ -90,8 +95,8 @@ export function ArticleTranslation({
   }
 
   // Derived display titles
-  const isBilingual = mode === 'bilingual' && Boolean(translation)
-  const isChinese = mode === 'chinese' && Boolean(translation)
+  const isBilingual = translationEnabled && mode === 'bilingual' && Boolean(translation)
+  const isChinese = translationEnabled && mode === 'chinese' && Boolean(translation)
 
   const displayedTitle = isChinese && translation ? translation.title : title
   const originalLang = looksLikeEnglish((contentHtml || summary || title).replace(/<[^>]*>/g, ''))
@@ -122,7 +127,7 @@ export function ArticleTranslation({
           </p>
         )}
         {metadata}
-        {canTranslate && (
+        {translationEnabled && (
           <div className="mt-5 flex flex-wrap items-center gap-3">
             {translation ? (
               <UiSegmentedGroup
@@ -147,7 +152,7 @@ export function ArticleTranslation({
             )}
           </div>
         )}
-        {error && (
+        {translationEnabled && error && (
           <p className="mt-3 text-sm text-destructive" role="alert">
             {error}
           </p>
@@ -156,10 +161,10 @@ export function ArticleTranslation({
       {summaryControl}
       <ArticleReadingTools
         articleId={articleId}
-        contentKey={mode}
+        contentKey={translationEnabled ? mode : 'original'}
         minutes={estimateReadingMinutes(contentHtml || summary || '')}
       >
-        <section aria-label={hasBody ? '文章内容' : '文章摘要'} className="py-8 sm:py-10">
+        <section aria-label={hasBody ? t('文章内容') : t('文章摘要')} className="py-8 sm:py-10">
           {isBilingual && translation ? (
             hasBody ? (
               <div className="bilingual-article space-y-6">
@@ -215,28 +220,28 @@ export function ArticleTranslation({
               <ArticleHtmlBody html={translation.contentHtml} lang="zh-CN" />
             ) : translation.summary ? (
               <div className="article-content">
-                <p className="mb-4 font-mono text-xs text-muted-foreground">摘要</p>
+                <p className="mb-4 font-mono text-xs text-muted-foreground">{t('摘要')}</p>
                 <p lang="zh-CN" className="whitespace-pre-line">
                   {translation.summary}
                 </p>
               </div>
             ) : (
               <p className="text-base leading-8 text-muted-foreground">
-                暂无站内正文，可点击“查看原文”阅读。
+                {t('暂无站内正文，可点击“查看原文”阅读。')}
               </p>
             )
           ) : hasBody && contentHtml ? (
             <ArticleHtmlBody html={contentHtml} lang={originalLang} />
           ) : summary ? (
             <div className="article-content">
-              <p className="mb-4 font-mono text-xs text-muted-foreground">摘要</p>
+              <p className="mb-4 font-mono text-xs text-muted-foreground">{t('摘要')}</p>
               <p lang={originalLang} className="whitespace-pre-line">
                 {summary}
               </p>
             </div>
           ) : (
             <p className="text-base leading-8 text-muted-foreground">
-              暂无站内正文，可点击“查看原文”阅读。
+              {t('暂无站内正文，可点击“查看原文”阅读。')}
             </p>
           )}
         </section>

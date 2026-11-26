@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
+import { useSiteText } from './site-language'
 import 'yet-another-react-lightbox/styles.css'
 import { cn } from '../lib/utils'
 
@@ -30,6 +31,7 @@ export function CoverImage({
   className,
   previewLabel
 }: CoverImageProps) {
+  const t = useSiteText()
   const [failedSources, setFailedSources] = useState<string[]>([])
   const [previewOpen, setPreviewOpen] = useState(false)
   const imageSrc = [src?.trim(), fallbackSrc.trim(), defaultCover].find(
@@ -81,7 +83,7 @@ export function CoverImage({
     <>
       <button
         type="button"
-        aria-label={`预览图片：${previewLabel}`}
+        aria-label={t('预览图片：{label}', { label: previewLabel })}
         aria-haspopup="dialog"
         aria-expanded={previewOpen}
         onClick={() => setPreviewOpen(true)}
@@ -99,7 +101,7 @@ export function CoverImage({
         }}
         controller={{ closeOnBackdropClick: true }}
         render={{ buttonPrev: () => null, buttonNext: () => null }}
-        labels={{ Lightbox: '图片预览', Close: '关闭图片预览' }}
+        labels={{ Lightbox: t('图片预览'), Close: t('关闭图片预览') }}
       />
     </>
   )

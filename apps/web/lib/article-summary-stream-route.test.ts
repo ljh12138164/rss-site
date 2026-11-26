@@ -29,7 +29,7 @@ it.each([
     const response = await app.request(`/api/${route}/summarize`, {
       method: 'POST',
       headers: { accept: 'application/x-ndjson', 'content-type': 'application/json' },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({ id, locale: 'en' })
     })
     expect(fetcher).toHaveBeenCalledWith(
       `http://localhost:3001/v1/agents/${kind}-summary/invoke`,
@@ -39,7 +39,7 @@ it.each([
           'content-type': 'application/json',
           accept: 'application/x-ndjson'
         },
-        body: JSON.stringify({ id }),
+        body: JSON.stringify({ id, locale: 'en' }),
         cache: 'no-store',
         signal: expect.any(AbortSignal)
       })

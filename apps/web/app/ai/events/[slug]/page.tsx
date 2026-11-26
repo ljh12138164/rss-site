@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EventSources } from '../../../../components/event-sources'
 import { EventTranslation } from '../../../../components/event-translation'
+import { UiText } from '../../../../components/site-language'
 import { SiteShell } from '../../../../components/site-shell'
 import { getEvent, getEventSources, getRelatedEvents } from '../../../../lib/ai-events'
 import { looksLikeEnglish } from '../../../../lib/article-language'
@@ -63,7 +64,7 @@ export default async function EventPage({ params }: Props) {
   return (
     <SiteShell>
       <Link className="inline-flex min-h-11 items-center text-sm text-primary" href="/ai/events">
-        返回 AI 时间轴
+        <UiText>{'返回 AI 时间轴'}</UiText>
       </Link>
       <article className="mt-6 max-w-3xl">
         <EventSources sources={links.map((link) => link.signal_articles.source)} />
@@ -73,12 +74,11 @@ export default async function EventPage({ params }: Props) {
           summary={event.summary}
           canTranslate={language === 'en'}
           dateTime={event.occurred_at}
-          dateLabel={new Date(event.occurred_at).toLocaleDateString('zh-CN', {
-            timeZone: 'Asia/Shanghai'
-          })}
         />
         <section className="mt-10 border-t border-border pt-7">
-          <h2 className="text-lg font-semibold">相关来源</h2>
+          <h2 className="text-lg font-semibold">
+            <UiText>{'相关来源'}</UiText>
+          </h2>
           {links.length ? (
             <ol className="mt-3 divide-y divide-border">
               {links.map(({ signal_articles: article }) => (
@@ -100,12 +100,16 @@ export default async function EventPage({ params }: Props) {
               ))}
             </ol>
           ) : (
-            <p className="mt-3 text-sm text-muted-foreground">暂无可用的关联来源。</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              <UiText>{'暂无可用的关联来源。'}</UiText>
+            </p>
           )}
         </section>
         {related.length > 0 && (
           <section className="mt-10 border-t border-border pt-7">
-            <h2 className="text-lg font-semibold">关联事件</h2>
+            <h2 className="text-lg font-semibold">
+              <UiText>{'关联事件'}</UiText>
+            </h2>
             <ul className="mt-3 space-y-3">
               {related.map((item) => (
                 <li key={item.id}>

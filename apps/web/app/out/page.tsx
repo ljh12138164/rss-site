@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { actionStyles } from '../../components/action-styles'
+import { UiText } from '../../components/site-language'
 import { TransitMark } from '../../components/transit-mark'
 import {
   type OutboundReturnPath,
@@ -26,7 +27,9 @@ function OutboundFrame({ children }: { children: ReactNode }) {
           className="inline-flex items-center gap-2.5 text-foreground hover:text-primary"
         >
           <TransitMark className="size-8" />
-          <span className="text-xl font-bold tracking-tight">今日热点</span>
+          <span className="text-xl font-bold tracking-tight">
+            <UiText>{'今日热点'}</UiText>
+          </span>
         </Link>
         <section className="mt-6 rounded-sm border border-border bg-card px-6 py-8 shadow-sm sm:px-10 sm:py-9">
           {children}
@@ -39,13 +42,15 @@ function OutboundFrame({ children }: { children: ReactNode }) {
 function UnavailableNotice({ returnTo }: { returnTo: OutboundReturnPath }) {
   return (
     <OutboundFrame>
-      <h1 className="text-xl font-medium tracking-[-0.02em]">链接已停止放行</h1>
+      <h1 className="text-xl font-medium tracking-[-0.02em]">
+        <UiText>{'链接已停止放行'}</UiText>
+      </h1>
       <p className="mt-5 text-sm leading-6 text-muted-foreground">
-        目标地址无效或不是可访问的 Web 链接，本站没有继续提供跳转入口。
+        <UiText>{'目标地址无效或不是可访问的 Web 链接，本站没有继续提供跳转入口。'}</UiText>
       </p>
       <div className="mt-8 flex justify-end border-t border-border pt-6">
         <Link className={actionStyles('outline')} href={returnTo}>
-          返回热点列表
+          <UiText>{'返回热点列表'}</UiText>
         </Link>
       </div>
     </OutboundFrame>
@@ -66,7 +71,7 @@ export function OutboundView({
   return (
     <OutboundFrame>
       <h1 className="headline-display text-xl sm:text-2xl" id="outbound-title">
-        即将离开今日热点，请注意账号财产安全
+        <UiText>{'即将离开今日热点，请注意账号财产安全'}</UiText>
       </h1>
       <p className="mt-5 break-all text-sm leading-6 text-muted-foreground sm:text-base">
         {destination}
@@ -77,7 +82,7 @@ export function OutboundView({
           href={destination}
           rel="noreferrer noopener external"
         >
-          继续访问
+          <UiText>{'继续访问'}</UiText>
         </a>
       </div>
     </OutboundFrame>

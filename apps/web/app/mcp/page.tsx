@@ -9,6 +9,7 @@ import {
 } from '@rss-site/signals'
 import { Cpu, Sparkles, Terminal, Wrench } from 'lucide-react'
 import { McpClientConfig } from '../../components/mcp-client-config'
+import { UiText } from '../../components/site-language'
 import { SiteShell } from '../../components/site-shell'
 import { createPageMetadata } from '../../lib/seo'
 
@@ -83,10 +84,12 @@ export default function McpPage() {
     <SiteShell mainClassName="mx-auto w-full max-w-4xl">
       <header className="mb-8 border-b border-border pb-6">
         <h1 className="headline-display text-balance text-3xl text-foreground sm:text-4xl">
-          接入 MCP 服务
+          <UiText>{'接入 MCP 服务'}</UiText>
         </h1>
         <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
-          将本站接入 Codex CLI、Claude Code、Cursor 等客户端，在对话中直接查询已收录热点。
+          <UiText>
+            {'将本站接入 Codex CLI、Claude Code、Cursor 等客户端，在对话中直接查询已收录热点。'}
+          </UiText>
         </p>
       </header>
 
@@ -95,7 +98,9 @@ export default function McpPage() {
         <section aria-labelledby="client-config-heading" className="space-y-4">
           <div className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Terminal size={18} className="text-primary" />
-            <h2 id="client-config-heading">客户端接入</h2>
+            <h2 id="client-config-heading">
+              <UiText>{'客户端接入'}</UiText>
+            </h2>
           </div>
           <McpClientConfig />
         </section>
@@ -104,7 +109,9 @@ export default function McpPage() {
         <section aria-labelledby="tool-spec-heading" className="space-y-4">
           <div className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Wrench size={18} className="text-primary" />
-            <h2 id="tool-spec-heading">工具接口</h2>
+            <h2 id="tool-spec-heading">
+              <UiText>{'工具接口'}</UiText>
+            </h2>
           </div>
 
           <div className="space-y-4 rounded-sm border border-border bg-card p-5">
@@ -115,7 +122,7 @@ export default function McpPage() {
               </span>
             </div>
             <p className="text-sm leading-6 text-muted-foreground">
-              按平台或分类查询热点；不传参数时默认返回全平台最新 100 条。
+              <UiText>{'按平台或分类查询热点；不传参数时默认返回全平台最新 100 条。'}</UiText>
             </p>
 
             {/* Parameters Table */}
@@ -123,33 +130,57 @@ export default function McpPage() {
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead>
                   <tr className="border-b border-border font-mono text-xs text-muted-foreground">
-                    <th className="py-2.5 font-medium">参数名</th>
-                    <th className="py-2.5 font-medium">类型</th>
-                    <th className="py-2.5 font-medium">必填</th>
-                    <th className="py-2.5 font-medium">默认值</th>
-                    <th className="py-2.5 font-medium">说明</th>
+                    <th className="py-2.5 font-medium">
+                      <UiText>{'参数名'}</UiText>
+                    </th>
+                    <th className="py-2.5 font-medium">
+                      <UiText>{'类型'}</UiText>
+                    </th>
+                    <th className="py-2.5 font-medium">
+                      <UiText>{'必填'}</UiText>
+                    </th>
+                    <th className="py-2.5 font-medium">
+                      <UiText>{'默认值'}</UiText>
+                    </th>
+                    <th className="py-2.5 font-medium">
+                      <UiText>{'说明'}</UiText>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   <tr>
                     <td className="py-3 font-mono font-semibold text-foreground">platform</td>
                     <td className="py-3 font-mono text-muted-foreground">string</td>
-                    <td className="py-3 text-muted-foreground">否</td>
-                    <td className="py-3 text-muted-foreground">全平台</td>
                     <td className="py-3 text-muted-foreground">
-                      平台 ID（如 <code className="text-foreground">juejin</code>、
-                      <code className="text-foreground">github</code>、
-                      <code className="text-foreground">openai</code>）或频道名（如{' '}
-                      <code className="text-foreground">technology</code>、
-                      <code className="text-foreground">ai</code>）。
+                      <UiText>{'否'}</UiText>
+                    </td>
+                    <td className="py-3 text-muted-foreground">
+                      <UiText>{'全平台'}</UiText>
+                    </td>
+                    <td className="py-3 text-muted-foreground">
+                      <UiText>{'平台 ID（如'}</UiText>{' '}
+                      <code className="text-foreground">juejin</code>
+                      <UiText>{'、'}</UiText>
+                      <code className="text-foreground">github</code>
+                      <UiText>{'、'}</UiText>
+                      <code className="text-foreground">openai</code>
+                      <UiText>{'）或频道名（如'}</UiText>{' '}
+                      <code className="text-foreground">technology</code>
+                      <UiText>{'、'}</UiText>
+                      <code className="text-foreground">ai</code>
+                      <UiText>{'）。'}</UiText>
                     </td>
                   </tr>
                   <tr>
                     <td className="py-3 font-mono font-semibold text-foreground">limit</td>
                     <td className="py-3 font-mono text-muted-foreground">number</td>
-                    <td className="py-3 text-muted-foreground">否</td>
+                    <td className="py-3 text-muted-foreground">
+                      <UiText>{'否'}</UiText>
+                    </td>
                     <td className="py-3 font-mono font-semibold text-primary">100</td>
-                    <td className="py-3 text-muted-foreground">返回条数（1～100）。</td>
+                    <td className="py-3 text-muted-foreground">
+                      <UiText>{'返回条数（1～100）。'}</UiText>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -161,7 +192,9 @@ export default function McpPage() {
         <section aria-labelledby="platforms-heading" className="space-y-4">
           <div className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Cpu size={18} className="text-primary" />
-            <h2 id="platforms-heading">平台与频道 ID</h2>
+            <h2 id="platforms-heading">
+              <UiText>{'平台与频道 ID'}</UiText>
+            </h2>
           </div>
 
           <div className="grid gap-3.5 sm:grid-cols-2">
@@ -171,7 +204,9 @@ export default function McpPage() {
                 className="space-y-2.5 rounded-sm border border-border bg-card p-4"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-foreground">{section.title}</h3>
+                  <h3 className="font-semibold text-foreground">
+                    <UiText>{section.title}</UiText>
+                  </h3>
                   <code className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[11px] text-primary">
                     {section.sectionKey}
                   </code>
@@ -198,7 +233,9 @@ export default function McpPage() {
         <section aria-labelledby="prompts-heading" className="space-y-4">
           <div className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Sparkles size={18} className="text-primary" />
-            <h2 id="prompts-heading">提问示例</h2>
+            <h2 id="prompts-heading">
+              <UiText>{'提问示例'}</UiText>
+            </h2>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -207,9 +244,11 @@ export default function McpPage() {
                 key={item.title}
                 className="space-y-1.5 rounded-sm border border-border bg-card p-4 transition-colors hover:border-primary/45"
               >
-                <div className="font-mono text-xs font-semibold text-primary">{item.title}</div>
+                <div className="font-mono text-xs font-semibold text-primary">
+                  <UiText>{item.title}</UiText>
+                </div>
                 <div className="text-xs leading-6 text-foreground sm:text-sm">
-                  &ldquo;{item.prompt}&rdquo;
+                  &ldquo;<UiText>{item.prompt}</UiText>&rdquo;
                 </div>
               </div>
             ))}

@@ -7,16 +7,17 @@ import { findSignalSource, type SignalSource } from '../lib/technology-sources'
 import { ArticleBookmarkButton } from './article-bookmark-button'
 import { CoverImage } from './cover-image'
 import { GitHubRepositoryRow } from './github-repository-row'
+import { UiDate } from './site-language'
 import { SourceIcon } from './source-icon'
 
-const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
+const dateOptions = {
   month: '2-digit',
   day: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
   hourCycle: 'h23',
   timeZone: 'Asia/Shanghai'
-})
+} satisfies Intl.DateTimeFormatOptions
 
 export function HotList({
   items,
@@ -114,7 +115,7 @@ export function HotList({
                         className="whitespace-nowrap tabular-nums"
                         dateTime={item.publishedAt.toISOString()}
                       >
-                        {dateFormatter.format(item.publishedAt)}
+                        <UiDate date={item.publishedAt} options={dateOptions} />
                       </time>
                     ) : null}
                     <ArticleBookmarkButton

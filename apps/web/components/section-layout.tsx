@@ -8,6 +8,7 @@ import { aiSourcePageText } from '../lib/source-page-text'
 import type { SignalSource } from '../lib/technology-sources'
 import { getTransitLine } from '../lib/transit-lines'
 import { RssSubscription } from './rss-subscription'
+import { useSiteText } from './site-language'
 import { SiteShell } from './site-shell'
 import { SourceNavigation } from './source-navigation'
 
@@ -26,13 +27,14 @@ export function SectionLayout({
   sectionName: string
   sources: readonly SignalSource[]
 }) {
+  const t = useSiteText()
   const pathname = usePathname()
   const segments = pathname.slice(basePath.length).split('/').filter(Boolean)
   const source = sources.find((s) => s.id === segments[0])
   const sourceText = source
     ? basePath === '/ai'
-      ? aiSourcePageText(source)
-      : { title: source.name, description: source.description }
+      ? aiSourcePageText(source, t)
+      : { title: source.name, description: t(source.description) }
     : undefined
   const line = getTransitLine(basePath)
 
@@ -42,17 +44,17 @@ export function SectionLayout({
   return (
     <SiteShell>
       {source && (
-        <nav aria-label="面包屑" className="mb-4">
+        <nav aria-label={t('面包屑')} className="mb-4">
           <ol className="flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground">
             <li>
               <Link className="transition-colors hover:text-primary" href="/">
-                全部热点
+                {t('全部热点')}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
             <li>
               <Link className="transition-colors hover:text-primary" href={basePath}>
-                {sectionName}
+                {t(sectionName)}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
@@ -74,7 +76,7 @@ export function SectionLayout({
               />
             )}
             <h1 className="headline-display text-2xl text-foreground sm:text-3xl">
-              {sourceText?.title ?? title}
+              {sourceText?.title ?? t(title)}
             </h1>
           </div>
           {source && sourceText?.description && (
@@ -88,7 +90,7 @@ export function SectionLayout({
 
       <SourceNavigation
         active={source?.id}
-        ariaLabel="来源筛选"
+        ariaLabel={t('来源筛选')}
         basePath={basePath}
         lineColor={line?.cssVar}
         sources={sources}
