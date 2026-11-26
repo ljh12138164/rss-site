@@ -7,7 +7,7 @@
   "workers_dev": true,
   "routes": [{ "pattern": "feeds.ljhboard.cn", "custom_domain": true }],
   "observability": {
-    "enabled": true,
-    "traces": { "enabled": true }
+    "enabled": false,
+    "traces": { "enabled": false }
   }
 }
