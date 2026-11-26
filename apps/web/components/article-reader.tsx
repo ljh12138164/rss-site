@@ -18,6 +18,7 @@ import {
 import { getNewsArticle, getSameSourceArticles, type SignalArticle } from '../lib/signal-article'
 import { optionalCanonical } from '../lib/site-url'
 import type { SignalSource } from '../lib/technology-sources'
+import { isPlaceholderZhihuAuthor } from '../lib/zhihu-qa'
 import { ArticleBookmarkButton } from './article-bookmark-button'
 import { ArticleHistoryTracker } from './article-history-tracker'
 import { ArticleSummary } from './article-summary'
@@ -100,6 +101,7 @@ export function ArticleReader({
   const summaryKey = `${ARTICLE_SUMMARY_VERSION}:${source.id}:${article.id}:${createHash('sha256')
     .update(JSON.stringify([article.title, body, article.summary]))
     .digest('hex')}`
+  const displayAuthor = isPlaceholderZhihuAuthor(source.id, article.author) ? null : article.author
   const modifiedAt = article.contentUpdatedAt ?? article.lastSeenAt
   const canonical = optionalCanonical(createArticlePath(article.source, article.title, article.id))
   const structuredJson = canonical
@@ -121,7 +123,7 @@ export function ArticleReader({
           sourcePath: `/${section.id}/${source.id}`,
           ...(article.publishedAt ? { publishedAt: article.publishedAt.toISOString() } : {}),
           modifiedAt: modifiedAt.toISOString(),
-          ...(article.author ? { author: article.author } : {}),
+          ...(displayAuthor ? { author: displayAuthor } : {}),
           language: canTranslate ? 'en' : 'zh-CN'
         })
       )
@@ -185,7 +187,7 @@ export function ArticleReader({
           }
           metadata={
             <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs text-muted-foreground">
-              {article.author && <span>{article.author}</span>}
+              {displayAuthor && <span>{displayAuthor}</span>}
               {article.publishedAt && (
                 <time dateTime={article.publishedAt.toISOString()}>
                   <FormattedDate date={article.publishedAt} options={dateOptions} />
