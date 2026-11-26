@@ -50,7 +50,7 @@ export function LanguageMenu() {
               key={option.id}
               id={option.id}
               textValue={option.label}
-              className="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-sm px-2.5 text-sm outline-none data-[focused]:bg-accent data-[selected]:font-semibold data-[selected]:text-primary pointer-coarse:min-h-11"
+              className="flex min-h-9 cursor-pointer items-center justify-between gap-3 rounded-sm px-2.5 text-sm outline-none data-[focus-visible]:outline-2 data-[focus-visible]:-outline-offset-2 data-[focus-visible]:outline-ring data-[focus-visible]:outline-solid data-[focused]:bg-accent data-[selected]:font-semibold data-[selected]:text-primary pointer-coarse:min-h-11"
             >
               {({ isSelected }) => (
                 <>
