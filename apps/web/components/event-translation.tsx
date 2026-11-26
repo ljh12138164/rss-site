@@ -5,7 +5,7 @@ import { Languages, LoaderCircle } from 'lucide-react'
 import { useState } from 'react'
 import type { AppType } from '../lib/hono-app'
 import { ActionButton } from './action-button'
-import { useSiteLocale, useSiteText } from './site-language'
+import { UiDate, useSiteLocale, useSiteText } from './site-language'
 import { UiSegmentedGroup } from './ui/segmented-group'
 
 const api = hc<AppType>('/')
@@ -23,7 +23,6 @@ interface EventTranslationProps {
   summary: string
   canTranslate: boolean
   dateTime: string
-  dateLabel: string
 }
 
 export function EventTranslation({
@@ -31,8 +30,7 @@ export function EventTranslation({
   title,
   summary,
   canTranslate,
-  dateTime,
-  dateLabel
+  dateTime
 }: EventTranslationProps) {
   const t = useSiteText()
   const locale = useSiteLocale()
@@ -79,17 +77,24 @@ export function EventTranslation({
   const isChinese = translationEnabled && mode === 'chinese' && Boolean(translation)
 
   const displayedTitle = isChinese && translation ? translation.title : title
+  const originalLanguage = canTranslate ? 'en' : 'zh-CN'
 
   return (
     <>
       <time className="text-sm tabular-nums text-muted-foreground" dateTime={dateTime}>
-        {dateLabel}
+        <UiDate date={dateTime} options={{ timeZone: 'Asia/Shanghai' }} />
       </time>
-      <h1 className="mt-4 text-3xl font-semibold leading-tight text-balance sm:text-5xl">
+      <h1
+        lang={isChinese ? 'zh-CN' : originalLanguage}
+        className="mt-4 text-3xl font-semibold leading-tight text-balance sm:text-5xl"
+      >
         {displayedTitle}
       </h1>
       {isBilingual && translation && (
-        <p className="mt-3 text-pretty text-2xl font-medium text-muted-foreground/90 sm:text-3xl">
+        <p
+          lang="zh-CN"
+          className="mt-3 text-pretty text-2xl font-medium text-muted-foreground/90 sm:text-3xl"
+        >
           {translation.title}
         </p>
       )}
@@ -129,23 +134,34 @@ export function EventTranslation({
             <p className="mb-2 font-mono text-xs font-semibold text-muted-foreground">
               {t('原文')}
             </p>
-            <p className="whitespace-pre-line text-pretty text-base leading-8 text-foreground/90">
+            <p
+              lang={originalLanguage}
+              className="whitespace-pre-line text-pretty text-base leading-8 text-foreground/90"
+            >
               {summary}
             </p>
           </div>
           <div className="rounded-sm border border-primary/40 bg-accent/40 p-4 sm:p-5">
             <p className="mb-2 font-mono text-xs font-semibold text-primary">译文</p>
-            <p className="whitespace-pre-line text-pretty text-base leading-8 text-foreground">
+            <p
+              lang="zh-CN"
+              className="whitespace-pre-line text-pretty text-base leading-8 text-foreground"
+            >
               {translation.summary}
             </p>
           </div>
         </div>
       ) : isChinese && translation ? (
-        <p className="mt-8 whitespace-pre-line text-pretty text-base leading-8">
+        <p lang="zh-CN" className="mt-8 whitespace-pre-line text-pretty text-base leading-8">
           {translation.summary}
         </p>
       ) : (
-        <p className="mt-8 whitespace-pre-line text-pretty text-base leading-8">{summary}</p>
+        <p
+          lang={originalLanguage}
+          className="mt-8 whitespace-pre-line text-pretty text-base leading-8"
+        >
+          {summary}
+        </p>
       )}
     </>
   )

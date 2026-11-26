@@ -49,6 +49,7 @@ function Archive({ archive, date }: { archive: DailyArchive; date: string }) {
           <li key={issue.report_date}>
             <Link
               href={`/daily/${issue.report_date}`}
+              lang="zh-CN"
               aria-current={issue.report_date === date ? 'page' : undefined}
               title={issue.title}
               className={cn(
@@ -143,7 +144,9 @@ function Highlights({ stories }: { stories: DailyStory[] }) {
               className="flex min-h-10 gap-2.5 py-2.5 text-xs leading-5 text-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-ring"
             >
               <span className="font-mono font-bold tabular-nums text-primary">0{index + 1}</span>
-              <span className="min-w-0 line-clamp-2">{story.title}</span>
+              <span lang="zh-CN" className="min-w-0 line-clamp-2">
+                {story.title}
+              </span>
             </a>
           </li>
         ))}
@@ -234,6 +237,7 @@ export function DailyReportView({
           )}
         </div>
         <h2
+          lang="zh-CN"
           className={cn(
             'headline-display break-words text-balance text-foreground',
             lead ? 'text-2xl leading-snug sm:text-3xl' : 'text-lg leading-snug sm:text-xl'
@@ -241,7 +245,10 @@ export function DailyReportView({
         >
           {story.title}
         </h2>
-        <p className="mt-3.5 whitespace-pre-line break-words text-[0.9375rem] leading-7 text-foreground/85">
+        <p
+          lang="zh-CN"
+          className="mt-3.5 whitespace-pre-line break-words text-[0.9375rem] leading-7 text-foreground/85"
+        >
           {story.summary}
         </p>
         {citations(story)}
@@ -312,7 +319,9 @@ export function DailyReportView({
               <h2 className="mb-2 font-mono text-xs font-semibold text-primary">
                 <UiText>{'今日概览'}</UiText>
               </h2>
-              <p className="text-sm leading-7 text-foreground/90">{report.content.overview.text}</p>
+              <p lang="zh-CN" className="text-sm leading-7 text-foreground/90">
+                {report.content.overview.text}
+              </p>
               {citations(report.content.overview)}
             </UiRegion>
 

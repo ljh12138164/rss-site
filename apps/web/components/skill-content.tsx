@@ -20,9 +20,9 @@ export function SkillInstall({ command }: { command: string }) {
           onPress={async () => {
             try {
               await navigator.clipboard.writeText(command)
-              setMessage(t('已复制'))
+              setMessage('已复制')
             } catch {
-              setMessage(t('请手动复制下方命令'))
+              setMessage('请手动复制下方命令')
             }
           }}
         >
@@ -34,7 +34,7 @@ export function SkillInstall({ command }: { command: string }) {
       </pre>
       {message && (
         <p role="status" className="mt-2 font-mono text-xs text-primary">
-          {message}
+          {t(message)}
         </p>
       )}
     </section>

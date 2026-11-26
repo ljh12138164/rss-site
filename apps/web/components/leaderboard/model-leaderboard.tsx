@@ -19,7 +19,7 @@ import {
   type ModelLeaderboardItem
 } from '../../lib/leaderboard'
 import { cn } from '../../lib/utils'
-import { useSiteText } from '../site-language'
+import { UiDate, useSiteText } from '../site-language'
 import { UiSegmentedGroup } from '../ui/segmented-group'
 
 interface ModelLeaderboardProps {
@@ -78,16 +78,13 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
           <span className="font-medium text-foreground/85">{item.creator}</span>
           {item.releasedAt && (
             <span>
-              {new Date(item.releasedAt).toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit'
-              })}
+              <UiDate date={item.releasedAt} options={{ year: 'numeric', month: '2-digit' }} />
             </span>
           )}
           {item.coverage && (
             <span className="inline-flex items-center gap-1">
               <Cpu className="size-3" aria-hidden="true" />
-              {item.coverage.count} 项 ({item.coverage.percentage}%)
+              {item.coverage.count} {t('项')} ({item.coverage.percentage}%)
             </span>
           )}
         </div>
@@ -99,7 +96,7 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
                 key={domain}
                 className="inline-flex items-center gap-1 rounded-sm border border-border bg-background/80 px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground"
               >
-                <span>{domain}</span>
+                <span>{t(domain)}</span>
                 <strong className="text-foreground">{info.score}</strong>
                 {info.rank && (
                   <span className="text-[10px] text-muted-foreground/80">({info.rank})</span>

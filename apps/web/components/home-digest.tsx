@@ -230,7 +230,7 @@ export function HomeDigestView({
             </div>
             {dailyReport ? (
               <>
-                <p className="line-clamp-3 text-xs leading-6 text-muted-foreground">
+                <p lang="zh-CN" className="line-clamp-3 text-xs leading-6 text-muted-foreground">
                   {dailyReport.content.overview.text}
                 </p>
                 <ol className="mt-3 divide-y divide-border/60 border-t border-border/70">
@@ -243,7 +243,9 @@ export function HomeDigestView({
                         <span className="font-mono font-semibold tabular-nums text-primary">
                           0{idx + 1}
                         </span>
-                        <span className="line-clamp-2 min-w-0">{story.title}</span>
+                        <span lang="zh-CN" className="line-clamp-2 min-w-0">
+                          {story.title}
+                        </span>
                       </Link>
                     </li>
                   ))}

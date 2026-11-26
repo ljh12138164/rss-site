@@ -8,7 +8,7 @@ import type { EventPage } from '../lib/ai-events'
 import type { AppType } from '../lib/hono-app'
 import { ActionButton } from './action-button'
 import { EventSources } from './event-sources'
-import { useSiteText } from './site-language'
+import { UiDate, useSiteText } from './site-language'
 
 const api = hc<AppType>('/')
 
@@ -95,9 +95,7 @@ export function EventTimeline({
               className="col-start-2 mb-2 pt-0.5 font-mono text-xs leading-6 tabular-nums text-muted-foreground sm:col-start-1 sm:row-start-1 sm:text-right"
               dateTime={event.occurred_at}
             >
-              {new Date(event.occurred_at).toLocaleDateString('zh-CN', {
-                timeZone: 'Asia/Shanghai'
-              })}
+              <UiDate date={event.occurred_at} options={{ timeZone: 'Asia/Shanghai' }} />
             </time>
             <div
               aria-hidden="true"

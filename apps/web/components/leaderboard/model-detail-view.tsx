@@ -4,7 +4,7 @@ import { Calendar, ChevronDown, ChevronRight, Coins, Cpu, ExternalLink, Info } f
 import Link from 'next/link'
 import { useState } from 'react'
 import type { EvidenceSection, ModelDetail } from '../../lib/leaderboard'
-import { useSiteText } from '../site-language'
+import { UiDate, useSiteText } from '../site-language'
 
 interface ModelDetailViewProps {
   detail: ModelDetail
@@ -36,11 +36,11 @@ function SectionAccordion({
             <span className="text-base font-semibold text-foreground">{t(section.domain)}</span>
             {section.score && (
               <span className="font-mono text-sm font-bold tabular-nums text-primary">
-                {section.score} 分
+                {section.score} {t('分')}
               </span>
             )}
             <span className="font-mono text-xs tabular-nums text-muted-foreground">
-              {section.benchmarks.length} 项
+              {section.benchmarks.length} {t('项')}
             </span>
           </div>
         </div>
@@ -136,11 +136,10 @@ export function ModelDetailView({ detail }: ModelDetailViewProps) {
               {detail.releasedAt && (
                 <span className="inline-flex items-center gap-1 font-mono text-xs text-muted-foreground tabular-nums">
                   <Calendar className="size-3.5" aria-hidden="true" />
-                  {new Date(detail.releasedAt).toLocaleDateString('zh-CN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                  })}
+                  <UiDate
+                    date={detail.releasedAt}
+                    options={{ year: 'numeric', month: '2-digit', day: '2-digit' }}
+                  />
                 </span>
               )}
             </div>

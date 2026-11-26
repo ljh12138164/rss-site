@@ -13,6 +13,7 @@ import { DEFAULT_LOCALE, preferredSiteLocale, type SiteLocale } from '../lib/sit
 import { englishMessages } from '../lib/site-messages'
 
 const LocaleContext = createContext<SiteLocale>(DEFAULT_LOCALE)
+const dateFormatters = new Map<string, Intl.DateTimeFormat>()
 
 function subscribe(listener: () => void) {
   window.addEventListener('languagechange', listener)
@@ -79,7 +80,14 @@ export function UiDate({
   options: Intl.DateTimeFormatOptions
 }) {
   const locale = useSiteLocale()
-  return new Intl.DateTimeFormat(locale, options).format(
-    typeof date === 'string' ? new Date(date) : date
-  )
+  const timestamp =
+    typeof date === 'number' ? date : typeof date === 'string' ? Date.parse(date) : date.getTime()
+  if (!Number.isFinite(timestamp)) return null
+  const key = JSON.stringify([locale, options])
+  let formatter = dateFormatters.get(key)
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat(locale, options)
+    dateFormatters.set(key, formatter)
+  }
+  return formatter.format(timestamp)
 }

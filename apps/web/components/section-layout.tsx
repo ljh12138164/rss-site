@@ -33,8 +33,8 @@ export function SectionLayout({
   const source = sources.find((s) => s.id === segments[0])
   const sourceText = source
     ? basePath === '/ai'
-      ? aiSourcePageText(source)
-      : { title: source.name, description: source.description }
+      ? aiSourcePageText(source, t)
+      : { title: source.name, description: t(source.description) }
     : undefined
   const line = getTransitLine(basePath)
 
@@ -76,12 +76,12 @@ export function SectionLayout({
               />
             )}
             <h1 className="headline-display text-2xl text-foreground sm:text-3xl">
-              {t(sourceText?.title ?? title)}
+              {sourceText?.title ?? t(title)}
             </h1>
           </div>
           {source && sourceText?.description && (
             <p className="mt-2 max-w-2xl text-xs leading-6 text-muted-foreground">
-              {t(sourceText.description)}
+              {sourceText.description}
             </p>
           )}
         </div>

@@ -18,7 +18,7 @@ import type { FeedResult, SkillFeeds } from '../lib/hot-feed'
 import { parseSkillMetadata } from '../lib/skill-metadata'
 import { searchSkillFeed } from '../lib/skill-search'
 import { EmptyFeed, FeedError } from './feed-state'
-import { useSiteText } from './site-language'
+import { UiDate, useSiteText } from './site-language'
 import { UiSegmentedGroup } from './ui/segmented-group'
 
 export { parseSkillMetadata } from '../lib/skill-metadata'
@@ -304,14 +304,17 @@ export function SkillLeaderboard({ feeds }: { feeds: SkillFeeds }) {
               })
             : t('{count} 条', { count: activeFeed.items.length })}{' '}
           ·{' '}
-          {new Intl.DateTimeFormat('zh-CN', {
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hourCycle: 'h23',
-            timeZone: 'Asia/Shanghai'
-          }).format(activeFeed.status.lastSuccessAt)}
+          <UiDate
+            date={activeFeed.status.lastSuccessAt}
+            options={{
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hourCycle: 'h23',
+              timeZone: 'Asia/Shanghai'
+            }}
+          />
         </p>
       )}
       <TabPanel id="all-time" className="outline-none">

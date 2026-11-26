@@ -158,11 +158,17 @@ export default function McpPage() {
                       <UiText>{'全平台'}</UiText>
                     </td>
                     <td className="py-3 text-muted-foreground">
-                      平台 ID（如 <code className="text-foreground">juejin</code>、
-                      <code className="text-foreground">github</code>、
-                      <code className="text-foreground">openai</code>）或频道名（如{' '}
-                      <code className="text-foreground">technology</code>、
-                      <code className="text-foreground">ai</code>）。
+                      <UiText>{'平台 ID（如'}</UiText>{' '}
+                      <code className="text-foreground">juejin</code>
+                      <UiText>{'、'}</UiText>
+                      <code className="text-foreground">github</code>
+                      <UiText>{'、'}</UiText>
+                      <code className="text-foreground">openai</code>
+                      <UiText>{'）或频道名（如'}</UiText>{' '}
+                      <code className="text-foreground">technology</code>
+                      <UiText>{'、'}</UiText>
+                      <code className="text-foreground">ai</code>
+                      <UiText>{'）。'}</UiText>
                     </td>
                   </tr>
                   <tr>

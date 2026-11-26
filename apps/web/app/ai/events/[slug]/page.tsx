@@ -74,9 +74,6 @@ export default async function EventPage({ params }: Props) {
           summary={event.summary}
           canTranslate={language === 'en'}
           dateTime={event.occurred_at}
-          dateLabel={new Date(event.occurred_at).toLocaleDateString('zh-CN', {
-            timeZone: 'Asia/Shanghai'
-          })}
         />
         <section className="mt-10 border-t border-border pt-7">
           <h2 className="text-lg font-semibold">

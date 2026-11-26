@@ -32,6 +32,7 @@ it('renders events in editorial order without empty sections and prefers interna
   expect(html).not.toContain('本期重点见头条')
   expect(html).not.toContain('分区目录')
   expect(html.indexOf('id="s1"')).toBeLessThan(html.indexOf('id="s2"'))
+  expect(html).toMatch(/<h2 lang="zh-CN"[^>]*>事件 1<\/h2>/)
   expect(html).toContain('href="/technology/cloudflare-blog/article"')
   expect(html).toContain(source.title)
   expect(html).not.toContain(`href="${source.url}"`)

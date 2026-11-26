@@ -33,11 +33,15 @@ ai-base 独立执行摘要推理。主站和 Nest 都校验可选的 `locale`，
 - 原站文案由 humanizer-zh 核对。标题、正文、来源文章内容和专名直接使用已收录的数据
 - 浏览器语言变化会更新 React Aria 语言和文档 `lang` 属性。摘要面板按内容和语言重新挂载，离开原面板时取消旧请求
 - 英文 Redis、进程内去重及 IndexedDB 键使用独立语言前缀。旧中文键、既有 TTL 和内容指纹继续生效。英文提示词覆盖 Gemma 与 Cloudflare 回退
+- ai-base 先校验英文模型输出，再写缓存。收到明显的非英文结果时重试备用模型。[ai-base PR #23](https://github.com/ljh12138164/ai-base/pull/23)
 
 ## Verification
 
 - 主站全仓类型检查与单测通过，338 项通过，22 项依赖本地数据库或 Redis 的集成测试跳过
 - 流式与 JSON 路由、语言变更时的缓存恢复、英文原文和去重隔离都有回归测试
+- Web 生产构建生成 136 页，早期提示和 Service Worker 产物正常。桌面 1440px 和手机 390px 的 Chrome 验证覆盖关注、隐私、Skills、移动导航和 RSS 弹窗
+- 审查发现的日报内容语言标注、RSS 复制反馈、模型评测维度和 MCP 参数说明均已修正
+- 本地缺少业务数据库配置，AI 和新闻频道仅覆盖错误状态
 
 ## Risks
 

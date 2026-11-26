@@ -239,7 +239,7 @@ export function RssSubscription({
                 </div>
 
                 <p role="status" className="mt-2 min-h-5 font-mono text-xs text-primary">
-                  {message}
+                  {t(message)}
                 </p>
               </>
             )}

@@ -75,8 +75,8 @@ export default function FollowingPage() {
             {t('管理文章来源 · 已关注')}{' '}
             <span className="font-mono text-primary tabular-nums">
               {preferences.followed.length}
-            </span>{' '}
-            个
+            </span>
+            {t(' 个')}
           </span>
           <ChevronDown
             aria-hidden="true"
@@ -98,7 +98,7 @@ export default function FollowingPage() {
                 id={`following-section-${section.id}`}
                 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
               >
-                {section.title}
+                {t(section.title)}
               </h2>
               <div className="divide-y divide-border">
                 {followingSources
