@@ -1,10 +1,16 @@
 'use client'
 
 import {
+  type DateTimeFormatOptions,
+  NextIntlClientProvider,
+  useFormatter,
+  useLocale,
+  useTranslations
+} from 'next-intl'
+import {
   createContext,
   type HTMLAttributes,
   type ReactNode,
-  useCallback,
   useContext,
   useEffect,
   useState,
@@ -12,24 +18,41 @@ import {
 } from 'react'
 import {
   DEFAULT_LOCALE,
+  DEFAULT_TIME_ZONE,
   isSiteLocale,
   preferredSiteLocale,
   type SiteLocale
 } from '../lib/site-locale'
-import { englishMessages } from '../lib/site-messages'
+import enMessages from '../messages/en.json'
+import zhCNMessages from '../messages/zh-CN.json'
 
 type LanguagePreference = SiteLocale | 'auto'
 
+const MESSAGES = {
+  'zh-CN': zhCNMessages,
+  en: enMessages
+} as const
+
+type LeafKey<T, Prefix extends string = ''> = {
+  [K in keyof T & string]: T[K] extends Record<string, unknown>
+    ? LeafKey<T[K], Prefix extends '' ? K : `${Prefix}.${K}`>
+    : Prefix extends ''
+      ? K
+      : `${Prefix}.${K}`
+}[keyof T & string]
+
+export type SiteMessageKey = LeafKey<typeof zhCNMessages>
+
 const preferenceKey = 'rss-site-language'
 const preferenceEvent = 'rss-site-language-change'
-const LanguageContext = createContext<{
+
+const LanguagePreferenceContext = createContext<{
   locale: SiteLocale
   preference: LanguagePreference
   setPreference: (preference: LanguagePreference) => void
 }>({ locale: DEFAULT_LOCALE, preference: 'auto', setPreference: () => {} })
-const dateFormatters = new Map<string, Intl.DateTimeFormat>()
 
-function subscribe(listener: () => void) {
+function subscribeToBrowserLanguage(listener: () => void) {
   window.addEventListener('languagechange', listener)
   return () => window.removeEventListener('languagechange', listener)
 }
@@ -54,7 +77,7 @@ function readPreference(): LanguagePreference {
 
 export function SiteLanguageProvider({ children }: { children: ReactNode }) {
   const browserLocale = useSyncExternalStore(
-    subscribe,
+    subscribeToBrowserLanguage,
     () =>
       preferredSiteLocale(navigator.languages?.length ? navigator.languages : [navigator.language]),
     () => DEFAULT_LOCALE
@@ -82,72 +105,62 @@ export function SiteLanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.lang = locale
   }, [locale])
+
   return (
-    <LanguageContext.Provider value={{ locale, preference, setPreference }}>
-      {children}
-    </LanguageContext.Provider>
+    <LanguagePreferenceContext.Provider value={{ locale, preference, setPreference }}>
+      <NextIntlClientProvider
+        locale={locale}
+        messages={MESSAGES[locale]}
+        timeZone={DEFAULT_TIME_ZONE}
+      >
+        {children}
+      </NextIntlClientProvider>
+    </LanguagePreferenceContext.Provider>
   )
 }
 
-export function useSiteLocale() {
-  return useContext(LanguageContext).locale
+export function useSiteLocale(): SiteLocale {
+  const locale = useLocale()
+  return isSiteLocale(locale) ? locale : DEFAULT_LOCALE
 }
 
 export function useLanguagePreference() {
-  return useContext(LanguageContext)
+  return useContext(LanguagePreferenceContext)
 }
 
-export function useSiteText() {
-  const locale = useSiteLocale()
-  return useCallback(
-    (message: string, values?: Record<string, string | number>) => {
-      const text = locale === 'en' ? (englishMessages.get(message) ?? message) : message
-      return values
-        ? text.replace(/\{(\w+)\}/g, (match, key) => String(values[key] ?? match))
-        : text
-    },
-    [locale]
-  )
-}
-
-export function UiText({
-  children,
+export function TranslatedText({
+  id,
   values
 }: {
-  children: string
+  id: SiteMessageKey
   values?: Record<string, string | number>
 }) {
-  return useSiteText()(children, values)
+  const t = useTranslations()
+  return t(id, values)
 }
 
-export function UiRegion({
+export function TranslatedRegion({
   as: Tag,
-  'aria-label': label,
+  labelId,
   ...props
 }: HTMLAttributes<HTMLElement> & {
   as: 'nav' | 'section' | 'div' | 'aside' | 'ol' | 'ul'
-  'aria-label': string
+  labelId: SiteMessageKey
 }) {
-  const t = useSiteText()
-  return <Tag aria-label={t(label)} {...props} />
+  const t = useTranslations()
+  return <Tag aria-label={t(labelId)} {...props} />
 }
 
-export function UiDate({
+export function FormattedDate({
   date,
   options
 }: {
   date: string | number | Date
-  options: Intl.DateTimeFormatOptions
+  options: DateTimeFormatOptions
 }) {
-  const locale = useSiteLocale()
+  const format = useFormatter()
   const timestamp =
     typeof date === 'number' ? date : typeof date === 'string' ? Date.parse(date) : date.getTime()
   if (!Number.isFinite(timestamp)) return null
-  const key = JSON.stringify([locale, options])
-  let formatter = dateFormatters.get(key)
-  if (!formatter) {
-    formatter = new Intl.DateTimeFormat(locale, options)
-    dateFormatters.set(key, formatter)
-  }
-  return formatter.format(timestamp)
+  return format.dateTime(new Date(timestamp), options)
 }

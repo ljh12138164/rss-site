@@ -1,11 +1,11 @@
 'use client'
 
 import { ExternalLink } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useState } from 'react'
 import { Dialog, Heading, Modal, ModalOverlay } from 'react-aria-components'
 import { resolveOutboundDestination } from '../lib/outbound-link'
 import { actionStyles } from './action-styles'
-import { useSiteText } from './site-language'
 
 const OUT_HREF = /^\/out\?/
 
@@ -35,17 +35,16 @@ export function OutboundDialogView({
   onClose: () => void
   pending: string | null
 }) {
-  const t = useSiteText()
+  const t = useTranslations('outbound')
+  const tCommon = useTranslations('common')
   return (
     <Dialog role="alertdialog" className="outline-none">
       {() => (
         <>
           <Heading slot="title" className="text-lg font-semibold">
-            {t('即将打开外部链接')}
+            {t('dialogTitle')}
           </Heading>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {t('将跳转到第三方站点，请注意链接安全。')}
-          </p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{t('dialogBody')}</p>
           {destination && (
             <p className="mt-3 line-clamp-2 overflow-hidden font-mono text-xs break-all text-muted-foreground">
               {destination}
@@ -53,7 +52,7 @@ export function OutboundDialogView({
           )}
           <div className="mt-5 flex items-center justify-end gap-2">
             <button className={actionStyles('outline')} onClick={onClose} type="button">
-              {t('取消')}
+              {tCommon('cancel')}
             </button>
             <a
               className={actionStyles('primary')}
@@ -67,7 +66,7 @@ export function OutboundDialogView({
               }}
             >
               <ExternalLink aria-hidden="true" className="size-4" />
-              {t('继续访问')}
+              {tCommon('continue')}
             </a>
           </div>
         </>

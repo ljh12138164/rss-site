@@ -2,6 +2,7 @@
 
 import { hc } from 'hono/client'
 import { Languages, LoaderCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { pairBilingualBlocks } from '../lib/article-bilingual'
@@ -11,7 +12,7 @@ import { estimateReadingMinutes } from '../lib/reading-progress'
 import { ActionButton } from './action-button'
 import { ArticleHtmlBody } from './article-html-body'
 import { ArticleReadingTools } from './article-reading-tools'
-import { useSiteLocale, useSiteText } from './site-language'
+import { useSiteLocale } from './site-language'
 import { UiSegmentedGroup } from './ui/segmented-group'
 
 const api = hc<AppType>('/')
@@ -47,7 +48,7 @@ export function ArticleTranslation({
   metadata,
   summaryControl
 }: ArticleTranslationProps) {
-  const t = useSiteText()
+  const t = useTranslations('article')
   const locale = useSiteLocale()
   const translationEnabled = canTranslate && locale === 'zh-CN'
   const [translation, setTranslation] = useState<Translation | null>(null)
@@ -77,17 +78,17 @@ export function ArticleTranslation({
       )
       const payload = await response.json()
       if (!response.ok || !('translation' in payload)) {
-        throw new Error('error' in payload ? payload.error : t('暂时无法翻译，请稍后重试'))
+        throw new Error('error' in payload ? payload.error : t('translateFailed'))
       }
       setTranslation(payload.translation)
       setMode('bilingual')
     } catch (requestError) {
       setError(
         requestError instanceof DOMException && requestError.name === 'TimeoutError'
-          ? t('翻译超时，请稍后重试')
+          ? t('translateTimeout')
           : requestError instanceof Error
             ? requestError.message
-            : t('暂时无法翻译，请稍后重试')
+            : t('translateFailed')
       )
     } finally {
       setIsLoading(false)
@@ -164,7 +165,10 @@ export function ArticleTranslation({
         contentKey={translationEnabled ? mode : 'original'}
         minutes={estimateReadingMinutes(contentHtml || summary || '')}
       >
-        <section aria-label={hasBody ? t('文章内容') : t('文章摘要')} className="py-8 sm:py-10">
+        <section
+          aria-label={hasBody ? t('contentLabel') : t('excerptLabel')}
+          className="py-8 sm:py-10"
+        >
           {isBilingual && translation ? (
             hasBody ? (
               <div className="bilingual-article space-y-6">
@@ -220,29 +224,25 @@ export function ArticleTranslation({
               <ArticleHtmlBody html={translation.contentHtml} lang="zh-CN" />
             ) : translation.summary ? (
               <div className="article-content">
-                <p className="mb-4 font-mono text-xs text-muted-foreground">{t('摘要')}</p>
+                <p className="mb-4 font-mono text-xs text-muted-foreground">{t('excerpt')}</p>
                 <p lang="zh-CN" className="whitespace-pre-line">
                   {translation.summary}
                 </p>
               </div>
             ) : (
-              <p className="text-base leading-8 text-muted-foreground">
-                {t('暂无站内正文，可点击“查看原文”阅读。')}
-              </p>
+              <p className="text-base leading-8 text-muted-foreground">{t('noBodyFallback')}</p>
             )
           ) : hasBody && contentHtml ? (
             <ArticleHtmlBody html={contentHtml} lang={originalLang} />
           ) : summary ? (
             <div className="article-content">
-              <p className="mb-4 font-mono text-xs text-muted-foreground">{t('摘要')}</p>
+              <p className="mb-4 font-mono text-xs text-muted-foreground">{t('excerpt')}</p>
               <p lang={originalLang} className="whitespace-pre-line">
                 {summary}
               </p>
             </div>
           ) : (
-            <p className="text-base leading-8 text-muted-foreground">
-              {t('暂无站内正文，可点击“查看原文”阅读。')}
-            </p>
+            <p className="text-base leading-8 text-muted-foreground">{t('noBodyFallback')}</p>
           )}
         </section>
       </ArticleReadingTools>

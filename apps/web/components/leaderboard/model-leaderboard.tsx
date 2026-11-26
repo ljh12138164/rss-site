@@ -2,6 +2,7 @@
 
 import { ArrowRight, Coins, Cpu, LayoutGrid, List, Search, X } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { useEffect, useMemo, useState } from 'react'
 import {
   Button,
@@ -19,15 +20,36 @@ import {
   type ModelLeaderboardItem
 } from '../../lib/leaderboard'
 import { cn } from '../../lib/utils'
-import { UiDate, useSiteText } from '../site-language'
+import { FormattedDate } from '../site-language'
 import { UiSegmentedGroup } from '../ui/segmented-group'
+
+const CATEGORY_LABEL_KEYS = {
+  overall: 'catOverall',
+  coding: 'catCoding',
+  reasoning: 'catReasoning',
+  professional: 'catProfessional',
+  knowledge: 'catKnowledge'
+} as const satisfies Record<LeaderboardCategoryId, string>
+
+export const LEADERBOARD_DOMAIN_KEYS = {
+  综合: 'catOverall',
+  代码与编程: 'catCoding',
+  编程: 'domainCoding',
+  逻辑科研: 'catReasoning',
+  科研: 'domainReasoning',
+  '专业办公 Agent': 'catProfessional',
+  专业办公: 'domainProfessional',
+  知识问答: 'domainKnowledge',
+  真人盲选: 'domainArena',
+  评测: 'domainBenchmark'
+} as const
 
 interface ModelLeaderboardProps {
   categories: Record<string, ModelLeaderboardItem[]>
 }
 
 function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list' | 'cards' }) {
-  const t = useSiteText()
+  const t = useTranslations('leaderboard')
   const isCards = view === 'cards'
 
   return (
@@ -69,7 +91,7 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
           {!isCards && (
             <span className="font-mono text-base font-bold tabular-nums text-primary sm:text-lg">
               {item.overallScore}{' '}
-              <span className="text-xs font-normal text-muted-foreground">{t('分')}</span>
+              <span className="text-xs font-normal text-muted-foreground">{t('pointsUnit')}</span>
             </span>
           )}
         </div>
@@ -78,31 +100,38 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
           <span className="font-medium text-foreground/85">{item.creator}</span>
           {item.releasedAt && (
             <span>
-              <UiDate date={item.releasedAt} options={{ year: 'numeric', month: '2-digit' }} />
+              <FormattedDate
+                date={item.releasedAt}
+                options={{ year: 'numeric', month: '2-digit' }}
+              />
             </span>
           )}
           {item.coverage && (
             <span className="inline-flex items-center gap-1">
               <Cpu className="size-3" aria-hidden="true" />
-              {item.coverage.count} {t('项')} ({item.coverage.percentage}%)
+              {item.coverage.count} {t('benchmarksUnit')} ({item.coverage.percentage}%)
             </span>
           )}
         </div>
 
         {Object.keys(item.scores).length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {Object.entries(item.scores).map(([domain, info]) => (
-              <span
-                key={domain}
-                className="inline-flex items-center gap-1 rounded-sm border border-border bg-background/80 px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground"
-              >
-                <span>{t(domain)}</span>
-                <strong className="text-foreground">{info.score}</strong>
-                {info.rank && (
-                  <span className="text-[10px] text-muted-foreground/80">({info.rank})</span>
-                )}
-              </span>
-            ))}
+            {Object.entries(item.scores).map(([domain, info]) => {
+              const domainKey =
+                LEADERBOARD_DOMAIN_KEYS[domain as keyof typeof LEADERBOARD_DOMAIN_KEYS]
+              return (
+                <span
+                  key={domain}
+                  className="inline-flex items-center gap-1 rounded-sm border border-border bg-background/80 px-2 py-0.5 font-mono text-[11px] tabular-nums text-muted-foreground"
+                >
+                  <span>{domainKey ? t(domainKey) : domain}</span>
+                  <strong className="text-foreground">{info.score}</strong>
+                  {info.rank && (
+                    <span className="text-[10px] text-muted-foreground/80">({info.rank})</span>
+                  )}
+                </span>
+              )
+            })}
           </div>
         )}
 
@@ -110,13 +139,13 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
           {item.pricing?.input || item.pricing?.output ? (
             <span className="inline-flex items-center gap-1 text-foreground/85">
               <Coins className="size-3 text-muted-foreground" aria-hidden="true" />
-              {t('输入 ¥')}
-              {item.pricing.input || '-'} {t('/ 输出 ¥')}
+              {t('priceInput')}
+              {item.pricing.input || '-'} {t('priceOutput')}
               {item.pricing.output || '-'}
-              <span className="text-[10px] text-muted-foreground">{t('/ 百万 Token')}</span>
+              <span className="text-[10px] text-muted-foreground">{t('pricePerMillion')}</span>
             </span>
           ) : (
-            <span>{t('暂无官方定价')}</span>
+            <span>{t('noPricing')}</span>
           )}
         </div>
       </div>
@@ -125,7 +154,8 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
 }
 
 export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
-  const t = useSiteText()
+  const t = useTranslations('leaderboard')
+  const tCommon = useTranslations('common')
   const [view, setView] = useState<'list' | 'cards'>('list')
   const [tab, setTab] = useState<LeaderboardCategoryId>('overall')
   const [query, setQuery] = useState('')
@@ -165,7 +195,7 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
         m.name.toLowerCase().includes(q) ||
         m.creator.toLowerCase().includes(q) ||
         m.slug.toLowerCase().includes(q) ||
-        m.tags.some((t) => t.toLowerCase().includes(q))
+        m.tags.some((tag) => tag.toLowerCase().includes(q))
     )
   }, [rawList, query])
 
@@ -182,17 +212,17 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
           onChange={(val) => remember(view, tab, val)}
           className="max-w-lg flex-1"
         >
-          <Label className="sr-only">{t('搜索模型')}</Label>
+          <Label className="sr-only">{t('searchLabel')}</Label>
           <div className="flex min-h-10 items-center gap-2.5 rounded-sm border border-input bg-card px-3 focus-within:ring-2 focus-within:ring-ring">
             <Search aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
             <Input
-              placeholder={t('筛选模型或机构…')}
+              placeholder={t('searchPlaceholder')}
               maxLength={100}
               className="min-h-10 min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
             />
             {query && (
               <Button
-                aria-label={t('清除搜索')}
+                aria-label={tCommon('clearSearch')}
                 onPress={clearSearch}
                 className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-sm text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
               >
@@ -203,19 +233,19 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
         </SearchField>
 
         <UiSegmentedGroup
-          ariaLabel={t('视图')}
+          ariaLabel={tCommon('view')}
           value={view}
           onChange={(next) => remember(next, tab)}
           className="self-end sm:self-auto"
           options={[
             {
               value: 'list',
-              label: t('列表'),
+              label: tCommon('list'),
               icon: <List className="size-3.5" aria-hidden="true" />
             },
             {
               value: 'cards',
-              label: t('卡片'),
+              label: tCommon('cards'),
               icon: <LayoutGrid className="size-3.5" aria-hidden="true" />
             }
           ]}
@@ -223,7 +253,7 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
       </div>
 
       <TabList
-        aria-label={t('评测维度')}
+        aria-label={t('categoryAria')}
         className="mb-5 flex w-full overflow-x-auto overflow-y-hidden border-b border-border slim-scrollbar"
       >
         {LEADERBOARD_CATEGORIES.map((cat, idx) => (
@@ -235,28 +265,28 @@ export function ModelLeaderboard({ categories }: ModelLeaderboardProps) {
               idx === 0 && 'pl-0'
             )}
           >
-            {t(cat.label)}
+            {t(CATEGORY_LABEL_KEYS[cat.id])}
           </Tab>
         ))}
       </TabList>
 
       <div className="mb-4 font-mono text-xs tabular-nums text-muted-foreground">
         {query.trim()
-          ? t('{shown} / {total} 款', { shown: filteredList.length, total: rawList.length })
-          : t('共 {total} 款', { total: rawList.length })}
+          ? t('shownOfTotal', { shown: filteredList.length, total: rawList.length })
+          : t('totalModels', { total: rawList.length })}
       </div>
 
       {LEADERBOARD_CATEGORIES.map((cat) => (
         <TabPanel key={cat.id} id={cat.id} className="outline-none">
           {filteredList.length === 0 ? (
             <div className="rounded-sm border border-border bg-card py-12 text-center">
-              <p className="text-sm text-muted-foreground">{t('未找到匹配模型')}</p>
+              <p className="text-sm text-muted-foreground">{t('noMatches')}</p>
               {query && (
                 <Button
                   onPress={clearSearch}
                   className="mt-3 min-h-10 cursor-pointer rounded-sm px-3 text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
                 >
-                  {t('清除筛选')}
+                  {tCommon('clearFilters')}
                 </Button>
               )}
             </div>

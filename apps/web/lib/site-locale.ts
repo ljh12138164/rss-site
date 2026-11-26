@@ -1,6 +1,9 @@
-export type SiteLocale = 'zh-CN' | 'en'
+export const SITE_LOCALES = ['zh-CN', 'en'] as const
+
+export type SiteLocale = (typeof SITE_LOCALES)[number]
 
 export const DEFAULT_LOCALE: SiteLocale = 'zh-CN'
+export const DEFAULT_TIME_ZONE = 'Asia/Shanghai'
 
 export function preferredSiteLocale(languages: readonly string[]): SiteLocale {
   for (const language of languages) {

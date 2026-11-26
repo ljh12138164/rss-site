@@ -5,7 +5,7 @@ import { createArticlePath } from '../lib/article-route'
 import { findSignalSource } from '../lib/technology-sources'
 import { getTransitLine, getTransitLineColor } from '../lib/transit-lines'
 import { CoverImage } from './cover-image'
-import { UiDate, UiText } from './site-language'
+import { FormattedDate, TranslatedText } from './site-language'
 import { SourceIcon } from './source-icon'
 
 const dateOptions = {
@@ -68,11 +68,11 @@ export function HomeHotRanking({ ranking }: { ranking: HotRanking }) {
         <div className="flex items-center gap-2">
           <GitMerge aria-hidden="true" className="size-4 text-muted-foreground" />
           <h2 id="hot-ranking" className="headline-display text-lg text-foreground sm:text-xl">
-            <UiText>{'热门交汇'}</UiText>
+            <TranslatedText id="home.trendingAcrossSources" />
           </h2>
           {ranking.state === 'ready' && ranking.delayed && (
             <span className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-[11px] font-medium text-amber-600 dark:text-amber-300">
-              <UiText>{'更新延迟'}</UiText>
+              <TranslatedText id="home.updatesDelayed" />
             </span>
           )}
         </div>
@@ -81,8 +81,8 @@ export function HomeHotRanking({ ranking }: { ranking: HotRanking }) {
             dateTime={ranking.computedAt}
             className="font-mono text-xs tabular-nums text-muted-foreground"
           >
-            <UiDate date={new Date(ranking.computedAt)} options={dateOptions} /> ·{' '}
-            {ranking.articleCount} <UiText>{'篇聚合'}</UiText>
+            <FormattedDate date={new Date(ranking.computedAt)} options={dateOptions} /> ·{' '}
+            {ranking.articleCount} <TranslatedText id="home.storiesAggregated" />
           </time>
         )}
       </div>
@@ -90,16 +90,16 @@ export function HomeHotRanking({ ranking }: { ranking: HotRanking }) {
       {ranking.state === 'unavailable' ? (
         <div className="rounded-sm border border-border bg-card px-5 py-10 text-center">
           <p className="text-sm font-medium text-foreground">
-            <UiText>{'热点排行暂不可用'}</UiText>
+            <TranslatedText id="home.rankingUnavailable" />
           </p>
           <p className="mt-1.5 text-xs text-muted-foreground">
-            <UiText>{'请稍后刷新'}</UiText>
+            <TranslatedText id="common.refreshLater" />
           </p>
         </div>
       ) : !ranking.entries.length ? (
         <div className="rounded-sm border border-border bg-card px-5 py-10 text-center">
           <p className="text-sm font-medium text-foreground">
-            <UiText>{'暂未发现符合条件的热点'}</UiText>
+            <TranslatedText id="home.noMatchingStories" />
           </p>
         </div>
       ) : (
@@ -152,12 +152,12 @@ export function HomeHotRanking({ ranking }: { ranking: HotRanking }) {
                           className="size-1.5 rounded-full"
                           style={{ backgroundColor: line.cssVar }}
                         />
-                        <UiText>{line.name}</UiText>
+                        <TranslatedText id={`sections.${line.id}.shortTitle`} />
                       </span>
                     )}
                     <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-background/70 px-1.5 py-0.5 text-[11px] text-foreground">
                       <GitMerge className="size-3 text-primary" aria-hidden="true" />
-                      {entry.participants} <UiText>{'源交汇'}</UiText>
+                      {entry.participants} <TranslatedText id="home.sourcesCount" />
                     </span>
                     <span className="ml-auto inline-flex items-center gap-1 text-primary">
                       <Flame className="size-3.5" aria-hidden="true" />

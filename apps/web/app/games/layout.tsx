@@ -4,13 +4,7 @@ import { gameSources } from '../../lib/technology-sources'
 
 export default function Layout({ children }: { children: ReactNode }) {
   return (
-    <SectionLayout
-      basePath="/games"
-      title="游戏"
-      description="游戏新闻、新文章和行业动态都放在这里。"
-      sectionName="游戏"
-      sources={gameSources}
-    >
+    <SectionLayout basePath="/games" sectionId="games" sources={gameSources}>
       {children}
     </SectionLayout>
   )

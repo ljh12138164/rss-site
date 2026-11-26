@@ -1,25 +1,25 @@
 import type { ReactNode } from 'react'
-import { UiText } from './site-language'
+import { type SiteMessageKey, TranslatedText } from './site-language'
 import { SiteShell } from './site-shell'
 
 export function InformationPage({
-  title,
-  description,
+  titleId,
+  descriptionId,
   children
 }: {
-  title: string
-  description: string
+  titleId: SiteMessageKey
+  descriptionId?: SiteMessageKey
   children: ReactNode
 }) {
   return (
     <SiteShell mainClassName="mx-auto w-full max-w-3xl">
       <header className="mb-6 border-b border-border pb-6">
         <h1 className="headline-display text-3xl sm:text-4xl">
-          <UiText>{title}</UiText>
+          <TranslatedText id={titleId} />
         </h1>
-        {description && (
+        {descriptionId && (
           <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
-            <UiText>{description}</UiText>
+            <TranslatedText id={descriptionId} />
           </p>
         )}
       </header>

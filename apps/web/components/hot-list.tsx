@@ -7,7 +7,7 @@ import { findSignalSource, type SignalSource } from '../lib/technology-sources'
 import { ArticleBookmarkButton } from './article-bookmark-button'
 import { CoverImage } from './cover-image'
 import { GitHubRepositoryRow } from './github-repository-row'
-import { UiDate } from './site-language'
+import { FormattedDate } from './site-language'
 import { SourceIcon } from './source-icon'
 
 const dateOptions = {
@@ -115,7 +115,7 @@ export function HotList({
                         className="whitespace-nowrap tabular-nums"
                         dateTime={item.publishedAt.toISOString()}
                       >
-                        <UiDate date={item.publishedAt} options={dateOptions} />
+                        <FormattedDate date={item.publishedAt} options={dateOptions} />
                       </time>
                     ) : null}
                     <ArticleBookmarkButton

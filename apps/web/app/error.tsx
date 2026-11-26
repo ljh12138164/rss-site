@@ -1,12 +1,13 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { ActionButton } from '../components/action-button'
 import { actionStyles } from '../components/action-styles'
-import { useSiteText } from '../components/site-language'
 
 export default function ErrorPage({ reset }: { reset: () => void }) {
-  const t = useSiteText()
+  const t = useTranslations('errors')
+  const tCommon = useTranslations('common')
   return (
     <div
       role="alert"
@@ -14,18 +15,16 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
     >
       <div className="w-full rounded-sm border border-border bg-card p-6 sm:p-8">
         <span className="inline-flex items-center rounded-sm bg-destructive/14 px-2 py-0.5 font-mono text-xs font-semibold text-destructive">
-          {t('加载异常')}
+          {t('loadBadge')}
         </span>
-        <h1 className="headline-display mt-4 text-3xl sm:text-4xl">{t('页面加载失败')}</h1>
-        <p className="mt-2.5 text-sm leading-6 text-muted-foreground">
-          {t('请稍后重试或刷新页面。')}
-        </p>
+        <h1 className="headline-display mt-4 text-3xl sm:text-4xl">{t('pageFailedTitle')}</h1>
+        <p className="mt-2.5 text-sm leading-6 text-muted-foreground">{t('pageFailedBody')}</p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
           <ActionButton onPress={reset} variant="primary">
-            {t('重新加载')}
+            {tCommon('reload')}
           </ActionButton>
           <Link className={actionStyles('outline')} href="/">
-            {t('浏览全部热点')}
+            {tCommon('browseAllStories')}
           </Link>
         </div>
       </div>

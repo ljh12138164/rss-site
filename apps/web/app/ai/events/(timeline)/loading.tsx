@@ -1,5 +1,5 @@
 import { SignalSkeleton } from '../../../../components/signal-skeleton'
-import { UiRegion, UiText } from '../../../../components/site-language'
+import { TranslatedRegion, TranslatedText } from '../../../../components/site-language'
 import { SiteShell } from '../../../../components/site-shell'
 
 export default function EventsLoading() {
@@ -7,10 +7,10 @@ export default function EventsLoading() {
     <SiteShell>
       <header className="mb-6 border-b border-border pb-6">
         <h1 className="headline-display text-balance text-3xl sm:text-4xl">
-          <UiText>{'AI 时间轴'}</UiText>
+          <TranslatedText id="events.title" />
         </h1>
       </header>
-      <UiRegion as="div" role="status" aria-label="正在加载时间轴" className="pt-2">
+      <TranslatedRegion as="div" role="status" labelId="events.loading" className="pt-2">
         {[1, 2, 3, 4].map((item) => (
           <div
             key={item}
@@ -26,7 +26,7 @@ export default function EventsLoading() {
             <SignalSkeleton className="mt-3 h-4 w-2/3" />
           </div>
         ))}
-      </UiRegion>
+      </TranslatedRegion>
     </SiteShell>
   )
 }

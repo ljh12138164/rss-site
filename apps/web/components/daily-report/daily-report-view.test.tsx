@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { expect, it } from 'vitest'
 import type { DailyReport } from '../../../../shared/daily-report'
 import fixture from '../../../../shared/daily-report.fixture.json'
+import { SiteLanguageProvider } from '../site-language'
 import { DailyReportView } from './daily-report-view'
 
 it('renders events in editorial order without empty sections and prefers internal citations', () => {
@@ -25,7 +26,9 @@ it('renders events in editorial order without empty sections and prefers interna
   const source = report.sources[0]
   const render = (articleLinks: Record<string, string>) =>
     renderToStaticMarkup(
-      <DailyReportView report={report} archive={{ entries: [] }} articleLinks={articleLinks} />
+      <SiteLanguageProvider>
+        <DailyReportView report={report} archive={{ entries: [] }} articleLinks={articleLinks} />
+      </SiteLanguageProvider>
     )
   const html = render({ [source.id]: '/technology/cloudflare-blog/article' })
   expect(html).not.toContain('本期未收录')

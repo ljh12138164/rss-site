@@ -3,6 +3,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import type { SkillFeeds } from '../lib/hot-feed'
+import { SiteLanguageProvider } from './site-language'
 import { SkillLeaderboard } from './skill-leaderboard'
 
 let root: Root
@@ -59,6 +60,7 @@ const sampleFeeds: SkillFeeds = {
 
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['zh-CN'])
   sessionStorage.clear()
   container = document.createElement('div')
   document.body.append(container)
@@ -68,11 +70,18 @@ beforeEach(() => {
 afterEach(async () => {
   await act(async () => root.unmount())
   container.remove()
+  vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
 
 it('renders fixed-height clamped rows in list view and switches to fixed-height cards', async () => {
-  await act(async () => root.render(<SkillLeaderboard feeds={sampleFeeds} />))
+  await act(async () =>
+    root.render(
+      <SiteLanguageProvider>
+        <SkillLeaderboard feeds={sampleFeeds} />
+      </SiteLanguageProvider>
+    )
+  )
 
   const listItems = Array.from(container.querySelectorAll('ol > li'))
   expect(listItems).toHaveLength(2)

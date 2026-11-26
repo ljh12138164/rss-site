@@ -2,7 +2,7 @@ import { compareHotItemsByPublishedAt, type FeedResult } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource } from '../lib/technology-sources'
 import { HotList } from './hot-list'
-import { UiText } from './site-language'
+import { TranslatedText } from './site-language'
 
 export function SectionOverview({
   basePath,
@@ -33,15 +33,15 @@ export function SectionOverview({
       {hasError ? (
         <p role="alert" className="py-5 text-pretty text-sm text-muted-foreground">
           {items.length ? (
-            <UiText>{'部分来源暂时无法加载，请稍后再试。'}</UiText>
+            <TranslatedText id="common.partialSourcesFailed" />
           ) : (
-            <UiText>{'暂时无法加载，请稍后再试。'}</UiText>
+            <TranslatedText id="common.loadFailedLater" />
           )}
         </p>
       ) : (
         !items.length && (
           <p className="py-5 text-sm text-muted-foreground">
-            <UiText>{'暂无内容。'}</UiText>
+            <TranslatedText id="common.noContentPeriod" />
           </p>
         )
       )}

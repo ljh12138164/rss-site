@@ -9,7 +9,8 @@ import {
 } from '@rss-site/signals'
 import { Cpu, Sparkles, Terminal, Wrench } from 'lucide-react'
 import { McpClientConfig } from '../../components/mcp-client-config'
-import { UiText } from '../../components/site-language'
+import { TranslatedText } from '../../components/site-language'
+import { McpPlatformDescription } from '../../components/site-rich-text'
 import { SiteShell } from '../../components/site-shell'
 import { createPageMetadata } from '../../lib/seo'
 
@@ -22,74 +23,58 @@ export const metadata = createPageMetadata({
 
 const sectionsInfo = [
   {
-    title: '科技资讯',
+    titleId: 'sections.technology.mcpTitle',
     sectionKey: 'technology',
     sources: technologySources
   },
   {
-    title: 'AI 动态',
+    titleId: 'sections.ai.mcpTitle',
     sectionKey: 'ai',
     sources: aiSources
   },
   {
-    title: '社交热榜',
+    titleId: 'sections.social.mcpTitle',
     sectionKey: 'social',
     sources: socialSources
   },
   {
-    title: '综合新闻',
+    titleId: 'sections.news.mcpTitle',
     sectionKey: 'news',
     sources: newsSources
   },
   {
-    title: '财经热点',
+    titleId: 'sections.finance.mcpTitle',
     sectionKey: 'finance',
     sources: financeSources
   },
   {
-    title: '游戏动态',
+    titleId: 'sections.games.mcpTitle',
     sectionKey: 'games',
     sources: gameSources
   },
   {
-    title: 'Skills 排行',
+    titleId: 'sections.skills.mcpTitle',
     sectionKey: 'skills',
     sources: skillSources
   }
-]
+] as const
 
 const samplePrompts = [
-  {
-    title: '全网热点早报',
-    prompt:
-      '获取全平台最新的 100 条热点新闻，从中挑选出今天最重要的 5 个科技与社会热点并做晨报汇总。'
-  },
-  {
-    title: '科技与开源动态',
-    prompt:
-      '查询掘金（juejin）和 GitHub Trending（github）最新的热门项目与文章，并简要概括技术趋势。'
-  },
-  {
-    title: '追踪 AI 与大模型发布',
-    prompt: '使用 get_news 查询 OpenAI、ChatGPT 或 DeepSeek 的最新发布日志与产品动态。'
-  },
-  {
-    title: '财经市场速览',
-    prompt: '以 finance 分类查询今天最新的 30 条财经热点，整理出市场重点关注的主题。'
-  }
-]
+  { titleId: 'mcp.promptMorningTitle', promptId: 'mcp.promptMorningBody' },
+  { titleId: 'mcp.promptTechTitle', promptId: 'mcp.promptTechBody' },
+  { titleId: 'mcp.promptAiTitle', promptId: 'mcp.promptAiBody' },
+  { titleId: 'mcp.promptFinanceTitle', promptId: 'mcp.promptFinanceBody' }
+] as const
 
 export default function McpPage() {
   return (
     <SiteShell mainClassName="mx-auto w-full max-w-4xl">
       <header className="mb-8 border-b border-border pb-6">
         <h1 className="headline-display text-balance text-3xl text-foreground sm:text-4xl">
-          <UiText>{'接入 MCP 服务'}</UiText>
+          <TranslatedText id="mcp.title" />
         </h1>
         <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
-          <UiText>
-            {'将本站接入 Codex CLI、Claude Code、Cursor 等客户端，在对话中直接查询已收录热点。'}
-          </UiText>
+          <TranslatedText id="mcp.subtitle" />
         </p>
       </header>
 
@@ -99,7 +84,7 @@ export default function McpPage() {
           <div className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Terminal size={18} className="text-primary" />
             <h2 id="client-config-heading">
-              <UiText>{'客户端接入'}</UiText>
+              <TranslatedText id="mcp.clientSetup" />
             </h2>
           </div>
           <McpClientConfig />
@@ -110,7 +95,7 @@ export default function McpPage() {
           <div className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Wrench size={18} className="text-primary" />
             <h2 id="tool-spec-heading">
-              <UiText>{'工具接口'}</UiText>
+              <TranslatedText id="mcp.toolRef" />
             </h2>
           </div>
 
@@ -122,7 +107,7 @@ export default function McpPage() {
               </span>
             </div>
             <p className="text-sm leading-6 text-muted-foreground">
-              <UiText>{'按平台或分类查询热点；不传参数时默认返回全平台最新 100 条。'}</UiText>
+              <TranslatedText id="mcp.toolDesc" />
             </p>
 
             {/* Parameters Table */}
@@ -131,19 +116,19 @@ export default function McpPage() {
                 <thead>
                   <tr className="border-b border-border font-mono text-xs text-muted-foreground">
                     <th className="py-2.5 font-medium">
-                      <UiText>{'参数名'}</UiText>
+                      <TranslatedText id="mcp.colParam" />
                     </th>
                     <th className="py-2.5 font-medium">
-                      <UiText>{'类型'}</UiText>
+                      <TranslatedText id="mcp.colType" />
                     </th>
                     <th className="py-2.5 font-medium">
-                      <UiText>{'必填'}</UiText>
+                      <TranslatedText id="mcp.colRequired" />
                     </th>
                     <th className="py-2.5 font-medium">
-                      <UiText>{'默认值'}</UiText>
+                      <TranslatedText id="mcp.colDefault" />
                     </th>
                     <th className="py-2.5 font-medium">
-                      <UiText>{'说明'}</UiText>
+                      <TranslatedText id="mcp.colDesc" />
                     </th>
                   </tr>
                 </thead>
@@ -152,34 +137,24 @@ export default function McpPage() {
                     <td className="py-3 font-mono font-semibold text-foreground">platform</td>
                     <td className="py-3 font-mono text-muted-foreground">string</td>
                     <td className="py-3 text-muted-foreground">
-                      <UiText>{'否'}</UiText>
+                      <TranslatedText id="mcp.no" />
                     </td>
                     <td className="py-3 text-muted-foreground">
-                      <UiText>{'全平台'}</UiText>
+                      <TranslatedText id="mcp.allPlatforms" />
                     </td>
                     <td className="py-3 text-muted-foreground">
-                      <UiText>{'平台 ID（如'}</UiText>{' '}
-                      <code className="text-foreground">juejin</code>
-                      <UiText>{'、'}</UiText>
-                      <code className="text-foreground">github</code>
-                      <UiText>{'、'}</UiText>
-                      <code className="text-foreground">openai</code>
-                      <UiText>{'）或频道名（如'}</UiText>{' '}
-                      <code className="text-foreground">technology</code>
-                      <UiText>{'、'}</UiText>
-                      <code className="text-foreground">ai</code>
-                      <UiText>{'）。'}</UiText>
+                      <McpPlatformDescription />
                     </td>
                   </tr>
                   <tr>
                     <td className="py-3 font-mono font-semibold text-foreground">limit</td>
                     <td className="py-3 font-mono text-muted-foreground">number</td>
                     <td className="py-3 text-muted-foreground">
-                      <UiText>{'否'}</UiText>
+                      <TranslatedText id="mcp.no" />
                     </td>
                     <td className="py-3 font-mono font-semibold text-primary">100</td>
                     <td className="py-3 text-muted-foreground">
-                      <UiText>{'返回条数（1～100）。'}</UiText>
+                      <TranslatedText id="mcp.limitDesc" />
                     </td>
                   </tr>
                 </tbody>
@@ -193,7 +168,7 @@ export default function McpPage() {
           <div className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Cpu size={18} className="text-primary" />
             <h2 id="platforms-heading">
-              <UiText>{'平台与频道 ID'}</UiText>
+              <TranslatedText id="mcp.platformsHeading" />
             </h2>
           </div>
 
@@ -205,7 +180,7 @@ export default function McpPage() {
               >
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-foreground">
-                    <UiText>{section.title}</UiText>
+                    <TranslatedText id={section.titleId} />
                   </h3>
                   <code className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[11px] text-primary">
                     {section.sectionKey}
@@ -234,21 +209,23 @@ export default function McpPage() {
           <div className="flex items-center gap-2 text-base font-semibold text-foreground">
             <Sparkles size={18} className="text-primary" />
             <h2 id="prompts-heading">
-              <UiText>{'提问示例'}</UiText>
+              <TranslatedText id="mcp.promptsHeading" />
             </h2>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {samplePrompts.map((item) => (
               <div
-                key={item.title}
+                key={item.titleId}
                 className="space-y-1.5 rounded-sm border border-border bg-card p-4 transition-colors hover:border-primary/45"
               >
                 <div className="font-mono text-xs font-semibold text-primary">
-                  <UiText>{item.title}</UiText>
+                  <TranslatedText id={item.titleId} />
                 </div>
                 <div className="text-xs leading-6 text-foreground sm:text-sm">
-                  &ldquo;<UiText>{item.prompt}</UiText>&rdquo;
+                  &ldquo;
+                  <TranslatedText id={item.promptId} />
+                  &rdquo;
                 </div>
               </div>
             ))}

@@ -1,10 +1,10 @@
 'use client'
 
 import { Bookmark, BookmarkCheck } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import type { MouseEvent } from 'react'
 import { useReadingList } from '../lib/reading-list'
 import { cn } from '../lib/utils'
-import { useSiteText } from './site-language'
 
 export function ArticleBookmarkButton({
   id,
@@ -25,7 +25,8 @@ export function ArticleBookmarkButton({
   variant?: 'button' | 'icon'
   className?: string
 }) {
-  const t = useSiteText()
+  const t = useTranslations('article')
+  const tNav = useTranslations('nav')
   const { isSaved, toggleSave } = useReadingList()
   const saved = isSaved(id)
 
@@ -47,8 +48,8 @@ export function ArticleBookmarkButton({
             : 'text-muted-foreground/70 hover:text-foreground',
           className
         )}
-        title={saved ? t('移出稍后读') : t('加入稍后读')}
-        aria-label={saved ? t('移出稍后读') : t('加入稍后读')}
+        title={saved ? t('removeFromReadingList') : t('saveForLater')}
+        aria-label={saved ? t('removeFromReadingList') : t('saveForLater')}
       >
         {saved ? (
           <BookmarkCheck className="size-4 text-primary" aria-hidden="true" />
@@ -70,14 +71,14 @@ export function ArticleBookmarkButton({
           : 'border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground',
         className
       )}
-      aria-label={saved ? t('移出稍后读') : t('加入稍后读')}
+      aria-label={saved ? t('removeFromReadingList') : t('saveForLater')}
     >
       {saved ? (
         <BookmarkCheck className="size-3.5" aria-hidden="true" />
       ) : (
         <Bookmark className="size-3.5" aria-hidden="true" />
       )}
-      <span>{saved ? t('已存稍后读') : t('稍后读')}</span>
+      <span>{saved ? t('savedForLater') : tNav('readLater')}</span>
     </button>
   )
 }

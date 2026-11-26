@@ -2,10 +2,11 @@
 
 import { hc } from 'hono/client'
 import { Languages, LoaderCircle } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import type { AppType } from '../lib/hono-app'
 import { ActionButton } from './action-button'
-import { UiDate, useSiteLocale, useSiteText } from './site-language'
+import { FormattedDate, useSiteLocale } from './site-language'
 import { UiSegmentedGroup } from './ui/segmented-group'
 
 const api = hc<AppType>('/')
@@ -32,7 +33,8 @@ export function EventTranslation({
   canTranslate,
   dateTime
 }: EventTranslationProps) {
-  const t = useSiteText()
+  const t = useTranslations('article')
+  const tCommon = useTranslations('common')
   const locale = useSiteLocale()
   const translationEnabled = canTranslate && locale === 'zh-CN'
   const [translation, setTranslation] = useState<Translation | null>(null)
@@ -56,17 +58,17 @@ export function EventTranslation({
       )
       const payload = await response.json()
       if (!response.ok || !('translation' in payload)) {
-        throw new Error('error' in payload ? payload.error : t('暂时无法翻译，请稍后重试'))
+        throw new Error('error' in payload ? payload.error : t('translateFailed'))
       }
       setTranslation(payload.translation)
       setMode('bilingual')
     } catch (requestError) {
       setError(
         requestError instanceof DOMException && requestError.name === 'TimeoutError'
-          ? t('翻译超时，请稍后重试')
+          ? t('translateTimeout')
           : requestError instanceof Error
             ? requestError.message
-            : t('暂时无法翻译，请稍后重试')
+            : t('translateFailed')
       )
     } finally {
       setIsLoading(false)
@@ -82,7 +84,7 @@ export function EventTranslation({
   return (
     <>
       <time className="text-sm tabular-nums text-muted-foreground" dateTime={dateTime}>
-        <UiDate date={dateTime} options={{ timeZone: 'Asia/Shanghai' }} />
+        <FormattedDate date={dateTime} options={{ timeZone: 'Asia/Shanghai' }} />
       </time>
       <h1
         lang={isChinese ? 'zh-CN' : originalLanguage}
@@ -132,7 +134,7 @@ export function EventTranslation({
         <div className="mt-8 space-y-4">
           <div className="rounded-sm border border-border bg-card p-4 sm:p-5">
             <p className="mb-2 font-mono text-xs font-semibold text-muted-foreground">
-              {t('原文')}
+              {tCommon('original')}
             </p>
             <p
               lang={originalLanguage}

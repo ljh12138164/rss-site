@@ -2,11 +2,11 @@
 
 import { listSignalSections, type SignalSourceId } from '@rss-site/signals'
 import { ChevronDown } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Button, Disclosure, DisclosurePanel } from 'react-aria-components'
 import { ActionButton } from '../../components/action-button'
 import { HomeArticleList } from '../../components/home-article-list'
-import { useSiteText } from '../../components/site-language'
 import { SiteShell } from '../../components/site-shell'
 import { SourceIcon } from '../../components/source-icon'
 import { UiCheckbox } from '../../components/ui/checkbox'
@@ -23,11 +23,12 @@ const followingSections = listSignalSections().filter((section) =>
 )
 
 export default function FollowingPage() {
-  const t = useSiteText()
+  const t = useTranslations('following')
+  const tSections = useTranslations('sections')
   const preferences = useFollowing()
   const [showAll, setShowAll] = useState(false)
   const [userExpanded, setUserExpanded] = useState<boolean | null>(null)
-  const [error, setError] = useState('')
+  const [saveError, setSaveError] = useState(false)
   const isManageOpen = userExpanded ?? !preferences.followed.length
   const selected = followingSources
     .filter(
@@ -38,7 +39,7 @@ export default function FollowingPage() {
     .map((source) => source.id)
 
   function save(next: FollowingPreferences) {
-    setError(saveFollowing(next) ? '' : t('无法保存偏好，请检查浏览器是否允许本地存储。'))
+    setSaveError(!saveFollowing(next))
   }
 
   function changeSource(id: SignalSourceId, state: 'followed' | 'hidden') {
@@ -56,9 +57,9 @@ export default function FollowingPage() {
   return (
     <SiteShell>
       <header className="border-b border-border pb-6">
-        <h1 className="headline-display text-balance text-3xl sm:text-4xl">{t('我的关注')}</h1>
+        <h1 className="headline-display text-balance text-3xl sm:text-4xl">{t('title')}</h1>
         <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
-          {t('关注或隐藏平台来源，配置保存在本地浏览器。')}
+          {t('subtitle')}
         </p>
       </header>
 
@@ -72,11 +73,12 @@ export default function FollowingPage() {
           className="flex min-h-12 w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left font-semibold text-foreground outline-none transition-colors hover:bg-row-highlight focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
         >
           <span>
-            {t('管理文章来源 · 已关注')}{' '}
-            <span className="font-mono text-primary tabular-nums">
-              {preferences.followed.length}
-            </span>
-            {t(' 个')}
+            {t.rich('manageSources', {
+              count: preferences.followed.length,
+              strongCount: (chunks) => (
+                <span className="font-mono text-primary tabular-nums">{chunks}</span>
+              )
+            })}
           </span>
           <ChevronDown
             aria-hidden="true"
@@ -98,7 +100,7 @@ export default function FollowingPage() {
                 id={`following-section-${section.id}`}
                 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
               >
-                {t(section.title)}
+                {tSections(`${section.id}.title`)}
               </h2>
               <div className="divide-y divide-border">
                 {followingSources
@@ -118,20 +120,20 @@ export default function FollowingPage() {
                         <ActionButton
                           variant={preferences.followed.includes(source.id) ? 'primary' : 'outline'}
                           aria-pressed={preferences.followed.includes(source.id)}
-                          aria-label={t('关注{source}', { source: source.name })}
+                          aria-label={t('followSource', { source: source.name })}
                           className="min-h-8 px-3 text-xs"
                           onPress={() => changeSource(source.id, 'followed')}
                         >
-                          {t('关注')}
+                          {t('follow')}
                         </ActionButton>
                         <ActionButton
                           variant={preferences.hidden.includes(source.id) ? 'outline' : 'ghost'}
                           aria-pressed={preferences.hidden.includes(source.id)}
-                          aria-label={t('隐藏{source}', { source: source.name })}
+                          aria-label={t('hideSource', { source: source.name })}
                           className="min-h-8 px-3 text-xs"
                           onPress={() => changeSource(source.id, 'hidden')}
                         >
-                          {t('隐藏')}
+                          {t('hide')}
                         </ActionButton>
                       </div>
                     </div>
@@ -144,24 +146,22 @@ export default function FollowingPage() {
 
       <div className="mb-6 flex flex-wrap items-center gap-x-6 gap-y-2">
         <UiCheckbox isSelected={showAll} onChange={setShowAll}>
-          {t('浏览全部未隐藏来源')}
+          {t('showAllVisible')}
         </UiCheckbox>
         <UiCheckbox
           isSelected={preferences.unreadOnly}
           onChange={(unreadOnly) => save({ ...preferences, unreadOnly })}
         >
-          {t('只看未读')}
+          {t('unreadOnly')}
         </UiCheckbox>
       </div>
 
       {preferences.unreadOnly && (
-        <p className="mb-4 font-mono text-xs text-muted-foreground">
-          {t('依据最近 100 条本地阅读记录过滤')}
-        </p>
+        <p className="mb-4 font-mono text-xs text-muted-foreground">{t('unreadHint')}</p>
       )}
-      {error && (
+      {saveError && (
         <p role="alert" className="mb-4 text-sm text-destructive">
-          {error}
+          {t('saveError')}
         </p>
       )}
       {selected.length ? (
@@ -171,9 +171,7 @@ export default function FollowingPage() {
           unreadOnly={preferences.unreadOnly}
         />
       ) : (
-        <p className="text-muted-foreground">
-          {t('还没有关注任何来源，请先展开「管理文章来源」，或勾选「浏览全部未隐藏来源」。')}
-        </p>
+        <p className="text-muted-foreground">{t('emptyHint')}</p>
       )}
     </SiteShell>
   )

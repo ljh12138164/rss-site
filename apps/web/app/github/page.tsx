@@ -1,5 +1,5 @@
 import { PaginatedArticleFeed } from '../../components/paginated-article-feed'
-import { UiText } from '../../components/site-language'
+import { TranslatedText } from '../../components/site-language'
 import { SiteShell } from '../../components/site-shell'
 import { createPageMetadata } from '../../lib/seo'
 
@@ -21,7 +21,7 @@ export function GithubRankingHeader() {
         style={{ backgroundColor: 'var(--line-tech)' }}
       />
       <h1 className="headline-display text-2xl text-foreground sm:text-3xl">
-        <UiText>{'GitHub 中文开源排行'}</UiText>
+        <TranslatedText id="home.githubTitle" />
       </h1>
     </header>
   )

@@ -1,8 +1,8 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { type ReactNode, useState } from 'react'
 import Lightbox from 'yet-another-react-lightbox'
-import { useSiteText } from './site-language'
 import 'yet-another-react-lightbox/styles.css'
 import { cn } from '../lib/utils'
 
@@ -31,7 +31,7 @@ export function CoverImage({
   className,
   previewLabel
 }: CoverImageProps) {
-  const t = useSiteText()
+  const t = useTranslations('article')
   const [failedSources, setFailedSources] = useState<string[]>([])
   const [previewOpen, setPreviewOpen] = useState(false)
   const imageSrc = [src?.trim(), fallbackSrc.trim(), defaultCover].find(
@@ -50,7 +50,7 @@ export function CoverImage({
         className={cn(imageClass, 'grid place-items-center')}
         style={style}
         role="img"
-        aria-label={alt || '文章封面'}
+        aria-label={alt || t('coverAlt')}
         aria-hidden={!alt}
       >
         {showFallback ? fallback : null}
@@ -83,7 +83,7 @@ export function CoverImage({
     <>
       <button
         type="button"
-        aria-label={t('预览图片：{label}', { label: previewLabel })}
+        aria-label={t('previewImage', { label: previewLabel })}
         aria-haspopup="dialog"
         aria-expanded={previewOpen}
         onClick={() => setPreviewOpen(true)}
@@ -101,7 +101,7 @@ export function CoverImage({
         }}
         controller={{ closeOnBackdropClick: true }}
         render={{ buttonPrev: () => null, buttonNext: () => null }}
-        labels={{ Lightbox: t('图片预览'), Close: t('关闭图片预览') }}
+        labels={{ Lightbox: t('imagePreview'), Close: t('closeImagePreview') }}
       />
     </>
   )

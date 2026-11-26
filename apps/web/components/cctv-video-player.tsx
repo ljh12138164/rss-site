@@ -1,9 +1,9 @@
 'use client'
 
 import { AlertCircle, Play, RotateCw, Tv } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '../lib/utils'
-import { useSiteText } from './site-language'
 
 interface CctvVideoInfo {
   title: string
@@ -18,6 +18,11 @@ export interface CctvVideoPlayerProps {
   className?: string
 }
 
+type VideoError =
+  | { kind: 'status'; status: number }
+  | { kind: 'key'; key: 'videoNoStream' | 'videoInfoFailed' | 'videoPlayerInitFailed' }
+  | { kind: 'raw'; message: string }
+
 function formatDuration(secondsStr?: string): string {
   if (!secondsStr) return ''
   const sec = Math.round(Number.parseFloat(secondsStr))
@@ -28,12 +33,13 @@ function formatDuration(secondsStr?: string): string {
 }
 
 export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerProps) {
-  const t = useSiteText()
+  const t = useTranslations('article')
+  const tCommon = useTranslations('common')
   const containerRef = useRef<HTMLDivElement>(null)
   const [videoInfo, setVideoInfo] = useState<CctvVideoInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [error, setError] = useState<string | number | null>(null)
+  const [error, setError] = useState<VideoError | null>(null)
 
   const isVertical = type === '6'
 
@@ -49,21 +55,26 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         }
       )
       if (!response.ok) {
-        setError(response.status)
+        setError({ kind: 'status', status: response.status })
         return
       }
       const data = await response.json()
       if (!data.hls_url) {
-        throw new Error('未获取到视频播放流')
+        setError({ kind: 'key', key: 'videoNoStream' })
+        return
       }
       setVideoInfo({
-        title: data.title || '央视新闻视频',
+        title: data.title || '',
         image: data.image || '',
         hls_url: data.hls_url,
         totalLength: data.video?.totalLength
       })
     } catch (err) {
-      setError(err instanceof Error ? err.message : '视频信息加载失败')
+      setError(
+        err instanceof Error
+          ? { kind: 'raw', message: err.message }
+          : { kind: 'key', key: 'videoInfoFailed' }
+      )
     } finally {
       setIsLoading(false)
     }
@@ -78,6 +89,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
 
     let artInstance: { destroy: (removeHtml?: boolean) => void } | null = null
     let isDisposed = false
+    const unsupportedText = t('videoUnsupported')
 
     Promise.all([import('artplayer'), import('hls.js')])
       .then(([artModule, hlsModule]) => {
@@ -104,7 +116,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
               } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = url
               } else {
-                art.notice.show = '当前浏览器不支持播放该格式视频'
+                art.notice.show = unsupportedText
               }
             }
           },
@@ -131,7 +143,11 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
       })
       .catch((err) => {
         if (!isDisposed) {
-          setError(err instanceof Error ? err.message : '播放器初始化失败')
+          setError(
+            err instanceof Error
+              ? { kind: 'raw', message: err.message }
+              : { kind: 'key', key: 'videoPlayerInitFailed' }
+          )
         }
       })
 
@@ -141,7 +157,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         artInstance.destroy(false)
       }
     }
-  }, [isPlaying, videoInfo])
+  }, [isPlaying, videoInfo, t])
 
   const aspectClass = isVertical ? 'aspect-[9/16] max-w-[340px] mx-auto' : 'aspect-video w-full'
 
@@ -155,11 +171,13 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         )}
       >
         <AlertCircle className="size-8 text-destructive/80 mb-2" />
-        <p className="font-medium text-foreground mb-1">{t('无法加载视频')}</p>
+        <p className="font-medium text-foreground mb-1">{t('videoFailed')}</p>
         <p className="text-xs text-muted-foreground mb-4">
-          {typeof error === 'number'
-            ? t('视频接口请求失败 ({status})', { status: error })
-            : t(error)}
+          {error.kind === 'status'
+            ? t('videoRequestFailed', { status: error.status })
+            : error.kind === 'key'
+              ? t(error.key)
+              : error.message}
         </p>
         <button
           type="button"
@@ -167,7 +185,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
           className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-accent transition-colors cursor-pointer"
         >
           <RotateCw className="size-3.5" />
-          {t('重试')}
+          {tCommon('retry')}
         </button>
       </div>
     )
@@ -183,7 +201,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         )}
       >
         <Tv className="size-8 text-muted-foreground/40 mb-2" />
-        <span className="text-xs text-muted-foreground">{t('正在加载央视新闻视频...')}</span>
+        <span className="text-xs text-muted-foreground">{t('videoLoading')}</span>
       </div>
     )
   }
@@ -203,6 +221,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
   }
 
   const durationText = formatDuration(videoInfo?.totalLength)
+  const displayTitle = videoInfo?.title || t('videoDefaultTitle')
 
   return (
     <div
@@ -216,7 +235,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         // biome-ignore lint/performance/noImgElement: dynamic external cctv video poster from unconfigured CDN
         <img
           src={videoInfo.image}
-          alt={videoInfo.title}
+          alt={displayTitle}
           loading="lazy"
           decoding="async"
           className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -231,7 +250,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
       {/* Top Channel Badge */}
       <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-white/90 border border-white/10">
         <Tv className="size-3.5 text-red-500" />
-        <span>{t('央视新闻 · 视频报道')}</span>
+        <span>{t('videoBadge')}</span>
       </div>
 
       {/* Duration Badge */}
@@ -245,7 +264,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
       <button
         type="button"
         onClick={() => setIsPlaying(true)}
-        aria-label={t('播放视频: {title}', { title: videoInfo?.title ?? '' })}
+        aria-label={t('videoPlayLabel', { title: displayTitle })}
         className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 text-center cursor-pointer focus:outline-none"
       >
         <div className="relative mb-2 flex size-14 items-center justify-center rounded-full bg-primary/90 text-primary-foreground shadow-lg backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-primary">
@@ -253,13 +272,13 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
           <div className="absolute inset-0 rounded-full animate-ping bg-primary/30" />
         </div>
         <p className="max-w-[85%] text-xs font-medium text-white/90 line-clamp-1 drop-shadow-md">
-          {videoInfo?.title}
+          {displayTitle}
         </p>
       </button>
 
       {/* Bottom Title Bar */}
       <div className="absolute bottom-0 inset-x-0 p-3.5 z-10 pointer-events-none">
-        <p className="text-xs text-white/70 line-clamp-1">{t('点击即可在线播放高清视频新闻')}</p>
+        <p className="text-xs text-white/70 line-clamp-1">{t('videoPlayHint')}</p>
       </div>
     </div>
   )

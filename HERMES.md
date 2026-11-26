@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-26 界面国际化迁移至 next-intl
+
+- **分支与文档**：基于 `origin/master`（`bbd0e86`）创建 `feat/migrate-next-intl`，配套开发记录见 [migrate-next-intl.md](docs/development/migrate-next-intl.md)；无衍生 roadmap。
+- **改动**：引入 `next-intl@^4.16.2`，在 [next.config.ts](apps/web/next.config.ts) 接入 `createNextIntlPlugin('./i18n/request.ts')` 并新增静态 [i18n/request.ts](apps/web/i18n/request.ts) 与 [global.d.ts](apps/web/global.d.ts)（保留全部 137 个静态/ISR 页与既有 URL/缓存）；用结构化双语 JSON 词典 [messages/zh-CN.json](apps/web/messages/zh-CN.json) 与 [messages/en.json](apps/web/messages/en.json)（各 602 个语义 Key，涵盖全部 7 个分区与 126 个信号源）彻底替代并删除旧手写 `apps/web/lib/site-messages.ts`；重写 [site-language.tsx](apps/web/components/site-language.tsx) 基于 `NextIntlClientProvider`、`useTranslations`、`useFormatter` 与 `useLocale` 并完成全站 66 个页面/组件迁移；新增 [site-i18n.test.tsx](apps/web/lib/site-i18n.test.tsx) 校验词典对齐、ICU 占位符与全量信源覆盖。
+- **验证**：`pnpm lint`（`561` 文件 `0` 错误）、`pnpm check-types`（`3/3` 包）、`pnpm test`（`@rss-site/signals` `9/9`、`@rss-site/api` `130/130`、`@rss-site/web` `212 passed | 22 skipped`）与 `pnpm --filter @rss-site/web build`（`137/137` 静态页 + `early-hints` + `sw.js`）全部通过。
+
 ## 2026-11-26 规范化文章 Slug 编码长度并消除多重编码死循环
 
 - **分支与文档**：基于 `origin/master`（`240b587`）创建 `feat/normalize-article-slugs`，配套记录见 [normalize-article-slugs.md](docs/development/normalize-article-slugs.md)；无衍生 roadmap。

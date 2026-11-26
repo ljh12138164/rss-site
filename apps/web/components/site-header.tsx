@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Dialog, Heading, Modal, ModalOverlay } from 'react-aria-components'
 import { useReadingList } from '../lib/reading-list'
@@ -28,22 +29,21 @@ import { ActionButton } from './action-button'
 import { ArticleSearch } from './article-search'
 import { LanguageMenu } from './language-menu'
 import { RssSubscription } from './rss-subscription'
-import { useSiteText } from './site-language'
 import { ThemeToggle } from './theme-toggle'
 import { TransitMark } from './transit-mark'
 
 const PRIMARY_NAV = [
-  { href: '/', label: '全部热点', icon: Flame },
-  { href: '/daily', label: '今日日报', icon: Newspaper },
-  { href: '/following', label: '我的关注', icon: Layers },
-  { href: '/reading-list', label: '稍后读', icon: Bookmark }
+  { href: '/', labelKey: 'allStories', icon: Flame },
+  { href: '/daily', labelKey: 'dailyBriefing', icon: Newspaper },
+  { href: '/following', labelKey: 'following', icon: Layers },
+  { href: '/reading-list', labelKey: 'readLater', icon: Bookmark }
 ] as const
 
 const SPECIALTY_NAV = [
-  { href: '/ai/events', label: 'AI 时间轴', icon: Clock },
-  { href: '/github', label: '开源排行', icon: GitBranch },
-  { href: '/leaderboard', label: '模型评测', icon: Cpu },
-  { href: '/skills', label: '热门 Skills', icon: Boxes }
+  { href: '/ai/events', labelKey: 'aiTimeline', icon: Clock },
+  { href: '/github', labelKey: 'openSource', icon: GitBranch },
+  { href: '/leaderboard', labelKey: 'modelBenchmarks', icon: Cpu },
+  { href: '/skills', labelKey: 'trendingSkills', icon: Boxes }
 ] as const
 
 const CHANNEL_ICONS = {
@@ -71,14 +71,15 @@ function RailContent({
   savedCount: number
   onNavigate?: () => void
 }) {
-  const t = useSiteText()
+  const tNav = useTranslations('nav')
+  const tSections = useTranslations('sections')
   return (
     <div className="flex h-full flex-col">
       <div className="flex-1 overflow-y-auto px-3 py-4 slim-scrollbar">
         <div className="space-y-6">
           <div>
             <p className="px-2.5 pb-1.5 font-mono text-[11px] font-semibold tracking-wider text-muted-foreground">
-              {t('视图')}
+              {tNav('viewGroup')}
             </p>
             <ul className="space-y-0.5">
               {PRIMARY_NAV.map((item) => {
@@ -107,7 +108,7 @@ function RailContent({
                         aria-hidden="true"
                         className={cn('size-4 shrink-0', active && 'text-primary')}
                       />
-                      <span className="min-w-0 flex-1 truncate">{t(item.label)}</span>
+                      <span className="min-w-0 flex-1 truncate">{tNav(item.labelKey)}</span>
                       {item.href === '/reading-list' && savedCount > 0 && (
                         <span className="rounded-sm bg-primary/15 px-1.5 py-0.5 font-mono text-[11px] font-semibold tabular-nums text-primary">
                           {savedCount}
@@ -122,7 +123,7 @@ function RailContent({
 
           <div>
             <p className="px-2.5 pb-1.5 font-mono text-[11px] font-semibold tracking-wider text-muted-foreground">
-              {t('频道')}
+              {tNav('channelsGroup')}
             </p>
             <ul className="space-y-0.5">
               {TRANSIT_LINES.map((line) => {
@@ -153,7 +154,9 @@ function RailContent({
                         className="size-4 shrink-0"
                         style={{ color: line.cssVar }}
                       />
-                      <span className="min-w-0 flex-1 truncate">{t(line.name)}</span>
+                      <span className="min-w-0 flex-1 truncate">
+                        {tSections(`${line.id}.shortTitle`)}
+                      </span>
                       <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
                         {line.sourceCount}
                       </span>
@@ -166,7 +169,7 @@ function RailContent({
 
           <div>
             <p className="px-2.5 pb-1.5 font-mono text-[11px] font-semibold tracking-wider text-muted-foreground">
-              {t('专题')}
+              {tNav('exploreGroup')}
             </p>
             <ul className="space-y-0.5">
               {SPECIALTY_NAV.map((item) => {
@@ -195,7 +198,7 @@ function RailContent({
                         aria-hidden="true"
                         className={cn('size-4 shrink-0', active && 'text-primary')}
                       />
-                      <span className="min-w-0 flex-1 truncate">{t(item.label)}</span>
+                      <span className="min-w-0 flex-1 truncate">{tNav(item.labelKey)}</span>
                     </Link>
                   </li>
                 )
@@ -207,7 +210,7 @@ function RailContent({
 
       <footer className="shrink-0 border-t border-border px-4 py-3">
         <nav
-          aria-label={t('站点信息')}
+          aria-label={tNav('siteInfo')}
           className="flex items-center justify-between text-xs text-muted-foreground"
         >
           <Link
@@ -222,14 +225,14 @@ function RailContent({
             onClick={onNavigate}
             className="min-h-8 inline-flex items-center hover:text-primary"
           >
-            {t('关于')}
+            {tNav('about')}
           </Link>
           <Link
             href="/privacy"
             onClick={onNavigate}
             className="min-h-8 inline-flex items-center hover:text-primary"
           >
-            {t('隐私')}
+            {tNav('privacy')}
           </Link>
         </nav>
       </footer>
@@ -238,7 +241,7 @@ function RailContent({
 }
 
 export function TransitSidebar() {
-  const t = useSiteText()
+  const tCommon = useTranslations('common')
   const pathname = usePathname()
   const { savedCount } = useReadingList()
 
@@ -247,11 +250,11 @@ export function TransitSidebar() {
       <div className="flex h-14 shrink-0 items-center border-b border-border px-4">
         <Link
           href="/"
-          aria-label={t('今日热点首页')}
+          aria-label={tCommon('siteHome')}
           className="flex min-w-0 items-center gap-2.5 text-foreground focus-visible:outline-2 focus-visible:outline-ring"
         >
           <TransitMark className="size-6" />
-          <span className="truncate text-base font-bold tracking-tight">{t('今日热点')}</span>
+          <span className="truncate text-base font-bold tracking-tight">{tCommon('siteName')}</span>
         </Link>
       </div>
       <RailContent pathname={pathname} savedCount={savedCount} />
@@ -260,7 +263,8 @@ export function TransitSidebar() {
 }
 
 export function SiteHeader() {
-  const t = useSiteText()
+  const tCommon = useTranslations('common')
+  const tNav = useTranslations('nav')
   const pathname = usePathname()
   const { savedCount } = useReadingList()
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -280,7 +284,7 @@ export function SiteHeader() {
             <ActionButton
               variant="ghost"
               size="icon"
-              aria-label={t('打开频道目录')}
+              aria-label={tNav('openChannelMenu')}
               className="size-9 rounded-sm border border-border bg-card text-foreground"
               onPress={() => setDrawerOpen(true)}
             >
@@ -288,11 +292,13 @@ export function SiteHeader() {
             </ActionButton>
             <Link
               href="/"
-              aria-label={t('今日热点首页')}
+              aria-label={tCommon('siteHome')}
               className="flex min-w-0 items-center gap-2 text-foreground"
             >
               <TransitMark className="size-6" />
-              <span className="truncate text-base font-bold tracking-tight">{t('今日热点')}</span>
+              <span className="truncate text-base font-bold tracking-tight">
+                {tCommon('siteName')}
+              </span>
             </Link>
           </div>
 
@@ -309,12 +315,12 @@ export function SiteHeader() {
             <Link
               href="/reading-list"
               aria-label={
-                savedCount ? t('稍后读（{count} 篇）', { count: savedCount }) : t('稍后读')
+                savedCount ? tNav('readLaterCount', { count: savedCount }) : tNav('readLater')
               }
               className="hidden h-9 items-center gap-1.5 rounded-sm border border-border bg-card px-2.5 text-xs font-medium text-foreground transition-colors hover:border-primary/60 hover:text-primary sm:inline-flex"
             >
               <Bookmark className="size-3.5 text-primary" aria-hidden="true" />
-              <span>{t('稍后读')}</span>
+              <span>{tNav('readLater')}</span>
               {savedCount > 0 && (
                 <span className="rounded-sm bg-primary/15 px-1 font-mono text-[11px] font-semibold tabular-nums text-primary">
                   {savedCount}
@@ -342,12 +348,12 @@ export function SiteHeader() {
                 <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
                   <Heading slot="title" className="flex items-center gap-2 text-base font-bold">
                     <TransitMark className="size-6" />
-                    <span>{t('今日热点')}</span>
+                    <span>{tCommon('siteName')}</span>
                   </Heading>
                   <ActionButton
                     variant="ghost"
                     size="icon"
-                    aria-label={t('关闭目录')}
+                    aria-label={tNav('closeMenu')}
                     onPress={close}
                     className="size-9"
                   >
@@ -363,7 +369,7 @@ export function SiteHeader() {
 
       {/* Mobile bottom 4-tab transit bar */}
       <nav
-        aria-label={t('移动端导航')}
+        aria-label={tNav('mobileNav')}
         className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-rail/95 backdrop-blur-md lg:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
@@ -382,7 +388,7 @@ export function SiteHeader() {
               <span aria-hidden="true" className="absolute inset-x-4 top-0 h-[3px] bg-primary" />
             )}
             <Flame className="size-4" aria-hidden="true" />
-            <span>{t('热点')}</span>
+            <span>{tNav('mobileStories')}</span>
           </Link>
           <Link
             href="/daily"
@@ -398,7 +404,7 @@ export function SiteHeader() {
               <span aria-hidden="true" className="absolute inset-x-4 top-0 h-[3px] bg-primary" />
             )}
             <Newspaper className="size-4" aria-hidden="true" />
-            <span>{t('日报')}</span>
+            <span>{tNav('mobileBriefing')}</span>
           </Link>
           <button
             type="button"
@@ -415,7 +421,7 @@ export function SiteHeader() {
               <span aria-hidden="true" className="absolute inset-x-4 top-0 h-[3px] bg-primary" />
             )}
             <Menu className="size-4" aria-hidden="true" />
-            <span>{t('频道')}</span>
+            <span>{tNav('mobileChannels')}</span>
           </button>
           <Link
             href="/following"
@@ -431,7 +437,7 @@ export function SiteHeader() {
               <span aria-hidden="true" className="absolute inset-x-4 top-0 h-[3px] bg-primary" />
             )}
             <Layers className="size-4" aria-hidden="true" />
-            <span>{t('关注')}</span>
+            <span>{tNav('mobileFollow')}</span>
           </Link>
         </div>
       </nav>
