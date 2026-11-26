@@ -67,10 +67,9 @@ export async function proxy(request: NextRequest) {
       }
       if (normalized.kind === 'redirect') {
         const location = `/${section}/${encodeURIComponent(sourceId)}/${normalized.canonicalEncoded}${request.nextUrl.search}`
-        return new NextResponse(null, {
+        return NextResponse.redirect(new URL(location, request.url), {
           status: 301,
           headers: {
-            Location: location,
             'Cache-Control': 'public, max-age=86400, s-maxage=86400'
           }
         })

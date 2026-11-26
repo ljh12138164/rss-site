@@ -75,21 +75,27 @@ describe('technology source proxy', () => {
     expect(wrongSection.status).toBe(404)
   })
 
-  it('301-redirects multi-encoded article slugs to the canonical single-encoded path before DB lookup', async () => {
+  it('301-redirects multi-encoded article slugs to the canonical single-encoded URL before DB lookup', async () => {
     vi.mocked(getContentStatus).mockClear()
     const id = '550e8400-e29b-41d4-a716-446655440000'
     const single = encodeURIComponent(`邓超演唱会公开告白孙俪--${id}`)
     const triple = encodeURIComponent(encodeURIComponent(single))
 
-    const response = await proxy(new NextRequest(`https://example.com/news/baidu/${triple}`))
+    const response = await proxy(
+      new NextRequest(`https://example.com/news/baidu/${triple}?from=archive`)
+    )
 
     expect(response.status).toBe(301)
-    expect(response.headers.get('location')).toBe(`/news/baidu/${single}`)
+    const location = response.headers.get('location') ?? ''
+    const parsed = new URL(location)
+    expect(parsed.origin).toBe('https://example.com')
+    expect(parsed.pathname).toBe(`/news/baidu/${single}`)
+    expect(parsed.search).toBe('?from=archive')
     expect(response.headers.get('cache-control')).toContain('s-maxage=86400')
     expect(getContentStatus).not.toHaveBeenCalled()
   })
 
-  it('301-redirects legacy overly long single-encoded Chinese slugs to the clamped canonical slug', async () => {
+  it('301-redirects legacy overly long single-encoded Chinese slugs to the clamped canonical URL', async () => {
     vi.mocked(getContentStatus).mockClear()
     const id = '550e8400-e29b-41d4-a716-446655440000'
     const longSlug = encodeURIComponent(
@@ -99,9 +105,10 @@ describe('technology source proxy', () => {
     const response = await proxy(new NextRequest(`https://example.com/social/coolapk/${longSlug}`))
 
     expect(response.status).toBe(301)
-    const location = response.headers.get('location') ?? ''
-    expect(location.startsWith('/social/coolapk/')).toBe(true)
-    const targetSlug = location.slice('/social/coolapk/'.length)
+    const parsed = new URL(response.headers.get('location') ?? '')
+    expect(parsed.origin).toBe('https://example.com')
+    expect(parsed.pathname.startsWith('/social/coolapk/')).toBe(true)
+    const targetSlug = parsed.pathname.slice('/social/coolapk/'.length)
     expect(targetSlug.length).toBeLessThanOrEqual(198)
     expect(targetSlug.endsWith(`--${id}`)).toBe(true)
     expect(getContentStatus).not.toHaveBeenCalled()
