@@ -1,0 +1,49 @@
+alter table public.ingestion_runs
+  drop constraint if exists ingestion_runs_source_check,
+  add constraint ingestion_runs_source_check check (
+    source in (
+      'github', 'github-blog', 'cloudflare-blog', 'hacker-news', 'juejin', 'ithome', '36kr', 'geekpark', 'nvidia', 'amd', 'the-decoder', 'arm', 'wheres-your-ed-at', 'chinatalk', 'trail-of-bits', 'big-technology', 'pragmatic-engineer', 'newcomer', 'vercel', 'voidzero', 'chips-and-cheese', 'linear', 'ars-technica', '404-media', 'bun', 'rust-blog', 'go-blog', 'svelte-blog', 'typescript-blog', 'swift-blog', 'kotlin-blog', 'netflix-tech', 'meta-engineering', 'smashing-magazine', 'js-weekly', 'golang-weekly', 'this-week-in-rust', 'krebs-security', 'mit-tech-review', 'ruanyifeng', 'chrome',
+      'xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu', 'propublica', 'grist', 'restofworld', 'semafor',
+      'openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'groq', 'cohere', 'minimax', 'kimi', 'vllm', 'modal', 'elevenlabs', 'sierra', 'apple-ml', 'together', 'lilian-weng', 'simon-willison', 'metr', 'bair', 'ahead-of-ai', 'aws-ml', 'redwood-research', 'interconnects', 'import-ai', 'latent-space', 'dwarkesh',
+      'bilibili', 'zhihu', 'coolapk', 'hupu', 'sspai', 'toutiao', 'ifanr', 'appinn', 'solidot', 'lifehacker', 'torrentfreak', 'daring-fireball',
+      'wallstreetcn', 'cls', 'jin10', 'yicai', 'stcn', 'fortune', 'dl-news', 'marginal-revolution', 'ritholtz', 'abnormal-returns', 'of-dollars-and-data', 'unchained', 'sherwood',
+      '3dmgame', 'gcores', 'gamersky', 'ali213', 'indienova', 'chuapp', '80lv', 'ign', 'pc-gamer', 'playstation-blog', 'xbox-wire', 'gamelook', 'yystv', 'aftermath', 'ars-gaming', 'rpgfan', 'playstation-lifestyle', 'overkill',
+      'skills-all-time', 'skills-trending'
+    )
+  );
+
+alter table public.source_status
+  drop constraint if exists source_status_source_section_check,
+  add constraint source_status_source_section_check check (
+    (section = 'technology' and source in ('github', 'github-blog', 'cloudflare-blog', 'hacker-news', 'juejin', 'ithome', '36kr', 'geekpark', 'nvidia', 'amd', 'the-decoder', 'arm', 'wheres-your-ed-at', 'chinatalk', 'trail-of-bits', 'big-technology', 'pragmatic-engineer', 'newcomer', 'vercel', 'voidzero', 'chips-and-cheese', 'linear', 'ars-technica', '404-media', 'bun', 'rust-blog', 'go-blog', 'svelte-blog', 'typescript-blog', 'swift-blog', 'kotlin-blog', 'netflix-tech', 'meta-engineering', 'smashing-magazine', 'js-weekly', 'golang-weekly', 'this-week-in-rust', 'krebs-security', 'mit-tech-review', 'ruanyifeng', 'chrome'))
+    or (section = 'news' and source in ('xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu', 'propublica', 'grist', 'restofworld', 'semafor'))
+    or (section = 'ai' and source in ('openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'groq', 'cohere', 'minimax', 'kimi', 'vllm', 'modal', 'elevenlabs', 'sierra', 'apple-ml', 'together', 'lilian-weng', 'simon-willison', 'metr', 'bair', 'ahead-of-ai', 'aws-ml', 'redwood-research', 'interconnects', 'import-ai', 'latent-space', 'dwarkesh'))
+    or (section = 'social' and source in ('bilibili', 'zhihu', 'coolapk', 'hupu', 'sspai', 'toutiao', 'ifanr', 'appinn', 'solidot', 'lifehacker', 'torrentfreak', 'daring-fireball'))
+    or (section = 'finance' and source in ('wallstreetcn', 'cls', 'jin10', 'yicai', 'stcn', 'fortune', 'dl-news', 'marginal-revolution', 'ritholtz', 'abnormal-returns', 'of-dollars-and-data', 'unchained', 'sherwood'))
+    or (section = 'games' and source in ('3dmgame', 'gcores', 'gamersky', 'ali213', 'indienova', 'chuapp', '80lv', 'ign', 'pc-gamer', 'playstation-blog', 'xbox-wire', 'gamelook', 'yystv', 'aftermath', 'ars-gaming', 'rpgfan', 'playstation-lifestyle', 'overkill'))
+    or (section = 'skills' and source in ('skills-all-time', 'skills-trending'))
+  );
+
+alter table public.hot_items
+  drop constraint if exists hot_items_source_section_check,
+  add constraint hot_items_source_section_check check (
+    (section = 'technology' and source in ('github', 'github-blog', 'cloudflare-blog', 'hacker-news', 'juejin', 'ithome', '36kr', 'geekpark', 'nvidia', 'amd', 'the-decoder', 'arm', 'wheres-your-ed-at', 'chinatalk', 'trail-of-bits', 'big-technology', 'pragmatic-engineer', 'newcomer', 'vercel', 'voidzero', 'chips-and-cheese', 'linear', 'ars-technica', '404-media', 'bun', 'rust-blog', 'go-blog', 'svelte-blog', 'typescript-blog', 'swift-blog', 'kotlin-blog', 'netflix-tech', 'meta-engineering', 'smashing-magazine', 'js-weekly', 'golang-weekly', 'this-week-in-rust', 'krebs-security', 'mit-tech-review', 'ruanyifeng', 'chrome'))
+    or (section = 'news' and source in ('xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu', 'propublica', 'grist', 'restofworld', 'semafor'))
+    or (section = 'ai' and source in ('openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'groq', 'cohere', 'minimax', 'kimi', 'vllm', 'modal', 'elevenlabs', 'sierra', 'apple-ml', 'together', 'lilian-weng', 'simon-willison', 'metr', 'bair', 'ahead-of-ai', 'aws-ml', 'redwood-research', 'interconnects', 'import-ai', 'latent-space', 'dwarkesh'))
+    or (section = 'social' and source in ('bilibili', 'zhihu', 'coolapk', 'hupu', 'sspai', 'toutiao', 'ifanr', 'appinn', 'solidot', 'lifehacker', 'torrentfreak', 'daring-fireball'))
+    or (section = 'finance' and source in ('wallstreetcn', 'cls', 'jin10', 'yicai', 'stcn', 'fortune', 'dl-news', 'marginal-revolution', 'ritholtz', 'abnormal-returns', 'of-dollars-and-data', 'unchained', 'sherwood'))
+    or (section = 'games' and source in ('3dmgame', 'gcores', 'gamersky', 'ali213', 'indienova', 'chuapp', '80lv', 'ign', 'pc-gamer', 'playstation-blog', 'xbox-wire', 'gamelook', 'yystv', 'aftermath', 'ars-gaming', 'rpgfan', 'playstation-lifestyle', 'overkill'))
+    or (section = 'skills' and source in ('skills-all-time', 'skills-trending'))
+  );
+
+alter table public.signal_articles
+  drop constraint if exists signal_articles_source_section_check,
+  add constraint signal_articles_source_section_check check (
+    (section = 'technology' and source in ('github', 'github-blog', 'cloudflare-blog', 'hacker-news', 'juejin', 'ithome', '36kr', 'geekpark', 'nvidia', 'amd', 'the-decoder', 'arm', 'wheres-your-ed-at', 'chinatalk', 'trail-of-bits', 'big-technology', 'pragmatic-engineer', 'newcomer', 'vercel', 'voidzero', 'chips-and-cheese', 'linear', 'ars-technica', '404-media', 'bun', 'rust-blog', 'go-blog', 'svelte-blog', 'typescript-blog', 'swift-blog', 'kotlin-blog', 'netflix-tech', 'meta-engineering', 'smashing-magazine', 'js-weekly', 'golang-weekly', 'this-week-in-rust', 'krebs-security', 'mit-tech-review', 'ruanyifeng', 'chrome'))
+    or (section = 'news' and source in ('xinhua', 'cctv', 'chinanews', 'thepaper', 'jiemian', 'baidu', 'propublica', 'grist', 'restofworld', 'semafor'))
+    or (section = 'ai' and source in ('openai', 'chatgpt', 'anthropic', 'deepseek', 'glm', 'google-ai', 'antigravity', 'qwen', 'groq', 'cohere', 'minimax', 'kimi', 'vllm', 'modal', 'elevenlabs', 'sierra', 'apple-ml', 'together', 'lilian-weng', 'simon-willison', 'metr', 'bair', 'ahead-of-ai', 'aws-ml', 'redwood-research', 'interconnects', 'import-ai', 'latent-space', 'dwarkesh'))
+    or (section = 'social' and source in ('bilibili', 'zhihu', 'coolapk', 'hupu', 'sspai', 'toutiao', 'ifanr', 'appinn', 'solidot', 'lifehacker', 'torrentfreak', 'daring-fireball'))
+    or (section = 'finance' and source in ('wallstreetcn', 'cls', 'jin10', 'yicai', 'stcn', 'fortune', 'dl-news', 'marginal-revolution', 'ritholtz', 'abnormal-returns', 'of-dollars-and-data', 'unchained', 'sherwood'))
+    or (section = 'games' and source in ('3dmgame', 'gcores', 'gamersky', 'ali213', 'indienova', 'chuapp', '80lv', 'ign', 'pc-gamer', 'playstation-blog', 'xbox-wire', 'gamelook', 'yystv', 'aftermath', 'ars-gaming', 'rpgfan', 'playstation-lifestyle', 'overkill'))
+    or (section = 'skills' and source in ('skills-all-time', 'skills-trending'))
+  );

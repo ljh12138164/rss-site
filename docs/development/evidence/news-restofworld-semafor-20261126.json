@@ -1,0 +1,29 @@
+{
+  "verifiedAt": "2026-11-26T01:53:31.435Z",
+  "sources": {
+    "restofworld": {
+      "feeds": ["http://localhost:1200/restofworld/latest"],
+      "ingested": 12,
+      "uniqueUrls": 12,
+      "renderedNonEmpty": 12,
+      "dates": 12,
+      "namedAuthors": 12,
+      "coverImages": 12,
+      "badImageUrls": 0,
+      "maxRenderedHtmlBytes": 12946,
+      "sampleTitle": "How foreign AI romance apps are reshaping youth intimacy in Africa"
+    },
+    "semafor": {
+      "feeds": ["https://feeds.ljhboard.cn/semafor"],
+      "ingested": 20,
+      "uniqueUrls": 20,
+      "renderedNonEmpty": 20,
+      "dates": 20,
+      "namedAuthors": 20,
+      "coverImages": 20,
+      "badImageUrls": 0,
+      "maxRenderedHtmlBytes": 8835,
+      "sampleTitle": "Netanyahu gets boost in long-running corruption trial"
+    }
+  }
+}

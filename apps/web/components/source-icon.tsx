@@ -119,6 +119,8 @@ const fileIcons: Partial<Record<SignalSourceId, FileIcon>> = {
   jiemian: { src: '/source-icons/jiemian.webp' },
   propublica: { src: '/source-icons/propublica.webp' },
   grist: { src: '/source-icons/grist.webp' },
+  restofworld: { src: '/source-icons/restofworld.webp' },
+  semafor: { src: '/source-icons/semafor.webp' },
   openai: { src: '/source-icons/openai.svg' },
   chatgpt: { src: '/source-icons/chatgpt.svg' },
   glm: { src: '/source-icons/glm.svg' },
