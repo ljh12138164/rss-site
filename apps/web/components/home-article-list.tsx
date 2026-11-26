@@ -125,6 +125,7 @@ export function HomeArticleList({
           <Link
             href={archiveHref}
             prefetch={false}
+            rel="nofollow"
             className="inline-flex min-h-10 items-center text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
           >
             {t('查看更早内容')}

@@ -41,11 +41,14 @@ async function resolve({ params, searchParams }: Props) {
 
 export async function generateMetadata(props: Props) {
   const { path, label } = await resolve(props)
-  return createPageMetadata({
-    title: `${label} 历史文章`,
-    description: `浏览${label}的更早文章，查看标题、摘要与原始来源。`,
-    path
-  })
+  return {
+    ...createPageMetadata({
+      title: `${label} 历史文章`,
+      description: `浏览${label}的更早文章，查看标题、摘要与原始来源。`,
+      path
+    }),
+    robots: { index: false, follow: false }
+  }
 }
 
 export default async function ArticleArchive(props: Props) {
@@ -79,6 +82,7 @@ export default async function ArticleArchive(props: Props) {
           <Link
             href={nextPageHref}
             prefetch={false}
+            rel="nofollow"
             className="inline-flex min-h-11 items-center text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
           >
             <UiText>{'下一页'}</UiText>

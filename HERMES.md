@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-26 禁止合规爬虫抓取历史分页路由
+
+- **分支与文档**：基于 `origin/master`（`b5fa7f4`）创建 `feat/disallow-archive-crawling`，配套开发记录见 [disallow-archive-crawling.md](docs/development/disallow-archive-crawling.md)；无衍生代码 roadmap。
+- **改动**：在 [robots.ts](apps/web/app/robots.ts) 禁止 `/archive` 与 `/ai/events/archive`；在 [archive/page.tsx](apps/web/app/archive/%5Bsection%5D/%5B%5B...source%5D%5D/page.tsx) 与 [ai/events/archive/page.tsx](apps/web/app/ai/events/archive/page.tsx) 输出 `robots: { index: false, follow: false }`；在 [next.config.ts](apps/web/next.config.ts) 为 `/archive/:path*` 与 `/ai/events/archive` 添加 `X-Robots-Tag: noindex, nofollow`；在 [home-article-list.tsx](apps/web/components/home-article-list.tsx)、[event-timeline.tsx](apps/web/components/event-timeline.tsx) 与分页“下一页”链接添加 `rel="nofollow"`；新增单测 [robots.test.ts](apps/web/app/robots.test.ts)。
+- **验证**：`pnpm lint`（`393` 文件）、`pnpm check-types`（`3/3` 包）、`pnpm test`（`@rss-site/signals` `9/9`、`@rss-site/api` `130/130`、`@rss-site/web` `203 passed | 22 skipped`）与 `pnpm --filter @rss-site/web build`（`137/137` 静态页 + early-hints + `sw.js`）全部通过。
+
 ## 2026-11-26 科技分区接入 Supabase Blog
 
 - **分支与上游**：基于 `master`（`e0b214a`）创建 `feat/supabase-source`，在 `technology` 分区（`41 -> 42`，全站 `125 -> 126`）接入 `supabase`（自建 `RSSHub` `/supabase/blog`，`feat/supabase-blog` @ `645db354f3`，已 cherry-pick 至自建 `master` @ `0651d708fc` 并上线 `https://rss.ljhboard.cn/supabase/blog` 返回 `200`），详见 [开发记录](docs/development/supabase-source.md)。
