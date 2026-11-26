@@ -331,7 +331,7 @@ export function ArticleSearch({ variant = 'topbar' }: { variant?: 'topbar' | 'ic
         <ActionButton
           variant="ghost"
           aria-label={t('搜索文章')}
-          className="h-9 w-full max-w-sm justify-between rounded-sm border border-border bg-card px-3 text-sm text-muted-foreground hover:border-primary/60 hover:bg-card hover:text-foreground"
+          className="h-9 w-full max-w-sm min-h-9 justify-between rounded-sm border border-border bg-card px-3 text-sm text-muted-foreground hover:border-primary/60 hover:bg-card hover:text-foreground"
         >
           <span className="flex min-w-0 items-center gap-2 truncate">
             <Search aria-hidden="true" className="size-4 shrink-0" />

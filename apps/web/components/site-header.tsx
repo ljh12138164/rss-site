@@ -21,6 +21,7 @@ import { TRANSIT_LINES } from '../lib/transit-lines'
 import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
 import { ArticleSearch } from './article-search'
+import { LanguageMenu } from './language-menu'
 import { RssSubscription } from './rss-subscription'
 import { useSiteText } from './site-language'
 import { ThemeToggle } from './theme-toggle'
@@ -313,6 +314,7 @@ export function SiteHeader() {
               )}
             </Link>
             <RssSubscription triggerVariant="topbar" defaultMode="custom" />
+            <LanguageMenu />
             <ThemeToggle />
           </div>
         </div>

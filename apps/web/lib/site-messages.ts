@@ -1,4 +1,6 @@
 export const englishMessages = new Map<string, string>([
+  ['界面语言', 'Site language'],
+  ['跟随浏览器', 'Use browser language'],
   ['加载异常', 'Loading error'],
   ['页面加载失败', 'Could not load this page'],
   ['请稍后重试或刷新页面。', 'Try again in a moment or refresh the page.'],

@@ -7,12 +7,26 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useState,
   useSyncExternalStore
 } from 'react'
-import { DEFAULT_LOCALE, preferredSiteLocale, type SiteLocale } from '../lib/site-locale'
+import {
+  DEFAULT_LOCALE,
+  isSiteLocale,
+  preferredSiteLocale,
+  type SiteLocale
+} from '../lib/site-locale'
 import { englishMessages } from '../lib/site-messages'
 
-const LocaleContext = createContext<SiteLocale>(DEFAULT_LOCALE)
+type LanguagePreference = SiteLocale | 'auto'
+
+const preferenceKey = 'rss-site-language'
+const preferenceEvent = 'rss-site-language-change'
+const LanguageContext = createContext<{
+  locale: SiteLocale
+  preference: LanguagePreference
+  setPreference: (preference: LanguagePreference) => void
+}>({ locale: DEFAULT_LOCALE, preference: 'auto', setPreference: () => {} })
 const dateFormatters = new Map<string, Intl.DateTimeFormat>()
 
 function subscribe(listener: () => void) {
@@ -20,21 +34,67 @@ function subscribe(listener: () => void) {
   return () => window.removeEventListener('languagechange', listener)
 }
 
+function subscribeToStorage(listener: () => void) {
+  window.addEventListener('storage', listener)
+  window.addEventListener(preferenceEvent, listener)
+  return () => {
+    window.removeEventListener('storage', listener)
+    window.removeEventListener(preferenceEvent, listener)
+  }
+}
+
+function readPreference(): LanguagePreference {
+  try {
+    const stored = window.localStorage.getItem(preferenceKey)
+    return isSiteLocale(stored) ? stored : 'auto'
+  } catch {
+    return 'auto'
+  }
+}
+
 export function SiteLanguageProvider({ children }: { children: ReactNode }) {
-  const locale = useSyncExternalStore(
+  const browserLocale = useSyncExternalStore(
     subscribe,
     () =>
       preferredSiteLocale(navigator.languages?.length ? navigator.languages : [navigator.language]),
     () => DEFAULT_LOCALE
   )
+  const savedPreference = useSyncExternalStore<LanguagePreference>(
+    subscribeToStorage,
+    readPreference,
+    () => 'auto'
+  )
+  const [sessionPreference, setSessionPreference] = useState<LanguagePreference | null>(null)
+  const preference = sessionPreference ?? savedPreference
+  const locale = preference === 'auto' ? browserLocale : preference
+
+  function setPreference(next: LanguagePreference) {
+    try {
+      if (next === 'auto') window.localStorage.removeItem(preferenceKey)
+      else window.localStorage.setItem(preferenceKey, next)
+      window.dispatchEvent(new Event(preferenceEvent))
+      setSessionPreference(null)
+    } catch {
+      setSessionPreference(next)
+    }
+  }
+
   useEffect(() => {
     document.documentElement.lang = locale
   }, [locale])
-  return <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>
+  return (
+    <LanguageContext.Provider value={{ locale, preference, setPreference }}>
+      {children}
+    </LanguageContext.Provider>
+  )
 }
 
 export function useSiteLocale() {
-  return useContext(LocaleContext)
+  return useContext(LanguageContext).locale
+}
+
+export function useLanguagePreference() {
+  return useContext(LanguageContext)
 }
 
 export function useSiteText() {

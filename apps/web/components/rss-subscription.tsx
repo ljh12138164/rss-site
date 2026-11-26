@@ -82,7 +82,7 @@ export function RssSubscription({
           aria-label={t('RSS 订阅')}
           className={
             className ??
-            'h-9 rounded-sm border border-border bg-card px-2.5 text-xs font-mono text-foreground hover:border-primary/60 hover:text-primary'
+            'h-9 w-9 min-h-9 gap-1.5 rounded-sm border border-border bg-card px-0 text-xs text-foreground hover:border-primary/60 hover:text-primary sm:w-auto sm:px-2.5'
           }
         >
           <Rss size={14} aria-hidden="true" />
