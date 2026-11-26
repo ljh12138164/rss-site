@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 import { isReportDate } from '../../shared/daily-report'
-import { articleSource, parseArticleIdFromSlug } from './lib/article-route'
+import { articleSource, normalizeArticleSlugSegment } from './lib/article-route'
 import { getContentStatus, getDailyReportStatus } from './lib/content-status'
 import {
   isAiSourceId,
@@ -45,16 +45,38 @@ export async function proxy(request: NextRequest) {
     encodedSlug &&
     ((section === 'ai' && sourceId === 'events') || articleSource(sourceId)?.section.id === section)
   ) {
-    let slug: string
-    try {
-      slug = decodeURIComponent(encodedSlug)
-    } catch {
-      return new NextResponse('Not found', { status: 404 })
-    }
     const event = section === 'ai' && sourceId === 'events'
-    const id = event ? slug : parseArticleIdFromSlug(slug)
-    if (!id || (event && (slug.length > 200 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))))
-      return new NextResponse('Not found', { status: 404 })
+    let id: string
+    if (event) {
+      let slug: string
+      try {
+        slug = decodeURIComponent(encodedSlug)
+      } catch {
+        return new NextResponse('Not found', { status: 404 })
+      }
+      if (!slug || slug.length > 200 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))
+        return new NextResponse('Not found', { status: 404 })
+      id = slug
+    } else {
+      const normalized = normalizeArticleSlugSegment(encodedSlug)
+      if (normalized.kind === 'invalid') {
+        return new NextResponse('Not found', {
+          status: 404,
+          headers: { 'X-Robots-Tag': 'noindex', 'Cache-Control': 'no-store' }
+        })
+      }
+      if (normalized.kind === 'redirect') {
+        const location = `/${section}/${encodeURIComponent(sourceId)}/${normalized.canonicalEncoded}${request.nextUrl.search}`
+        return new NextResponse(null, {
+          status: 301,
+          headers: {
+            Location: location,
+            'Cache-Control': 'public, max-age=86400, s-maxage=86400'
+          }
+        })
+      }
+      id = normalized.id
+    }
     try {
       const status = await getContentStatus(event ? 'event' : 'news', id, sourceId)
       if (status === 410)

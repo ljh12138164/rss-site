@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-26 规范化文章 Slug 编码长度并消除多重编码死循环
+
+- **分支与文档**：基于 `origin/master`（`240b587`）创建 `feat/normalize-article-slugs`，配套记录见 [normalize-article-slugs.md](docs/development/normalize-article-slugs.md)；无衍生 roadmap。
+- **改动**：在 [article-route.ts](apps/web/lib/article-route.ts) 中将 `createReadableSlug` 增加 UTF-8 百分号编码字节上限（前缀 ≤ `160` B、完整 slug ≤ `198` B，消除 Next.js `ENAMETOOLONG`），新增 `normalizeArticleSlugSegment`；在 [proxy.ts](apps/web/proxy.ts) 对 `%25` 多重编码与历史超长单次编码文章 URL 在查库前返回相对 `Location` 的 `301`（`s-maxage=86400`），超 20 层或畸形编码直接返回 `404` + `noindex`；同步补齐 [article-route.test.ts](apps/web/lib/article-route.test.ts) 与 [proxy.test.ts](apps/web/proxy.test.ts)（新增 6 项单测）。
+- **验证**：`pnpm lint`（`393` 文件）、`pnpm check-types`（`3/3` 包）、`pnpm test`（`@rss-site/signals` `9/9`、`@rss-site/api` `130/130`、`@rss-site/web` `209 passed | 22 skipped`）与 `pnpm --filter @rss-site/web build`（`137/137` 静态页 + early-hints + `sw.js`）全部通过。
+
 ## 2026-11-26 禁止合规爬虫抓取历史分页路由
 
 - **分支与文档**：基于 `origin/master`（`b5fa7f4`）创建 `feat/disallow-archive-crawling`，配套开发记录见 [disallow-archive-crawling.md](docs/development/disallow-archive-crawling.md)；无衍生代码 roadmap。
