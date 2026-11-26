@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-26 新闻分区接入 Rest of World 与 Semafor
+
+- **分支与来源**：基于 `master`（`c714de7`）创建 `feat/news-restofworld-semafor`，在 `news` 分区（`8 -> 10`，全站 `123 -> 125`）接入 `restofworld`（自建 `RSSHub` `/restofworld/latest`，`master` `@ fa159ab56a` 已上线 `https://rss.ljhboard.cn/restofworld/latest` 返回 `200`）与 `semafor`（官网 `<content:encoded>` 全文直转 Cloudflare Worker `https://feeds.ljhboard.cn/semafor`），详见 [开发记录](docs/development/news-restofworld-semafor.md)。
+- **图标、Worker、迁移与调度**：新增并压缩 [restofworld.webp](apps/web/public/source-icons/restofworld.webp)（`4,682 B`）与 [semafor.webp](apps/web/public/source-icons/semafor.webp)（`2,850 B`）至 [source-icon.tsx](apps/web/components/source-icon.tsx)；更新 [deploy/feed-relay/index.ts](deploy/feed-relay/index.ts) 与单测 [feed-relay.test.ts](server/api/src/ingestion/feed-relay.test.ts)；新增 [023-restofworld-semafor-sources.sql](deploy/postgres/migrations/023-restofworld-semafor-sources.sql)（将 `022-sherwood-source.sql` 置为 `-- Superseded`）、更新 [baseline.sql](deploy/postgres/baseline.sql)、[business-jobs.json](deploy/server/business-jobs.json)（`128` 项）及 [verify-release-runtime](deploy/server/verify-release-runtime)（含 `restofworld` / `semafor` 重放夹具，`128` / `130`）。
+- **验证与部署提醒**：本地真实 `ingestSignal` + `relay.fetch` + `renderArticleContent` 实测 `restofworld` `12/12`、`semafor` `20/20` 全数有效（[证据文件](docs/development/evidence/news-restofworld-semafor-20261126.json)）；`deploy/feed-relay` 需手动 `wrangler deploy` 上线 `/semafor`，发布时 `sync-business-cron --activate-unverified` 会自动先激活 `restofworld`。
+
 ## 2026-11-25 Sherwood News 财经全文来源接入与生产上线
 
 - **分支与发布**：[PR #118](https://github.com/ljh12138164/rss-site/pull/118) 已合入 `master`（`ff14530`），在 `finance` 分区注册 `sherwood`（双路由合并 `/sherwood/news?limit=20` + `/sherwood/snacks?limit=10`，`itemLimit: 30`、`cronSchedule: '23 5,11,17,23 * * *'`），配套记录见 [Sherwood News 全文来源接入](docs/development/sherwood-source.md)；自建 `RSSHub` 已将 `feat/sherwood` cherry-pick 至 `master`（`4b2494df50`）完成 Vercel 部署，上游 PR 已提交 [`DIYgod/RSSHub#24027`](https://github.com/DIYgod/RSSHub/pull/24027)（`9d63848970` 修复 Knip 冗余导出后 `Lint`/`oxlint`/`CodeFactor` 全绿）。
