@@ -31,18 +31,30 @@ const CATEGORY_LABEL_KEYS = {
   knowledge: 'catKnowledge'
 } as const satisfies Record<LeaderboardCategoryId, string>
 
-export const LEADERBOARD_DOMAIN_KEYS = {
-  综合: 'catOverall',
-  代码与编程: 'catCoding',
-  编程: 'domainCoding',
-  逻辑科研: 'catReasoning',
-  科研: 'domainReasoning',
-  '专业办公 Agent': 'catProfessional',
-  专业办公: 'domainProfessional',
-  知识问答: 'domainKnowledge',
-  真人盲选: 'domainArena',
-  评测: 'domainBenchmark'
-} as const
+type LeaderboardDomainKey =
+  | 'catOverall'
+  | 'catCoding'
+  | 'domainCoding'
+  | 'catReasoning'
+  | 'domainReasoning'
+  | 'catProfessional'
+  | 'domainProfessional'
+  | 'domainKnowledge'
+  | 'domainArena'
+  | 'domainBenchmark'
+
+export const LEADERBOARD_DOMAIN_KEYS = new Map<string, LeaderboardDomainKey>([
+  ['综合', 'catOverall'],
+  ['代码与编程', 'catCoding'],
+  ['编程', 'domainCoding'],
+  ['逻辑科研', 'catReasoning'],
+  ['科研', 'domainReasoning'],
+  ['专业办公 Agent', 'catProfessional'],
+  ['专业办公', 'domainProfessional'],
+  ['知识问答', 'domainKnowledge'],
+  ['真人盲选', 'domainArena'],
+  ['评测', 'domainBenchmark']
+])
 
 interface ModelLeaderboardProps {
   categories: Record<string, ModelLeaderboardItem[]>
@@ -117,8 +129,7 @@ function ModelItemCard({ item, view }: { item: ModelLeaderboardItem; view: 'list
         {Object.keys(item.scores).length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {Object.entries(item.scores).map(([domain, info]) => {
-              const domainKey =
-                LEADERBOARD_DOMAIN_KEYS[domain as keyof typeof LEADERBOARD_DOMAIN_KEYS]
+              const domainKey = LEADERBOARD_DOMAIN_KEYS.get(domain)
               return (
                 <span
                   key={domain}

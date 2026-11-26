@@ -42,7 +42,8 @@
 - **Provider 与桥接组件**：重写 `apps/web/components/site-language.tsx`，内部使用 `NextIntlClientProvider`、`useTranslations`、`useFormatter` 与 `useLocale`，保留 `localStorage` 偏好同步与 `document.documentElement.lang` 更新，导出强类型 `TranslatedText` / `TranslatedRegion` / `FormattedDate` 供静态服务端组件复用；新增 `apps/web/components/site-rich-text.tsx` 以 `t.rich()` 承载 `/about` 与 `/mcp` 含内联链接/`<code>` 标签的富文本段落。
 - **全站迁移**：迁移 66 个页面、布局与组件（含 `SectionLayout` 按 `sectionId` 与 `sources.<id>` 查词、6 个分区 `layout.tsx`、`SiteHeader`、`RssSubscription`、`ArticleSearch`、`ArticleSummary`、`ArticleTranslation`、`EventTranslation`、`CctvVideoPlayer`、`ModelLeaderboard`、`ModelDetailView`、`SkillLeaderboard`、`DailyReportView`、`HomeDigest`、`FollowingPage`、`ReadingListPage` 等），全仓剩余旧 `UiText`/`UiRegion`/`UiDate`/`useSiteText`/`site-messages` 引用为 `0`。
 - **测试补齐**：新增 `apps/web/lib/site-i18n.test.tsx` 校验双语词典 Key 与 ICU 占位符对齐、全部 7 个分区与 126 个信号源覆盖及运行时语言切换持久化；更新 7 个组件单测包裹 `SiteLanguageProvider`。
-- **Roadmap 结论**：本次迁移范围完整，审查无衍生待办事项，无需创建空 roadmap。
+- **审查修复**：完成 Codex 审查并全部解决 3 项发现（`CctvVideoPlayer` 改用 `ref` 读取不支持格式提示避免语言切换时销毁重建播放器；`LEADERBOARD_DOMAIN_KEYS` / `SUMMARY_ERROR_KEYS` / `SEARCH_VALIDATION_KEYS` 改用 `Map` 避免原型链属性误匹配；`site-i18n.test.tsx` 通过 `next-intl` `createTranslator` 真实 ICU 解析器全量编译校验 602 条双语词条与带格式参数）。
+- **Roadmap 结论**：本次迁移范围完整，审查无阻塞项或衍生待办事项，无需创建空 roadmap。
 
 ## Verification
 

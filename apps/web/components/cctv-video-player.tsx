@@ -36,6 +36,8 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
   const t = useTranslations('article')
   const tCommon = useTranslations('common')
   const containerRef = useRef<HTMLDivElement>(null)
+  const unsupportedTextRef = useRef(t('videoUnsupported'))
+  unsupportedTextRef.current = t('videoUnsupported')
   const [videoInfo, setVideoInfo] = useState<CctvVideoInfo | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -89,7 +91,6 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
 
     let artInstance: { destroy: (removeHtml?: boolean) => void } | null = null
     let isDisposed = false
-    const unsupportedText = t('videoUnsupported')
 
     Promise.all([import('artplayer'), import('hls.js')])
       .then(([artModule, hlsModule]) => {
@@ -116,7 +117,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
               } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 video.src = url
               } else {
-                art.notice.show = unsupportedText
+                art.notice.show = unsupportedTextRef.current
               }
             }
           },
@@ -157,7 +158,7 @@ export function CctvVideoPlayer({ pid, type = '0', className }: CctvVideoPlayerP
         artInstance.destroy(false)
       }
     }
-  }, [isPlaying, videoInfo, t])
+  }, [isPlaying, videoInfo])
 
   const aspectClass = isVertical ? 'aspect-[9/16] max-w-[340px] mx-auto' : 'aspect-video w-full'
 

@@ -14,21 +14,32 @@ import { useSiteLocale } from './site-language'
 
 const api = hc<AppType>('/')
 
-const SUMMARY_ERROR_KEYS = {
-  文章不存在: 'summaryNotFound',
-  文章参数无效: 'summaryInvalidArticle',
-  'Skill 参数无效': 'summaryInvalidSkill',
-  'Skill 未找到': 'summarySkillNotFound',
-  '暂未收录 SKILL.md，无法生成总结': 'summarySkillNoMd',
-  'SKILL.md 内容过长，请阅读原文': 'summarySkillTooLong',
-  '总结任务较多，请稍后重试': 'summaryBusy',
-  '总结服务暂不可用，请检查 ai-base 配置或稍后重试': 'summaryServiceDown',
-  '文章内容少于 200 字，无需生成总结': 'summaryTooShort',
-  '文章内容超过总结长度限制，请查看原文': 'summaryTooLong',
-  '暂时无法生成总结，请稍后重试': 'summaryUnavailable'
-} as const
+type SummaryErrorKey =
+  | 'summaryNotFound'
+  | 'summaryInvalidArticle'
+  | 'summaryInvalidSkill'
+  | 'summarySkillNotFound'
+  | 'summarySkillNoMd'
+  | 'summarySkillTooLong'
+  | 'summaryBusy'
+  | 'summaryServiceDown'
+  | 'summaryTooShort'
+  | 'summaryTooLong'
+  | 'summaryUnavailable'
 
-type SummaryErrorKey = (typeof SUMMARY_ERROR_KEYS)[keyof typeof SUMMARY_ERROR_KEYS]
+const SUMMARY_ERROR_KEYS = new Map<string, SummaryErrorKey>([
+  ['文章不存在', 'summaryNotFound'],
+  ['文章参数无效', 'summaryInvalidArticle'],
+  ['Skill 参数无效', 'summaryInvalidSkill'],
+  ['Skill 未找到', 'summarySkillNotFound'],
+  ['暂未收录 SKILL.md，无法生成总结', 'summarySkillNoMd'],
+  ['SKILL.md 内容过长，请阅读原文', 'summarySkillTooLong'],
+  ['总结任务较多，请稍后重试', 'summaryBusy'],
+  ['总结服务暂不可用，请检查 ai-base 配置或稍后重试', 'summaryServiceDown'],
+  ['文章内容少于 200 字，无需生成总结', 'summaryTooShort'],
+  ['文章内容超过总结长度限制，请查看原文', 'summaryTooLong'],
+  ['暂时无法生成总结，请稍后重试', 'summaryUnavailable']
+])
 
 interface ArticleSummaryProps {
   articleId: string
@@ -119,7 +130,7 @@ function SummaryPanel({
       if (failure instanceof Error && failure.name === 'TimeoutError') {
         setError({ key: 'summaryTimeout' })
       } else if (failure instanceof Error) {
-        const mapped = SUMMARY_ERROR_KEYS[failure.message as keyof typeof SUMMARY_ERROR_KEYS]
+        const mapped = SUMMARY_ERROR_KEYS.get(failure.message)
         setError(mapped ? { key: mapped } : { raw: failure.message })
       } else {
         setError({ key: 'summaryUnavailable' })

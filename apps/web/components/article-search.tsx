@@ -38,11 +38,14 @@ const dateOptions = {
   timeZone: 'Asia/Shanghai'
 } satisfies Intl.DateTimeFormatOptions
 
-const SEARCH_VALIDATION_KEYS = {
-  '请输入至少 2 个字或字符': 'validationMinLength',
-  '关键词请控制在 80 个字符以内': 'validationMaxLength',
-  请去掉星号后再搜索: 'validationNoAsterisk'
-} as const
+const SEARCH_VALIDATION_KEYS = new Map<
+  string,
+  'validationMinLength' | 'validationMaxLength' | 'validationNoAsterisk'
+>([
+  ['请输入至少 2 个字或字符', 'validationMinLength'],
+  ['关键词请控制在 80 个字符以内', 'validationMaxLength'],
+  ['请去掉星号后再搜索', 'validationNoAsterisk']
+])
 
 const sources = [
   ...aiSources,
@@ -94,9 +97,7 @@ function SearchPanel() {
   const debouncedQuery = request.q
   const query = value.trim()
   const validation = searchValidation(query)
-  const validationKey = validation
-    ? SEARCH_VALIDATION_KEYS[validation as keyof typeof SEARCH_VALIDATION_KEYS]
-    : undefined
+  const validationKey = validation ? SEARCH_VALIDATION_KEYS.get(validation) : undefined
   useEffect(() => {
     if (validation || composing) return
     const timer = setTimeout(

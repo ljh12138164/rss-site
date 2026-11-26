@@ -21,7 +21,7 @@ function SectionAccordion({
 }) {
   const t = useTranslations('leaderboard')
   const [isOpen, setIsOpen] = useState(isOpenDefault)
-  const domainKey = LEADERBOARD_DOMAIN_KEYS[section.domain as keyof typeof LEADERBOARD_DOMAIN_KEYS]
+  const domainKey = LEADERBOARD_DOMAIN_KEYS.get(section.domain)
 
   return (
     <div className="overflow-hidden rounded-sm border border-border bg-card">
@@ -210,8 +210,7 @@ export function ModelDetailView({ detail }: ModelDetailViewProps) {
           </h2>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {Object.entries(detail.scores).map(([domain, info]) => {
-              const domainKey =
-                LEADERBOARD_DOMAIN_KEYS[domain as keyof typeof LEADERBOARD_DOMAIN_KEYS]
+              const domainKey = LEADERBOARD_DOMAIN_KEYS.get(domain)
               return (
                 <div key={domain} className="rounded-sm border border-border bg-card p-4">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">

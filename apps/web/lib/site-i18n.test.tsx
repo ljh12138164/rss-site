@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { signalSections, signalSources } from '@rss-site/signals'
-import { useTranslations } from 'next-intl'
-import { act } from 'react'
+import { createTranslator, useTranslations } from 'next-intl'
+import { act, type ReactNode } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
@@ -11,6 +11,7 @@ import {
   useLanguagePreference,
   useSiteLocale
 } from '../components/site-language'
+import { DEFAULT_TIME_ZONE } from '../lib/site-locale'
 import enMessages from '../messages/en.json'
 import zhCNMessages from '../messages/zh-CN.json'
 
@@ -27,14 +28,43 @@ function flattenMessages(input: Record<string, unknown>, prefix = ''): Array<[st
   return entries.sort(([a], [b]) => a.localeCompare(b))
 }
 
-function extractPlaceholders(message: string): string[] {
-  const vars = Array.from(message.matchAll(/\{(\w+)\}/g), (match) => match[1])
-  const tags = Array.from(message.matchAll(/<\/([a-zA-Z0-9]+)>/g), (match) => `<${match[1]}>`)
-  return [...new Set([...vars, ...tags])].sort()
+function extractIcuTokens(message: string): { args: string[]; tags: string[] } {
+  const args = new Set<string>()
+  const tags = new Set<string>()
+  let depth = 0
+  let inQuotes = false
+
+  for (let i = 0; i < message.length; i++) {
+    const ch = message[i]
+    if (ch === "'") {
+      if (message[i + 1] === "'") {
+        i++
+      } else {
+        inQuotes = !inQuotes
+      }
+      continue
+    }
+    if (inQuotes) continue
+
+    if (ch === '{') {
+      if (depth === 0) {
+        const match = message.slice(i + 1).match(/^\s*([a-zA-Z0-9_]+)\s*(?:[,}])/)
+        if (match) args.add(match[1])
+      }
+      depth++
+    } else if (ch === '}') {
+      depth = Math.max(0, depth - 1)
+    } else if (ch === '<' && depth === 0) {
+      const tagMatch = message.slice(i + 1).match(/^\/([a-zA-Z0-9_]+)>/)
+      if (tagMatch) tags.add(tagMatch[1])
+    }
+  }
+
+  return { args: [...args].sort(), tags: [...tags].sort() }
 }
 
 describe('next-intl message catalogs', () => {
-  it('keeps zh-CN and en message keys and ICU placeholders strictly aligned', () => {
+  it('keeps zh-CN and en message keys, ICU arguments, tags, and syntax strictly valid and aligned', () => {
     const zhEntries = flattenMessages(zhCNMessages)
     const enEntries = flattenMessages(enMessages)
     const zhMap = new Map(zhEntries)
@@ -42,13 +72,49 @@ describe('next-intl message catalogs', () => {
 
     expect(zhEntries.map(([key]) => key)).toEqual(enEntries.map(([key]) => key))
 
+    const translators = {
+      'zh-CN': createTranslator({
+        locale: 'zh-CN',
+        messages: zhCNMessages,
+        timeZone: DEFAULT_TIME_ZONE,
+        onError: (error) => {
+          throw error
+        }
+      }),
+      en: createTranslator({
+        locale: 'en',
+        messages: enMessages,
+        timeZone: DEFAULT_TIME_ZONE,
+        onError: (error) => {
+          throw error
+        }
+      })
+    }
+
     for (const [key, zhValue] of zhMap) {
       const enValue = enMap.get(key)
       expect(zhValue.trim().length, `empty zh-CN message for ${key}`).toBeGreaterThan(0)
       expect(enValue?.trim().length, `empty en message for ${key}`).toBeGreaterThan(0)
-      expect(extractPlaceholders(enValue ?? ''), `ICU mismatch for ${key}`).toEqual(
-        extractPlaceholders(zhValue)
-      )
+
+      const zhTokens = extractIcuTokens(zhValue)
+      const enTokens = extractIcuTokens(enValue ?? '')
+      expect(enTokens, `ICU tokens mismatch for ${key}`).toEqual(zhTokens)
+
+      // Compile and execute every message through next-intl's real ICU parser
+      const values: Record<string, string | number | ((chunks: ReactNode) => ReactNode)> = {}
+      for (const arg of zhTokens.args) values[arg] = 1
+      for (const tag of zhTokens.tags) values[tag] = (chunks: ReactNode) => chunks
+
+      for (const [locale, t] of Object.entries(translators)) {
+        const rendered =
+          zhTokens.tags.length > 0
+            ? (t.rich as (k: string, v: Record<string, unknown>) => unknown)(key, values)
+            : (t as (k: string, v?: Record<string, unknown>) => string)(
+                key,
+                zhTokens.args.length > 0 ? values : undefined
+              )
+        expect(rendered, `failed to compile ${locale}:${key}`).toBeTruthy()
+      }
     }
   })
 
