@@ -22,16 +22,16 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 125 sources', () => {
+  it('defines 7 sections and 126 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(125)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(125)
+    expect(signalSources).toHaveLength(126)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(126)
   })
 
   it('correctly maps all section counts', () => {
-    expect(technologySources).toHaveLength(41)
-    expect(technologyArticleSources).toHaveLength(40)
+    expect(technologySources).toHaveLength(42)
+    expect(technologyArticleSources).toHaveLength(41)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(10)
     expect(aiSources).toHaveLength(29)
@@ -71,6 +71,7 @@ describe('@rss-site/signals', () => {
     expect(isSignalSourceId('rust-blog')).toBe(true)
     expect(isSignalSourceId('ruanyifeng')).toBe(true)
     expect(isSignalSourceId('chrome')).toBe(true)
+    expect(isSignalSourceId('supabase')).toBe(true)
     expect(isSignalSourceId('propublica')).toBe(true)
     expect(isSignalSourceId('grist')).toBe(true)
     expect(isSignalSourceId('restofworld')).toBe(true)
@@ -103,7 +104,7 @@ describe('@rss-site/signals', () => {
 
   it('filters sources by section and isArticle', () => {
     const techArticles = listSignalSources({ section: 'technology', isArticle: true })
-    expect(techArticles).toHaveLength(40)
+    expect(techArticles).toHaveLength(41)
     expect(techArticles.some((s) => s.id === 'github')).toBe(false)
 
     const allSkills = listSignalSources({ section: 'skills' })
@@ -216,6 +217,9 @@ describe('@rss-site/signals', () => {
     )
     expect(resolveSignalFeedUrl(getSignalSource('semafor'), 'https://rss.ljhboard.cn')).toBe(
       'https://feeds.ljhboard.cn/semafor'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('supabase'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/supabase/blog'
     )
   })
 

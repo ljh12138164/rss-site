@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-26 科技分区接入 Supabase Blog
+
+- **分支与上游**：基于 `master`（`e0b214a`）创建 `feat/supabase-source`，在 `technology` 分区（`41 -> 42`，全站 `125 -> 126`）接入 `supabase`（自建 `RSSHub` `/supabase/blog`，`feat/supabase-blog` @ `645db354f3`，已 cherry-pick 至自建 `master` @ `0651d708fc` 并上线 `https://rss.ljhboard.cn/supabase/blog` 返回 `200`），详见 [开发记录](docs/development/supabase-source.md)。
+- **图标、国际化、迁移与调度**：在 [source-icon.tsx](apps/web/components/source-icon.tsx) 接入 `SiSupabase`，并在 [site-messages.ts](apps/web/lib/site-messages.ts) 补齐来源描述英文翻译；新增 [024-supabase-source.sql](deploy/postgres/migrations/024-supabase-source.sql)（将 [023-restofworld-semafor-sources.sql](deploy/postgres/migrations/023-restofworld-semafor-sources.sql) 置为 `-- Superseded`），同步更新 [baseline.sql](deploy/postgres/baseline.sql)、[business-jobs.json](deploy/server/business-jobs.json)（`129` 项）与 [verify-release-runtime](deploy/server/verify-release-runtime)（含 `'supabase'` 重放夹具，`129` / `131`）。
+- **验证**：公网 `https://rss.ljhboard.cn/supabase/blog` 实测 `fetchSignalFeed` + `ingestSignal` + `renderArticleContent` `15/15` 入库与渲染有效、`0` 坏图、最大正文 `12,949 B`（[证据文件](docs/development/evidence/supabase-20261126.json)）。
+
 ## 2026-11-26 中英文界面与 AI 摘要
 
 - 从 `origin/master` 的 `bbe36d9` 开始，在 `feat/site-localization` 接入浏览器语言并保留既有页面缓存

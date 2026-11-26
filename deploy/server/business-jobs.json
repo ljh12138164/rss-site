@@ -744,6 +744,12 @@
     "path": "/cron/signals/semafor"
   },
   {
+    "source": "supabase",
+    "name": "signal-ingest-supabase",
+    "schedule": "49 4,10,16,22 * * *",
+    "path": "/cron/signals/supabase"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

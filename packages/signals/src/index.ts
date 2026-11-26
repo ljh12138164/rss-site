@@ -87,7 +87,7 @@ export const signalSections: readonly SignalSectionConfig[] = [
   }
 ] as const
 
-// 科技 Technology (40)
+// 科技 Technology (42)
 export const technologySources = [
   {
     id: 'github',
@@ -627,6 +627,19 @@ export const technologySources = [
     isArticle: true,
     cronSchedule: '48 4,10,16,22 * * *',
     cronJobName: 'signal-ingest-chrome'
+  },
+  {
+    id: 'supabase',
+    name: 'Supabase',
+    code: 'SB',
+    shortName: 'Supabase',
+    description: 'Supabase 官方工程博客、Postgres 深度实践与新功能发布，英文全文',
+    section: 'technology',
+    itemLimit: 15,
+    rsshubPath: '/supabase/blog',
+    isArticle: true,
+    cronSchedule: '49 4,10,16,22 * * *',
+    cronJobName: 'signal-ingest-supabase'
   }
 ] as const
 
@@ -1912,7 +1925,8 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'overkill',
   'sherwood',
   'restofworld',
-  'semafor'
+  'semafor',
+  'supabase'
 ] as const
 
 // Cron jobs

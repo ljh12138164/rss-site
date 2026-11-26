@@ -622,6 +622,10 @@ export const englishMessages = new Map<string, string>([
     'Chrome 官方开发者博客，涵盖 Web 平台、DevTools 与端侧 AI',
     'The official Chrome developer blog covering the web platform, DevTools, and on-device AI'
   ],
+  [
+    'Supabase 官方工程博客、Postgres 深度实践与新功能发布，英文全文',
+    'Official Supabase engineering blog, Postgres deep dives, and product releases in English'
+  ],
   ['当前安装量领先的 Skills', 'Skills with the most installs'],
   ['过去 24 小时增长最快的 Skills', 'Fastest-growing skills over the last 24 hours'],
   ['新华网新闻', 'Xinhua news'],
