@@ -78,7 +78,7 @@ For new signal sources, follow the [production-data gate](../../../AGENTS.md#new
 
 ## Close reviews and create the roadmap
 
-1. Review the completed diff against both repository standards and the development document's acceptance criteria. Run `codex review --base <base> -c 'model="gpt-6.2-sol"' -c 'model_reasoning_effort="high"'` alongside repository checks and any dedicated review skill when the user requests one or repository instructions require it.
+1. Review the completed diff directly against both repository standards and the development document's acceptance criteria alongside repository checks (and any dedicated review skill when the user requests one). Do not run external `codex review` unless the user explicitly asks for it.
 2. Classify every finding as:
    - **Blocking:** required for correctness, acceptance criteria, security, compatibility, or safe delivery. Resolve it in the current branch and review again.
    - **Accepted follow-up:** valuable, evidence-backed work that is explicitly outside the current PR scope and does not make the PR unsafe or incomplete.

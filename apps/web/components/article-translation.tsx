@@ -9,11 +9,13 @@ import { pairBilingualBlocks } from '../lib/article-bilingual'
 import { looksLikeEnglish } from '../lib/article-language'
 import type { AppType } from '../lib/hono-app'
 import { estimateReadingMinutes } from '../lib/reading-progress'
+import { parseZhihuQaContent } from '../lib/zhihu-qa'
 import { ActionButton } from './action-button'
 import { ArticleHtmlBody } from './article-html-body'
 import { ArticleReadingTools } from './article-reading-tools'
 import { useSiteLocale } from './site-language'
 import { UiSegmentedGroup } from './ui/segmented-group'
+import { ZhihuQaBody } from './zhihu-qa-body'
 
 const api = hc<AppType>('/')
 
@@ -57,6 +59,7 @@ export function ArticleTranslation({
   const [error, setError] = useState('')
 
   const hasBody = Boolean(contentHtml?.replace(/<[^>]*>/g, '').trim())
+  const zhihuQa = source === 'zhihu' && contentHtml ? parseZhihuQaContent(contentHtml) : null
 
   async function requestTranslation() {
     if (!translationEnabled) return
@@ -232,6 +235,8 @@ export function ArticleTranslation({
             ) : (
               <p className="text-base leading-8 text-muted-foreground">{t('noBodyFallback')}</p>
             )
+          ) : zhihuQa ? (
+            <ZhihuQaBody qa={zhihuQa} lang={originalLang} />
           ) : hasBody && contentHtml ? (
             <ArticleHtmlBody html={contentHtml} lang={originalLang} />
           ) : summary ? (

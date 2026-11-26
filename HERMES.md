@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-26 知乎热榜问答详情页阅读体验优化
+
+- **分支与文档**：基于 `origin/master`（`457e6a4`）创建 `feat/zhihu-qa-reader`，配套开发文档见 [zhihu-qa-reader.md](docs/development/zhihu-qa-reader.md)，关联线上空正文治理路线图 [empty-article-content-audit.md](docs/roadmaps/empty-article-content-audit.md)；同步随本分支提交移除外部 Codex 审查要求的规范文档更新（`AGENTS.md`、`.agents/skills/develop-with-pr/SKILL.md`、`docs/research/rsshub-route-candidates-and-workflow.md`）。
+- **改动**：仅针对 `source === 'zhihu'` 详情页新增 [zhihu-qa.ts](apps/web/lib/zhihu-qa.ts) 与 [zhihu-qa-body.tsx](apps/web/components/zhihu-qa-body.tsx)，并在 [article-reader.tsx](apps/web/components/article-reader.tsx)、[article-translation.tsx](apps/web/components/article-translation.tsx)、[globals.css](apps/web/app/globals.css) 及 `apps/web/messages/{zh-CN,en}.json` 中接入：隐藏固定占位作者 `"用户"`、过滤 `[图片]`/`[N 张图片]` 占位背景、清理空标题与首尾空段落、将回答内部 `h2–h5` 降级为 `h3–h6` 以匹配答主 `<h2>` 与文章目录层级，并展示“问题背景”与带赞同数徽章、原回答直链的“精选高赞回答”列表；无结构化回答的历史条目自动回退原正文渲染。
+- **验证**：`biome check`（`363` 文件）、`pnpm check-types`（`3/3` 包）、`pnpm test`（`@rss-site/signals` `9/9`、`@rss-site/api` `130/130`、`@rss-site/web` `218 passed | 22 skipped`）、`pnpm --filter @rss-site/web build`（`137/137` 静态页）及桌面深色/浅色/无背景过滤与移动端 `390px` 真实浏览器截图验收全部通过。
+
 ## 2026-11-26 界面国际化迁移至 next-intl
 
 - **分支与文档**：基于 `origin/master`（`bbd0e86`）创建 `feat/migrate-next-intl`，配套开发记录见 [migrate-next-intl.md](docs/development/migrate-next-intl.md)；无衍生 roadmap。

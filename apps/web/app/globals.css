@@ -372,6 +372,27 @@
   max-width: 100%;
   overflow-x: auto;
 }
+.article-content.zhihu-qa-context {
+  line-height: 1.75;
+}
+.article-content.zhihu-qa-context > :first-child,
+.article-content.zhihu-qa-answer-body > :first-child {
+  margin-top: 0;
+}
+.article-content.zhihu-qa-context > :last-child,
+.article-content.zhihu-qa-answer-body > :last-child {
+  margin-bottom: 0;
+}
+.article-content.zhihu-qa-answer-body h3 {
+  font-size: 1.1em;
+  margin-block: 1.4em 0.55em;
+}
+.article-content.zhihu-qa-answer-body h4,
+.article-content.zhihu-qa-answer-body h5,
+.article-content.zhihu-qa-answer-body h6 {
+  font-size: 1em;
+  margin-block: 1.2em 0.5em;
+}
 @media (min-width: 640px) {
   .article-content {
     font-size: 1.0625rem;

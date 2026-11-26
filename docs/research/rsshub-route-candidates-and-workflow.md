@@ -244,13 +244,9 @@ pnpm knip # 若 Windows 报 oxc-parser ArrayBuffer 分配失败，改用 rg -n "
      pnpm exec tsx lib/index.ts
      ```
    - 访问 `http://localhost:1200/<route>` 实测关键参数组合（如 `?limit=1`、默认路由、专题/分类过滤、`?format=json` 等），检查标题、链接、发布时间、`author`、封面/正文图片、`description` 全文质量及无 `http://` 混合内容问题。
-4. **使用 Codex（`gpt-6.2-sol` + 高思考程度 `high`）进行代码 Review**：
-   - 若本机尚未安装 Codex CLI（或版本过旧不支持 `gpt-6.2-sol`），先全局安装/升级：`npm install -g @openai/codex@latest`（若使用 Vite+ 工具链可执行 `vp add -g @openai/codex@latest`）；
-   - 在提交前针对未提交代码执行高思考力度 Review：
-     ```bash
-     codex review --uncommitted -c model="gpt-6.2-sol" -c model_reasoning_effort="high"
-     ```
-   - 用真实线上数据核查 Codex 指出的 P0/P1/P2 问题，修复并重跑静态校验与本地实测后，将 **本地文档预览地址**、**Review 修复结论** 与 **真实抓取的数据样本/质量统计** 一并提交给用户验收；验收通过后再进入第 3 步合并部署到自建 `ljh12138164/RSSHub`。
+4. **提交前由当前 Agent 自行完成全面代码 Review**（无需调用外部 `codex review`）：
+   - 对照上游 `AGENTS.md`、`.github/prompts/pr_review_rules.md`、`oxlint.ci.config.ts` 与实时抓取输出，逐项检查边界条件、类型收窄、异常处理、圈复杂度与内容保真；
+   - 用真实线上数据核查发现的 P0/P1/P2 问题，修复并重跑静态校验与本地实测后，将 **Review 修复结论** 与 **真实抓取的数据样本/质量统计** 一并提交给用户验收；验收通过后再进入第 3 步合并部署到自建 `ljh12138164/RSSHub`。
 
 ### 第 3 步：自建 RSSHub 上线与实测验收
 
