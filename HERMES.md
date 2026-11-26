@@ -4,6 +4,7 @@
 
 - 从 `origin/master` 的 `bbe36d9` 开始，在 `feat/site-localization` 接入浏览器语言并保留既有页面缓存
 - ai-base 使用 `feat/summary-localization` 支持英语推理与分语言缓存，发布顺序为 ai-base、rss-site
+- 两仓 PR 已提交至 `master`，待按依赖顺序合并发布。先处理 [ai-base #23](https://github.com/ljh12138164/ai-base/pull/23)，再处理 [rss-site #121](https://github.com/ljh12138164/rss-site/pull/121)
 - 交付记录见 [中英文界面与 AI 摘要](docs/development/site-localization.md)
 
 ## 2026-11-26 新闻分区接入 Rest of World 与 Semafor
