@@ -6,10 +6,15 @@ import {
   Clock,
   Cpu,
   Flame,
+  Gamepad2,
   GitBranch,
+  Laptop,
   Layers,
   Menu,
+  MessagesSquare,
   Newspaper,
+  Sparkles,
+  TrendingUp,
   X
 } from 'lucide-react'
 import Link from 'next/link'
@@ -40,6 +45,15 @@ const SPECIALTY_NAV = [
   { href: '/leaderboard', label: '模型评测', icon: Cpu },
   { href: '/skills', label: '热门 Skills', icon: Boxes }
 ] as const
+
+const CHANNEL_ICONS = {
+  ai: Sparkles,
+  technology: Laptop,
+  news: Newspaper,
+  social: MessagesSquare,
+  finance: TrendingUp,
+  games: Gamepad2
+} as const
 
 function isRouteActive(pathname: string, href: string): boolean {
   if (href === '/') return pathname === '/' || pathname === '/latest'
@@ -112,6 +126,7 @@ function RailContent({
             </p>
             <ul className="space-y-0.5">
               {TRANSIT_LINES.map((line) => {
+                const Icon = CHANNEL_ICONS[line.id]
                 const active = isRouteActive(pathname, line.path)
                 return (
                   <li key={line.id}>
@@ -133,17 +148,10 @@ function RailContent({
                           style={{ backgroundColor: line.cssVar }}
                         />
                       )}
-                      <span
+                      <Icon
                         aria-hidden="true"
-                        className="size-2.5 shrink-0 rounded-full transition-transform"
-                        style={{
-                          backgroundColor: active ? line.cssVar : 'var(--rail)',
-                          borderColor: line.cssVar,
-                          borderWidth: active ? '0px' : '2px',
-                          boxShadow: active
-                            ? `0 0 0 2px var(--rail), 0 0 0 3.5px ${line.cssVar}`
-                            : undefined
-                        }}
+                        className="size-4 shrink-0"
+                        style={{ color: line.cssVar }}
                       />
                       <span className="min-w-0 flex-1 truncate">{t(line.name)}</span>
                       <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
