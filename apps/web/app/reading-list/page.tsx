@@ -10,10 +10,11 @@ import {
   Trash2
 } from 'lucide-react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Tab, TabList, TabPanel, Tabs } from 'react-aria-components'
 import { ActionButton } from '../../components/action-button'
-import { UiDate, useSiteText } from '../../components/site-language'
+import { FormattedDate } from '../../components/site-language'
 import { SiteShell } from '../../components/site-shell'
 import {
   type ReadingHistoryItem,
@@ -32,7 +33,7 @@ const dateOptions = {
 } satisfies Intl.DateTimeFormatOptions
 
 export default function ReadingListPage() {
-  const t = useSiteText()
+  const t = useTranslations('readingList')
   const [activeTab, setActiveTab] = useState<'saved' | 'history'>('saved')
   const {
     savedArticles,
@@ -70,14 +71,14 @@ export default function ReadingListPage() {
         }}
       >
         <header className="mb-6 border-b border-border pb-6">
-          <h1 className="headline-display text-3xl sm:text-4xl">{t('稍后读')}</h1>
+          <h1 className="headline-display text-3xl sm:text-4xl">{t('title')}</h1>
           <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
-            {t('收藏文章与最近 100 条本地阅读记录。')}
+            {t('subtitle')}
           </p>
 
           <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
             <TabList
-              aria-label={t('阅读列表分类')}
+              aria-label={t('tabsAria')}
               className="inline-flex overflow-x-auto overflow-y-hidden rounded-sm border border-border bg-muted p-1 text-xs font-medium"
             >
               <Tab
@@ -85,7 +86,7 @@ export default function ReadingListPage() {
                 className="flex min-h-8 cursor-pointer items-center gap-2 rounded-sm px-3.5 py-1.5 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring data-[selected]:bg-card data-[selected]:font-semibold data-[selected]:text-foreground data-[selected]:shadow-xs"
               >
                 <Bookmark className="size-3.5" aria-hidden="true" />
-                <span>{t('稍后读')}</span>
+                <span>{t('savedTab')}</span>
                 <span className="rounded-sm bg-primary/14 px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-primary">
                   {savedArticles.length}
                 </span>
@@ -95,7 +96,7 @@ export default function ReadingListPage() {
                 className="flex min-h-8 cursor-pointer items-center gap-2 rounded-sm px-3.5 py-1.5 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring data-[selected]:bg-card data-[selected]:font-semibold data-[selected]:text-foreground data-[selected]:shadow-xs"
               >
                 <History className="size-3.5" aria-hidden="true" />
-                <span>{t('浏览记录')}</span>
+                <span>{t('historyTab')}</span>
                 <span className="rounded-sm bg-secondary px-1.5 py-0.5 font-mono text-[10px] tabular-nums text-muted-foreground">
                   {readingHistory.length}
                 </span>
@@ -115,10 +116,10 @@ export default function ReadingListPage() {
                 )}
               >
                 {confirmClear
-                  ? t('确认清空？')
+                  ? t('confirmClear')
                   : activeTab === 'saved'
-                    ? t('清空稍后读')
-                    : t('清空记录')}
+                    ? t('clearSaved')
+                    : t('clearHistory')}
               </ActionButton>
             )}
           </div>
@@ -128,8 +129,8 @@ export default function ReadingListPage() {
           {savedArticles.length === 0 ? (
             <EmptyState
               icon={<Bookmark className="size-9 text-muted-foreground/45" />}
-              title={t('暂无收藏文章')}
-              description={t('阅读时点击「稍后读」即可存入这里。')}
+              title={t('emptySavedTitle')}
+              description={t('emptySavedDesc')}
             />
           ) : (
             <ol className="divide-y divide-border rounded-sm border border-border bg-card">
@@ -148,8 +149,8 @@ export default function ReadingListPage() {
           {readingHistory.length === 0 ? (
             <EmptyState
               icon={<History className="size-9 text-muted-foreground/45" />}
-              title={t('暂无浏览记录')}
-              description={t('打开过的站内文章会保留在这里，最多 100 条。')}
+              title={t('emptyHistoryTitle')}
+              description={t('emptyHistoryDesc')}
             />
           ) : (
             <ol className="divide-y divide-border rounded-sm border border-border bg-card">
@@ -188,7 +189,7 @@ function EmptyState({
   title: string
   description: string
 }) {
-  const t = useSiteText()
+  const tCommon = useTranslations('common')
   return (
     <div className="flex flex-col items-center justify-center rounded-sm border border-border bg-card px-6 py-16 text-center sm:py-20">
       <div className="mb-3">{icon}</div>
@@ -198,7 +199,7 @@ function EmptyState({
         href="/"
         className="mt-5 inline-flex min-h-10 items-center gap-1.5 rounded-sm border border-strong bg-secondary px-4 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent"
       >
-        <span>{t('浏览全部热点')}</span>
+        <span>{tCommon('browseAllStories')}</span>
         <ArrowRight className="size-3.5" aria-hidden="true" />
       </Link>
     </div>
@@ -206,7 +207,7 @@ function EmptyState({
 }
 
 function SavedItemRow({ item, onRemove }: { item: SavedArticleItem; onRemove: () => void }) {
-  const t = useSiteText()
+  const tArticle = useTranslations('article')
   const isInternal = item.url.startsWith('/')
 
   return (
@@ -218,7 +219,7 @@ function SavedItemRow({ item, onRemove }: { item: SavedArticleItem; onRemove: ()
           <span className="inline-flex items-center gap-1">
             <Clock className="size-3" aria-hidden="true" />
             <time dateTime={new Date(item.savedAt).toISOString()}>
-              <UiDate date={item.savedAt} options={dateOptions} />
+              <FormattedDate date={item.savedAt} options={dateOptions} />
             </time>
           </span>
         </div>
@@ -247,7 +248,7 @@ function SavedItemRow({ item, onRemove }: { item: SavedArticleItem; onRemove: ()
           size="icon"
           onPress={onRemove}
           className="size-9 text-muted-foreground/75 hover:bg-destructive/10 hover:text-destructive"
-          aria-label={t('移出稍后读')}
+          aria-label={tArticle('removeFromReadingList')}
         >
           <Trash2 className="size-4" aria-hidden="true" />
         </ActionButton>
@@ -267,7 +268,8 @@ function HistoryItemRow({
   onToggleSave: () => void
   onRemove: () => void
 }) {
-  const t = useSiteText()
+  const t = useTranslations('readingList')
+  const tArticle = useTranslations('article')
   const isInternal = item.url.startsWith('/')
 
   return (
@@ -279,7 +281,7 @@ function HistoryItemRow({
           <span className="inline-flex items-center gap-1">
             <Clock className="size-3" aria-hidden="true" />
             <time dateTime={new Date(item.readAt).toISOString()}>
-              <UiDate date={item.readAt} options={dateOptions} />
+              <FormattedDate date={item.readAt} options={dateOptions} />
             </time>
           </span>
         </div>
@@ -313,7 +315,7 @@ function HistoryItemRow({
               ? 'text-primary hover:text-primary/80'
               : 'text-muted-foreground/75 hover:text-foreground'
           )}
-          aria-label={isSaved ? t('移出稍后读') : t('加入稍后读')}
+          aria-label={isSaved ? tArticle('removeFromReadingList') : tArticle('saveForLater')}
         >
           {isSaved ? (
             <BookmarkCheck className="size-4" aria-hidden="true" />
@@ -326,7 +328,7 @@ function HistoryItemRow({
           size="icon"
           onPress={onRemove}
           className="size-9 text-muted-foreground/75 hover:bg-destructive/10 hover:text-destructive"
-          aria-label={t('删除此条记录')}
+          aria-label={t('removeHistoryItem')}
         >
           <Trash2 className="size-4" aria-hidden="true" />
         </ActionButton>

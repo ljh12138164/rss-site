@@ -1,17 +1,18 @@
 'use client'
 
 import { Check, Languages } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components'
 import { isSiteLocale } from '../lib/site-locale'
 import { ActionButton } from './action-button'
-import { useLanguagePreference, useSiteText } from './site-language'
+import { useLanguagePreference } from './site-language'
 
 export function LanguageMenu() {
   const { locale, preference, setPreference } = useLanguagePreference()
-  const t = useSiteText()
-  const label = t('界面语言')
+  const t = useTranslations('common')
+  const label = t('language')
   const options = [
-    { id: 'auto', label: t('跟随浏览器') },
+    { id: 'auto', label: t('followBrowser') },
     { id: 'zh-CN', label: '简体中文', lang: 'zh-CN' },
     { id: 'en', label: 'English', lang: 'en' }
   ]

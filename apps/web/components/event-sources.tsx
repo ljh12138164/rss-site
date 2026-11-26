@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import { findSignalSource } from '../lib/technology-sources'
-import { UiText } from './site-language'
+import { TranslatedText } from './site-language'
 import { SourceIcon } from './source-icon'
 
 export function EventSources({ sources }: { sources: string[] }) {
   return (
     <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
       <span>
-        <UiText>{'来源：'}</UiText>
+        <TranslatedText id="events.sourcePrefix" />
       </span>
       {sources.length ? (
         [...new Set(sources)].map((id) => {
@@ -30,7 +30,7 @@ export function EventSources({ sources }: { sources: string[] }) {
         })
       ) : (
         <span>
-          <UiText>{'来源暂缺'}</UiText>
+          <TranslatedText id="events.sourceUnavailable" />
         </span>
       )}
     </div>

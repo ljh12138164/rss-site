@@ -3,46 +3,53 @@ import type { DailyReport, DailyStory } from '../../../../shared/daily-report'
 import type { DailyArchive, DailyArchiveEntry } from '../../lib/daily-reports'
 import { getTransitLine } from '../../lib/transit-lines'
 import { cn } from '../../lib/utils'
-import { UiDate, UiRegion, UiText } from '../site-language'
+import {
+  FormattedDate,
+  type SiteMessageKey,
+  TranslatedRegion,
+  TranslatedText
+} from '../site-language'
 
-const sectionNames = {
-  ai: 'AI',
-  technology: '科技',
-  news: '新闻',
-  social: '社交',
-  finance: '财经',
-  games: '游戏'
-}
+const WEEKDAY_KEYS = [
+  'daily.weekdayMon',
+  'daily.weekdayTue',
+  'daily.weekdayWed',
+  'daily.weekdayThu',
+  'daily.weekdayFri',
+  'daily.weekdaySat',
+  'daily.weekdaySun'
+] as const
+
 const linkClass =
   'min-h-10 inline-flex items-center text-muted-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-ring'
 
-function IssueLink({ issue, label }: { issue?: DailyArchiveEntry; label: string }) {
+function IssueLink({ issue, labelId }: { issue?: DailyArchiveEntry; labelId: SiteMessageKey }) {
   return issue ? (
     <Link href={`/daily/${issue.report_date}`} className={linkClass}>
-      <UiText>{label}</UiText>
+      <TranslatedText id={labelId} />
     </Link>
   ) : (
     <span className="inline-flex min-h-10 items-center text-muted-foreground/45">
-      <UiText>{label}</UiText>
+      <TranslatedText id={labelId} />
     </span>
   )
 }
 
 function Archive({ archive, date }: { archive: DailyArchive; date: string }) {
   return (
-    <UiRegion as="nav" aria-label="日报往期" className="min-w-0">
+    <TranslatedRegion as="nav" labelId="daily.pastBriefings" className="min-w-0">
       <div className="flex items-center justify-between border-b border-border pb-2.5">
         <h2 className="text-xs font-semibold text-foreground">
-          <UiText>{'往期'}</UiText>
+          <TranslatedText id="daily.archive" />
         </h2>
         <Link href="/daily" className="font-mono text-xs text-primary hover:underline">
-          <UiText>{'最新'}</UiText>
+          <TranslatedText id="daily.latest" />
         </Link>
       </div>
       <div className="flex items-center justify-between gap-2 py-2.5 text-xs">
-        <IssueLink issue={archive.previousMonth} label="← 上月" />
+        <IssueLink issue={archive.previousMonth} labelId="daily.prevMonth" />
         <span className="font-mono tabular-nums text-foreground">{date.slice(0, 7)}</span>
-        <IssueLink issue={archive.nextMonth} label="下月 →" />
+        <IssueLink issue={archive.nextMonth} labelId="daily.nextMonth" />
       </div>
       <ol className="divide-y divide-border/70 border-y border-border">
         {archive.entries.map((issue) => (
@@ -70,9 +77,9 @@ function Archive({ archive, date }: { archive: DailyArchive; date: string }) {
         ))}
       </ol>
       <p className="pt-3 font-mono text-[11px] tabular-nums text-muted-foreground">
-        <UiText values={{ count: archive.entries.length }}>{'本月 {count} 期'}</UiText>
+        <TranslatedText id="daily.issuesThisMonth" values={{ count: archive.entries.length }} />
       </p>
-    </UiRegion>
+    </TranslatedRegion>
   )
 }
 
@@ -84,18 +91,18 @@ function Calendar({ archive, date }: { archive: DailyArchive; date: string }) {
   return (
     <details className="relative mt-1 text-xs">
       <summary className="inline-flex min-h-9 cursor-pointer list-none items-center rounded-sm border border-border bg-background px-2.5 font-mono text-muted-foreground hover:border-primary/60 hover:text-primary focus-visible:outline-2 focus-visible:outline-ring">
-        <UiText>{'日期切换 ▾'}</UiText>
+        <TranslatedText id="daily.chooseDate" />
       </summary>
       <div className="absolute right-0 z-20 mt-1 w-[320px] max-w-[calc(100vw-2.5rem)] rounded-sm border border-strong bg-popover p-3 text-popover-foreground shadow-xl">
         <p className="mb-2.5 font-mono text-xs text-muted-foreground">{date.slice(0, 7)}</p>
         <div className="grid grid-cols-7 text-center">
-          {['一', '二', '三', '四', '五', '六', '日'].map((day) => (
-            <span key={day} className="py-1.5 text-muted-foreground">
-              <UiText>{day}</UiText>
+          {WEEKDAY_KEYS.map((dayId) => (
+            <span key={dayId} className="py-1.5 text-muted-foreground">
+              <TranslatedText id={dayId} />
             </span>
           ))}
-          {['一', '二', '三', '四', '五', '六'].slice(0, offset).map((day) => (
-            <span key={`space-${day}`} />
+          {WEEKDAY_KEYS.slice(0, offset).map((dayId) => (
+            <span key={`space-${dayId}`} />
           ))}
           {Array.from({ length: days }, (_, index) => {
             const day = index + 1
@@ -112,7 +119,7 @@ function Calendar({ archive, date }: { archive: DailyArchive; date: string }) {
               >
                 <span aria-hidden="true">{day}</span>
                 <span className="sr-only">
-                  <UiText values={{ date: value }}>{'阅读 {date} 日报'}</UiText>
+                  <TranslatedText id="daily.readDate" values={{ date: value }} />
                 </span>
               </Link>
             ) : (
@@ -132,9 +139,9 @@ function Calendar({ archive, date }: { archive: DailyArchive; date: string }) {
 
 function Highlights({ stories }: { stories: DailyStory[] }) {
   return (
-    <UiRegion as="nav" aria-label="目录">
+    <TranslatedRegion as="nav" labelId="common.toc">
       <h2 className="mb-3 font-mono text-xs font-semibold text-primary">
-        <UiText>{'目录'}</UiText>
+        <TranslatedText id="common.toc" />
       </h2>
       <ol className="divide-y divide-border/70">
         {stories.slice(0, 5).map((story, index) => (
@@ -151,7 +158,7 @@ function Highlights({ stories }: { stories: DailyStory[] }) {
           </li>
         ))}
       </ol>
-    </UiRegion>
+    </TranslatedRegion>
   )
 }
 
@@ -181,7 +188,7 @@ export function DailyReportView({
 
   function citations(story: { sourceIds: string[] }) {
     return (
-      <UiRegion as="ul" className="mt-4 flex flex-wrap gap-2" aria-label="来源">
+      <TranslatedRegion as="ul" className="mt-4 flex flex-wrap gap-2" labelId="common.source">
         {story.sourceIds.map((id) => {
           const source = sources.get(id)
           if (!source) throw new Error('Unknown daily citation')
@@ -210,7 +217,7 @@ export function DailyReportView({
             </li>
           )
         })}
-      </UiRegion>
+      </TranslatedRegion>
     )
   }
 
@@ -228,11 +235,11 @@ export function DailyReportView({
             />
           )}
           <span className="text-foreground">
-            <UiText>{sectionNames[story.section]}</UiText>
+            <TranslatedText id={`sections.${story.section}.shortTitle`} />
           </span>
           {lead && (
             <span className="rounded-sm bg-primary/15 px-1.5 py-0.5 text-[11px] font-semibold text-primary">
-              <UiText>{'头条'}</UiText>
+              <TranslatedText id="daily.topStory" />
             </span>
           )}
         </div>
@@ -266,7 +273,7 @@ export function DailyReportView({
       <div className="min-w-0">
         <details className="mb-5 rounded-sm border border-border bg-card p-3 lg:hidden">
           <summary className="cursor-pointer font-mono text-xs font-medium text-foreground focus-visible:outline-2 focus-visible:outline-ring">
-            <UiText>{'往期 ·'}</UiText> {report.reportDate} ▾
+            <TranslatedText id="daily.archiveWithDate" values={{ date: report.reportDate }} />
           </summary>
           <div className="mt-3">
             <Archive archive={archive} date={report.reportDate} />
@@ -278,10 +285,13 @@ export function DailyReportView({
             <div className="min-w-0">
               <p className="font-mono text-xs text-muted-foreground">
                 {report.reportDate} ·{' '}
-                <UiDate date={date} options={{ timeZone: 'Asia/Shanghai', weekday: 'long' }} />
+                <FormattedDate
+                  date={date}
+                  options={{ timeZone: 'Asia/Shanghai', weekday: 'long' }}
+                />
               </p>
               <h1 className="headline-display mt-2 text-3xl text-foreground sm:text-4xl">
-                <UiText>{'今日日报'}</UiText>
+                <TranslatedText id="daily.title" />
               </h1>
             </div>
             <div className="shrink-0 border-l border-border pl-4 text-right sm:pl-6">
@@ -296,12 +306,12 @@ export function DailyReportView({
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3 font-mono text-xs tabular-nums text-muted-foreground">
             <p>
               <strong className="text-foreground">{report.storyCount}</strong>{' '}
-              <UiText>{'条事件 ·'}</UiText>{' '}
+              <TranslatedText id="daily.storyCount" />{' '}
               <strong className="text-foreground">{report.sourceCount}</strong>{' '}
-              <UiText>{'篇来源'}</UiText>
+              <TranslatedText id="daily.sourceCount" />
             </p>
             <p>
-              <UiText>{'覆盖'}</UiText>{' '}
+              <TranslatedText id="daily.covers" />{' '}
               {new Date(report.windowStart).toLocaleDateString('sv-SE', {
                 timeZone: 'Asia/Shanghai'
               })}
@@ -311,19 +321,19 @@ export function DailyReportView({
 
         <div className="mt-6 grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_220px]">
           <div className="min-w-0">
-            <UiRegion
+            <TranslatedRegion
               as="section"
               className="rounded-sm border border-border bg-card p-5"
-              aria-label="总览"
+              labelId="daily.overviewLabel"
             >
               <h2 className="mb-2 font-mono text-xs font-semibold text-primary">
-                <UiText>{'今日概览'}</UiText>
+                <TranslatedText id="daily.todayOverview" />
               </h2>
               <p lang="zh-CN" className="text-sm leading-7 text-foreground/90">
                 {report.content.overview.text}
               </p>
               {citations(report.content.overview)}
-            </UiRegion>
+            </TranslatedRegion>
 
             <div className="mt-5 rounded-sm border border-border bg-card p-4 xl:hidden">
               <Highlights stories={report.content.stories} />
@@ -335,23 +345,23 @@ export function DailyReportView({
             </div>
 
             <p className="pt-5 font-mono text-xs text-muted-foreground tabular-nums">
-              <UiText>{'依据站内收录自动整理，请以原文为准 ·'}</UiText>{' '}
+              <TranslatedText id="daily.disclaimer" />{' '}
               <time dateTime={report.publishedAt}>
-                <UiDate date={report.publishedAt} options={publishedOptions} />
+                <FormattedDate date={report.publishedAt} options={publishedOptions} />
               </time>
             </p>
 
-            <UiRegion
+            <TranslatedRegion
               as="nav"
-              aria-label="相邻期次"
+              labelId="daily.adjacentNav"
               className="mt-4 flex flex-wrap justify-between gap-4 border-t border-border py-3 text-xs"
             >
-              <IssueLink issue={archive.previous} label="← 上一期" />
+              <IssueLink issue={archive.previous} labelId="daily.prevIssue" />
               <Link href="/daily" className={linkClass}>
-                <UiText>{'最新'}</UiText>
+                <TranslatedText id="daily.latest" />
               </Link>
-              <IssueLink issue={archive.next} label="下一期 →" />
-            </UiRegion>
+              <IssueLink issue={archive.next} labelId="daily.nextIssue" />
+            </TranslatedRegion>
           </div>
 
           <aside className="hidden min-w-0 xl:block">

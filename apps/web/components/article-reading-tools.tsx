@@ -1,12 +1,12 @@
 'use client'
 
 import { ChevronDown } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 import { Button, Disclosure, DisclosurePanel } from 'react-aria-components'
 import { getReadingPosition, saveReadingPosition } from '../lib/reading-progress'
 import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
-import { useSiteText } from './site-language'
 
 interface Heading {
   id: string
@@ -25,11 +25,11 @@ export function ArticleReadingTools({
   minutes: number | null
   children: ReactNode
 }) {
-  const t = useSiteText()
+  const t = useTranslations('article')
   const body = useRef<HTMLDivElement>(null)
   const [headings, setHeadings] = useState<Heading[]>([])
   const [resume, setResume] = useState<number | null>(null)
-  const [error, setError] = useState('')
+  const [saveError, setSaveError] = useState(false)
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: contentKey changes when the rendered reading mode changes.
   useEffect(() => {
@@ -56,8 +56,7 @@ export function ArticleReadingTools({
     let latest: number | null = null
     let timer: ReturnType<typeof setTimeout> | undefined
     const persist = () => {
-      if (latest !== null && !saveReadingPosition(articleId, latest))
-        setError('无法保存阅读位置，请检查浏览器本地存储设置。')
+      if (latest !== null && !saveReadingPosition(articleId, latest)) setSaveError(true)
     }
     const onScroll = () => {
       const top = element.getBoundingClientRect().top + window.scrollY
@@ -96,18 +95,18 @@ export function ArticleReadingTools({
       {(minutes !== null || resume !== null) && (
         <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
           {minutes !== null && (
-            <p className="tabular-nums">{t('预计阅读 {count} 分钟', { count: minutes })}</p>
+            <p className="tabular-nums">{t('estimatedRead', { count: minutes })}</p>
           )}
           {resume !== null && (
             <ActionButton variant="outline" onPress={continueReading}>
-              {t('继续上次阅读 ·')} {Math.round(resume * 100)}%
+              {t('resumeReading', { percent: Math.round(resume * 100) })}
             </ActionButton>
           )}
         </div>
       )}
-      {error && (
+      {saveError && (
         <p role="alert" className="mt-3 text-sm text-destructive">
-          {t(error)}
+          {t('savePositionError')}
         </p>
       )}
       {headings.length > 1 && (
@@ -116,16 +115,14 @@ export function ArticleReadingTools({
             slot="trigger"
             className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-left text-sm font-medium text-foreground outline-none transition-colors hover:bg-row-highlight focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ring"
           >
-            <span className="tabular-nums">
-              {t('文章目录 · {count} 节', { count: headings.length })}
-            </span>
+            <span className="tabular-nums">{t('tocTrigger', { count: headings.length })}</span>
             <ChevronDown
               aria-hidden="true"
               className="size-4 shrink-0 text-muted-foreground transition-transform duration-150 group-data-[expanded]/toc:rotate-180"
             />
           </Button>
           <DisclosurePanel className="border-t border-border/70 px-4 py-2">
-            <nav aria-label={t('文章目录')}>
+            <nav aria-label={t('tocLabel')}>
               <ol className="space-y-0.5">
                 {headings.map((heading) => (
                   <li key={heading.id} className={cn(heading.level > 2 && 'pl-4')}>

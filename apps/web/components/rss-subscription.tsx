@@ -1,12 +1,12 @@
 'use client'
 
-import { listSignalSections, listSignalSources } from '@rss-site/signals'
+import { listSignalSections, listSignalSources, type SignalSectionId } from '@rss-site/signals'
 import { Check, Copy, Rss, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Dialog, DialogTrigger, Heading, Modal, ModalOverlay } from 'react-aria-components'
 import { rssSourcesPath } from '../lib/rss-selection'
 import { ActionButton } from './action-button'
-import { useSiteText } from './site-language'
 import { SourceIcon } from './source-icon'
 import { UiCheckbox, UiCheckboxGroup } from './ui/checkbox'
 import { UiRadio, UiRadioGroup } from './ui/radio-group'
@@ -21,21 +21,24 @@ const articleSources = listSignalSources({ isArticle: true })
 
 export function RssSubscription({
   basePath = '/ai',
-  sectionName = 'AI',
+  sectionId = 'ai',
   triggerVariant = 'button',
   defaultMode = 'section',
   className
 }: {
   basePath?: string
-  sectionName?: string
+  sectionId?: SignalSectionId
   triggerVariant?: 'button' | 'topbar'
   defaultMode?: 'section' | 'custom'
   className?: string
 }) {
-  const t = useSiteText()
+  const t = useTranslations('rss')
+  const tCommon = useTranslations('common')
+  const tSearch = useTranslations('search')
+  const tSections = useTranslations('sections')
   const [address, setAddress] = useState('')
   const [copied, setCopied] = useState(false)
-  const [message, setMessage] = useState('')
+  const [messageKey, setMessageKey] = useState<'copiedUrl' | 'manualCopyUrl' | null>(null)
   const [mode, setMode] = useState<'section' | 'custom'>(defaultMode)
   const [selectedSection, setSelectedSection] = useState(basePath.slice(1))
   const [selected, setSelected] = useState<string[]>([])
@@ -55,10 +58,10 @@ export function RssSubscription({
     try {
       await navigator.clipboard.writeText(currentAddress)
       setCopied(true)
-      setMessage('已复制订阅地址')
+      setMessageKey('copiedUrl')
     } catch {
       setCopied(false)
-      setMessage('请手动复制上方地址')
+      setMessageKey('manualCopyUrl')
     }
   }
 
@@ -72,14 +75,14 @@ export function RssSubscription({
           setSelected([])
           setFilterSection(defaultMode === 'custom' ? '' : basePath.slice(1))
           setCopied(false)
-          setMessage('')
+          setMessageKey(null)
         }
       }}
     >
       {triggerVariant === 'topbar' ? (
         <ActionButton
           variant="ghost"
-          aria-label={t('RSS 订阅')}
+          aria-label={t('title')}
           className={
             className ??
             'h-9 w-9 min-h-9 gap-1.5 rounded-sm border border-border bg-card px-0 text-xs text-foreground hover:border-primary/60 hover:text-primary sm:w-auto sm:px-2.5'
@@ -92,7 +95,7 @@ export function RssSubscription({
         <ActionButton
           variant="outline"
           className={className ?? 'h-9 px-3 text-xs'}
-          aria-label={t('订阅 {section} RSS', { section: t(sectionName) })}
+          aria-label={t('subscribeSection', { section: tSections(`${sectionId}.shortTitle`) })}
         >
           <Rss size={14} aria-hidden="true" />
           RSS
@@ -108,12 +111,12 @@ export function RssSubscription({
               <>
                 <div className="flex items-center justify-between gap-3 border-b border-border pb-3">
                   <Heading slot="title" className="min-w-0 text-lg font-semibold">
-                    {t('RSS 订阅')}
+                    {t('title')}
                   </Heading>
                   <ActionButton
                     variant="ghost"
                     size="icon"
-                    aria-label={t('关闭弹窗')}
+                    aria-label={tCommon('closeDialog')}
                     onPress={close}
                   >
                     <X size={18} aria-hidden="true" />
@@ -121,46 +124,46 @@ export function RssSubscription({
                 </div>
 
                 <UiRadioGroup
-                  label={t('订阅范围')}
+                  label={t('scope')}
                   value={mode}
                   onChange={(next) => {
                     setMode(next as 'section' | 'custom')
                     setCopied(false)
-                    setMessage('')
+                    setMessageKey(null)
                   }}
                   className="mt-4"
                 >
-                  <UiRadio value="section">{t('整个频道')}</UiRadio>
-                  <UiRadio value="custom">{t('自选来源')}</UiRadio>
+                  <UiRadio value="section">{t('entireChannel')}</UiRadio>
+                  <UiRadio value="custom">{t('selectedSources')}</UiRadio>
                 </UiRadioGroup>
 
                 {mode === 'section' ? (
                   <UiSelect
-                    label={t('频道')}
+                    label={tSearch('channel')}
                     value={selectedSection}
                     onChange={(next) => {
                       setSelectedSection(next)
                       setCopied(false)
-                      setMessage('')
+                      setMessageKey(null)
                     }}
                     options={articleSections.map((section) => ({
                       value: section.id,
-                      label: t(section.title)
+                      label: tSections(`${section.id}.title`)
                     }))}
                     className="mt-4"
                   />
                 ) : (
                   <div className="mt-4 space-y-3">
                     <UiSelect
-                      label={t('按频道筛选')}
+                      label={t('filterByChannel')}
                       layout="inline"
                       value={filterSection}
                       onChange={setFilterSection}
                       options={[
-                        { value: '', label: t('全部频道') },
+                        { value: '', label: tSearch('allChannels') },
                         ...articleSections.map((section) => ({
                           value: section.id,
-                          label: t(section.title)
+                          label: tSections(`${section.id}.title`)
                         }))
                       ]}
                       triggerClassName="w-44"
@@ -169,7 +172,10 @@ export function RssSubscription({
                     <div className="overflow-hidden rounded-sm border border-border bg-card">
                       <div className="flex items-center justify-between gap-2 border-b border-border bg-muted/40 px-3 py-2">
                         <span className="font-mono text-xs font-medium text-muted-foreground tabular-nums">
-                          {t('已选')} {selected.length} / {articleSources.length}
+                          {t('selectedCount', {
+                            selected: selected.length,
+                            total: articleSources.length
+                          })}
                         </span>
                         {selected.length > 0 && (
                           <ActionButton
@@ -179,20 +185,20 @@ export function RssSubscription({
                             onPress={() => {
                               setSelected([])
                               setCopied(false)
-                              setMessage('')
+                              setMessageKey(null)
                             }}
                           >
-                            {t('清空选择')}
+                            {t('clearSelection')}
                           </ActionButton>
                         )}
                       </div>
                       <UiCheckboxGroup
-                        ariaLabel={t('选择订阅来源')}
+                        ariaLabel={t('selectSourcesAria')}
                         value={selected}
                         onChange={(next) => {
                           setSelected(next)
                           setCopied(false)
-                          setMessage('')
+                          setMessageKey(null)
                         }}
                         className="max-h-52 divide-y divide-border/50 overflow-y-auto slim-scrollbar px-3 py-1"
                       >
@@ -214,15 +220,15 @@ export function RssSubscription({
                     className="block text-xs font-medium text-muted-foreground"
                     htmlFor="rss-address"
                   >
-                    {t('Feed 地址')}
+                    {t('feedUrl')}
                   </label>
                   <div className="flex items-center gap-2">
                     <UiTextField
                       id="rss-address"
-                      ariaLabel={t('Feed 地址')}
+                      ariaLabel={t('feedUrl')}
                       isReadOnly
                       value={currentAddress}
-                      placeholder={t('请选择至少一个来源')}
+                      placeholder={t('selectAtLeastOne')}
                       onFocus={(event) => event.currentTarget.select()}
                       className="flex-1"
                       inputClassName="font-mono text-xs"
@@ -233,13 +239,13 @@ export function RssSubscription({
                       ) : (
                         <Copy className="size-3.5" aria-hidden="true" />
                       )}
-                      {copied ? t('已复制') : t('复制')}
+                      {copied ? tCommon('copied') : tCommon('copy')}
                     </ActionButton>
                   </div>
                 </div>
 
                 <p role="status" className="mt-2 min-h-5 font-mono text-xs text-primary">
-                  {t(message)}
+                  {messageKey ? t(messageKey) : ''}
                 </p>
               </>
             )}

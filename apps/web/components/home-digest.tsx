@@ -6,7 +6,7 @@ import type { HomeDigest } from '../lib/home-articles'
 import type { ModelLeaderboardItem } from '../lib/leaderboard'
 import { getTransitLine } from '../lib/transit-lines'
 import { HomeHotRanking } from './home-hot-ranking'
-import { UiDate, UiRegion, UiText } from './site-language'
+import { FormattedDate, TranslatedRegion, TranslatedText } from './site-language'
 
 const compactDateOptions = {
   month: '2-digit',
@@ -33,20 +33,20 @@ export function HomeDigestView({
       <header className="space-y-4">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <h1 className="headline-display text-2xl text-foreground sm:text-3xl">
-            <UiText>{'全部热点'}</UiText>
+            <TranslatedText id="common.allStories" />
           </h1>
           <Link
             href="/daily"
             className="inline-flex items-center gap-1.5 font-mono text-xs font-medium text-primary hover:underline xl:hidden"
           >
-            <UiText>{'今日日报'}</UiText>
+            <TranslatedText id="daily.title" />
             <ArrowRight className="size-3.5" aria-hidden="true" />
           </Link>
         </div>
 
-        <UiRegion
+        <TranslatedRegion
           as="nav"
-          aria-label="频道快速切换"
+          labelId="home.quickChannelNav"
           className="-mx-4 overflow-x-auto overflow-y-hidden px-4 slim-scrollbar sm:mx-0 sm:px-0"
         >
           <ul className="flex min-w-max items-center gap-2 sm:flex-wrap">
@@ -64,7 +64,11 @@ export function HomeDigestView({
                       style={{ backgroundColor: line?.cssVar ?? 'var(--primary)' }}
                     />
                     <span>
-                      <UiText>{line?.name ?? section.name}</UiText>
+                      {line ? (
+                        <TranslatedText id={`sections.${line.id}.shortTitle`} />
+                      ) : (
+                        section.name
+                      )}
                     </span>
                     {line && (
                       <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
@@ -76,7 +80,7 @@ export function HomeDigestView({
               )
             })}
           </ul>
-        </UiRegion>
+        </TranslatedRegion>
       </header>
 
       <div className="grid min-w-0 gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
@@ -90,13 +94,13 @@ export function HomeDigestView({
                 id="section-directory"
                 className="headline-display text-lg text-foreground sm:text-xl"
               >
-                <UiText>{'各频道最新'}</UiText>
+                <TranslatedText id="home.latestByChannel" />
               </h2>
               <Link
                 href="/following"
                 className="text-xs font-medium text-muted-foreground hover:text-primary"
               >
-                <UiText>{'定制我的关注 →'}</UiText>
+                <TranslatedText id="home.manageFollowed" />
               </Link>
             </div>
 
@@ -120,14 +124,18 @@ export function HomeDigestView({
                           style={{ backgroundColor: line?.cssVar ?? 'var(--primary)' }}
                         />
                         <span className="truncate">
-                          <UiText>{section.name}</UiText>
+                          {line ? (
+                            <TranslatedText id={`sections.${line.id}.title`} />
+                          ) : (
+                            section.name
+                          )}
                         </span>
                       </h3>
                       <Link
                         href={section.path}
                         className="inline-flex shrink-0 items-center gap-1 font-mono text-xs text-muted-foreground transition-colors hover:text-primary"
                       >
-                        <UiText>{'进入'}</UiText>
+                        <TranslatedText id="home.enterChannel" />
                         <ArrowRight className="size-3" aria-hidden="true" />
                       </Link>
                     </div>
@@ -162,7 +170,7 @@ export function HomeDigestView({
                                     {item.publishedAt && (
                                       <span>
                                         ·{' '}
-                                        <UiDate
+                                        <FormattedDate
                                           date={item.publishedAt}
                                           options={compactDateOptions}
                                         />
@@ -183,7 +191,7 @@ export function HomeDigestView({
                                     {item.publishedAt && (
                                       <span>
                                         ·{' '}
-                                        <UiDate
+                                        <FormattedDate
                                           date={item.publishedAt}
                                           options={compactDateOptions}
                                         />
@@ -198,7 +206,7 @@ export function HomeDigestView({
                       </ol>
                     ) : (
                       <p className="py-4 text-xs text-muted-foreground">
-                        <UiText>{'暂无更新'}</UiText>
+                        <TranslatedText id="home.noUpdates" />
                       </p>
                     )}
                   </section>
@@ -220,7 +228,7 @@ export function HomeDigestView({
                 className="flex items-center gap-2 text-sm font-semibold text-foreground"
               >
                 <Newspaper className="size-4 text-primary" aria-hidden="true" />
-                <UiText>{'今日日报'}</UiText>
+                <TranslatedText id="daily.title" />
               </h2>
               {dailyReport ? (
                 <span className="font-mono text-xs tabular-nums text-muted-foreground">
@@ -253,14 +261,14 @@ export function HomeDigestView({
               </>
             ) : (
               <p className="text-xs leading-6 text-muted-foreground">
-                <UiText>{'查看今日要闻摘要与往期归档。'}</UiText>
+                <TranslatedText id="home.dailyFallback" />
               </p>
             )}
             <Link
               href="/daily"
               className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-sm border border-border bg-background py-2 text-xs font-medium text-foreground transition-colors hover:border-primary/60 hover:text-primary"
             >
-              <UiText>{'进入日报'}</UiText>
+              <TranslatedText id="home.enterDaily" />
               <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>
           </section>
@@ -275,13 +283,13 @@ export function HomeDigestView({
                 className="flex items-center gap-2 text-sm font-semibold text-foreground"
               >
                 <Cpu className="size-4 text-primary" aria-hidden="true" />
-                <UiText>{'模型评测'}</UiText>
+                <TranslatedText id="nav.modelBenchmarks" />
               </h2>
               <Link
                 href="/leaderboard"
                 className="font-mono text-xs text-muted-foreground hover:text-primary"
               >
-                <UiText>{'全榜 →'}</UiText>
+                <TranslatedText id="home.fullRankings" />
               </Link>
             </div>
             {topModels && topModels.length > 0 ? (
@@ -307,7 +315,7 @@ export function HomeDigestView({
               </ol>
             ) : (
               <p className="text-xs leading-6 text-muted-foreground">
-                <UiText>{'主流大模型基准实测排名。'}</UiText>
+                <TranslatedText id="home.modelsFallback" />
               </p>
             )}
             <div className="mt-3 grid grid-cols-2 gap-2 border-t border-border/70 pt-3">
@@ -316,13 +324,13 @@ export function HomeDigestView({
                 className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-border bg-background py-2 text-xs font-medium text-foreground hover:border-primary/60 hover:text-primary"
               >
                 <GitBranch className="size-3.5" aria-hidden="true" />
-                <UiText>{'开源排行'}</UiText>
+                <TranslatedText id="nav.openSource" />
               </Link>
               <Link
                 href="/skills"
                 className="inline-flex items-center justify-center gap-1.5 rounded-sm border border-border bg-background py-2 text-xs font-medium text-foreground hover:border-primary/60 hover:text-primary"
               >
-                <UiText>{'热门 Skills'}</UiText>
+                <TranslatedText id="nav.trendingSkills" />
               </Link>
             </div>
           </section>

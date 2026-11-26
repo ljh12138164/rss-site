@@ -6,6 +6,7 @@ import { ArticleTranslation } from './article-translation'
 import { SiteLanguageProvider } from './site-language'
 
 it('marks original and translated text across all reading modes without changing UI language', async () => {
+  const language = vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['zh-CN'])
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
   vi.stubGlobal(
     'fetch',
@@ -25,16 +26,18 @@ it('marks original and translated text across all reading modes without changing
   try {
     await act(async () =>
       root.render(
-        <ArticleTranslation
-          articleId="one"
-          source="openai"
-          title="English article title"
-          contentHtml="<p>This is an English article body for reading.</p>"
-          summary={null}
-          canTranslate
-          sourceLabel={<span>来源</span>}
-          metadata={<span>日期</span>}
-        />
+        <SiteLanguageProvider>
+          <ArticleTranslation
+            articleId="one"
+            source="openai"
+            title="English article title"
+            contentHtml="<p>This is an English article body for reading.</p>"
+            summary={null}
+            canTranslate
+            sourceLabel={<span>来源</span>}
+            metadata={<span>日期</span>}
+          />
+        </SiteLanguageProvider>
       )
     )
     expect(container.querySelector('h1')?.lang).toBe('en')
@@ -64,16 +67,18 @@ it('marks original and translated text across all reading modes without changing
     expect(container.querySelector('.article-content')?.getAttribute('lang')).toBe('en')
     await act(async () =>
       root.render(
-        <ArticleTranslation
-          articleId="two"
-          source="openai"
-          title="SQLite"
-          contentHtml="<p>这是一篇中文正文。</p>"
-          summary={null}
-          canTranslate={false}
-          sourceLabel={<span>来源</span>}
-          metadata={<span>日期</span>}
-        />
+        <SiteLanguageProvider>
+          <ArticleTranslation
+            articleId="two"
+            source="openai"
+            title="SQLite"
+            contentHtml="<p>这是一篇中文正文。</p>"
+            summary={null}
+            canTranslate={false}
+            sourceLabel={<span>来源</span>}
+            metadata={<span>日期</span>}
+          />
+        </SiteLanguageProvider>
       )
     )
     expect(container.querySelector('h1')?.lang).toBe('en')
@@ -81,6 +86,7 @@ it('marks original and translated text across all reading modes without changing
   } finally {
     await act(async () => root.unmount())
     container.remove()
+    language.mockRestore()
     vi.unstubAllGlobals()
   }
 })

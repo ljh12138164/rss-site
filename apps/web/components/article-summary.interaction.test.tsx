@@ -20,6 +20,7 @@ const summary = {
 }
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['zh-CN'])
   cache.read.mockReset().mockResolvedValue(null)
   cache.write.mockReset().mockResolvedValue(undefined)
   container = document.createElement('div')
@@ -29,13 +30,20 @@ beforeEach(() => {
 afterEach(async () => {
   await act(async () => root.unmount())
   container.remove()
+  vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
 
 async function start(response: Response) {
   const fetcher = vi.fn(async (_url: unknown, _init?: RequestInit) => response)
   vi.stubGlobal('fetch', fetcher)
-  await act(async () => root.render(<ArticleSummary articleId="one" cacheKey="one:v1" />))
+  await act(async () =>
+    root.render(
+      <SiteLanguageProvider>
+        <ArticleSummary articleId="one" cacheKey="one:v1" />
+      </SiteLanguageProvider>
+    )
+  )
   await act(async () => container.querySelector('button')?.click())
   return fetcher
 }
@@ -93,7 +101,13 @@ it('restores completed local summaries without a network call', async () => {
   cache.read.mockResolvedValue(summary)
   const fetcher = vi.fn()
   vi.stubGlobal('fetch', fetcher)
-  await act(async () => root.render(<ArticleSummary articleId="one" cacheKey="one:v1" />))
+  await act(async () =>
+    root.render(
+      <SiteLanguageProvider>
+        <ArticleSummary articleId="one" cacheKey="one:v1" />
+      </SiteLanguageProvider>
+    )
+  )
   expect(container.textContent).toContain(summary.overview)
   expect(fetcher).not.toHaveBeenCalled()
 })
@@ -161,7 +175,13 @@ it('aborts an in-flight request when leaving the page', async () => {
         })
     )
   )
-  await act(async () => root.render(<ArticleSummary articleId="one" cacheKey="one:v1" />))
+  await act(async () =>
+    root.render(
+      <SiteLanguageProvider>
+        <ArticleSummary articleId="one" cacheKey="one:v1" />
+      </SiteLanguageProvider>
+    )
+  )
   await act(async () => container.querySelector('button')?.click())
   await act(async () => root.render(null))
   expect(signal.aborted).toBe(true)

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { skillInstallCommand, skillPath, validSkillId } from '../../../../../shared/skills'
 import { ArticleSummary } from '../../../components/article-summary'
-import { UiRegion, UiText } from '../../../components/site-language'
+import { FormattedDate, TranslatedRegion, TranslatedText } from '../../../components/site-language'
 import { SiteShell } from '../../../components/site-shell'
 import { SkillContent, SkillInstall } from '../../../components/skill-content'
 import { renderArticleContent } from '../../../lib/article-content'
@@ -20,6 +20,12 @@ export function generateStaticParams() {
   return []
 }
 type Props = { params: Promise<{ skillId: string[] }> }
+
+const skillDateOptions = {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+  timeZone: 'Asia/Shanghai'
+} satisfies Intl.DateTimeFormatOptions
 
 export async function generateMetadata({ params }: Props) {
   const id = (await params).skillId.join('/')
@@ -61,21 +67,15 @@ export default async function Page({ params }: Props) {
     return `<h${level} id="${headingId}">${text}</h${level}>`
   })
   const number = new Intl.NumberFormat('zh-CN')
-  const date = (value: string) =>
-    new Intl.DateTimeFormat('zh-CN', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-      timeZone: 'Asia/Shanghai'
-    }).format(new Date(value))
   return (
     <SiteShell>
-      <UiRegion
+      <TranslatedRegion
         as="nav"
-        aria-label="面包屑"
+        labelId="common.breadcrumb"
         className="mb-8 flex flex-wrap gap-2 font-mono text-xs text-muted-foreground"
       >
         <Link className="transition-colors hover:text-primary" href="/">
-          <UiText>{'全部热点'}</UiText>
+          <TranslatedText id="common.allStories" />
         </Link>
         <span aria-hidden="true">/</span>
         <Link className="transition-colors hover:text-primary" href="/skills">
@@ -85,7 +85,7 @@ export default async function Page({ params }: Props) {
         <span aria-current="page" className="text-foreground">
           {detail.name}
         </span>
-      </UiRegion>
+      </TranslatedRegion>
       <header>
         <p className="mb-3 font-mono text-sm text-muted-foreground">{detail.source}</p>
         <h1 className="headline-display text-balance break-words text-3xl sm:text-4xl">
@@ -99,22 +99,24 @@ export default async function Page({ params }: Props) {
         <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm tabular-nums">
           {detail.totalInstalls !== null && (
             <span>
-              <UiText>{'累计安装'}</UiText> <strong>{number.format(detail.totalInstalls)}</strong>
+              <TranslatedText id="skills.totalInstalls" />{' '}
+              <strong>{number.format(detail.totalInstalls)}</strong>
             </span>
           )}
           {popularItem && (
             <span>
-              <UiText>{'热门榜'}</UiText> <strong>#{popularItem.position}</strong>
+              <TranslatedText id="skills.popularRank" /> <strong>#{popularItem.position}</strong>
             </span>
           )}
           {installs !== null && (
             <span>
-              <UiText>{'近 24 小时安装'}</UiText> <strong>{number.format(installs)}</strong>
+              <TranslatedText id="skills.recentInstalls" />{' '}
+              <strong>{number.format(installs)}</strong>
             </span>
           )}
           {trendItem && (
             <span>
-              <UiText>{'趋势榜'}</UiText> <strong>#{trendItem.position}</strong>
+              <TranslatedText id="skills.trendingRank" /> <strong>#{trendItem.position}</strong>
             </span>
           )}
           {!popularItem &&
@@ -122,7 +124,7 @@ export default async function Page({ params }: Props) {
             allTime.state === 'ready' &&
             trending.state === 'ready' && (
               <span className="text-muted-foreground">
-                <UiText>{'当前未进入榜单'}</UiText>
+                <TranslatedText id="skills.unranked" />
               </span>
             )}
         </div>
@@ -134,10 +136,14 @@ export default async function Page({ params }: Props) {
       <div className="mt-8 grid min-w-0 gap-10 lg:grid-cols-[minmax(0,1fr)_15rem]">
         <aside className="order-first space-y-4 self-start rounded-sm border border-border bg-card p-4 text-sm lg:order-last">
           <h2 className="border-b border-border/70 pb-2.5 font-semibold text-foreground">
-            <UiText>{'来源信息'}</UiText>
+            <TranslatedText id="skills.sourceInfo" />
           </h2>
           <p className="text-muted-foreground">
-            {detail.sourceType === 'github' ? 'GitHub' : <UiText>{'网站提供'}</UiText>}
+            {detail.sourceType === 'github' ? (
+              'GitHub'
+            ) : (
+              <TranslatedText id="skills.websiteProvider" />
+            )}
           </p>
           <div className="flex flex-wrap gap-3 lg:flex-col">
             {detail.installUrl && (
@@ -150,9 +156,9 @@ export default async function Page({ params }: Props) {
               >
                 <span>
                   {detail.sourceType === 'github' ? (
-                    <UiText>{'来源仓库'}</UiText>
+                    <TranslatedText id="skills.sourceRepo" />
                   ) : (
-                    <UiText>{'来源网站'}</UiText>
+                    <TranslatedText id="skills.sourceWebsite" />
                   )}
                 </span>
                 <ArrowUpRight className="size-3.5 shrink-0" aria-hidden="true" />
@@ -170,21 +176,24 @@ export default async function Page({ params }: Props) {
             </a>
           </div>
           <p className="font-mono text-xs leading-6 text-muted-foreground tabular-nums">
-            <UiText>{'采集时间'}</UiText>
+            <TranslatedText id="skills.fetchedAt" />
             <br />
-            {date(detail.contentSyncedAt ?? detail.lastSeenAt)}
+            <FormattedDate
+              date={detail.contentSyncedAt ?? detail.lastSeenAt}
+              options={skillDateOptions}
+            />
           </p>
           <p className="font-mono text-xs leading-6 text-muted-foreground tabular-nums">
-            <UiText>{'本站首次收录'}</UiText>
+            <TranslatedText id="skills.firstListed" />
             <br />
-            {date(detail.firstSeenAt)}
+            <FormattedDate date={detail.firstSeenAt} options={skillDateOptions} />
           </p>
           {headings.length > 1 && (
             <div className="border-t border-border/70 pt-3">
               <h3 className="mb-2 text-xs font-semibold text-foreground">
-                <UiText>{'目录'}</UiText>
+                <TranslatedText id="common.toc" />
               </h3>
-              <UiRegion as="nav" aria-label="Skill 目录">
+              <TranslatedRegion as="nav" labelId="skills.skillToc">
                 <ul className="space-y-1.5">
                   {headings.map((heading) => (
                     <li key={heading.id}>
@@ -197,7 +206,7 @@ export default async function Page({ params }: Props) {
                     </li>
                   ))}
                 </ul>
-              </UiRegion>
+              </TranslatedRegion>
             </div>
           )}
         </aside>
@@ -207,7 +216,7 @@ export default async function Page({ params }: Props) {
           ) : (
             <div className="rounded-sm border border-border bg-card px-5 py-8">
               <p>
-                <UiText>{'暂未收录 SKILL.md'}</UiText>
+                <TranslatedText id="skills.skillMdUnavailable" />
               </p>
               <a
                 className="mt-4 inline-flex items-center gap-1 text-sm text-primary hover:underline"
@@ -217,7 +226,7 @@ export default async function Page({ params }: Props) {
                 data-outbound
               >
                 <span>
-                  <UiText>{'查看来源'}</UiText>
+                  <TranslatedText id="skills.viewSource" />
                 </span>
                 <ArrowUpRight className="size-3.5 shrink-0" aria-hidden="true" />
               </a>
@@ -228,7 +237,7 @@ export default async function Page({ params }: Props) {
       {related.length > 0 && (
         <section className="mt-12 border-t border-border pt-6">
           <h2 className="font-medium">
-            <UiText>{'同仓库 Skills'}</UiText>
+            <TranslatedText id="skills.sameRepoSkills" />
           </h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {related.map((item) => (

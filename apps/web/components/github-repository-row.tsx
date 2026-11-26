@@ -2,7 +2,7 @@ import { ArrowUpRight, GitFork, Star } from 'lucide-react'
 import { parseGitHubRepository } from '../lib/github-repository'
 import type { HotItem } from '../lib/hot-feed'
 import type { OutboundReturnPath } from '../lib/outbound-link'
-import { UiText } from './site-language'
+import { TranslatedText } from './site-language'
 
 const countFormatter = new Intl.NumberFormat('en-US')
 
@@ -65,7 +65,7 @@ export function GitHubRepositoryRow({
                     style={{ backgroundColor: 'var(--line-tech)' }}
                   />
                   <span className="sr-only">
-                    <UiText>{'编程语言：'}</UiText>
+                    <TranslatedText id="home.programmingLanguage" />
                   </span>
                   {repository.language}
                 </span>

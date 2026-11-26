@@ -1,5 +1,5 @@
 import { Boxes } from 'lucide-react'
-import { UiText } from '../../components/site-language'
+import { TranslatedText } from '../../components/site-language'
 import { SiteShell } from '../../components/site-shell'
 import { SkillLeaderboard } from '../../components/skill-leaderboard'
 import { getSkillFeeds } from '../../lib/hot-feed'
@@ -20,11 +20,11 @@ export function SkillsHeader() {
       <div className="flex items-center gap-2.5">
         <Boxes className="size-5 shrink-0 text-primary" aria-hidden="true" />
         <h1 className="headline-display text-2xl text-foreground sm:text-3xl">
-          <UiText>{'热门 Skills'}</UiText>
+          <TranslatedText id="skills.pageTitle" />
         </h1>
       </div>
       <span className="font-mono text-xs text-muted-foreground">
-        <UiText>{'skills.sh · 每 6 小时更新'}</UiText>
+        <TranslatedText id="skills.updatedEvery6h" />
       </span>
     </header>
   )

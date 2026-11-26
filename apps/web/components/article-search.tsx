@@ -4,6 +4,7 @@ import { listSignalSections } from '@rss-site/signals'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { hc } from 'hono/client'
 import { ArrowRight, Search, X } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 import {
   Dialog,
@@ -27,7 +28,7 @@ import {
   technologySources
 } from '../lib/technology-sources'
 import { ActionButton } from './action-button'
-import { UiDate, useSiteText } from './site-language'
+import { FormattedDate } from './site-language'
 import { UiSelect } from './ui/select'
 
 const dateOptions = {
@@ -36,6 +37,15 @@ const dateOptions = {
   day: 'numeric',
   timeZone: 'Asia/Shanghai'
 } satisfies Intl.DateTimeFormatOptions
+
+const SEARCH_VALIDATION_KEYS = new Map<
+  string,
+  'validationMinLength' | 'validationMaxLength' | 'validationNoAsterisk'
+>([
+  ['请输入至少 2 个字或字符', 'validationMinLength'],
+  ['关键词请控制在 80 个字符以内', 'validationMaxLength'],
+  ['请去掉星号后再搜索', 'validationNoAsterisk']
+])
 
 const sources = [
   ...aiSources,
@@ -68,7 +78,9 @@ export function Highlight({ text, query }: { text: string; query: string }) {
 }
 
 function SearchPanel() {
-  const t = useSiteText()
+  const t = useTranslations('search')
+  const tCommon = useTranslations('common')
+  const tSections = useTranslations('sections')
   const [value, setValue] = useState('')
   const [composing, setComposing] = useState(false)
   const [section, setSection] = useState('')
@@ -85,6 +97,7 @@ function SearchPanel() {
   const debouncedQuery = request.q
   const query = value.trim()
   const validation = searchValidation(query)
+  const validationKey = validation ? SEARCH_VALIDATION_KEYS.get(validation) : undefined
   useEffect(() => {
     if (validation || composing) return
     const timer = setTimeout(
@@ -134,19 +147,19 @@ function SearchPanel() {
         ).values()
       ]
     : []
-  const error = ready && isError ? t('暂时无法搜索，请重试') : null
+  const error = ready && isError ? t('unavailable') : null
   return (
     <>
       <div className="flex items-center justify-between px-5 pt-5">
         <Heading slot="title" className="text-balance text-base font-semibold">
-          {t('搜索文章')}
+          {t('title')}
         </Heading>
-        <ActionButton slot="close" variant="ghost" size="icon" aria-label={t('关闭搜索')}>
+        <ActionButton slot="close" variant="ghost" size="icon" aria-label={t('close')}>
           <X aria-hidden="true" />
         </ActionButton>
       </div>
       <TextField
-        aria-label={t('搜索标题和摘要')}
+        aria-label={t('inputLabel')}
         value={value}
         onChange={setValue}
         className="mx-5 mt-3 flex min-h-12 items-center gap-3 rounded-md border border-border bg-muted/40 px-3 focus-within:ring-2 focus-within:ring-primary"
@@ -156,14 +169,14 @@ function SearchPanel() {
           role="searchbox"
           autoFocus
           maxLength={80}
-          placeholder={t('搜索标题和摘要…')}
+          placeholder={t('inputPlaceholder')}
           onCompositionStart={() => setComposing(true)}
           onCompositionEnd={() => setComposing(false)}
           className="min-w-0 flex-1 bg-transparent py-3 text-base outline-none [&::-webkit-search-cancel-button]:hidden"
         />
         {value && (
           <ActionButton
-            aria-label={t('清空关键词')}
+            aria-label={t('clearQuery')}
             variant="ghost"
             size="icon"
             onPress={() => {
@@ -176,38 +189,38 @@ function SearchPanel() {
       </TextField>
       <div className="mx-5 mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <UiSelect
-          label={t('频道')}
+          label={t('channel')}
           value={section}
           onChange={(next) => {
             setSection(next)
             setSource('')
           }}
           options={[
-            { value: '', label: t('全部频道') },
+            { value: '', label: t('allChannels') },
             ...listSignalSections()
               .filter((entry) => sources.some((item) => item.section === entry.id))
-              .map((entry) => ({ value: entry.path, label: t(entry.title) }))
+              .map((entry) => ({ value: entry.path, label: tSections(`${entry.id}.title`) }))
           ]}
         />
         <UiSelect
-          label={t('来源')}
+          label={t('source')}
           value={source}
           onChange={setSource}
           options={[
-            { value: '', label: t('全部来源') },
+            { value: '', label: t('allSources') },
             ...sources
               .filter((item) => !section || `/${item.section}` === section)
               .map((item) => ({ value: item.id, label: item.name }))
           ]}
         />
         <UiSelect
-          label={t('时间')}
+          label={t('time')}
           value={range}
           onChange={(next) => setRange(next as SearchRange)}
           options={[
-            { value: 'all', label: t('不限') },
-            { value: 'day', label: t('近 24 小时') },
-            { value: 'week', label: t('近 7 天') }
+            { value: 'all', label: t('anyTime') },
+            { value: 'day', label: t('last24h') },
+            { value: 'week', label: t('last7d') }
           ]}
         />
       </div>
@@ -217,16 +230,14 @@ function SearchPanel() {
         aria-live="polite"
       >
         {!query
-          ? t('按标题和摘要检索')
+          ? t('idleHint')
           : composing
-            ? t('输入中…')
-            : ((validation ? t(validation) : null) ??
+            ? t('composing')
+            : ((validationKey ? t(validationKey) : validation) ??
               (pending
-                ? t('检索中…')
+                ? t('searching')
                 : (error ??
-                  (items.length
-                    ? t('{count} 条匹配 · 按发布时间', { count: items.length })
-                    : t('未找到匹配内容')))))}
+                  (items.length ? t('matches', { count: items.length }) : t('noMatches')))))}
       </div>
       <div className="min-h-0 overflow-y-auto overscroll-contain px-5 pb-5">
         {pending && !items.length && (
@@ -250,7 +261,7 @@ function SearchPanel() {
                     {' '}
                     ·{' '}
                     <time dateTime={item.published_at}>
-                      <UiDate date={new Date(item.published_at)} options={dateOptions} />
+                      <FormattedDate date={new Date(item.published_at)} options={dateOptions} />
                     </time>
                   </>
                 )}
@@ -280,7 +291,7 @@ function SearchPanel() {
               else void refetch()
             }}
           >
-            {t('重试')}
+            {tCommon('retry')}
           </ActionButton>
         )}
         {ready && hasNextPage && !error && (
@@ -290,19 +301,19 @@ function SearchPanel() {
             isDisabled={pending}
             onPress={() => void fetchNextPage({ cancelRefetch: false })}
           >
-            {pending ? t('加载中…') : t('更多')}
+            {pending ? tCommon('loadingShort') : tCommon('more')}
           </ActionButton>
         )}
       </div>
       <div className="mt-auto border-t border-border px-5 py-2.5 font-mono text-[11px] text-muted-foreground">
-        {t('Tab 切换 · Enter 打开 · Esc 关闭')}
+        {t('keyboardHint')}
       </div>
     </>
   )
 }
 
 export function ArticleSearch({ variant = 'topbar' }: { variant?: 'topbar' | 'icon' }) {
-  const t = useSiteText()
+  const t = useTranslations('search')
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
@@ -322,7 +333,7 @@ export function ArticleSearch({ variant = 'topbar' }: { variant?: 'topbar' | 'ic
         <ActionButton
           variant="ghost"
           size="icon"
-          aria-label={t('搜索')}
+          aria-label={t('buttonLabel')}
           className="size-9 rounded-sm border border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
         >
           <Search aria-hidden="true" className="size-4" />
@@ -330,12 +341,12 @@ export function ArticleSearch({ variant = 'topbar' }: { variant?: 'topbar' | 'ic
       ) : (
         <ActionButton
           variant="ghost"
-          aria-label={t('搜索文章')}
+          aria-label={t('title')}
           className="h-9 w-full max-w-sm min-h-9 justify-between rounded-sm border border-border bg-card px-3 text-sm text-muted-foreground hover:border-primary/60 hover:bg-card hover:text-foreground"
         >
           <span className="flex min-w-0 items-center gap-2 truncate">
             <Search aria-hidden="true" className="size-4 shrink-0" />
-            <span className="truncate">{t('搜索文章或关键词…')}</span>
+            <span className="truncate">{t('triggerPlaceholder')}</span>
           </span>
           <kbd className="hidden sm:inline-flex shrink-0 items-center rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted-foreground">
             ⌘K

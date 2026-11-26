@@ -2,6 +2,7 @@
 
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useRef } from 'react'
 import { articleArchiveHref } from '../lib/article-archive'
 import { articlePageOptions, articleQueryKey } from '../lib/article-query'
@@ -9,7 +10,6 @@ import type { ArticleFilter, HomeArticlePage } from '../lib/home-articles'
 import { useReadingList } from '../lib/reading-list'
 import { ActionButton } from './action-button'
 import { HotList } from './hot-list'
-import { useSiteText } from './site-language'
 
 export function HomeArticleList({
   initialPage,
@@ -23,7 +23,8 @@ export function HomeArticleList({
   initialError?: boolean
   unreadOnly?: boolean
 } & ArticleFilter) {
-  const t = useSiteText()
+  const t = useTranslations('home')
+  const tCommon = useTranslations('common')
   const client = useQueryClient()
   const { readingHistory } = useReadingList()
   const readIds = new Set(readingHistory.map((item) => item.id))
@@ -105,20 +106,20 @@ export function HomeArticleList({
       <div ref={sentinel} className="flex min-h-20 flex-col items-center justify-center gap-3 py-5">
         <p role={error ? 'alert' : 'status'} className="font-mono text-xs text-muted-foreground">
           {isFetching
-            ? t('加载中…')
+            ? tCommon('loadingShort')
             : error
-              ? t('加载失败，请重试')
+              ? tCommon('loadFailedRetry')
               : hasNextPage
                 ? ''
                 : items.length
-                  ? t('已到底部')
+                  ? t('reachedEnd')
                   : unreadOnly
-                    ? t('暂无未读文章')
-                    : t('暂无内容')}
+                    ? t('noUnread')
+                    : tCommon('noContent')}
         </p>
         {(hasNextPage || error) && (
           <ActionButton variant="outline" isDisabled={isFetching} onPress={() => void loadMore()}>
-            {error ? t('重试') : t('加载更多')}
+            {error ? tCommon('retry') : tCommon('loadMore')}
           </ActionButton>
         )}
         {archiveHref && (
@@ -128,7 +129,7 @@ export function HomeArticleList({
             rel="nofollow"
             className="inline-flex min-h-10 items-center text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
           >
-            {t('查看更早内容')}
+            {t('browseEarlier')}
           </Link>
         )}
       </div>

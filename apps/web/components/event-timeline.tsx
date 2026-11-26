@@ -3,12 +3,13 @@
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query'
 import { hc } from 'hono/client'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { useEffect, useRef } from 'react'
 import type { EventPage } from '../lib/ai-events'
 import type { AppType } from '../lib/hono-app'
 import { ActionButton } from './action-button'
 import { EventSources } from './event-sources'
-import { UiDate, useSiteText } from './site-language'
+import { FormattedDate } from './site-language'
 
 const api = hc<AppType>('/')
 
@@ -33,7 +34,8 @@ export function EventTimeline({
   initialPage: EventPage
   archive?: boolean
 }) {
-  const t = useSiteText()
+  const t = useTranslations('events')
+  const tCommon = useTranslations('common')
   const client = useQueryClient()
   const sentinel = useRef<HTMLDivElement>(null)
   const { data, fetchNextPage, hasNextPage, isFetching, isError } = useInfiniteQuery({
@@ -76,16 +78,16 @@ export function EventTimeline({
     <div aria-busy={isFetching}>
       {!items.length && (
         <div className="rounded-sm border border-border bg-card py-10 text-center">
-          <p className="text-sm text-muted-foreground">{t('暂无已发布的 AI 事件')}</p>
+          <p className="text-sm text-muted-foreground">{t('noPublished')}</p>
           <Link
             className="mt-4 inline-flex min-h-10 items-center text-xs font-medium text-primary hover:underline"
             href="/ai"
           >
-            {t('查看 AI 频道 →')}
+            {t('viewAiChannel')}
           </Link>
         </div>
       )}
-      <ol aria-label={t('AI 事件时间轴')} className="pt-2">
+      <ol aria-label={t('timelineAria')} className="pt-2">
         {items.map((event) => (
           <li
             key={event.id}
@@ -95,7 +97,7 @@ export function EventTimeline({
               className="col-start-2 mb-2 pt-0.5 font-mono text-xs leading-6 tabular-nums text-muted-foreground sm:col-start-1 sm:row-start-1 sm:text-right"
               dateTime={event.occurred_at}
             >
-              <UiDate date={event.occurred_at} options={{ timeZone: 'Asia/Shanghai' }} />
+              <FormattedDate date={event.occurred_at} options={{ timeZone: 'Asia/Shanghai' }} />
             </time>
             <div
               aria-hidden="true"
@@ -128,7 +130,7 @@ export function EventTimeline({
                   className="mt-3 inline-flex items-center font-mono text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
                   href={`/ai/events/${event.slug}`}
                 >
-                  {t('详情与来源 →')}
+                  {t('detailsAndSources')}
                 </Link>
               </div>
             </div>
@@ -138,15 +140,13 @@ export function EventTimeline({
       <div ref={sentinel} className="flex min-h-20 flex-col items-center justify-center gap-3 py-4">
         <p role={isError ? 'alert' : 'status'} className="font-mono text-xs text-muted-foreground">
           {isFetching
-            ? t('加载中…')
+            ? tCommon('loadingShort')
             : isError
-              ? t('加载失败，请重试')
+              ? tCommon('loadFailedRetry')
               : hasNextPage
-                ? archive
-                  ? ''
-                  : ''
+                ? ''
                 : items.length
-                  ? t('已显示全部事件')
+                  ? t('allShown')
                   : ''}
         </p>
         {!archive && (hasNextPage || isError) && (
@@ -155,7 +155,7 @@ export function EventTimeline({
             isDisabled={isFetching}
             onPress={() => void fetchNextPage({ cancelRefetch: false })}
           >
-            {isError ? t('重试') : t('加载更多')}
+            {isError ? tCommon('retry') : tCommon('loadMore')}
           </ActionButton>
         )}
         {cursor && (
@@ -165,7 +165,7 @@ export function EventTimeline({
             rel="nofollow"
             className="inline-flex min-h-10 items-center text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
           >
-            {t('更早事件 →')}
+            {t('earlierEvents')}
           </Link>
         )}
       </div>

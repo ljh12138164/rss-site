@@ -1,21 +1,35 @@
 'use client'
 
 import { Check, Copy, Terminal } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import { Tab, TabList, TabPanel, Tabs } from 'react-aria-components'
 import { ActionButton } from './action-button'
-import { useSiteText } from './site-language'
+
+type McpDescKey =
+  | 'codexCmdDesc'
+  | 'codexFileDesc'
+  | 'codexTip'
+  | 'claudeCodeCmdDesc'
+  | 'claudeCodeTip'
+  | 'cursorCmdDesc'
+  | 'cursorFileDesc'
+  | 'windsurfFileDesc'
+  | 'claudeDesktopFileDesc'
+  | 'claudeDesktopTip'
+  | 'curlCmdDesc'
 
 interface ClientSnippet {
   id: string
   label: string
+  labelKey?: 'curlLabel'
   command?: string
-  commandDesc?: string
+  commandDescKey?: McpDescKey
   filePath?: string
-  fileDesc?: string
+  fileDescKey?: McpDescKey
   fileCode?: string
   fileLang?: string
-  tip?: string
+  tipKey?: McpDescKey
 }
 
 const MCP_ENDPOINT = 'https://news.ljhboard.cn/api/mcp'
@@ -25,28 +39,28 @@ const snippets: ClientSnippet[] = [
     id: 'codex',
     label: 'Codex CLI',
     command: `codex mcp add rss-board-news --url ${MCP_ENDPOINT}`,
-    commandDesc: '在终端执行以下命令，添加服务到 OpenAI Codex CLI：',
+    commandDescKey: 'codexCmdDesc',
     filePath: '~/.codex/config.toml',
-    fileDesc: '或在 Codex 配置文件中添加：',
+    fileDescKey: 'codexFileDesc',
     fileLang: 'toml',
     fileCode: `[mcp_servers.rss-board-news]
 url = "${MCP_ENDPOINT}"`,
-    tip: '添加后，在终端运行 codex mcp list 可查看连接状态与可用工具。'
+    tipKey: 'codexTip'
   },
   {
     id: 'claude-code',
     label: 'Claude Code',
     command: `claude mcp add --transport http rss-board-news ${MCP_ENDPOINT}`,
-    commandDesc: '在终端执行以下命令，注册到 Claude Code CLI：',
-    tip: '添加后，在终端运行 claude mcp list 可查看已启用的工具。'
+    commandDescKey: 'claudeCodeCmdDesc',
+    tipKey: 'claudeCodeTip'
   },
   {
     id: 'cursor',
     label: 'Cursor',
     command: `mkdir -p .cursor && echo '{"mcpServers":{"rss-board-news":{"url":"${MCP_ENDPOINT}"}}}' > .cursor/mcp.json`,
-    commandDesc: '在项目根目录执行以下命令生成配置文件：',
+    commandDescKey: 'cursorCmdDesc',
     filePath: '.cursor/mcp.json',
-    fileDesc: '或手动创建/编辑配置文件，或在 Cursor Settings -> Features -> MCP 中添加：',
+    fileDescKey: 'cursorFileDesc',
     fileLang: 'json',
     fileCode: JSON.stringify(
       {
@@ -64,7 +78,7 @@ url = "${MCP_ENDPOINT}"`,
     id: 'windsurf',
     label: 'Windsurf',
     filePath: '~/.codeium/windsurf/mcp_config.json',
-    fileDesc: '在 Windsurf 全局配置中添加远程 MCP 服务：',
+    fileDescKey: 'windsurfFileDesc',
     fileLang: 'json',
     fileCode: JSON.stringify(
       {
@@ -82,7 +96,7 @@ url = "${MCP_ENDPOINT}"`,
     id: 'claude-desktop',
     label: 'Claude Desktop',
     filePath: 'claude_desktop_config.json',
-    fileDesc: '使用 mcp-remote 桥接远程 Streamable HTTP 服务：',
+    fileDescKey: 'claudeDesktopFileDesc',
     fileLang: 'json',
     fileCode: JSON.stringify(
       {
@@ -96,20 +110,22 @@ url = "${MCP_ENDPOINT}"`,
       null,
       2
     ),
-    tip: 'macOS 路径: ~/Library/Application Support/Claude/claude_desktop_config.json | Windows 路径: %APPDATA%\\Claude\\claude_desktop_config.json'
+    tipKey: 'claudeDesktopTip'
   },
   {
     id: 'curl',
-    label: 'cURL / 终端直调',
+    label: 'cURL',
+    labelKey: 'curlLabel',
     command: `curl -X POST ${MCP_ENDPOINT} \\
   -H "Content-Type: application/json" \\
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_news","arguments":{"limit":10}}}'`,
-    commandDesc: '在终端直接发送 JSON-RPC 2.0 请求调用 get_news 工具：'
+    commandDescKey: 'curlCmdDesc'
   }
 ]
 
 export function McpClientConfig() {
-  const t = useSiteText()
+  const t = useTranslations('mcp')
+  const tCommon = useTranslations('common')
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
   async function copyText(text: string, key: string) {
@@ -129,7 +145,7 @@ export function McpClientConfig() {
       {/* Endpoint Bar */}
       <div className="flex flex-col gap-3 rounded-sm border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <div className="font-mono text-xs text-muted-foreground">{t('Streamable HTTP 地址')}</div>
+          <div className="font-mono text-xs text-muted-foreground">{t('endpointLabel')}</div>
           <div className="mt-1 break-all font-mono text-sm font-semibold text-foreground sm:text-base">
             {MCP_ENDPOINT}
           </div>
@@ -138,17 +154,17 @@ export function McpClientConfig() {
           variant="outline"
           onPress={() => copyText(MCP_ENDPOINT, 'endpoint')}
           className="min-h-9 shrink-0 self-start px-3 text-xs sm:self-auto"
-          aria-label={t('复制 MCP 服务地址')}
+          aria-label={t('copyEndpointAria')}
         >
           {isEndpointCopied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
-          {isEndpointCopied ? t('已复制') : t('复制地址')}
+          {isEndpointCopied ? tCommon('copied') : t('copyUrl')}
         </ActionButton>
       </div>
 
       {/* Tabs */}
       <Tabs defaultSelectedKey="codex" className="w-full">
         <TabList
-          aria-label={t('客户端接入配置')}
+          aria-label={t('tabsAria')}
           className="flex flex-wrap gap-1.5 border-b border-border pb-2 text-sm font-medium"
         >
           {snippets.map((snippet) => (
@@ -163,81 +179,88 @@ export function McpClientConfig() {
                 }`
               }
             >
-              {t(snippet.label)}
+              {snippet.labelKey ? t(snippet.labelKey) : snippet.label}
             </Tab>
           ))}
         </TabList>
 
-        {snippets.map((snippet) => (
-          <TabPanel key={snippet.id} id={snippet.id} className="space-y-4 pt-4 outline-none">
-            {/* Command-level CLI Section */}
-            {snippet.command && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                  <Terminal size={14} className="text-primary" />
-                  <span>{t(snippet.commandDesc ?? '在终端执行以下命令：')}</span>
-                </div>
-                <div className="relative rounded-sm border border-border bg-muted p-4 font-mono text-xs sm:text-sm">
-                  <ActionButton
-                    variant="ghost"
-                    onPress={() => copyText(snippet.command ?? '', `${snippet.id}-cmd`)}
-                    className="absolute top-2.5 right-2.5 min-h-8 bg-card px-2.5 text-xs shadow-xs hover:bg-accent"
-                    aria-label={t('复制 {label} 命令', { label: t(snippet.label) })}
-                  >
-                    {copiedKey === `${snippet.id}-cmd` ? (
-                      <Check size={13} className="text-primary" />
-                    ) : (
-                      <Copy size={13} />
-                    )}
-                    {copiedKey === `${snippet.id}-cmd` ? t('已复制') : t('复制命令')}
-                  </ActionButton>
-                  <pre className="overflow-x-auto pr-20 leading-relaxed text-foreground">
-                    <code>{snippet.command}</code>
-                  </pre>
-                </div>
-              </div>
-            )}
-
-            {/* Config File Section */}
-            {snippet.fileCode && (
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                  <span>{t(snippet.fileDesc ?? '配置文件内容：')}</span>
-                  {snippet.filePath && (
-                    <span className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
-                      {t(snippet.filePath)}
+        {snippets.map((snippet) => {
+          const displayLabel = snippet.labelKey ? t(snippet.labelKey) : snippet.label
+          return (
+            <TabPanel key={snippet.id} id={snippet.id} className="space-y-4 pt-4 outline-none">
+              {/* Command-level CLI Section */}
+              {snippet.command && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+                    <Terminal size={14} className="text-primary" />
+                    <span>
+                      {snippet.commandDescKey ? t(snippet.commandDescKey) : t('defaultCmdDesc')}
                     </span>
-                  )}
+                  </div>
+                  <div className="relative rounded-sm border border-border bg-muted p-4 font-mono text-xs sm:text-sm">
+                    <ActionButton
+                      variant="ghost"
+                      onPress={() => copyText(snippet.command ?? '', `${snippet.id}-cmd`)}
+                      className="absolute top-2.5 right-2.5 min-h-8 bg-card px-2.5 text-xs shadow-xs hover:bg-accent"
+                      aria-label={t('copyCmdAria', { label: displayLabel })}
+                    >
+                      {copiedKey === `${snippet.id}-cmd` ? (
+                        <Check size={13} className="text-primary" />
+                      ) : (
+                        <Copy size={13} />
+                      )}
+                      {copiedKey === `${snippet.id}-cmd` ? tCommon('copied') : t('copyCmd')}
+                    </ActionButton>
+                    <pre className="overflow-x-auto pr-20 leading-relaxed text-foreground">
+                      <code>{snippet.command}</code>
+                    </pre>
+                  </div>
                 </div>
-                <div className="relative rounded-sm border border-border bg-muted p-4 font-mono text-xs sm:text-sm">
-                  <ActionButton
-                    variant="ghost"
-                    onPress={() => copyText(snippet.fileCode ?? '', `${snippet.id}-file`)}
-                    className="absolute top-2.5 right-2.5 min-h-8 bg-card px-2.5 text-xs shadow-xs hover:bg-accent"
-                    aria-label={t('复制 {label} 配置', { label: t(snippet.label) })}
-                  >
-                    {copiedKey === `${snippet.id}-file` ? (
-                      <Check size={13} className="text-primary" />
-                    ) : (
-                      <Copy size={13} />
-                    )}
-                    {copiedKey === `${snippet.id}-file` ? t('已复制') : t('复制配置')}
-                  </ActionButton>
-                  <pre className="overflow-x-auto pr-20 leading-relaxed text-foreground">
-                    <code>{snippet.fileCode}</code>
-                  </pre>
-                </div>
-              </div>
-            )}
+              )}
 
-            {/* Tip note */}
-            {snippet.tip && (
-              <div className="rounded-sm border border-border bg-card px-3 py-2 font-mono text-xs leading-5 text-muted-foreground">
-                {t(snippet.tip)}
-              </div>
-            )}
-          </TabPanel>
-        ))}
+              {/* Config File Section */}
+              {snippet.fileCode && (
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                    <span>
+                      {snippet.fileDescKey ? t(snippet.fileDescKey) : t('defaultFileDesc')}
+                    </span>
+                    {snippet.filePath && (
+                      <span className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
+                        {snippet.filePath}
+                      </span>
+                    )}
+                  </div>
+                  <div className="relative rounded-sm border border-border bg-muted p-4 font-mono text-xs sm:text-sm">
+                    <ActionButton
+                      variant="ghost"
+                      onPress={() => copyText(snippet.fileCode ?? '', `${snippet.id}-file`)}
+                      className="absolute top-2.5 right-2.5 min-h-8 bg-card px-2.5 text-xs shadow-xs hover:bg-accent"
+                      aria-label={t('copyConfigAria', { label: displayLabel })}
+                    >
+                      {copiedKey === `${snippet.id}-file` ? (
+                        <Check size={13} className="text-primary" />
+                      ) : (
+                        <Copy size={13} />
+                      )}
+                      {copiedKey === `${snippet.id}-file` ? tCommon('copied') : t('copyConfig')}
+                    </ActionButton>
+                    <pre className="overflow-x-auto pr-20 leading-relaxed text-foreground">
+                      <code>{snippet.fileCode}</code>
+                    </pre>
+                  </div>
+                </div>
+              )}
+
+              {/* Tip note */}
+              {snippet.tipKey && (
+                <div className="rounded-sm border border-border bg-card px-3 py-2 font-mono text-xs leading-5 text-muted-foreground">
+                  {t(snippet.tipKey)}
+                </div>
+              )}
+            </TabPanel>
+          )
+        })}
       </Tabs>
     </div>
   )

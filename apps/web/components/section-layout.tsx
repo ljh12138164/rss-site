@@ -2,40 +2,52 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import type { ReactNode } from 'react'
 import type { OutboundReturnPath } from '../lib/outbound-link'
-import { aiSourcePageText } from '../lib/source-page-text'
-import type { SignalSource } from '../lib/technology-sources'
+import type { SignalSectionId, SignalSource } from '../lib/technology-sources'
 import { getTransitLine } from '../lib/transit-lines'
 import { RssSubscription } from './rss-subscription'
-import { useSiteText } from './site-language'
 import { SiteShell } from './site-shell'
 import { SourceNavigation } from './source-navigation'
 
 export function SectionLayout({
   children,
   basePath,
-  title,
-  description: _description,
-  sectionName,
+  sectionId,
   sources
 }: {
   children: ReactNode
   basePath: OutboundReturnPath
-  title: string
-  description: string
-  sectionName: string
+  sectionId: SignalSectionId
   sources: readonly SignalSource[]
 }) {
-  const t = useSiteText()
+  const tCommon = useTranslations('common')
+  const tSections = useTranslations('sections')
+  const tSources = useTranslations('sources')
+  const tSourcePage = useTranslations('sourcePage')
   const pathname = usePathname()
   const segments = pathname.slice(basePath.length).split('/').filter(Boolean)
   const source = sources.find((s) => s.id === segments[0])
-  const sourceText = source
-    ? basePath === '/ai'
-      ? aiSourcePageText(source, t)
-      : { title: source.name, description: t(source.description) }
-    : undefined
+
+  const sourceDescription = source ? tSources(source.id) : undefined
+  const sourceText =
+    source && sourceDescription
+      ? basePath === '/ai'
+        ? {
+            title:
+              source.id === 'openai'
+                ? tSourcePage('openaiTitle')
+                : source.id === 'chatgpt'
+                  ? tSourcePage('chatgptTitle')
+                  : `${source.name} ${sourceDescription}`,
+            description: tSourcePage('aiDescriptionTemplate', {
+              name: source.name,
+              description: sourceDescription
+            })
+          }
+        : { title: source.name, description: sourceDescription }
+      : undefined
   const line = getTransitLine(basePath)
 
   // Article details own their reading layout, outside the platform list shell.
@@ -44,17 +56,17 @@ export function SectionLayout({
   return (
     <SiteShell>
       {source && (
-        <nav aria-label={t('面包屑')} className="mb-4">
+        <nav aria-label={tCommon('breadcrumb')} className="mb-4">
           <ol className="flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground">
             <li>
               <Link className="transition-colors hover:text-primary" href="/">
-                {t('全部热点')}
+                {tCommon('allStories')}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
             <li>
               <Link className="transition-colors hover:text-primary" href={basePath}>
-                {t(sectionName)}
+                {tSections(`${sectionId}.shortTitle`)}
               </Link>
             </li>
             <li aria-hidden="true">/</li>
@@ -76,7 +88,7 @@ export function SectionLayout({
               />
             )}
             <h1 className="headline-display text-2xl text-foreground sm:text-3xl">
-              {sourceText?.title ?? t(title)}
+              {sourceText?.title ?? tSections(`${sectionId}.pageTitle`)}
             </h1>
           </div>
           {source && sourceText?.description && (
@@ -85,12 +97,12 @@ export function SectionLayout({
             </p>
           )}
         </div>
-        <RssSubscription key={basePath} basePath={basePath} sectionName={sectionName} />
+        <RssSubscription key={basePath} basePath={basePath} sectionId={sectionId} />
       </header>
 
       <SourceNavigation
         active={source?.id}
-        ariaLabel={t('来源筛选')}
+        ariaLabel={tCommon('filterBySource')}
         basePath={basePath}
         lineColor={line?.cssVar}
         sources={sources}

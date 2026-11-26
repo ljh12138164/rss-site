@@ -3,6 +3,7 @@ import { act, useState } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { RssSubscription } from '../rss-subscription'
+import { SiteLanguageProvider } from '../site-language'
 import { UiSegmentedGroup } from './segmented-group'
 import { UiSelect } from './select'
 
@@ -11,6 +12,7 @@ let container: HTMLDivElement
 
 beforeEach(() => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['zh-CN'])
   container = document.createElement('div')
   document.body.append(container)
   root = createRoot(container)
@@ -19,6 +21,7 @@ beforeEach(() => {
 afterEach(async () => {
   await act(async () => root.unmount())
   container.remove()
+  vi.restoreAllMocks()
   vi.unstubAllGlobals()
 })
 
@@ -101,7 +104,13 @@ it('UiSegmentedGroup preserves single active selection', async () => {
 })
 
 it('RssSubscription switches modes, selects sources, updates feed URL and clears selection', async () => {
-  await act(async () => root.render(<RssSubscription basePath="/ai" sectionName="AI" />))
+  await act(async () =>
+    root.render(
+      <SiteLanguageProvider>
+        <RssSubscription basePath="/ai" sectionId="ai" />
+      </SiteLanguageProvider>
+    )
+  )
 
   const openButton = container.querySelector('button[aria-label="订阅 AI RSS"]') as
     | HTMLButtonElement

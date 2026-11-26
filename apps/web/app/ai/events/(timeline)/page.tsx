@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { EventTimeline } from '../../../../components/event-timeline'
-import { UiText } from '../../../../components/site-language'
+import { TranslatedText } from '../../../../components/site-language'
 import { SiteShell } from '../../../../components/site-shell'
 import { getEventPage } from '../../../../lib/ai-events'
 import { createPageMetadata } from '../../../../lib/seo'
@@ -27,7 +27,7 @@ export default async function EventsPage() {
           style={{ backgroundColor: 'var(--line-ai)' }}
         />
         <h1 className="headline-display text-2xl text-foreground sm:text-3xl">
-          <UiText>{'AI 时间轴'}</UiText>
+          <TranslatedText id="events.title" />
         </h1>
       </header>
       <HydrationBoundary state={dehydrate(client)}>

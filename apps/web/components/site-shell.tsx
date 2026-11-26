@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { cn } from '../lib/utils'
 import { OutboundDialog } from './outbound-dialog'
 import { SiteHeader, TransitSidebar } from './site-header'
-import { UiText } from './site-language'
+import { TranslatedText } from './site-language'
 
 export function SiteShell({
   children,
@@ -17,7 +17,7 @@ export function SiteShell({
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-sm focus:bg-primary focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-primary-foreground"
         href="#main-content"
       >
-        <UiText>{'跳到正文'}</UiText>
+        <TranslatedText id="common.skipToContent" />
       </a>
       <TransitSidebar />
       <div className="flex min-w-0 flex-1 flex-col">

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { HotList } from '../../../../components/hot-list'
-import { UiRegion, UiText } from '../../../../components/site-language'
+import { TranslatedRegion, TranslatedText } from '../../../../components/site-language'
 import { SiteShell } from '../../../../components/site-shell'
 import { articleArchiveHref } from '../../../../lib/article-archive'
 import { getHomeArticles, parseArticleFilter, parseHomeCursor } from '../../../../lib/home-articles'
@@ -33,10 +33,20 @@ async function resolve({ params, searchParams }: Props) {
   } catch {
     notFound()
   }
-  const label = source[0] ? findSignalSource(source[0])?.name : findSignalSection(section)?.title
+  const sourceMeta = source[0] ? findSignalSource(source[0]) : undefined
+  const sectionMeta = findSignalSection(section)
+  const label = sourceMeta?.name ?? sectionMeta?.title
   const path = articleArchiveHref(filter, cursor)
-  if (!label || !path) notFound()
-  return { filter, after, label, basePath, path }
+  if (!label || !path || !sectionMeta) notFound()
+  return {
+    filter,
+    after,
+    label,
+    sourceName: sourceMeta?.name,
+    sectionId: sectionMeta.id,
+    basePath,
+    path
+  }
 }
 
 export async function generateMetadata(props: Props) {
@@ -52,10 +62,11 @@ export async function generateMetadata(props: Props) {
 }
 
 export default async function ArticleArchive(props: Props) {
-  const { filter, after, label, basePath } = await resolve(props)
+  const { filter, after, sourceName, sectionId, basePath } = await resolve(props)
   const page = await getHomeArticles(after, undefined, filter)
   if (!page.items.length) notFound()
   const nextPageHref = page.nextCursor ? articleArchiveHref(filter, page.nextCursor) : undefined
+  const labelNode = sourceName ? sourceName : <TranslatedText id={`sections.${sectionId}.title`} />
   return (
     <SiteShell>
       <header className="mb-8">
@@ -63,10 +74,10 @@ export default async function ArticleArchive(props: Props) {
           href={basePath}
           className="inline-flex min-h-11 items-center text-sm text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
         >
-          <UiText>{'返回'}</UiText> <UiText>{label}</UiText>
+          <TranslatedText id="common.back" /> {labelNode}
         </Link>
         <h1 className="headline-display mt-3 text-balance text-4xl">
-          <UiText>{label}</UiText> <UiText>{'· 历史文章'}</UiText>
+          {labelNode} <TranslatedText id="errors.archiveSuffix" />
         </h1>
       </header>
       <HotList
@@ -78,16 +89,16 @@ export default async function ArticleArchive(props: Props) {
         }))}
       />
       {nextPageHref && (
-        <UiRegion as="nav" aria-label="历史文章分页" className="mt-6">
+        <TranslatedRegion as="nav" labelId="errors.archivePagination" className="mt-6">
           <Link
             href={nextPageHref}
             prefetch={false}
             rel="nofollow"
             className="inline-flex min-h-11 items-center text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
           >
-            <UiText>{'下一页'}</UiText>
+            <TranslatedText id="errors.nextPage" />
           </Link>
-        </UiRegion>
+        </TranslatedRegion>
       )}
     </SiteShell>
   )

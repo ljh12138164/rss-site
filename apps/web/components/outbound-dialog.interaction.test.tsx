@@ -4,6 +4,7 @@ import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { OutboundDialog } from './outbound-dialog'
+import { SiteLanguageProvider } from './site-language'
 
 let root: Root
 let container: HTMLDivElement
@@ -25,12 +26,12 @@ afterEach(async () => {
 async function openDialog(href: string) {
   await act(async () => {
     root.render(
-      <>
+      <SiteLanguageProvider>
         <a data-outbound href={href}>
           查看原文
         </a>
         <OutboundDialog />
-      </>
+      </SiteLanguageProvider>
     )
   })
   await act(async () => {

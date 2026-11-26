@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { expect, it } from 'vitest'
 import type { HotRanking } from '../../../shared/hot-ranking'
 import { HomeHotRanking } from './home-hot-ranking'
+import { SiteLanguageProvider } from './site-language'
 
 it('shows heat, source counts and stale state with internal citations, then falls back to original URLs', () => {
   const ranking: HotRanking = {
@@ -29,7 +30,12 @@ it('shows heat, source counts and stale state with internal citations, then fall
       }
     ]
   }
-  const render = () => renderToStaticMarkup(<HomeHotRanking ranking={ranking} />)
+  const render = () =>
+    renderToStaticMarkup(
+      <SiteLanguageProvider>
+        <HomeHotRanking ranking={ranking} />
+      </SiteLanguageProvider>
+    )
   expect(render()).toContain('25.5')
   expect(render()).toContain('7')
   expect(render()).toContain('更新延迟')
@@ -37,9 +43,13 @@ it('shows heat, source counts and stale state with internal citations, then fall
   expect(render()).not.toContain('今日速览')
   ranking.entries[0].references[0].available = false
   expect(render()).toContain('href="https://example.com/news"')
-  expect(renderToStaticMarkup(<HomeHotRanking ranking={{ state: 'unavailable' }} />)).toContain(
-    '热点排行暂不可用'
-  )
+  expect(
+    renderToStaticMarkup(
+      <SiteLanguageProvider>
+        <HomeHotRanking ranking={{ state: 'unavailable' }} />
+      </SiteLanguageProvider>
+    )
+  ).toContain('热点排行暂不可用')
   ranking.entries = []
   expect(render()).toContain('暂未发现符合条件')
   expect(render()).not.toContain('暂不可用')

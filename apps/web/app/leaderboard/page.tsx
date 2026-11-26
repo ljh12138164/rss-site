@@ -1,6 +1,6 @@
 import { Cpu } from 'lucide-react'
 import { ModelLeaderboard } from '../../components/leaderboard/model-leaderboard'
-import { UiText } from '../../components/site-language'
+import { TranslatedText } from '../../components/site-language'
 import { SiteShell } from '../../components/site-shell'
 import { getModelLeaderboard, type ModelLeaderboardItem } from '../../lib/leaderboard'
 import { createPageMetadata } from '../../lib/seo'
@@ -21,11 +21,11 @@ export function LeaderboardHeader() {
       <div className="flex items-center gap-2.5">
         <Cpu className="size-5 shrink-0 text-primary" aria-hidden="true" />
         <h1 className="headline-display text-2xl text-foreground sm:text-3xl">
-          <UiText>{'AI 模型评测榜'}</UiText>
+          <TranslatedText id="leaderboard.pageTitle" />
         </h1>
       </div>
       <span className="font-mono text-xs text-muted-foreground">
-        <UiText>{'每 4 小时更新'}</UiText>
+        <TranslatedText id="leaderboard.updatedEvery4h" />
       </span>
     </header>
   )
