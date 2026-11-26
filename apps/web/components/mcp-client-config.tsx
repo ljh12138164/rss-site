@@ -4,6 +4,7 @@ import { Check, Copy, Terminal } from 'lucide-react'
 import { useState } from 'react'
 import { Tab, TabList, TabPanel, Tabs } from 'react-aria-components'
 import { ActionButton } from './action-button'
+import { useSiteText } from './site-language'
 
 interface ClientSnippet {
   id: string
@@ -108,6 +109,7 @@ url = "${MCP_ENDPOINT}"`,
 ]
 
 export function McpClientConfig() {
+  const t = useSiteText()
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
   async function copyText(text: string, key: string) {
@@ -127,7 +129,7 @@ export function McpClientConfig() {
       {/* Endpoint Bar */}
       <div className="flex flex-col gap-3 rounded-sm border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <div className="font-mono text-xs text-muted-foreground">Streamable HTTP 地址</div>
+          <div className="font-mono text-xs text-muted-foreground">{t('Streamable HTTP 地址')}</div>
           <div className="mt-1 break-all font-mono text-sm font-semibold text-foreground sm:text-base">
             {MCP_ENDPOINT}
           </div>
@@ -136,17 +138,17 @@ export function McpClientConfig() {
           variant="outline"
           onPress={() => copyText(MCP_ENDPOINT, 'endpoint')}
           className="min-h-9 shrink-0 self-start px-3 text-xs sm:self-auto"
-          aria-label="复制 MCP 服务地址"
+          aria-label={t('复制 MCP 服务地址')}
         >
           {isEndpointCopied ? <Check size={14} className="text-primary" /> : <Copy size={14} />}
-          {isEndpointCopied ? '已复制' : '复制地址'}
+          {isEndpointCopied ? t('已复制') : t('复制地址')}
         </ActionButton>
       </div>
 
       {/* Tabs */}
       <Tabs defaultSelectedKey="codex" className="w-full">
         <TabList
-          aria-label="客户端接入配置"
+          aria-label={t('客户端接入配置')}
           className="flex flex-wrap gap-1.5 border-b border-border pb-2 text-sm font-medium"
         >
           {snippets.map((snippet) => (
@@ -161,7 +163,7 @@ export function McpClientConfig() {
                 }`
               }
             >
-              {snippet.label}
+              {t(snippet.label)}
             </Tab>
           ))}
         </TabList>
@@ -173,21 +175,21 @@ export function McpClientConfig() {
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
                   <Terminal size={14} className="text-primary" />
-                  <span>{snippet.commandDesc ?? '在终端执行以下命令：'}</span>
+                  <span>{t(snippet.commandDesc ?? '在终端执行以下命令：')}</span>
                 </div>
                 <div className="relative rounded-sm border border-border bg-muted p-4 font-mono text-xs sm:text-sm">
                   <ActionButton
                     variant="ghost"
                     onPress={() => copyText(snippet.command ?? '', `${snippet.id}-cmd`)}
                     className="absolute top-2.5 right-2.5 min-h-8 bg-card px-2.5 text-xs shadow-xs hover:bg-accent"
-                    aria-label={`复制 ${snippet.label} 命令`}
+                    aria-label={t('复制 {label} 命令', { label: t(snippet.label) })}
                   >
                     {copiedKey === `${snippet.id}-cmd` ? (
                       <Check size={13} className="text-primary" />
                     ) : (
                       <Copy size={13} />
                     )}
-                    {copiedKey === `${snippet.id}-cmd` ? '已复制' : '复制命令'}
+                    {copiedKey === `${snippet.id}-cmd` ? t('已复制') : t('复制命令')}
                   </ActionButton>
                   <pre className="overflow-x-auto pr-20 leading-relaxed text-foreground">
                     <code>{snippet.command}</code>
@@ -200,10 +202,10 @@ export function McpClientConfig() {
             {snippet.fileCode && (
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                  <span>{snippet.fileDesc ?? '配置文件内容：'}</span>
+                  <span>{t(snippet.fileDesc ?? '配置文件内容：')}</span>
                   {snippet.filePath && (
                     <span className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
-                      {snippet.filePath}
+                      {t(snippet.filePath)}
                     </span>
                   )}
                 </div>
@@ -212,14 +214,14 @@ export function McpClientConfig() {
                     variant="ghost"
                     onPress={() => copyText(snippet.fileCode ?? '', `${snippet.id}-file`)}
                     className="absolute top-2.5 right-2.5 min-h-8 bg-card px-2.5 text-xs shadow-xs hover:bg-accent"
-                    aria-label={`复制 ${snippet.label} 配置`}
+                    aria-label={t('复制 {label} 配置', { label: t(snippet.label) })}
                   >
                     {copiedKey === `${snippet.id}-file` ? (
                       <Check size={13} className="text-primary" />
                     ) : (
                       <Copy size={13} />
                     )}
-                    {copiedKey === `${snippet.id}-file` ? '已复制' : '复制配置'}
+                    {copiedKey === `${snippet.id}-file` ? t('已复制') : t('复制配置')}
                   </ActionButton>
                   <pre className="overflow-x-auto pr-20 leading-relaxed text-foreground">
                     <code>{snippet.fileCode}</code>
@@ -231,7 +233,7 @@ export function McpClientConfig() {
             {/* Tip note */}
             {snippet.tip && (
               <div className="rounded-sm border border-border bg-card px-3 py-2 font-mono text-xs leading-5 text-muted-foreground">
-                {snippet.tip}
+                {t(snippet.tip)}
               </div>
             )}
           </TabPanel>

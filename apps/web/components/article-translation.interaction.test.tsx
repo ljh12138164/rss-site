@@ -3,6 +3,7 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { expect, it, vi } from 'vitest'
 import { ArticleTranslation } from './article-translation'
+import { SiteLanguageProvider } from './site-language'
 
 it('marks original and translated text across all reading modes without changing UI language', async () => {
   vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
@@ -80,6 +81,45 @@ it('marks original and translated text across all reading modes without changing
   } finally {
     await act(async () => root.unmount())
     container.remove()
+    vi.unstubAllGlobals()
+  }
+})
+
+it('preserves the original content and hides Chinese translation for an English preference', async () => {
+  const language = vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['en-GB'])
+  vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true)
+  const fetcher = vi.fn()
+  vi.stubGlobal('fetch', fetcher)
+  const container = document.createElement('div')
+  document.body.append(container)
+  const root = createRoot(container)
+  try {
+    await act(async () =>
+      root.render(
+        <SiteLanguageProvider>
+          <ArticleTranslation
+            articleId="one"
+            source="openai"
+            title="English article title"
+            contentHtml="<p>This is the original text.</p>"
+            summary={null}
+            canTranslate
+            sourceLabel={null}
+            metadata={null}
+          />
+        </SiteLanguageProvider>
+      )
+    )
+    expect(container.querySelector('h1')?.textContent).toBe('English article title')
+    expect(container.querySelector('[aria-label="Article content"]')?.textContent).toContain(
+      'This is the original text.'
+    )
+    expect(container.querySelector('button')).toBeNull()
+    expect(fetcher).not.toHaveBeenCalled()
+  } finally {
+    await act(async () => root.unmount())
+    container.remove()
+    language.mockRestore()
     vi.unstubAllGlobals()
   }
 })

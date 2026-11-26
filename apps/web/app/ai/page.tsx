@@ -2,6 +2,7 @@ import { ArrowRight, Cpu } from 'lucide-react'
 import Link from 'next/link'
 import { PaginatedArticleFeed } from '../../components/paginated-article-feed'
 import { SectionOverview } from '../../components/section-overview'
+import { UiText } from '../../components/site-language'
 import type { AiFeeds } from '../../lib/hot-feed'
 import { createPageMetadata } from '../../lib/seo'
 import { AI_DESCRIPTION } from '../../lib/source-page-text'
@@ -25,13 +26,15 @@ export function LeaderboardBanner() {
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-sm border border-border bg-card px-4 py-3">
       <div className="flex items-center gap-2.5 text-sm font-medium text-foreground">
         <Cpu className="size-4 text-primary" aria-hidden="true" />
-        <span>AI 大模型评测榜</span>
+        <span>
+          <UiText>{'AI 大模型评测榜'}</UiText>
+        </span>
       </div>
       <Link
         href="/leaderboard"
         className="inline-flex items-center gap-1 font-mono text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
       >
-        查看榜单
+        <UiText>{'查看榜单'}</UiText>
         <ArrowRight className="size-3.5" aria-hidden="true" />
       </Link>
     </div>

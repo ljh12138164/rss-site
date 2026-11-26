@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { EventTimeline } from '../../../../components/event-timeline'
+import { UiText } from '../../../../components/site-language'
 import { SiteShell } from '../../../../components/site-shell'
 import { getEventPage, parseEventCursor } from '../../../../lib/ai-events'
 import { createPageMetadata } from '../../../../lib/seo'
@@ -39,9 +40,11 @@ export default async function EventArchive(props: Props) {
           href="/ai/events"
           className="inline-flex min-h-11 items-center text-sm text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
         >
-          返回 AI 时间轴
+          <UiText>{'返回 AI 时间轴'}</UiText>
         </Link>
-        <h1 className="headline-display mt-3 text-balance text-4xl">AI 时间轴 · 更早事件</h1>
+        <h1 className="headline-display mt-3 text-balance text-4xl">
+          <UiText>{'AI 时间轴 · 更早事件'}</UiText>
+        </h1>
       </header>
       <EventTimeline initialPage={page} archive />
     </SiteShell>

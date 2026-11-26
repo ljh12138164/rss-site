@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { UiText } from './site-language'
 import { SiteShell } from './site-shell'
 
 export function InformationPage({
@@ -13,10 +14,12 @@ export function InformationPage({
   return (
     <SiteShell mainClassName="mx-auto w-full max-w-3xl">
       <header className="mb-6 border-b border-border pb-6">
-        <h1 className="headline-display text-3xl sm:text-4xl">{title}</h1>
+        <h1 className="headline-display text-3xl sm:text-4xl">
+          <UiText>{title}</UiText>
+        </h1>
         {description && (
           <p className="mt-2.5 text-pretty text-sm leading-6 text-muted-foreground">
-            {description}
+            <UiText>{description}</UiText>
           </p>
         )}
       </header>

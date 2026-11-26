@@ -5,16 +5,17 @@ import { createArticlePath } from '../lib/article-route'
 import { findSignalSource } from '../lib/technology-sources'
 import { getTransitLine, getTransitLineColor } from '../lib/transit-lines'
 import { CoverImage } from './cover-image'
+import { UiDate, UiText } from './site-language'
 import { SourceIcon } from './source-icon'
 
-const timeFormatter = new Intl.DateTimeFormat('zh-CN', {
+const dateOptions = {
   month: '2-digit',
   day: '2-digit',
   hour: '2-digit',
   minute: '2-digit',
   hourCycle: 'h23',
   timeZone: 'Asia/Shanghai'
-})
+} satisfies Intl.DateTimeFormatOptions
 
 function referenceHref(ref: HotReference) {
   if (ref.available !== false) {
@@ -67,11 +68,11 @@ export function HomeHotRanking({ ranking }: { ranking: HotRanking }) {
         <div className="flex items-center gap-2">
           <GitMerge aria-hidden="true" className="size-4 text-muted-foreground" />
           <h2 id="hot-ranking" className="headline-display text-lg text-foreground sm:text-xl">
-            热门交汇
+            <UiText>{'热门交汇'}</UiText>
           </h2>
           {ranking.state === 'ready' && ranking.delayed && (
             <span className="rounded-sm border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-[11px] font-medium text-amber-600 dark:text-amber-300">
-              更新延迟
+              <UiText>{'更新延迟'}</UiText>
             </span>
           )}
         </div>
@@ -80,19 +81,26 @@ export function HomeHotRanking({ ranking }: { ranking: HotRanking }) {
             dateTime={ranking.computedAt}
             className="font-mono text-xs tabular-nums text-muted-foreground"
           >
-            {timeFormatter.format(new Date(ranking.computedAt))} · {ranking.articleCount} 篇聚合
+            <UiDate date={new Date(ranking.computedAt)} options={dateOptions} /> ·{' '}
+            {ranking.articleCount} <UiText>{'篇聚合'}</UiText>
           </time>
         )}
       </div>
 
       {ranking.state === 'unavailable' ? (
         <div className="rounded-sm border border-border bg-card px-5 py-10 text-center">
-          <p className="text-sm font-medium text-foreground">热点排行暂不可用</p>
-          <p className="mt-1.5 text-xs text-muted-foreground">请稍后刷新</p>
+          <p className="text-sm font-medium text-foreground">
+            <UiText>{'热点排行暂不可用'}</UiText>
+          </p>
+          <p className="mt-1.5 text-xs text-muted-foreground">
+            <UiText>{'请稍后刷新'}</UiText>
+          </p>
         </div>
       ) : !ranking.entries.length ? (
         <div className="rounded-sm border border-border bg-card px-5 py-10 text-center">
-          <p className="text-sm font-medium text-foreground">暂未发现符合条件的热点</p>
+          <p className="text-sm font-medium text-foreground">
+            <UiText>{'暂未发现符合条件的热点'}</UiText>
+          </p>
         </div>
       ) : (
         <ol className="relative space-y-4">
@@ -144,12 +152,12 @@ export function HomeHotRanking({ ranking }: { ranking: HotRanking }) {
                           className="size-1.5 rounded-full"
                           style={{ backgroundColor: line.cssVar }}
                         />
-                        {line.name}
+                        <UiText>{line.name}</UiText>
                       </span>
                     )}
                     <span className="inline-flex items-center gap-1 rounded-sm border border-border bg-background/70 px-1.5 py-0.5 text-[11px] text-foreground">
                       <GitMerge className="size-3 text-primary" aria-hidden="true" />
-                      {entry.participants} 源交汇
+                      {entry.participants} <UiText>{'源交汇'}</UiText>
                     </span>
                     <span className="ml-auto inline-flex items-center gap-1 text-primary">
                       <Flame className="size-3.5" aria-hidden="true" />

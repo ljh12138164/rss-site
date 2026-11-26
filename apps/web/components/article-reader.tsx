@@ -22,16 +22,17 @@ import { ArticleBookmarkButton } from './article-bookmark-button'
 import { ArticleHistoryTracker } from './article-history-tracker'
 import { ArticleSummary } from './article-summary'
 import { ArticleTranslation } from './article-translation'
+import { UiDate, UiRegion, UiText } from './site-language'
 import { SiteShell } from './site-shell'
 import { SourceIcon } from './source-icon'
 
 export type ArticlePageProps = { params: Promise<{ source: string; slug: string }> }
 const loadArticle = cache(getNewsArticle)
-const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
+const dateOptions = {
   dateStyle: 'long',
   timeStyle: 'short',
   timeZone: 'Asia/Shanghai'
-})
+} satisfies Intl.DateTimeFormatOptions
 
 async function resolveArticleRoute(params: ArticlePageProps['params'], section: string) {
   const { source, slug } = await params
@@ -138,7 +139,8 @@ export function ArticleReader({
         section={section.id}
       />
       <article className="mx-auto w-full max-w-[46rem] min-w-0">
-        <nav
+        <UiRegion
+          as="nav"
           aria-label="面包屑"
           className="mb-6 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground"
         >
@@ -146,14 +148,14 @@ export function ArticleReader({
             className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
             href="/"
           >
-            全部热点
+            <UiText>{'全部热点'}</UiText>
           </Link>
           <span aria-hidden="true">/</span>
           <Link
             className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
             href={`/${section.id}`}
           >
-            {section.title}
+            <UiText>{section.title}</UiText>
           </Link>
           <span aria-hidden="true">/</span>
           <Link
@@ -162,7 +164,7 @@ export function ArticleReader({
           >
             {source.shortName}
           </Link>
-        </nav>
+        </UiRegion>
         <ArticleTranslation
           articleId={article.id}
           source={source.id}
@@ -186,7 +188,7 @@ export function ArticleReader({
               {article.author && <span>{article.author}</span>}
               {article.publishedAt && (
                 <time dateTime={article.publishedAt.toISOString()}>
-                  {dateFormatter.format(article.publishedAt)}
+                  <UiDate date={article.publishedAt} options={dateOptions} />
                 </time>
               )}
               <a
@@ -196,7 +198,7 @@ export function ArticleReader({
                 data-outbound
                 className="group inline-flex min-h-11 items-center gap-1 transition-colors hover:text-primary"
               >
-                查看原文
+                <UiText>{'查看原文'}</UiText>
                 <ArrowUpRight
                   className="size-3.5 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                   aria-hidden="true"
@@ -215,7 +217,9 @@ export function ArticleReader({
         />
         <footer className="mt-8 flex flex-wrap items-center justify-between gap-4 border-t border-border py-6">
           <p className="max-w-md text-xs leading-6 text-muted-foreground">
-            内容来自 {source.name}，完整内容以原文为准。
+            <UiText values={{ source: source.name }}>
+              {'内容来自 {source}，完整内容以原文为准。'}
+            </UiText>
           </p>
           <div className="flex flex-wrap items-center gap-3">
             <ArticleBookmarkButton
@@ -233,7 +237,7 @@ export function ArticleReader({
               data-outbound
               className="group inline-flex min-h-11 items-center gap-2 font-medium text-primary hover:underline"
             >
-              阅读原文
+              <UiText>{'阅读原文'}</UiText>
               <ArrowUpRight
                 aria-hidden="true"
                 className="size-4 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -247,7 +251,7 @@ export function ArticleReader({
             aria-labelledby="same-source-articles"
           >
             <h2 id="same-source-articles" className="text-balance text-lg font-semibold">
-              同来源文章
+              <UiText>{'同来源文章'}</UiText>
             </h2>
             <ul className="mt-3 space-y-2">
               {related.map((item) => (

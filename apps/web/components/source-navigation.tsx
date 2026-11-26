@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource, SignalSourceId } from '../lib/technology-sources'
 import { cn } from '../lib/utils'
+import { UiText } from './site-language'
 import { SourceIcon } from './source-icon'
 
 export function SourceNavigation({
@@ -44,7 +45,7 @@ export function SourceNavigation({
               href={basePath}
             >
               {!active && activeBar}
-              全部
+              <UiText>{'全部'}</UiText>
             </Link>
           </li>
           {sources.map((source) => {

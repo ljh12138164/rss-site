@@ -27,14 +27,15 @@ import {
   technologySources
 } from '../lib/technology-sources'
 import { ActionButton } from './action-button'
+import { UiDate, useSiteText } from './site-language'
 import { UiSelect } from './ui/select'
 
-const searchDateFormatter = new Intl.DateTimeFormat('zh-CN', {
+const dateOptions = {
   year: 'numeric',
   month: 'numeric',
   day: 'numeric',
   timeZone: 'Asia/Shanghai'
-})
+} satisfies Intl.DateTimeFormatOptions
 
 const sources = [
   ...aiSources,
@@ -67,6 +68,7 @@ export function Highlight({ text, query }: { text: string; query: string }) {
 }
 
 function SearchPanel() {
+  const t = useSiteText()
   const [value, setValue] = useState('')
   const [composing, setComposing] = useState(false)
   const [section, setSection] = useState('')
@@ -132,19 +134,19 @@ function SearchPanel() {
         ).values()
       ]
     : []
-  const error = ready && isError ? '暂时无法搜索，请重试' : null
+  const error = ready && isError ? t('暂时无法搜索，请重试') : null
   return (
     <>
       <div className="flex items-center justify-between px-5 pt-5">
         <Heading slot="title" className="text-balance text-base font-semibold">
-          搜索文章
+          {t('搜索文章')}
         </Heading>
-        <ActionButton slot="close" variant="ghost" size="icon" aria-label="关闭搜索">
+        <ActionButton slot="close" variant="ghost" size="icon" aria-label={t('关闭搜索')}>
           <X aria-hidden="true" />
         </ActionButton>
       </div>
       <TextField
-        aria-label="搜索标题和摘要"
+        aria-label={t('搜索标题和摘要')}
         value={value}
         onChange={setValue}
         className="mx-5 mt-3 flex min-h-12 items-center gap-3 rounded-md border border-border bg-muted/40 px-3 focus-within:ring-2 focus-within:ring-primary"
@@ -154,14 +156,14 @@ function SearchPanel() {
           role="searchbox"
           autoFocus
           maxLength={80}
-          placeholder="搜索标题和摘要…"
+          placeholder={t('搜索标题和摘要…')}
           onCompositionStart={() => setComposing(true)}
           onCompositionEnd={() => setComposing(false)}
           className="min-w-0 flex-1 bg-transparent py-3 text-base outline-none [&::-webkit-search-cancel-button]:hidden"
         />
         {value && (
           <ActionButton
-            aria-label="清空关键词"
+            aria-label={t('清空关键词')}
             variant="ghost"
             size="icon"
             onPress={() => {
@@ -174,38 +176,38 @@ function SearchPanel() {
       </TextField>
       <div className="mx-5 mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <UiSelect
-          label="频道"
+          label={t('频道')}
           value={section}
           onChange={(next) => {
             setSection(next)
             setSource('')
           }}
           options={[
-            { value: '', label: '全部频道' },
+            { value: '', label: t('全部频道') },
             ...listSignalSections()
               .filter((entry) => sources.some((item) => item.section === entry.id))
-              .map((entry) => ({ value: entry.path, label: entry.title }))
+              .map((entry) => ({ value: entry.path, label: t(entry.title) }))
           ]}
         />
         <UiSelect
-          label="来源"
+          label={t('来源')}
           value={source}
           onChange={setSource}
           options={[
-            { value: '', label: '全部来源' },
+            { value: '', label: t('全部来源') },
             ...sources
               .filter((item) => !section || `/${item.section}` === section)
               .map((item) => ({ value: item.id, label: item.name }))
           ]}
         />
         <UiSelect
-          label="时间"
+          label={t('时间')}
           value={range}
           onChange={(next) => setRange(next as SearchRange)}
           options={[
-            { value: 'all', label: '不限' },
-            { value: 'day', label: '近 24 小时' },
-            { value: 'week', label: '近 7 天' }
+            { value: 'all', label: t('不限') },
+            { value: 'day', label: t('近 24 小时') },
+            { value: 'week', label: t('近 7 天') }
           ]}
         />
       </div>
@@ -215,14 +217,16 @@ function SearchPanel() {
         aria-live="polite"
       >
         {!query
-          ? '按标题和摘要检索'
+          ? t('按标题和摘要检索')
           : composing
-            ? '输入中…'
-            : (validation ??
+            ? t('输入中…')
+            : ((validation ? t(validation) : null) ??
               (pending
-                ? '检索中…'
+                ? t('检索中…')
                 : (error ??
-                  (items.length ? `${items.length} 条匹配 · 按发布时间` : '未找到匹配内容'))))}
+                  (items.length
+                    ? t('{count} 条匹配 · 按发布时间', { count: items.length })
+                    : t('未找到匹配内容')))))}
       </div>
       <div className="min-h-0 overflow-y-auto overscroll-contain px-5 pb-5">
         {pending && !items.length && (
@@ -246,7 +250,7 @@ function SearchPanel() {
                     {' '}
                     ·{' '}
                     <time dateTime={item.published_at}>
-                      {searchDateFormatter.format(new Date(item.published_at))}
+                      <UiDate date={new Date(item.published_at)} options={dateOptions} />
                     </time>
                   </>
                 )}
@@ -276,7 +280,7 @@ function SearchPanel() {
               else void refetch()
             }}
           >
-            重试
+            {t('重试')}
           </ActionButton>
         )}
         {ready && hasNextPage && !error && (
@@ -286,18 +290,19 @@ function SearchPanel() {
             isDisabled={pending}
             onPress={() => void fetchNextPage({ cancelRefetch: false })}
           >
-            {pending ? '加载中…' : '更多'}
+            {pending ? t('加载中…') : t('更多')}
           </ActionButton>
         )}
       </div>
       <div className="mt-auto border-t border-border px-5 py-2.5 font-mono text-[11px] text-muted-foreground">
-        Tab 切换 · Enter 打开 · Esc 关闭
+        {t('Tab 切换 · Enter 打开 · Esc 关闭')}
       </div>
     </>
   )
 }
 
 export function ArticleSearch({ variant = 'topbar' }: { variant?: 'topbar' | 'icon' }) {
+  const t = useSiteText()
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
@@ -317,7 +322,7 @@ export function ArticleSearch({ variant = 'topbar' }: { variant?: 'topbar' | 'ic
         <ActionButton
           variant="ghost"
           size="icon"
-          aria-label="搜索"
+          aria-label={t('搜索')}
           className="size-9 rounded-sm border border-border bg-card text-muted-foreground hover:border-primary/60 hover:text-foreground"
         >
           <Search aria-hidden="true" className="size-4" />
@@ -325,12 +330,12 @@ export function ArticleSearch({ variant = 'topbar' }: { variant?: 'topbar' | 'ic
       ) : (
         <ActionButton
           variant="ghost"
-          aria-label="搜索文章"
+          aria-label={t('搜索文章')}
           className="h-9 w-full max-w-sm justify-between rounded-sm border border-border bg-card px-3 text-sm text-muted-foreground hover:border-primary/60 hover:bg-card hover:text-foreground"
         >
           <span className="flex min-w-0 items-center gap-2 truncate">
             <Search aria-hidden="true" className="size-4 shrink-0" />
-            <span className="truncate">搜索文章或关键词…</span>
+            <span className="truncate">{t('搜索文章或关键词…')}</span>
           </span>
           <kbd className="hidden sm:inline-flex shrink-0 items-center rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] font-medium text-muted-foreground">
             ⌘K

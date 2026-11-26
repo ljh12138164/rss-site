@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { HotList } from '../../../../components/hot-list'
+import { UiRegion, UiText } from '../../../../components/site-language'
 import { SiteShell } from '../../../../components/site-shell'
 import { articleArchiveHref } from '../../../../lib/article-archive'
 import { getHomeArticles, parseArticleFilter, parseHomeCursor } from '../../../../lib/home-articles'
@@ -59,9 +60,11 @@ export default async function ArticleArchive(props: Props) {
           href={basePath}
           className="inline-flex min-h-11 items-center text-sm text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
         >
-          返回{label}
+          <UiText>{'返回'}</UiText> <UiText>{label}</UiText>
         </Link>
-        <h1 className="headline-display mt-3 text-balance text-4xl">{label} · 历史文章</h1>
+        <h1 className="headline-display mt-3 text-balance text-4xl">
+          <UiText>{label}</UiText> <UiText>{'· 历史文章'}</UiText>
+        </h1>
       </header>
       <HotList
         returnTo={filter.section}
@@ -72,15 +75,15 @@ export default async function ArticleArchive(props: Props) {
         }))}
       />
       {nextPageHref && (
-        <nav aria-label="历史文章分页" className="mt-6">
+        <UiRegion as="nav" aria-label="历史文章分页" className="mt-6">
           <Link
             href={nextPageHref}
             prefetch={false}
             className="inline-flex min-h-11 items-center text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
           >
-            下一页
+            <UiText>{'下一页'}</UiText>
           </Link>
-        </nav>
+        </UiRegion>
       )}
     </SiteShell>
   )

@@ -1,4 +1,5 @@
 import { type ArticleSummary, isArticleSummary } from './article-summary-result'
+import { DEFAULT_LOCALE, type SiteLocale } from './site-locale'
 
 export class SummaryRequestError extends Error {
   constructor(readonly status: 404 | 413 | 422 | 429 | 503) {
@@ -9,9 +10,10 @@ export class SummaryRequestError extends Error {
 export async function requestArticleSummary(
   id: string,
   signal?: AbortSignal,
-  kind: 'article' | 'skill' = 'article'
+  kind: 'article' | 'skill' = 'article',
+  locale: SiteLocale = DEFAULT_LOCALE
 ): Promise<ArticleSummary> {
-  const response = await fetchSummary(id, signal, kind)
+  const response = await fetchSummary(id, signal, kind, locale)
   try {
     const result: unknown = await response.json()
     if (!isArticleSummary(result)) throw new Error()
@@ -24,9 +26,10 @@ export async function requestArticleSummary(
 export async function requestArticleSummaryStream(
   id: string,
   signal: AbortSignal,
-  kind: 'article' | 'skill' = 'article'
+  kind: 'article' | 'skill' = 'article',
+  locale: SiteLocale = DEFAULT_LOCALE
 ): Promise<Response> {
-  const response = await fetchSummary(id, signal, kind, true)
+  const response = await fetchSummary(id, signal, kind, locale, true)
   if (!response.body || !response.headers.get('content-type')?.includes('application/x-ndjson')) {
     await response.body?.cancel()
     throw new SummaryRequestError(503)
@@ -44,6 +47,7 @@ async function fetchSummary(
   id: string,
   signal: AbortSignal | undefined,
   kind: 'article' | 'skill',
+  locale: SiteLocale,
   streaming = false
 ) {
   try {
@@ -66,7 +70,7 @@ async function fetchSummary(
         'content-type': 'application/json',
         ...(streaming ? { accept: 'application/x-ndjson' } : {})
       },
-      body: JSON.stringify({ id }),
+      body: JSON.stringify(locale === DEFAULT_LOCALE ? { id } : { id, locale }),
       signal: AbortSignal.any([...(signal ? [signal] : []), AbortSignal.timeout(125_000)]),
       redirect: 'error',
       cache: 'no-store'

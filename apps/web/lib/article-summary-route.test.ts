@@ -28,6 +28,8 @@ it('rejects invalid identity and caller text, forwarding only an ID without quer
     { id: 'bad' },
     { id, source: 'openai' },
     { id, content: 'Caller text' },
+    { id, locale: 'de' },
+    { id, locale: null },
     null
   ])
     expect((await post(body)).status).toBe(400)
@@ -36,8 +38,13 @@ it('rejects invalid identity and caller text, forwarding only an ID without quer
   expect(response.status).toBe(200)
   expect(response.headers.get('cache-control')).toBe('no-store')
   expect(await response.json()).toEqual({ summary: result })
-  expect(mocks.summarize).toHaveBeenCalledWith(id, expect.any(AbortSignal))
+  expect(mocks.summarize).toHaveBeenCalledWith(id, expect.any(AbortSignal), 'article', undefined)
   expect(mocks.load).not.toHaveBeenCalled()
+})
+
+it('forwards the selected locale for JSON summaries', async () => {
+  expect((await post({ id, locale: 'en' })).status).toBe(200)
+  expect(mocks.summarize).toHaveBeenCalledWith(id, expect.any(AbortSignal), 'article', 'en')
 })
 it.each([404, 503] as const)('maps %i to a public error', async (status) => {
   mocks.summarize.mockRejectedValue(new SummaryRequestError(status))

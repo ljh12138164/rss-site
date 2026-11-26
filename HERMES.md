@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-26 中英文界面与 AI 摘要
+
+- 从 `origin/master` 的 `bbe36d9` 开始，在 `feat/site-localization` 接入浏览器语言并保留既有页面缓存
+- ai-base 使用 `feat/summary-localization` 支持英语推理与分语言缓存，发布顺序为 ai-base、rss-site
+- 交付记录见 [中英文界面与 AI 摘要](docs/development/site-localization.md)
+
 ## 2026-11-26 新闻分区接入 Rest of World 与 Semafor
 
 - **分支与来源**：基于 `master`（`c714de7`）创建 `feat/news-restofworld-semafor`，在 `news` 分区（`8 -> 10`，全站 `123 -> 125`）接入 `restofworld`（自建 `RSSHub` `/restofworld/latest`，`master` `@ fa159ab56a` 已上线 `https://rss.ljhboard.cn/restofworld/latest` 返回 `200`）与 `semafor`（官网 `<content:encoded>` 全文直转 Cloudflare Worker `https://feeds.ljhboard.cn/semafor`），详见 [开发记录](docs/development/news-restofworld-semafor.md)。

@@ -7,19 +7,31 @@ import { readLocalSummary, writeLocalSummary } from '../lib/article-summary-cach
 import type { ArticleSummary as Summary, SummaryResult } from '../lib/article-summary-result'
 import { readSummaryStream } from '../lib/article-summary-stream'
 import type { AppType } from '../lib/hono-app'
+import { DEFAULT_LOCALE, type SiteLocale } from '../lib/site-locale'
 import { ActionButton } from './action-button'
+import { useSiteLocale, useSiteText } from './site-language'
 
 const api = hc<AppType>('/')
 
-export function ArticleSummary({
-  articleId,
-  cacheKey,
-  kind = 'article'
-}: {
+interface ArticleSummaryProps {
   articleId: string
   cacheKey: string
   kind?: 'article' | 'skill'
-}) {
+}
+
+export function ArticleSummary({ cacheKey, ...props }: ArticleSummaryProps) {
+  const locale = useSiteLocale()
+  const localizedKey = locale === DEFAULT_LOCALE ? cacheKey : `${locale}:${cacheKey}`
+  return <SummaryPanel key={localizedKey} cacheKey={localizedKey} locale={locale} {...props} />
+}
+
+function SummaryPanel({
+  articleId,
+  cacheKey,
+  kind = 'article',
+  locale
+}: ArticleSummaryProps & { locale: SiteLocale }) {
+  const t = useSiteText()
   const [summary, setSummary] = useState<Summary | null>(null)
   const [draft, setDraft] = useState<SummaryResult | null>(null)
   const [pending, setPending] = useState(false)
@@ -64,7 +76,7 @@ export function ArticleSummary({
       const invoke =
         kind === 'skill' ? api.api.skills.summarize.$post : api.api.articles.summarize.$post
       const response = await invoke(
-        { json: { id: articleId } },
+        { json: { id: articleId, locale } },
         {
           init: {
             signal: AbortSignal.any([controller.signal, AbortSignal.timeout(130_000)]),
@@ -85,10 +97,10 @@ export function ArticleSummary({
       setDraft(null)
       setError(
         failure instanceof Error && failure.name === 'TimeoutError'
-          ? '生成总结超时，请稍后重试'
+          ? t('生成总结超时，请稍后重试')
           : failure instanceof Error
             ? failure.message
-            : '暂时无法生成总结，请稍后重试'
+            : t('暂时无法生成总结，请稍后重试')
       )
     } finally {
       if (!controller.signal.aborted) setPending(false)
@@ -97,13 +109,13 @@ export function ArticleSummary({
 
   return (
     <section
-      aria-label="AI 总结"
+      aria-label={t('AI 总结')}
       className="mt-6 rounded-sm border border-primary/45 bg-card p-4 sm:p-5"
     >
       <div className="flex min-w-0 items-center justify-between gap-3">
         <h2 className="flex min-w-0 items-center gap-2 text-balance font-mono text-sm font-semibold text-primary">
           <Sparkles className="size-4 shrink-0" aria-hidden="true" />
-          <span className="truncate">AI 总结</span>
+          <span className="truncate">{t('AI 总结')}</span>
         </h2>
         <ActionButton
           variant="ghost"
@@ -111,28 +123,28 @@ export function ArticleSummary({
           onPress={summarize}
           aria-label={
             pending
-              ? '正在生成总结'
+              ? t('正在生成总结')
               : summary
                 ? visible
-                  ? '收起 AI 总结'
-                  : '展开 AI 总结'
+                  ? t('收起 AI 总结')
+                  : t('展开 AI 总结')
                 : error
-                  ? '重试 AI 总结'
-                  : '生成 AI 总结'
+                  ? t('重试 AI 总结')
+                  : t('生成 AI 总结')
           }
           aria-expanded={summary ? visible : undefined}
           aria-controls={summary ? contentId : undefined}
           className="rounded-sm px-3 text-xs text-primary hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
         >
           {pending
-            ? '生成中…'
+            ? t('生成中…')
             : summary
               ? visible
-                ? '收起'
-                : '展开'
+                ? t('收起')
+                : t('展开')
               : error
-                ? '重试'
-                : '生成总结'}
+                ? t('重试')
+                : t('生成总结')}
           {summary &&
             (visible ? (
               <ChevronUp className="size-4 shrink-0" aria-hidden="true" />
@@ -144,7 +156,7 @@ export function ArticleSummary({
       <div id={contentId} aria-live="polite" aria-busy={pending}>
         {pending && (
           <div className="mt-3">
-            <p className="text-pretty text-sm text-muted-foreground">正在提炼要点…</p>
+            <p className="text-pretty text-sm text-muted-foreground">{t('正在提炼要点…')}</p>
             {!draft && (
               <div aria-hidden="true" className="mt-3 space-y-2">
                 <div className="h-3 w-full rounded-sm bg-muted" />
@@ -156,7 +168,7 @@ export function ArticleSummary({
         )}
         {error && (
           <p role="alert" className="mt-3 text-pretty text-sm leading-6 text-destructive">
-            {error}
+            {t(error)}
           </p>
         )}
         {displayed && visible && (
@@ -172,10 +184,10 @@ export function ArticleSummary({
             {summary && (
               <p className="mt-3 text-pretty font-mono text-xs leading-5 text-muted-foreground">
                 {kind === 'skill'
-                  ? '基于 SKILL.md 提炼'
+                  ? t('基于 SKILL.md 提炼')
                   : summary.basis === 'excerpt'
-                    ? '基于来源摘要提炼'
-                    : '基于正文提炼'}
+                    ? t('基于来源摘要提炼')
+                    : t('基于正文提炼')}
               </p>
             )}
           </div>

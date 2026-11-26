@@ -36,6 +36,7 @@ import {
   parseHomeCursor
 } from './home-articles'
 import { getNewsArticle } from './signal-article'
+import { isSiteLocale } from './site-locale'
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -44,21 +45,30 @@ const summaryInput = validator('json', (value, c) => {
     return c.json({ error: '文章参数无效' }, 400)
   const input = value as Record<string, unknown>
   if (
-    Object.keys(input).length !== 1 ||
+    Object.keys(input).some((key) => key !== 'id' && key !== 'locale') ||
+    ('locale' in input && !isSiteLocale(input.locale)) ||
     typeof input.id !== 'string' ||
     !uuidPattern.test(input.id)
   )
     return c.json({ error: '文章参数无效' }, 400)
-  return { id: input.id.toLowerCase() }
+  return {
+    id: input.id.toLowerCase(),
+    locale: isSiteLocale(input.locale) ? input.locale : undefined
+  }
 })
 
 const skillSummaryInput = validator('json', (value, c) => {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     return c.json({ error: 'Skill 参数无效' }, 400)
   const input = value as Record<string, unknown>
-  if (Object.keys(input).length !== 1 || typeof input.id !== 'string' || !validSkillId(input.id))
+  if (
+    Object.keys(input).some((key) => key !== 'id' && key !== 'locale') ||
+    ('locale' in input && !isSiteLocale(input.locale)) ||
+    typeof input.id !== 'string' ||
+    !validSkillId(input.id)
+  )
     return c.json({ error: 'Skill 参数无效' }, 400)
-  return { id: input.id }
+  return { id: input.id, locale: isSiteLocale(input.locale) ? input.locale : undefined }
 })
 
 const editInput = validator('json', (value, c) => {
@@ -126,10 +136,11 @@ export const app = new Hono()
   .basePath('/api')
   .post('/skills/summarize', skillSummaryInput, async (c) => {
     c.header('Cache-Control', 'no-store')
+    const { id, locale } = c.req.valid('json')
     try {
       if (c.req.header('accept')?.includes('application/x-ndjson'))
-        return await requestArticleSummaryStream(c.req.valid('json').id, c.req.raw.signal, 'skill')
-      const summary = await requestArticleSummary(c.req.valid('json').id, c.req.raw.signal, 'skill')
+        return await requestArticleSummaryStream(id, c.req.raw.signal, 'skill', locale)
+      const summary = await requestArticleSummary(id, c.req.raw.signal, 'skill', locale)
       return c.json({ summary }, 200)
     } catch (error) {
       if (error instanceof SummaryRequestError && error.status === 404)
@@ -145,11 +156,11 @@ export const app = new Hono()
   })
   .post('/articles/summarize', summaryInput, async (c) => {
     c.header('Cache-Control', 'no-store')
-    const { id } = c.req.valid('json')
+    const { id, locale } = c.req.valid('json')
     try {
       if (c.req.header('accept')?.includes('application/x-ndjson'))
-        return await requestArticleSummaryStream(id, c.req.raw.signal)
-      const summary = await requestArticleSummary(id, c.req.raw.signal)
+        return await requestArticleSummaryStream(id, c.req.raw.signal, 'article', locale)
+      const summary = await requestArticleSummary(id, c.req.raw.signal, 'article', locale)
       return c.json({ summary }, 200)
     } catch (error) {
       if (error instanceof SummaryRequestError && error.status === 404)
