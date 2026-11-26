@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-26 修复 Proxy 规范化 301 重定向相对 Location 导致的 HTTP 500
+
+- **分支与文档**：基于 `origin/master`（`e53fef0`）创建 `fix/proxy-redirect-url`，配套开发文档见 [proxy-redirect-url.md](docs/development/proxy-redirect-url.md)；无衍生 roadmap。
+- **改动**：将 [proxy.ts](apps/web/proxy.ts) 中文章 slug 规范化 301 重定向改为 `NextResponse.redirect(new URL(location, request.url), { status: 301, headers: { 'Cache-Control': 'public, max-age=86400, s-maxage=86400' } })`，消除 Next.js 16 `adapter.js` 对相对 `Location` 执行 `new NextURL()` 抛出的 `ERR_INVALID_URL`（21 字节 500），并由适配器对同源重定向自动输出相对 `Location`；同步更新 [proxy.test.ts](apps/web/proxy.test.ts)。
+- **验证**：`biome check`（`363` 文件）、`pnpm check-types`（`3/3` 包）、`pnpm test`（`@rss-site/signals` `9/9`、`@rss-site/api` `130/130`、`@rss-site/web` `218 passed | 22 skipped`）、`pnpm --filter @rss-site/web build`（`137/137` 静态页）及真实 `next start` 生产服务超长/三重编码 slug 端到端 `301` 验证（对外相对 `Location` + `s-maxage=86400`、零 `ERR_INVALID_URL`）全部通过。
+
 ## 2026-11-26 知乎热榜问答详情页阅读体验优化
 
 - **分支与文档**：基于 `origin/master`（`457e6a4`）创建 `feat/zhihu-qa-reader`，配套开发文档见 [zhihu-qa-reader.md](docs/development/zhihu-qa-reader.md)，关联线上空正文治理路线图 [empty-article-content-audit.md](docs/roadmaps/empty-article-content-audit.md)；同步随本分支提交移除外部 Codex 审查要求的规范文档更新（`AGENTS.md`、`.agents/skills/develop-with-pr/SKILL.md`、`docs/research/rsshub-route-candidates-and-workflow.md`）。
