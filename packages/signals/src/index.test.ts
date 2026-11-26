@@ -22,18 +22,18 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 123 sources', () => {
+  it('defines 7 sections and 125 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(123)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(123)
+    expect(signalSources).toHaveLength(125)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(125)
   })
 
   it('correctly maps all section counts', () => {
     expect(technologySources).toHaveLength(41)
     expect(technologyArticleSources).toHaveLength(40)
     expect(skillSources).toHaveLength(2)
-    expect(newsSources).toHaveLength(8)
+    expect(newsSources).toHaveLength(10)
     expect(aiSources).toHaveLength(29)
     expect(socialSources).toHaveLength(12)
     expect(financeSources).toHaveLength(13)
@@ -73,6 +73,8 @@ describe('@rss-site/signals', () => {
     expect(isSignalSourceId('chrome')).toBe(true)
     expect(isSignalSourceId('propublica')).toBe(true)
     expect(isSignalSourceId('grist')).toBe(true)
+    expect(isSignalSourceId('restofworld')).toBe(true)
+    expect(isSignalSourceId('semafor')).toBe(true)
     expect(isSignalSourceId('ifanr')).toBe(true)
     expect(isSignalSourceId('appinn')).toBe(true)
     expect(isSignalSourceId('solidot')).toBe(true)
@@ -209,6 +211,12 @@ describe('@rss-site/signals', () => {
       'https://rss.ljhboard.cn/sherwood/news?limit=20',
       'https://rss.ljhboard.cn/sherwood/snacks?limit=10'
     ])
+    expect(resolveSignalFeedUrl(getSignalSource('restofworld'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/restofworld/latest'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('semafor'), 'https://rss.ljhboard.cn')).toBe(
+      'https://feeds.ljhboard.cn/semafor'
+    )
   })
 
   it('groups only Chinese NVIDIA and AMD feeds under two technology platforms', () => {

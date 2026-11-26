@@ -1,6 +1,7 @@
 const feeds = new Map([
   ['/google-ai', 'https://blog.google/innovation-and-ai/technology/ai/rss/'],
-  ['/simon-willison', 'https://simonwillison.net/atom/entries/']
+  ['/simon-willison', 'https://simonwillison.net/atom/entries/'],
+  ['/semafor', 'https://www.semafor.com/rss.xml']
 ])
 
 export default {

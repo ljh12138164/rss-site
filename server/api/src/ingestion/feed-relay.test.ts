@@ -35,6 +35,20 @@ describe('fixed feed relay', () => {
     expect(new Headers(options.headers).has('Cookie')).toBe(false)
   })
 
+  it('forwards fixed Semafor RSS without redirects', async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response('<rss><channel></channel></rss>', {
+        headers: { 'Content-Type': 'application/rss+xml' }
+      })
+    )
+    vi.stubGlobal('fetch', fetcher)
+    const response = await relay.fetch(new Request('https://relay.test/semafor'))
+    expect(response.status).toBe(200)
+    expect(await response.text()).toBe('<rss><channel></channel></rss>')
+    expect(fetcher.mock.calls[0][0]).toBe('https://www.semafor.com/rss.xml')
+    expect(fetcher.mock.calls[0][1].redirect).toBe('manual')
+  })
+
   it('returns failure when the upstream fails', async () => {
     vi.stubGlobal(
       'fetch',

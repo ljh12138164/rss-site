@@ -732,6 +732,18 @@
     "path": "/cron/signals/sherwood"
   },
   {
+    "source": "restofworld",
+    "name": "signal-ingest-restofworld",
+    "schedule": "24 5,11,17,23 * * *",
+    "path": "/cron/signals/restofworld"
+  },
+  {
+    "source": "semafor",
+    "name": "signal-ingest-semafor",
+    "schedule": "26 5,11,17,23 * * *",
+    "path": "/cron/signals/semafor"
+  },
+  {
     "source": "retention",
     "schedule": "30 5 * * *",
     "path": "/cron/maintenance/retention"

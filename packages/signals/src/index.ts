@@ -662,7 +662,7 @@ export const skillSources = [
   }
 ] as const
 
-// 新闻 News (8)
+// 新闻 News (10)
 export const newsSources = [
   {
     id: 'xinhua',
@@ -767,6 +767,32 @@ export const newsSources = [
     isArticle: true,
     cronSchedule: '2 5,11,17,23 * * *',
     cronJobName: 'signal-ingest-grist'
+  },
+  {
+    id: 'restofworld',
+    name: 'Rest of World',
+    code: 'RW',
+    shortName: 'Rest of World',
+    description: '全球非西方世界科技、产业与社会深度报道，英文全文',
+    section: 'news',
+    itemLimit: 20,
+    rsshubPath: '/restofworld/latest',
+    isArticle: true,
+    cronSchedule: '24 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-restofworld'
+  },
+  {
+    id: 'semafor',
+    name: 'Semafor',
+    code: 'SF',
+    shortName: 'Semafor',
+    description: '全球政经、科技与商业深度新闻资讯，英文全文',
+    section: 'news',
+    itemLimit: 20,
+    feedUrl: 'https://feeds.ljhboard.cn/semafor',
+    isArticle: true,
+    cronSchedule: '26 5,11,17,23 * * *',
+    cronJobName: 'signal-ingest-semafor'
   }
 ] as const
 
@@ -1884,7 +1910,9 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'rpgfan',
   'playstation-lifestyle',
   'overkill',
-  'sherwood'
+  'sherwood',
+  'restofworld',
+  'semafor'
 ] as const
 
 // Cron jobs
