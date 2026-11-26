@@ -1,0 +1,17 @@
+{
+  "verifiedAt": "2026-11-26T09:37:32.277Z",
+  "sources": {
+    "supabase": {
+      "feeds": ["https://rss.ljhboard.cn/supabase/blog"],
+      "ingested": 15,
+      "uniqueUrls": 15,
+      "renderedNonEmpty": 15,
+      "dates": 15,
+      "namedAuthors": 15,
+      "coverImages": 15,
+      "badImageUrls": 0,
+      "maxRenderedHtmlBytes": 12949,
+      "sampleTitle": "Introducing Supabase Knowledge Base"
+    }
+  }
+}
