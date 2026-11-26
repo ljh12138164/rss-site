@@ -162,6 +162,7 @@ export function EventTimeline({
           <Link
             href={`/ai/events/archive?cursor=${encodeURIComponent(cursor)}`}
             prefetch={false}
+            rel="nofollow"
             className="inline-flex min-h-10 items-center text-xs font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-ring"
           >
             {t('更早事件 →')}

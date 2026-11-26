@@ -27,6 +27,14 @@ const nextConfig: NextConfig = {
         headers: [{ key: 'Cache-Control', value: 'no-store' }]
       },
       {
+        source: '/archive/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]
+      },
+      {
+        source: '/ai/events/archive',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]
+      },
+      {
         source: '/:path*',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },

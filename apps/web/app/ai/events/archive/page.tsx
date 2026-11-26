@@ -23,11 +23,14 @@ async function resolve({ searchParams }: Props) {
 
 export async function generateMetadata(props: Props) {
   const cursor = await resolve(props)
-  return createPageMetadata({
-    title: 'AI 时间轴 · 更早事件',
-    description: '回顾更早的 AI 事件、摘要与真实来源。',
-    path: `/ai/events/archive?cursor=${encodeURIComponent(cursor)}`
-  })
+  return {
+    ...createPageMetadata({
+      title: 'AI 时间轴 · 更早事件',
+      description: '回顾更早的 AI 事件、摘要与真实来源。',
+      path: `/ai/events/archive?cursor=${encodeURIComponent(cursor)}`
+    }),
+    robots: { index: false, follow: false }
+  }
 }
 
 export default async function EventArchive(props: Props) {
