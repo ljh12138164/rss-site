@@ -2,7 +2,6 @@ import { createHash } from 'node:crypto'
 import { convert } from 'html-to-text'
 import { ArrowUpRight } from 'lucide-react'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
 import { renderArticleContent } from '../lib/article-content'
@@ -23,6 +22,7 @@ import { ArticleBookmarkButton } from './article-bookmark-button'
 import { ArticleHistoryTracker } from './article-history-tracker'
 import { ArticleSummary } from './article-summary'
 import { ArticleTranslation } from './article-translation'
+import { HoverPrefetchLink } from './hover-prefetch-link'
 import { FormattedDate, TranslatedRegion, TranslatedText } from './site-language'
 import { SiteShell } from './site-shell'
 import { SourceIcon } from './source-icon'
@@ -146,26 +146,26 @@ export function ArticleReader({
           labelId="common.breadcrumb"
           className="mb-6 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground"
         >
-          <Link
+          <HoverPrefetchLink
             className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
             href="/"
           >
             <TranslatedText id="common.allStories" />
-          </Link>
+          </HoverPrefetchLink>
           <span aria-hidden="true">/</span>
-          <Link
+          <HoverPrefetchLink
             className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
             href={`/${section.id}`}
           >
             <TranslatedText id={`sections.${section.id}.title`} />
-          </Link>
+          </HoverPrefetchLink>
           <span aria-hidden="true">/</span>
-          <Link
+          <HoverPrefetchLink
             className="inline-flex min-h-11 items-center transition-colors hover:text-primary"
             href={`/${section.id}/${source.id}`}
           >
             {source.shortName}
-          </Link>
+          </HoverPrefetchLink>
         </TranslatedRegion>
         <ArticleTranslation
           articleId={article.id}
@@ -256,12 +256,12 @@ export function ArticleReader({
             <ul className="mt-3 space-y-2">
               {related.map((item) => (
                 <li key={item.id}>
-                  <Link
+                  <HoverPrefetchLink
                     className="inline-flex min-h-11 items-center text-pretty text-primary hover:underline focus-visible:outline-2 focus-visible:outline-primary"
                     href={createArticlePath(item.source, item.title, item.id)}
                   >
                     {item.title}
-                  </Link>
+                  </HoverPrefetchLink>
                 </li>
               ))}
             </ul>

@@ -1,7 +1,7 @@
-import Link from 'next/link'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSource, SignalSourceId } from '../lib/technology-sources'
 import { cn } from '../lib/utils'
+import { HoverPrefetchLink } from './hover-prefetch-link'
 import { TranslatedText } from './site-language'
 import { SourceIcon } from './source-icon'
 
@@ -39,20 +39,20 @@ export function SourceNavigation({
       <div className="-mx-4 overflow-x-auto overflow-y-hidden px-4 pb-1 slim-scrollbar sm:mx-0 sm:px-0">
         <ul className="flex min-w-max items-center gap-1.5 sm:min-w-0 sm:flex-wrap sm:gap-2">
           <li>
-            <Link
+            <HoverPrefetchLink
               aria-current={active ? undefined : 'page'}
               className={itemClass(!active)}
               href={basePath}
             >
               {!active && activeBar}
               <TranslatedText id="common.all" />
-            </Link>
+            </HoverPrefetchLink>
           </li>
           {sources.map((source) => {
             const isSelected = active === source.id
             return (
               <li key={source.id}>
-                <Link
+                <HoverPrefetchLink
                   aria-current={isSelected ? 'page' : undefined}
                   className={itemClass(isSelected)}
                   href={`${basePath}/${source.id}`}
@@ -60,7 +60,7 @@ export function SourceNavigation({
                   {isSelected && activeBar}
                   <SourceIcon className="size-3.5 shrink-0" source={source} />
                   {source.shortName}
-                </Link>
+                </HoverPrefetchLink>
               </li>
             )
           })}

@@ -2,7 +2,10 @@
 import { act, type ComponentProps } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { aiSources } from '../lib/technology-sources'
 import { HoverPrefetchLink } from './hover-prefetch-link'
+import { SiteLanguageProvider } from './site-language'
+import { SourceNavigation } from './source-navigation'
 
 const mocks = vi.hoisted(() => ({
   prefetch: vi.fn(),
@@ -124,4 +127,46 @@ it('skips prefetching for the active current page link', async () => {
     anchor?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
   })
   expect(mocks.prefetch).not.toHaveBeenCalled()
+})
+
+it('disables viewport prefetch across SourceNavigation tabs and prefetches inactive tabs on hover', async () => {
+  const sampleSources = aiSources.slice(0, 2)
+  const activeSource = sampleSources[0]
+  const inactiveSource = sampleSources[1]
+  await act(async () => {
+    root.render(
+      <SiteLanguageProvider>
+        <SourceNavigation
+          active={activeSource.id}
+          ariaLabel="AI 来源"
+          basePath="/ai"
+          sources={sampleSources}
+        />
+      </SiteLanguageProvider>
+    )
+  })
+
+  const links = Array.from(container.querySelectorAll('a'))
+  expect(links).toHaveLength(3)
+  expect(links.every((link) => link.getAttribute('data-prefetch') === 'false')).toBe(true)
+  expect(mocks.prefetch).not.toHaveBeenCalled()
+
+  const activeLink = links.find((link) => link.getAttribute('href') === `/ai/${activeSource.id}`)
+  const allLink = links.find((link) => link.getAttribute('href') === '/ai')
+  const inactiveLink = links.find(
+    (link) => link.getAttribute('href') === `/ai/${inactiveSource.id}`
+  )
+
+  await act(async () => {
+    activeLink?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
+  })
+  expect(mocks.prefetch).not.toHaveBeenCalled()
+
+  await act(async () => {
+    allLink?.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
+    inactiveLink?.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+  })
+  expect(mocks.prefetch).toHaveBeenCalledTimes(2)
+  expect(mocks.prefetch).toHaveBeenNthCalledWith(1, '/ai')
+  expect(mocks.prefetch).toHaveBeenNthCalledWith(2, `/ai/${inactiveSource.id}`)
 })
