@@ -14,6 +14,8 @@ import {
   rankHotEvents
 } from '../../../shared/hot-ranking'
 import { getBusinessDatabase } from './business-db'
+import { publishContent } from './content-publication'
+import { createThumbnailProxyUrl } from './image-proxy'
 
 type Cached = HotAnalysis & { hash: string }
 type Raw = {
@@ -107,6 +109,33 @@ export async function requestHotAnalysis(input: HotBatch, signal: AbortSignal) {
   throw new Error('hot_analysis_failed')
 }
 
+async function invalidateHomeAfterHotRanking(publicationId: string): Promise<void> {
+  const secret = process.env.REVALIDATE_SECRET?.trim()
+  if (secret) {
+    const port = process.env.PORT?.trim() || '3000'
+    try {
+      const response = await fetch(`http://127.0.0.1:${port}/api/revalidate`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${secret}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ home: true, batchId: publicationId }),
+        signal: AbortSignal.timeout(5000)
+      })
+      if (response.ok) return
+    } catch {
+      // Fall through to direct best-effort Cloudflare purge when loopback is unavailable.
+    }
+  }
+  if (
+    process.env.SITE_URL &&
+    (process.env.CLOUDFLARE_API_TOKEN || process.env.CLOUDFLARE_ZONE_ID)
+  ) {
+    await publishContent(['/'], publicationId).catch(() => {})
+  }
+}
+
 /** One statement harvests a fixed window; model work never holds a DB transaction. */
 export async function refreshHotRanking(analyze = requestHotAnalysis) {
   const sql = getBusinessDatabase().client
@@ -198,6 +227,7 @@ export async function refreshHotRanking(analyze = requestHotAnalysis) {
     if (!published.length) throw new Error('hot_lease_lost')
     // Discard only obsolete derived analyses; source articles are never removed here.
     await sql`delete from hot_ranking_analysis where updated_at<now()-interval '7 days'`
+    await invalidateHomeAfterHotRanking(randomUUID())
     console.info(
       JSON.stringify({
         hotRanking: 'published',
@@ -271,10 +301,14 @@ export async function getHotRanking(): Promise<HotRanking> {
     const available = new Set(existing.map((r) => r.id))
     return {
       ...snapshot,
-      entries: snapshot.entries.map((e) => ({
-        ...e,
-        references: e.references.map((r) => ({ ...r, available: available.has(r.id) }))
-      })),
+      entries: snapshot.entries.map((e) => {
+        const thumbnailUrl = createThumbnailProxyUrl(e.imageUrl)
+        return {
+          ...e,
+          ...(thumbnailUrl ? { thumbnailUrl } : {}),
+          references: e.references.map((r) => ({ ...r, available: available.has(r.id) }))
+        }
+      }),
       state: 'ready',
       delayed: !!row?.last_error || age > 30 * 60000
     }

@@ -32,7 +32,7 @@ set -eu
 case "$1" in
   pull)
     test "${FAIL_PULL:-0}" = 0 || exit 1
-    touch redis-loaded
+    printf '%s\n' "$2" >> pulled-images
     ;;
   save)
     shift
@@ -65,14 +65,16 @@ esac
             if (root / 'release.tar.gz').exists():
                 with tarfile.open(root / 'release.tar.gz') as archive:
                     images = archive.extractfile('image.tar').read().decode().splitlines()
-            return result.returncode, images, (root / 'redis-loaded').exists()
+            pulled = (root / 'pulled-images').read_text().splitlines() if (root / 'pulled-images').exists() else []
+            return result.returncode, images, pulled
 
     def test_existing_loader_receives_web_and_databases(self):
         status, images, pulled = self.run_packaging()
         self.assertEqual(status, 0)
-        self.assertTrue(pulled)
+        self.assertEqual(pulled, ['redis:7.4-alpine', 'darthsim/imgproxy:v4.0.25'])
         self.assertEqual(images, ['rss-site-web:sha-' + 'a' * 40,
-                                 'rss-site-postgres:18-cron-v1', 'redis:7.4-alpine'])
+                                 'rss-site-postgres:18-cron-v1', 'redis:7.4-alpine',
+                                 'darthsim/imgproxy:v4.0.25'])
 
     def test_pull_failure_stops_packaging(self):
         status, images, _ = self.run_packaging(fail_pull=True)

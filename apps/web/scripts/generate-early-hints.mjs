@@ -12,12 +12,19 @@ export async function findCssChunks(dotNextDir) {
   const chunksDir = path.join(dotNextDir, 'static', 'chunks')
   try {
     const entries = await readdir(chunksDir, { withFileTypes: true })
-    const cssFiles = entries
+    const candidates = entries
       .filter(
         (entry) => entry.isFile() && entry.name.endsWith('.css') && !entry.name.endsWith('.css.map')
       )
       .map((entry) => entry.name)
       .sort((a, b) => a.localeCompare(b))
+    const cssFiles = []
+    for (const name of candidates) {
+      const css = await readFile(path.join(chunksDir, name), 'utf8')
+      // Skip dynamically imported lightbox styles so initial responses only preload critical CSS.
+      if (css.includes('.yarl__')) continue
+      cssFiles.push(name)
+    }
     return cssFiles
   } catch {
     return []

@@ -14,6 +14,7 @@ import { type ArticleFilter, articleSections } from './article-filter'
 import { readBusinessRows } from './business-db'
 import type { HotItem } from './hot-feed'
 import { getHotRanking } from './hot-ranking'
+import { createThumbnailProxyUrl } from './image-proxy'
 import { getCachedList } from './list-cache'
 import { articleListScope } from './list-cache-scopes'
 import type { OutboundReturnPath } from './outbound-link'
@@ -70,6 +71,16 @@ export function parseHomeCursor(value: string): Cursor {
   return cursor
 }
 
+function attachArticleThumbnails(page: HomeArticlePage): HomeArticlePage {
+  return {
+    ...page,
+    items: page.items.map((item) => {
+      const thumbnailUrl = createThumbnailProxyUrl(item.imageUrl)
+      return thumbnailUrl ? { ...item, thumbnailUrl } : item
+    })
+  }
+}
+
 export async function getHomeArticles(
   cursor: Cursor | null = null,
   signal?: AbortSignal,
@@ -77,14 +88,15 @@ export async function getHomeArticles(
   refresh = false
 ): Promise<HomeArticlePage> {
   const scope = cursor ? null : articleListScope(filter)
-  if (!scope) return queryHomeArticles(cursor, signal, filter)
+  if (!scope) return attachArticleThumbnails(await queryHomeArticles(cursor, signal, filter))
   // A shared fill has its own database deadline, independent of any visitor's cancellation.
-  return getCachedList(
+  const page = await getCachedList(
     scope,
     isHomeArticlePage,
     () => queryHomeArticles(null, undefined, filter),
     refresh
   )
+  return attachArticleThumbnails(page)
 }
 
 function isHomeArticlePage(value: unknown): value is HomeArticlePage {

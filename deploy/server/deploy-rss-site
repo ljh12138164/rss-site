@@ -77,8 +77,9 @@ rollback() {
 trap rollback ERR
 install -m 644 "$TEMP/compose.yaml" "$STACK/compose.yaml"
 write_tag "$TAG"
-# The release bundle carries database images so the host needs no registry access.
+# The release bundle carries database and runtime support images so the host needs no registry access.
 docker image inspect redis:7.4-alpine >/dev/null
+docker image inspect darthsim/imgproxy:v4.0.25 >/dev/null
 docker compose --project-directory "$STACK" up -d --pull never postgres web
 healthy
 # Failure rolls the application and database image back together. SQL changes are additive.

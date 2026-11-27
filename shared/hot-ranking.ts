@@ -26,6 +26,7 @@ export type HotEntry = {
   heat: number
   participants: number
   imageUrl: string | null
+  thumbnailUrl?: string | null
   references: HotReference[]
 }
 export type HotSnapshot = {

@@ -1,4 +1,5 @@
 import { readSectionFeed } from './business-queries'
+import { createThumbnailProxyUrl } from './image-proxy'
 import { getCachedList } from './list-cache'
 import { readSkillsPreview } from './skill-detail'
 import {
@@ -48,6 +49,7 @@ export interface HotItem {
   title: string
   url: string
   imageUrl?: string | null
+  thumbnailUrl?: string | null
   summary: string | null
   author: string | null
   publishedAt: Date | null
@@ -113,17 +115,21 @@ function buildFeed(
 
   const items = (result.items ?? [])
     .filter((row) => row.source === source)
-    .map((row) => ({
-      articleId: row.article_id ?? null,
-      sourceKey: row.source_key,
-      title: row.title,
-      url: row.url,
-      imageUrl: row.image_url ?? null,
-      summary: row.summary,
-      author: row.author,
-      publishedAt: row.published_at ? new Date(row.published_at) : null,
-      position: row.position
-    }))
+    .map((row) => {
+      const thumbnailUrl = createThumbnailProxyUrl(row.image_url)
+      return {
+        articleId: row.article_id ?? null,
+        sourceKey: row.source_key,
+        title: row.title,
+        url: row.url,
+        imageUrl: row.image_url ?? null,
+        ...(thumbnailUrl ? { thumbnailUrl } : {}),
+        summary: row.summary,
+        author: row.author,
+        publishedAt: row.published_at ? new Date(row.published_at) : null,
+        position: row.position
+      }
+    })
     .sort((left, right) =>
       source === 'github' || source === 'skills-all-time' || source === 'skills-trending'
         ? left.position - right.position

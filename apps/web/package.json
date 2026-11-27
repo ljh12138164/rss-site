@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "browserslist": [
+    "Chrome >= 111",
+    "Edge >= 111",
+    "Safari >= 16.4",
+    "Firefox >= 111"
+  ],
   "scripts": {
     "translation:prepare": "bun scripts/prepare-translation.mjs",
     "dev": "next dev --turbopack",
