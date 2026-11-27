@@ -52,7 +52,7 @@ export async function GET(request: Request) {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=604800, s-maxage=2592000, immutable',
+        'Cache-Control': 'public, max-age=2592000, s-maxage=2592000, immutable',
         'X-Content-Type-Options': 'nosniff'
       }
     })
