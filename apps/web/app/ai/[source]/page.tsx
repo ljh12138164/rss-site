@@ -5,21 +5,16 @@ import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { createPageMetadata } from '../../../lib/seo'
 import { aiSourcePageText } from '../../../lib/source-page-text'
-import {
-  type AiSource,
-  aiSources,
-  getAiSource,
-  isAiSourceId
-} from '../../../lib/technology-sources'
+import { type AiSource, getAiSource, isAiSourceId } from '../../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 export const revalidate = 7200
 export const dynamicParams = true
 
 type Props = { params: Promise<{ source: string }> }
 
 export function generateStaticParams() {
-  return aiSources.map((source) => ({ source: source.id }))
+  return []
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

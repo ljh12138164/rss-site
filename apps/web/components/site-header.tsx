@@ -17,7 +17,6 @@ import {
   TrendingUp,
   X
 } from 'lucide-react'
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
@@ -27,6 +26,7 @@ import { TRANSIT_LINES } from '../lib/transit-lines'
 import { cn } from '../lib/utils'
 import { ActionButton } from './action-button'
 import { ArticleSearch } from './article-search'
+import { HoverPrefetchLink } from './hover-prefetch-link'
 import { LanguageMenu } from './language-menu'
 import { RssSubscription } from './rss-subscription'
 import { ThemeToggle } from './theme-toggle'
@@ -87,7 +87,7 @@ function RailContent({
                 const active = isRouteActive(pathname, item.href)
                 return (
                   <li key={item.href}>
-                    <Link
+                    <HoverPrefetchLink
                       href={item.href}
                       onClick={onNavigate}
                       aria-current={active ? 'page' : undefined}
@@ -114,7 +114,7 @@ function RailContent({
                           {savedCount}
                         </span>
                       )}
-                    </Link>
+                    </HoverPrefetchLink>
                   </li>
                 )
               })}
@@ -131,7 +131,7 @@ function RailContent({
                 const active = isRouteActive(pathname, line.path)
                 return (
                   <li key={line.id}>
-                    <Link
+                    <HoverPrefetchLink
                       href={line.path}
                       onClick={onNavigate}
                       aria-current={active ? 'page' : undefined}
@@ -160,7 +160,7 @@ function RailContent({
                       <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
                         {line.sourceCount}
                       </span>
-                    </Link>
+                    </HoverPrefetchLink>
                   </li>
                 )
               })}
@@ -177,7 +177,7 @@ function RailContent({
                 const active = isRouteActive(pathname, item.href)
                 return (
                   <li key={item.href}>
-                    <Link
+                    <HoverPrefetchLink
                       href={item.href}
                       onClick={onNavigate}
                       aria-current={active ? 'page' : undefined}
@@ -199,7 +199,7 @@ function RailContent({
                         className={cn('size-4 shrink-0', active && 'text-primary')}
                       />
                       <span className="min-w-0 flex-1 truncate">{tNav(item.labelKey)}</span>
-                    </Link>
+                    </HoverPrefetchLink>
                   </li>
                 )
               })}
@@ -213,27 +213,27 @@ function RailContent({
           aria-label={tNav('siteInfo')}
           className="flex items-center justify-between text-xs text-muted-foreground"
         >
-          <Link
+          <HoverPrefetchLink
             href="/mcp"
             onClick={onNavigate}
             className="min-h-8 inline-flex items-center hover:text-primary"
           >
             MCP
-          </Link>
-          <Link
+          </HoverPrefetchLink>
+          <HoverPrefetchLink
             href="/about"
             onClick={onNavigate}
             className="min-h-8 inline-flex items-center hover:text-primary"
           >
             {tNav('about')}
-          </Link>
-          <Link
+          </HoverPrefetchLink>
+          <HoverPrefetchLink
             href="/privacy"
             onClick={onNavigate}
             className="min-h-8 inline-flex items-center hover:text-primary"
           >
             {tNav('privacy')}
-          </Link>
+          </HoverPrefetchLink>
         </nav>
       </footer>
     </div>
@@ -248,14 +248,14 @@ export function TransitSidebar() {
   return (
     <aside className="sticky top-0 hidden h-dvh w-[216px] shrink-0 flex-col border-r border-border bg-rail lg:flex">
       <div className="flex h-14 shrink-0 items-center border-b border-border px-4">
-        <Link
+        <HoverPrefetchLink
           href="/"
           aria-label={tCommon('siteHome')}
           className="flex min-w-0 items-center gap-2.5 text-foreground focus-visible:outline-2 focus-visible:outline-ring"
         >
           <TransitMark className="size-6" />
           <span className="truncate text-base font-bold tracking-tight">{tCommon('siteName')}</span>
-        </Link>
+        </HoverPrefetchLink>
       </div>
       <RailContent pathname={pathname} savedCount={savedCount} />
     </aside>
@@ -290,7 +290,7 @@ export function SiteHeader() {
             >
               <Menu className="size-4" aria-hidden="true" />
             </ActionButton>
-            <Link
+            <HoverPrefetchLink
               href="/"
               aria-label={tCommon('siteHome')}
               className="flex min-w-0 items-center gap-2 text-foreground"
@@ -299,7 +299,7 @@ export function SiteHeader() {
               <span className="truncate text-base font-bold tracking-tight">
                 {tCommon('siteName')}
               </span>
-            </Link>
+            </HoverPrefetchLink>
           </div>
 
           {/* Desktop command search trigger */}
@@ -312,7 +312,7 @@ export function SiteHeader() {
             <span className="lg:hidden">
               <ArticleSearch variant="icon" />
             </span>
-            <Link
+            <HoverPrefetchLink
               href="/reading-list"
               aria-label={
                 savedCount ? tNav('readLaterCount', { count: savedCount }) : tNav('readLater')
@@ -326,7 +326,7 @@ export function SiteHeader() {
                   {savedCount}
                 </span>
               )}
-            </Link>
+            </HoverPrefetchLink>
             <RssSubscription triggerVariant="topbar" defaultMode="custom" />
             <LanguageMenu />
             <ThemeToggle />
@@ -374,7 +374,7 @@ export function SiteHeader() {
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         <div className="grid grid-cols-4">
-          <Link
+          <HoverPrefetchLink
             href="/"
             aria-current={isRouteActive(pathname, '/') ? 'page' : undefined}
             className={cn(
@@ -389,8 +389,8 @@ export function SiteHeader() {
             )}
             <Flame className="size-4" aria-hidden="true" />
             <span>{tNav('mobileStories')}</span>
-          </Link>
-          <Link
+          </HoverPrefetchLink>
+          <HoverPrefetchLink
             href="/daily"
             aria-current={isRouteActive(pathname, '/daily') ? 'page' : undefined}
             className={cn(
@@ -405,7 +405,7 @@ export function SiteHeader() {
             )}
             <Newspaper className="size-4" aria-hidden="true" />
             <span>{tNav('mobileBriefing')}</span>
-          </Link>
+          </HoverPrefetchLink>
           <button
             type="button"
             onClick={() => setDrawerOpen(true)}
@@ -423,7 +423,7 @@ export function SiteHeader() {
             <Menu className="size-4" aria-hidden="true" />
             <span>{tNav('mobileChannels')}</span>
           </button>
-          <Link
+          <HoverPrefetchLink
             href="/following"
             aria-current={isRouteActive(pathname, '/following') ? 'page' : undefined}
             className={cn(
@@ -438,7 +438,7 @@ export function SiteHeader() {
             )}
             <Layers className="size-4" aria-hidden="true" />
             <span>{tNav('mobileFollow')}</span>
-          </Link>
+          </HoverPrefetchLink>
         </div>
       </nav>
     </>

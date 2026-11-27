@@ -4,21 +4,16 @@ import { PaginatedArticleFeed } from '../../../components/paginated-article-feed
 import { SourceDetailView } from '../../../components/source-detail'
 import type { FeedResult } from '../../../lib/hot-feed'
 import { createPageMetadata } from '../../../lib/seo'
-import {
-  type GameSource,
-  gameSources,
-  getGameSource,
-  isGameSourceId
-} from '../../../lib/technology-sources'
+import { type GameSource, getGameSource, isGameSourceId } from '../../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 export const revalidate = 21600
 export const dynamicParams = true
 
 type Props = { params: Promise<{ source: string }> }
 
 export function generateStaticParams() {
-  return gameSources.map((source) => ({ source: source.id }))
+  return []
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

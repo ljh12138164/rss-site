@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-27 优化导航栏按需预取与恢复来源页运行时 ISR 缓存
+
+- **分支与文档**：基于 `origin/master`（`57451e9`）创建 `feat/optimize-nav-prefetch-and-source-isr`，配套开发文档见 [optimize-nav-prefetch-and-source-isr.md](docs/development/optimize-nav-prefetch-and-source-isr.md)；无衍生 roadmap。
+- **改动**：新增 [hover-prefetch-link.tsx](apps/web/components/hover-prefetch-link.tsx)（默认 `prefetch={false}`，仅在 `onMouseEnter` / `onFocus` 时对非当前激活页按需调用 `router.prefetch(href)` 并去重），并将 [site-header.tsx](apps/web/components/site-header.tsx) 全部侧栏/顶栏/底部导航链接替换为其实现，消除无头爬虫每次访问放大 17 次 `?_rsc=` 回源的问题；将 6 个频道的 `/[section]/[source]/page.tsx`（`ai`、`technology`、`news`、`social`、`finance`、`games`）由 `force-dynamic` 恢复为 `dynamic = 'force-static'` + `generateStaticParams() { return [] }`（保留原 `revalidate` `7200`/`21600` 与 `dynamicParams = true`），重新接入 Next.js 按需 ISR 与 Cloudflare 边缘缓存及既有 `revalidatePath` + `purge_cache` 失效链路；新增单测 [hover-prefetch-link.test.tsx](apps/web/components/hover-prefetch-link.test.tsx) 与 [source-isr-config.test.ts](apps/web/app/source-isr-config.test.ts)。
+- **验证**：`pnpm lint`（`404` 文件）、`pnpm check-types`（`3/3` 包）、`pnpm test`（`@rss-site/signals` `9/9`、`@rss-site/api` `130/130`、`@rss-site/web` `222 passed | 22 skipped`）与 `pnpm --filter @rss-site/web build`（`13/13` 静态页 + `early-hints` + `sw.js`，6 个来源路由均输出 `○` 按需 ISR）全部通过。
+
 ## 2026-11-26 修复 Proxy 规范化 301 重定向相对 Location 导致的 HTTP 500
 
 - **分支与文档**：基于 `origin/master`（`e53fef0`）创建 `fix/proxy-redirect-url`，配套开发文档见 [proxy-redirect-url.md](docs/development/proxy-redirect-url.md)；无衍生 roadmap。
