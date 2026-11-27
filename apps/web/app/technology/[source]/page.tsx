@@ -7,18 +7,17 @@ import { createPageMetadata } from '../../../lib/seo'
 import {
   getTechnologySource,
   isTechnologySourceId,
-  type TechnologySource,
-  technologySources
+  type TechnologySource
 } from '../../../lib/technology-sources'
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-static'
 export const revalidate = 21600
 export const dynamicParams = true
 
 type Props = { params: Promise<{ source: string }> }
 
 export function generateStaticParams() {
-  return technologySources.map((source) => ({ source: source.id }))
+  return []
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
