@@ -5,7 +5,7 @@
 - **分支与文档**：`feat/daily-navigation-performance` 基于已同步的 `origin/master`（`d038471`），见 [日报日期切换性能](docs/development/daily-navigation-performance.md)。
 - **改动**：切换期间以现有顶部进度条反馈，日期页启用 300 秒按需 ISR，日报内部链接改为交互时请求预取。
 - **验证**：生产 Redis 有效。本地 395 项测试（含 PostgreSQL、Redis）、三包类型与 Web 生产构建通过。1440px 和 390px 的 Chromium 慢网切换均保留原日报，日期页验证 ISR 命中和 404。四个主导航入口的公网、浏览器和 ECS 样本见开发文档。
-- **交付**：已完成本地评审，无阻塞项。待提交 PR，由维护者审核合并并复测公网缓存。
+- **交付**：[PR #133](https://github.com/ljh12138164/rss-site/pull/133) 目标 `master`。已完成本地评审，无阻塞项。合并发布后复测公网缓存与日期切换。
 
 ## 2026-11-27 拦截 Linux Chrome/155 隐身爬虫并替换页面面包屑自动预取
 
