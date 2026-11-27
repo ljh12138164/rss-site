@@ -89,7 +89,8 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
     it('keeps multi-link and multi-embed articles indexable while rejecting placeholders in baseline function', async () => {
       const [row] = await admin`
         select
-          public.article_has_indexable_content('Multi link', null, '<p>Intro <a href="https://a.test">first</a> body between links <a href="https://b.test">second</a>.</p>') as multi_link,
+          public.article_has_indexable_content('Multi link surrounded', null, '<p>Intro <a href="https://a.test">first</a> body between links <a href="https://b.test">second</a>.</p>') as multi_link,
+          public.article_has_indexable_content('Edge links', null, '<p><a href="https://a.test">first</a></p><p>Body only between edge links.</p><p><a href="https://b.test">second</a></p>') as edge_links,
           public.article_has_indexable_content('Multi embed', null, '<iframe src="https://a.test"></iframe><p>Paragraph between embeds.</p><iframe src="https://b.test"></iframe>') as multi_embed,
           public.article_has_indexable_content('HN item', null, '<a href="https://a.test">Comments on Hacker News</a> | <a href="https://b.test">Source</a>') as hn_stub,
           public.article_has_indexable_content('Share item', null, '<div><button><svg></svg>Share</button></div>') as share_only,
@@ -100,6 +101,7 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
       `
       expect(row).toEqual({
         multi_link: true,
+        edge_links: true,
         multi_embed: true,
         hn_stub: false,
         share_only: false,
@@ -115,7 +117,7 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
         insert into ${schema}.signal_articles(id, section, source, source_key, title, url, summary, content_html)
         values
           ('11111111-1111-4111-8111-111111111111', 'technology', 'vercel', 'multi-a', 'Vercel update', 'https://vercel.com/blog/x', null,
-            '<p>Start <a href="https://a.test">first link</a> substantive engineering prose <a href="https://b.test">second link</a> end.</p>'),
+            '<p><a href="https://a.test">first link</a></p><p>Substantive engineering prose between edge links.</p><p><a href="https://b.test">second link</a></p>'),
           ('22222222-2222-4222-8222-222222222222', 'ai', 'openai', 'share-stub', 'Demo video', 'https://openai.com/business/learn/demo/', null,
             '<div><button><svg></svg>Share</button></div>'),
           ('33333333-3333-4333-8333-333333333333', 'technology', 'hacker-news', 'hn-only', 'HN post', 'https://news.ycombinator.com/item?id=1', null,
