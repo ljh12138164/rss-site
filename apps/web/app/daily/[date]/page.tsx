@@ -5,7 +5,13 @@ import { DailyReportView } from '../../../components/daily-report/daily-report-v
 import { SiteShell } from '../../../components/site-shell'
 import { getDailyArchive, getDailyArticleLinks, getDailyReport } from '../../../lib/daily-reports'
 
+export const dynamic = 'force-static'
 export const revalidate = 300
+
+export function generateStaticParams() {
+  return []
+}
+
 type Props = { params: Promise<{ date: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
