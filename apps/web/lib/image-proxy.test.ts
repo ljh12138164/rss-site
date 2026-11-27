@@ -67,7 +67,7 @@ describe('GET /api/img', () => {
     expect(ok.status).toBe(200)
     expect(ok.headers.get('content-type')).toBe('image/webp')
     expect(ok.headers.get('cache-control')).toBe(
-      'public, max-age=604800, s-maxage=2592000, immutable'
+      'public, max-age=2592000, s-maxage=2592000, immutable'
     )
     expect(mockFetch).toHaveBeenCalledWith(
       buildImgproxyRequestUrl('http://imgproxy:8080', src, 320, 200),
