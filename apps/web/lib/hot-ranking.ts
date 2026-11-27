@@ -125,14 +125,8 @@ async function invalidateHomeAfterHotRanking(publicationId: string): Promise<voi
       })
       if (response.ok) return
     } catch {
-      // Fall through to direct best-effort invalidation when loopback is unavailable.
+      // Fall through to direct best-effort Cloudflare purge when loopback is unavailable.
     }
-  }
-  try {
-    const { revalidatePath } = await import('next/cache')
-    revalidatePath('/')
-  } catch {
-    // Background timers run outside a Next.js request context.
   }
   if (
     process.env.SITE_URL &&
