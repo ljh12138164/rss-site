@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-27 拦截 Linux Chrome/155 隐身爬虫并替换页面面包屑自动预取
+
+- **分支与文档**：基于 `origin/master`（`37872e2`）创建 `feat/hover-prefetch-breadcrumbs`，配套开发文档见 [hover-prefetch-breadcrumbs.md](docs/development/hover-prefetch-breadcrumbs.md)；同步通过 Cloudflare MCP 在 `ljhboard.cn` 自定义规则集新增第 `5/5` 条 `managed_challenge` 规则（`4a5aba77d51e45aeafb9eec167353580`），拦截 `news.ljhboard.cn` 的 Linux `Chrome/155.0.0.0` 非认证爬虫（上线 90 秒内即命中 22 次美国住宅代理/Oracle 机房抓取）；无衍生 roadmap。
+- **改动**：将 [article-reader.tsx](apps/web/components/article-reader.tsx)（3 级面包屑与同源相关文章）、[section-layout.tsx](apps/web/components/section-layout.tsx)（来源页 2 级面包屑）、[source-navigation.tsx](apps/web/components/source-navigation.tsx)（「全部」与全部来源切换标签）、[ai/events/[slug]/page.tsx](apps/web/app/ai/events/%5Bslug%5D/page.tsx)、[skills/[...skillId]/page.tsx](apps/web/app/skills/%5B...skillId%5D/page.tsx) 与 [model-detail-view.tsx](apps/web/components/leaderboard/model-detail-view.tsx) 中的全部默认 `<Link>` 替换为 [HoverPrefetchLink](apps/web/components/hover-prefetch-link.tsx)，消除 `OAI-SearchBot` 等渲染爬虫在文章页与来源页触发的剩余面包屑 `?_rsc=` 预取；在 [hover-prefetch-link.test.tsx](apps/web/components/hover-prefetch-link.test.tsx) 补充 `SourceNavigation` 零自动预取与悬停/聚焦按需预取测试。
+- **验证**：`pnpm lint`（`409` 文件）、`pnpm check-types`（`3/3` 包）、`pnpm test`（`@rss-site/signals` `9/9`、`@rss-site/api` `131/131`、`@rss-site/web` `230 passed | 24 skipped`）与 `pnpm --filter @rss-site/web build`（`13/13` 静态页 + `early-hints` + `sw.js`）全部通过。
+
 ## 2026-11-27 Web 性能优化、`imgproxy` WebP 缩略图压缩、安全头与首页缓存闭环
 
 - **分支与文档**：基于 `origin/master`（`9f7f9e9`）创建 `feat/web-perf-imgproxy-and-security`，配套开发文档见 [web-perf-imgproxy-and-security.md](docs/development/web-perf-imgproxy-and-security.md)；先通过 Cloudflare API 清理全账号 Web Analytics 自动注入（`ljhboard.cn` `c1cce350c83e4acc8a927394a5651495`，复查剩余 `0` 站）；无衍生 roadmap。

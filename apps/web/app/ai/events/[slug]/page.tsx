@@ -1,7 +1,7 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { EventSources } from '../../../../components/event-sources'
 import { EventTranslation } from '../../../../components/event-translation'
+import { HoverPrefetchLink } from '../../../../components/hover-prefetch-link'
 import { TranslatedText } from '../../../../components/site-language'
 import { SiteShell } from '../../../../components/site-shell'
 import { getEvent, getEventSources, getRelatedEvents } from '../../../../lib/ai-events'
@@ -63,9 +63,12 @@ export default async function EventPage({ params }: Props) {
     : undefined
   return (
     <SiteShell>
-      <Link className="inline-flex min-h-11 items-center text-sm text-primary" href="/ai/events">
+      <HoverPrefetchLink
+        className="inline-flex min-h-11 items-center text-sm text-primary"
+        href="/ai/events"
+      >
         <TranslatedText id="events.backToTimeline" />
-      </Link>
+      </HoverPrefetchLink>
       <article className="mt-6 max-w-3xl">
         <EventSources sources={links.map((link) => link.signal_articles.source)} />
         <EventTranslation
@@ -113,9 +116,12 @@ export default async function EventPage({ params }: Props) {
             <ul className="mt-3 space-y-3">
               {related.map((item) => (
                 <li key={item.id}>
-                  <Link className="text-primary hover:underline" href={`/ai/events/${item.slug}`}>
+                  <HoverPrefetchLink
+                    className="text-primary hover:underline"
+                    href={`/ai/events/${item.slug}`}
+                  >
                     {item.title}
-                  </Link>
+                  </HoverPrefetchLink>
                 </li>
               ))}
             </ul>

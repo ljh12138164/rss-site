@@ -1,10 +1,10 @@
 'use client'
 
 import { Calendar, ChevronDown, ChevronRight, Coins, Cpu, ExternalLink, Info } from 'lucide-react'
-import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { useState } from 'react'
 import type { EvidenceSection, ModelDetail } from '../../lib/leaderboard'
+import { HoverPrefetchLink } from '../hover-prefetch-link'
 import { FormattedDate } from '../site-language'
 import { LEADERBOARD_DOMAIN_KEYS } from './model-leaderboard'
 
@@ -117,13 +117,13 @@ export function ModelDetailView({ detail }: ModelDetailViewProps) {
         aria-label={tCommon('breadcrumb')}
         className="flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground"
       >
-        <Link href="/" className="transition-colors hover:text-primary">
+        <HoverPrefetchLink href="/" className="transition-colors hover:text-primary">
           {tCommon('allStories')}
-        </Link>
+        </HoverPrefetchLink>
         <span aria-hidden="true">/</span>
-        <Link href="/leaderboard" className="transition-colors hover:text-primary">
+        <HoverPrefetchLink href="/leaderboard" className="transition-colors hover:text-primary">
           {tNav('modelBenchmarks')}
-        </Link>
+        </HoverPrefetchLink>
         <span aria-hidden="true">/</span>
         <span aria-current="page" className="font-medium text-foreground">
           {detail.name}

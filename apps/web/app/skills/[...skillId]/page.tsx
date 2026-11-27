@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto'
 import { convert } from 'html-to-text'
 import { ArrowUpRight } from 'lucide-react'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { skillInstallCommand, skillPath, validSkillId } from '../../../../../shared/skills'
 import { ArticleSummary } from '../../../components/article-summary'
+import { HoverPrefetchLink } from '../../../components/hover-prefetch-link'
 import { FormattedDate, TranslatedRegion, TranslatedText } from '../../../components/site-language'
 import { SiteShell } from '../../../components/site-shell'
 import { SkillContent, SkillInstall } from '../../../components/skill-content'
@@ -74,13 +74,13 @@ export default async function Page({ params }: Props) {
         labelId="common.breadcrumb"
         className="mb-8 flex flex-wrap gap-2 font-mono text-xs text-muted-foreground"
       >
-        <Link className="transition-colors hover:text-primary" href="/">
+        <HoverPrefetchLink className="transition-colors hover:text-primary" href="/">
           <TranslatedText id="common.allStories" />
-        </Link>
+        </HoverPrefetchLink>
         <span aria-hidden="true">/</span>
-        <Link className="transition-colors hover:text-primary" href="/skills">
+        <HoverPrefetchLink className="transition-colors hover:text-primary" href="/skills">
           Skills
-        </Link>
+        </HoverPrefetchLink>
         <span aria-hidden="true">/</span>
         <span aria-current="page" className="text-foreground">
           {detail.name}
@@ -242,12 +242,12 @@ export default async function Page({ params }: Props) {
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {related.map((item) => (
               <li key={item.skillId}>
-                <Link
+                <HoverPrefetchLink
                   className="inline-block min-h-11 py-2 text-primary hover:underline"
                   href={skillPath(item.skillId) ?? '/skills'}
                 >
                   {item.name}
-                </Link>
+                </HoverPrefetchLink>
               </li>
             ))}
           </ul>

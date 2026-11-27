@@ -1,12 +1,12 @@
 'use client'
 
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import type { ReactNode } from 'react'
 import type { OutboundReturnPath } from '../lib/outbound-link'
 import type { SignalSectionId, SignalSource } from '../lib/technology-sources'
 import { getTransitLine } from '../lib/transit-lines'
+import { HoverPrefetchLink } from './hover-prefetch-link'
 import { RssSubscription } from './rss-subscription'
 import { SiteShell } from './site-shell'
 import { SourceNavigation } from './source-navigation'
@@ -59,15 +59,15 @@ export function SectionLayout({
         <nav aria-label={tCommon('breadcrumb')} className="mb-4">
           <ol className="flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground">
             <li>
-              <Link className="transition-colors hover:text-primary" href="/">
+              <HoverPrefetchLink className="transition-colors hover:text-primary" href="/">
                 {tCommon('allStories')}
-              </Link>
+              </HoverPrefetchLink>
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <Link className="transition-colors hover:text-primary" href={basePath}>
+              <HoverPrefetchLink className="transition-colors hover:text-primary" href={basePath}>
                 {tSections(`${sectionId}.shortTitle`)}
-              </Link>
+              </HoverPrefetchLink>
             </li>
             <li aria-hidden="true">/</li>
             <li aria-current="page" className="text-foreground">
