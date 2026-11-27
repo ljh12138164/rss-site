@@ -28,19 +28,39 @@ it('publishes a daily issue through its own cache scope and rejects mixed or inv
   const batchId = '11111111-1111-4111-8111-111111111111'
   const response = await app.request(request({ dailyReportDate: '2026-11-04', batchId }))
   expect(response.status).toBe(200)
+  expect(paths).toHaveBeenCalledWith('/')
   expect(paths).toHaveBeenCalledWith('/daily')
   expect(paths).toHaveBeenCalledWith('/daily/2026-11-04')
   expect(paths).toHaveBeenCalledWith('/daily/[date]', 'page')
   expect(tags).toHaveBeenCalledWith('daily-reports', { expire: 0 })
   expect(paths).not.toHaveBeenCalledWith('/latest')
   await callbacks[0]()
-  expect(publication).toHaveBeenCalledWith(['/daily', '/daily/2026-11-04', '/sitemap.xml'], batchId)
+  expect(publication).toHaveBeenCalledWith(
+    ['/', '/daily', '/daily/2026-11-04', '/sitemap.xml'],
+    batchId
+  )
   for (const input of [
     { dailyReportDate: '2026-02-30' },
     { dailyReportDate: '2999-01-01' },
     { dailyReportDate: '2026-11-04', events: [] },
     { dailyReportDate: '2026-11-04', section: 'ai', source: 'openai' },
     { dailyReportDate: '2026-11-04', path: '/admin' }
+  ])
+    expect((await app.request(request(input))).status).toBe(400)
+})
+
+it('publishes homepage cache invalidation through the dedicated home scope', async () => {
+  const batchId = '22222222-2222-4222-8222-222222222222'
+  const response = await app.request(request({ home: true, batchId }))
+  expect(response.status).toBe(200)
+  expect(paths).toHaveBeenCalledWith('/')
+  expect(paths).not.toHaveBeenCalledWith('/latest')
+  await callbacks[0]()
+  expect(publication).toHaveBeenCalledWith(['/'], batchId)
+  for (const input of [
+    { home: false },
+    { home: true, section: 'ai', source: 'openai' },
+    { home: true, dailyReportDate: '2026-11-04' }
   ])
     expect((await app.request(request(input))).status).toBe(400)
 })

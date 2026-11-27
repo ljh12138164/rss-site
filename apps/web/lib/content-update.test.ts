@@ -162,3 +162,29 @@ it('records safe invalidation failure evidence and schedules no publication', as
   expect(log).toHaveBeenCalledWith(expect.stringContaining('known-batch'))
   expect(JSON.stringify(log.mock.calls)).not.toContain('private-secret')
 })
+
+it('includes homepage revalidation and CDN publication for daily report and home scopes', async () => {
+  const fetch = vi.fn().mockResolvedValue(new Response(null, { status: 202 }))
+  vi.stubGlobal('fetch', fetch)
+  vi.spyOn(console, 'info').mockImplementation(() => {})
+
+  const homeResult = await updateContent({ home: true })
+  expect(homeResult.paths).toEqual(['/'])
+  expect(operations).toContain('path:/')
+  await callbacks[0]()
+  expect(JSON.parse(fetch.mock.calls[0][1].body).urlList).toEqual(['https://news.example/'])
+
+  operations.length = 0
+  callbacks.length = 0
+  fetch.mockClear()
+
+  const dailyResult = await updateContent({ dailyReportDate: '2026-11-27' })
+  expect(dailyResult.paths).toEqual(['/', '/daily', '/daily/2026-11-27', '/sitemap.xml'])
+  expect(operations).toContain('path:/')
+  await callbacks[0]()
+  expect(JSON.parse(fetch.mock.calls[0][1].body).urlList).toEqual([
+    'https://news.example/',
+    'https://news.example/daily',
+    'https://news.example/daily/2026-11-27'
+  ])
+})

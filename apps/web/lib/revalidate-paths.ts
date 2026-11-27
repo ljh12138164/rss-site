@@ -7,6 +7,7 @@ export interface RevalidationScope {
   eventSlugs?: string[]
   skillIds?: string[]
   dailyReportDate?: string
+  home?: boolean
 }
 
 export interface ResolvedRevalidation {
@@ -19,6 +20,21 @@ export interface ResolvedRevalidation {
  * Resolves static paths, dynamic page patterns, and cache tags to revalidate.
  */
 export function resolveRevalidation(scope: RevalidationScope): ResolvedRevalidation {
+  if (scope.home) {
+    if (
+      scope.section ||
+      scope.source ||
+      scope.eventSlugs?.length ||
+      scope.skillIds?.length ||
+      scope.dailyReportDate !== undefined
+    )
+      throw new Error('Invalid home revalidation scope')
+    return {
+      paths: ['/'],
+      dynamicPages: [],
+      tags: []
+    }
+  }
   if (scope.dailyReportDate !== undefined) {
     if (
       !isReportDate(scope.dailyReportDate) ||
@@ -29,7 +45,7 @@ export function resolveRevalidation(scope: RevalidationScope): ResolvedRevalidat
     )
       throw new Error('Invalid daily report scope')
     return {
-      paths: ['/daily', `/daily/${scope.dailyReportDate}`, '/sitemap.xml'],
+      paths: ['/', '/daily', `/daily/${scope.dailyReportDate}`, '/sitemap.xml'],
       dynamicPages: ['/daily/[date]'],
       tags: ['daily-reports', 'sitemap']
     }

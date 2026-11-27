@@ -213,6 +213,7 @@ export function HomeHotRanking({ ranking }: { ranking: HotRanking }) {
                     {hasImage && (
                       <CoverImage
                         src={entry.imageUrl}
+                        thumbSrc={entry.thumbnailUrl}
                         previewLabel={entry.title}
                         width={160}
                         height={100}

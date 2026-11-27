@@ -310,6 +310,7 @@ export const app = new Hono()
     let eventSlugs: string[] = []
     let skillIds: string[] = []
     let dailyReportDate: string | undefined
+    let home = false
     let publicationId = randomUUID()
     try {
       const input = await c.req.json()
@@ -319,7 +320,15 @@ export const app = new Hono()
         Array.isArray(input) ||
         Object.keys(input).some(
           (key) =>
-            !['section', 'source', 'events', 'skills', 'batchId', 'dailyReportDate'].includes(key)
+            ![
+              'section',
+              'source',
+              'events',
+              'skills',
+              'batchId',
+              'dailyReportDate',
+              'home'
+            ].includes(key)
         )
       )
         throw new Error('Invalid scope')
@@ -331,11 +340,19 @@ export const app = new Hono()
           throw new Error('Invalid batch')
         publicationId = input.batchId
       }
+      if (input.home !== undefined) {
+        if (
+          input.home !== true ||
+          ['section', 'source', 'events', 'skills', 'dailyReportDate'].some((key) => key in input)
+        )
+          throw new Error('Invalid home scope')
+        home = true
+      }
       if (input.dailyReportDate !== undefined) {
         if (
           !isReportDate(input.dailyReportDate) ||
           input.dailyReportDate > shanghaiDate() ||
-          ['section', 'source', 'events', 'skills'].some((key) => key in input)
+          ['section', 'source', 'events', 'skills', 'home'].some((key) => key in input)
         )
           throw new Error('Invalid daily report scope')
         dailyReportDate = input.dailyReportDate
@@ -368,7 +385,7 @@ export const app = new Hono()
         source = signalSource.id
         if (skillIds.length && section !== '/skills') throw new Error('Invalid scope')
       } else if (skillIds.length) section = '/skills'
-      else if (!eventSlugs.length && !dailyReportDate) throw new Error('Invalid scope')
+      else if (!eventSlugs.length && !dailyReportDate && !home) throw new Error('Invalid scope')
     } catch {
       return c.json({ error: 'Invalid section or source' }, 400)
     }
@@ -380,6 +397,7 @@ export const app = new Hono()
         eventSlugs,
         skillIds,
         dailyReportDate,
+        home: home || undefined,
         publicationId
       })
       c.header('Cache-Control', CACHE_HEADERS.NO_STORE['Cache-Control'])

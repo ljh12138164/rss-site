@@ -134,6 +134,7 @@ export function HotList({
                 {hasImage && (
                   <CoverImage
                     src={item.imageUrl}
+                    thumbSrc={item.thumbnailUrl}
                     previewLabel={item.title}
                     width={160}
                     height={100}

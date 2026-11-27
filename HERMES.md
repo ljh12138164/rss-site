@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-27 Web 性能优化、`imgproxy` WebP 缩略图压缩、安全头与首页缓存闭环
+
+- **分支与文档**：基于 `origin/master`（`9f7f9e9`）创建 `feat/web-perf-imgproxy-and-security`，配套开发文档见 [web-perf-imgproxy-and-security.md](docs/development/web-perf-imgproxy-and-security.md)；先通过 Cloudflare API 清理全账号 Web Analytics 自动注入（`ljhboard.cn` `c1cce350c83e4acc8a927394a5651495`，复查剩余 `0` 站）；无衍生 roadmap。
+- **改动**：移除 [google-scripts.tsx](apps/web/components/google-scripts.tsx) 百度统计；在 [compose.yaml](compose.yaml)、[.github/workflows/ci-deploy.yml](.github/workflows/ci-deploy.yml) 与 [deploy-rss-site](deploy/server/deploy-rss-site) 接入内网离线打包的 `darthsim/imgproxy:v4.0.25`（`mem_limit: 192m`、禁用私网/回环），新增签名代理 [image-proxy.ts](apps/web/lib/image-proxy.ts) 与 [/api/img](apps/web/app/api/img/route.ts)（HMAC-SHA256、`320x200` 白名单、强制 WebP 与长效 CDN 缓存），由服务端数据层注入 `thumbnailUrl` 并在 [cover-image.tsx](apps/web/components/cover-image.tsx) 保留失败回退原图与动态按需加载 [cover-image-lightbox.tsx](apps/web/components/cover-image-lightbox.tsx)（同步让 [generate-early-hints.mjs](apps/web/scripts/generate-early-hints.mjs) 跳过 `.yarl__` CSS）；在 [revalidate-paths.ts](apps/web/lib/revalidate-paths.ts)、[hono-app.ts](apps/web/lib/hono-app.ts) 与 [hot-ranking.ts](apps/web/lib/hot-ranking.ts) 补齐日报与热榜更新时的 `revalidatePath('/')` + Cloudflare `purge_cache`；在 [next.config.ts](apps/web/next.config.ts) 补齐首页去 `no-store` 恢复 bfcache、`poweredByHeader: false`、HSTS/COOP/CSP 安全头并在 [apps/web/package.json](apps/web/package.json) 补充现代 `browserslist`。
+- **验证**：`biome check`（`409` 文件）、`check-types`（`3/3`）、`pnpm test`（`@rss-site/signals` `9/9`、`@rss-site/api` `131/131`、`@rss-site/web` `229 passed | 24 skipped`）、`next build`（`13/13` + `early-hints` 仅含主样式）、`test-release-packaging.py`（`8/8`）、`test-postgres-backup.py`（`7/7`）与真实 standalone `server.js` 响应头实测全部通过。
+
 ## 2026-11-27 修复 `article_has_indexable_content` 正则误判与 `ai / openai` 伪空正文/超限问题
 
 - **分支与文档**：基于 `origin/master`（`34c09cc`）创建 `feat/fix-indexable-regex-and-openai-content`，配套开发文档见 [fix-indexable-regex-and-openai-content.md](docs/development/fix-indexable-regex-and-openai-content.md)，并更新路线图 [empty-article-content-audit.md](docs/roadmaps/empty-article-content-audit.md)；同伴 `RSSHub` 基于 `upstream/master`（`256d4ff365`）创建 `fix/openai-news-and-developers-blog`（准备双语上游 PR 文案，待同步部署 `RSSHub` 实例）。

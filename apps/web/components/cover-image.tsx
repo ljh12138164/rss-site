@@ -1,15 +1,17 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useTranslations } from 'next-intl'
 import { type ReactNode, useState } from 'react'
-import Lightbox from 'yet-another-react-lightbox'
-import 'yet-another-react-lightbox/styles.css'
 import { cn } from '../lib/utils'
+
+const CoverImageLightbox = dynamic(() => import('./cover-image-lightbox'), { ssr: false })
 
 const defaultCover = '/article-cover-default.svg'
 
 export interface CoverImageProps {
   src?: string | null
+  thumbSrc?: string | null
   fallbackSrc?: string
   fallback?: ReactNode
   alt?: string
@@ -22,6 +24,7 @@ export interface CoverImageProps {
 
 export function CoverImage({
   src,
+  thumbSrc,
   fallbackSrc = defaultCover,
   fallback,
   alt = '',
@@ -34,7 +37,9 @@ export function CoverImage({
   const t = useTranslations('article')
   const [failedSources, setFailedSources] = useState<string[]>([])
   const [previewOpen, setPreviewOpen] = useState(false)
-  const imageSrc = [src?.trim(), fallbackSrc.trim(), defaultCover].find(
+  const trimmedSrc = src?.trim()
+  const trimmedThumb = thumbSrc?.trim()
+  const imageSrc = [trimmedThumb, trimmedSrc, fallbackSrc.trim(), defaultCover].find(
     (value): value is string =>
       typeof value === 'string' && !!value && !failedSources.includes(value)
   )
@@ -43,7 +48,10 @@ export function CoverImage({
     className
   )
   const style = { aspectRatio: `${width} / ${height}` }
-  const showFallback = fallback && (!src?.trim() || failedSources.includes(src.trim()))
+  const primaryFailed =
+    (!trimmedThumb || failedSources.includes(trimmedThumb)) &&
+    (!trimmedSrc || failedSources.includes(trimmedSrc))
+  const showFallback = fallback && (!trimmedSrc || primaryFailed)
   if (showFallback || !imageSrc) {
     return (
       <span
@@ -58,7 +66,7 @@ export function CoverImage({
     )
   }
   const image = (
-    // biome-ignore lint/performance/noImgElement: RSS images use native lazy loading without a server proxy.
+    // biome-ignore lint/performance/noImgElement: RSS thumbnails use signed imgproxy URLs with native browser fallback.
     <img
       src={imageSrc}
       key={imageSrc}
@@ -77,7 +85,9 @@ export function CoverImage({
       }}
     />
   )
-  if (!previewLabel || !src?.trim() || imageSrc !== src.trim()) return image
+  const isShowingArticleImage =
+    Boolean(trimmedSrc) && (imageSrc === trimmedThumb || imageSrc === trimmedSrc)
+  if (!previewLabel || !isShowingArticleImage || !trimmedSrc) return image
 
   return (
     <>
@@ -91,18 +101,20 @@ export function CoverImage({
       >
         {image}
       </button>
-      <Lightbox
-        open={previewOpen}
-        close={() => setPreviewOpen(false)}
-        slides={[{ src: imageSrc, alt: previewLabel }]}
-        carousel={{
-          finite: true,
-          imageProps: { referrerPolicy: 'no-referrer', loading: 'lazy', decoding: 'async' }
-        }}
-        controller={{ closeOnBackdropClick: true }}
-        render={{ buttonPrev: () => null, buttonNext: () => null }}
-        labels={{ Lightbox: t('imagePreview'), Close: t('closeImagePreview') }}
-      />
+      {previewOpen ? (
+        <CoverImageLightbox
+          open={previewOpen}
+          close={() => setPreviewOpen(false)}
+          slides={[{ src: trimmedSrc, alt: previewLabel }]}
+          carousel={{
+            finite: true,
+            imageProps: { referrerPolicy: 'no-referrer', loading: 'lazy', decoding: 'async' }
+          }}
+          controller={{ closeOnBackdropClick: true }}
+          render={{ buttonPrev: () => null, buttonNext: () => null }}
+          labels={{ Lightbox: t('imagePreview'), Close: t('closeImagePreview') }}
+        />
+      ) : null}
     </>
   )
 }
