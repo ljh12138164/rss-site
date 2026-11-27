@@ -3,7 +3,7 @@
 ## 2026-11-28 AI 分区首页查询的行数估算
 
 - **分支与文档**：`feat/ai-home-preview-query` 基于 `master`（`6434fdf`），见 [AI 分区首页查询的行数估算](docs/development/ai-home-preview-query.md)。
-- **目标**：补充来源与分区的依赖统计，让 PostgreSQL 准确估算 AI 文章候选行数。本地迁移、重复回放、恢复定义与六分区结果对照均通过，AI 已改用发布时间索引。下一步提交 PR。
+- **目标**：补充来源与分区的依赖统计，让 PostgreSQL 准确估算 AI 文章候选行数。本地迁移、重复回放、恢复定义与六分区结果对照均通过，AI 已改用发布时间索引。已提交 [PR #135](https://github.com/ljh12138164/rss-site/pull/135)，目标 `master`。下一步合并发布后复测生产执行计划。
 
 ## 2026-11-27 首页分区预览索引
 
