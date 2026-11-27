@@ -1,9 +1,11 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { expect, it } from 'vitest'
+import { expect, it, vi } from 'vitest'
 import type { DailyReport } from '../../../../shared/daily-report'
 import fixture from '../../../../shared/daily-report.fixture.json'
 import { SiteLanguageProvider } from '../site-language'
 import { DailyReportView } from './daily-report-view'
+
+vi.mock('next/navigation', () => ({ useRouter: () => ({ prefetch: vi.fn() }) }))
 
 it('renders events in editorial order without empty sections and prefers internal citations', () => {
   const report = {

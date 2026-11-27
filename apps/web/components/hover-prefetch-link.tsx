@@ -16,7 +16,7 @@ export function HoverPrefetchLink({
 }: HoverPrefetchLinkProps) {
   const router = useRouter()
   const prefetchedHrefRef = useRef<string | null>(null)
-  const isCurrentPage = props['aria-current'] === 'page'
+  const isCurrentPage = props['aria-current'] === 'page' || props['aria-current'] === 'date'
 
   const triggerPrefetch = () => {
     if (isCurrentPage || prefetchedHrefRef.current === href) return

@@ -112,10 +112,10 @@ it('prefetches on keyboard focus and re-prefetches when href changes', async () 
   expect(mocks.prefetch).toHaveBeenLastCalledWith('/news')
 })
 
-it('skips prefetching for the active current page link', async () => {
+it.each(['page', 'date'] as const)('skips prefetching for aria-current=%s', async (current) => {
   await act(async () => {
     root.render(
-      <HoverPrefetchLink href="/ai" aria-current="page">
+      <HoverPrefetchLink href="/ai" aria-current={current}>
         AI
       </HoverPrefetchLink>
     )

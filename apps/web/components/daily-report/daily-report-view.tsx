@@ -1,8 +1,8 @@
-import Link from 'next/link'
 import type { DailyReport, DailyStory } from '../../../../shared/daily-report'
 import type { DailyArchive, DailyArchiveEntry } from '../../lib/daily-reports'
 import { getTransitLine } from '../../lib/transit-lines'
 import { cn } from '../../lib/utils'
+import { HoverPrefetchLink } from '../hover-prefetch-link'
 import {
   FormattedDate,
   type SiteMessageKey,
@@ -25,9 +25,9 @@ const linkClass =
 
 function IssueLink({ issue, labelId }: { issue?: DailyArchiveEntry; labelId: SiteMessageKey }) {
   return issue ? (
-    <Link href={`/daily/${issue.report_date}`} className={linkClass}>
+    <HoverPrefetchLink href={`/daily/${issue.report_date}`} className={linkClass}>
       <TranslatedText id={labelId} />
-    </Link>
+    </HoverPrefetchLink>
   ) : (
     <span className="inline-flex min-h-10 items-center text-muted-foreground/45">
       <TranslatedText id={labelId} />
@@ -42,9 +42,9 @@ function Archive({ archive, date }: { archive: DailyArchive; date: string }) {
         <h2 className="text-xs font-semibold text-foreground">
           <TranslatedText id="daily.archive" />
         </h2>
-        <Link href="/daily" className="font-mono text-xs text-primary hover:underline">
+        <HoverPrefetchLink href="/daily" className="font-mono text-xs text-primary hover:underline">
           <TranslatedText id="daily.latest" />
-        </Link>
+        </HoverPrefetchLink>
       </div>
       <div className="flex items-center justify-between gap-2 py-2.5 text-xs">
         <IssueLink issue={archive.previousMonth} labelId="daily.prevMonth" />
@@ -54,7 +54,7 @@ function Archive({ archive, date }: { archive: DailyArchive; date: string }) {
       <ol className="divide-y divide-border/70 border-y border-border">
         {archive.entries.map((issue) => (
           <li key={issue.report_date}>
-            <Link
+            <HoverPrefetchLink
               href={`/daily/${issue.report_date}`}
               lang="zh-CN"
               aria-current={issue.report_date === date ? 'page' : undefined}
@@ -72,7 +72,7 @@ function Archive({ archive, date }: { archive: DailyArchive; date: string }) {
               <span className="line-clamp-2 min-w-0 text-xs leading-5 text-foreground">
                 {issue.title}
               </span>
-            </Link>
+            </HoverPrefetchLink>
           </li>
         ))}
       </ol>
@@ -108,7 +108,7 @@ function Calendar({ archive, date }: { archive: DailyArchive; date: string }) {
             const day = index + 1
             const value = `${date.slice(0, 7)}-${String(day).padStart(2, '0')}`
             return published.has(value) ? (
-              <Link
+              <HoverPrefetchLink
                 key={value}
                 href={`/daily/${value}`}
                 aria-current={value === date ? 'date' : undefined}
@@ -121,7 +121,7 @@ function Calendar({ archive, date }: { archive: DailyArchive; date: string }) {
                 <span className="sr-only">
                   <TranslatedText id="daily.readDate" values={{ date: value }} />
                 </span>
-              </Link>
+              </HoverPrefetchLink>
             ) : (
               <span
                 key={value}
@@ -197,10 +197,10 @@ export function DailyReportView({
           return (
             <li key={id} className="min-w-0">
               {articleLinks[id] ? (
-                <Link href={articleLinks[id]} className={pillClass}>
+                <HoverPrefetchLink href={articleLinks[id]} className={pillClass}>
                   <span className="font-medium text-foreground">{source.sourceName}</span>
                   <span className="truncate">{source.title}</span>
-                </Link>
+                </HoverPrefetchLink>
               ) : (
                 <a
                   href={source.url}
@@ -357,9 +357,9 @@ export function DailyReportView({
               className="mt-4 flex flex-wrap justify-between gap-4 border-t border-border py-3 text-xs"
             >
               <IssueLink issue={archive.previous} labelId="daily.prevIssue" />
-              <Link href="/daily" className={linkClass}>
+              <HoverPrefetchLink href="/daily" className={linkClass}>
                 <TranslatedText id="daily.latest" />
-              </Link>
+              </HoverPrefetchLink>
               <IssueLink issue={archive.next} labelId="daily.nextIssue" />
             </TranslatedRegion>
           </div>

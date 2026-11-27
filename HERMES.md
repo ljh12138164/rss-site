@@ -1,5 +1,12 @@
 # HERMES
 
+## 2026-11-27 日报日期切换性能
+
+- **分支与文档**：`feat/daily-navigation-performance` 基于已同步的 `origin/master`（`d038471`），见 [日报日期切换性能](docs/development/daily-navigation-performance.md)。
+- **改动**：切换期间以现有顶部进度条反馈，日期页启用 300 秒按需 ISR，日报内部链接改为交互时请求预取。
+- **验证**：生产 Redis 有效。本地 395 项测试（含 PostgreSQL、Redis）、三包类型与 Web 生产构建通过。1440px 和 390px 的 Chromium 慢网切换均保留原日报，日期页验证 ISR 命中和 404。四个主导航入口的公网、浏览器和 ECS 样本见开发文档。
+- **交付**：已完成本地评审，无阻塞项。待提交 PR，由维护者审核合并并复测公网缓存。
+
 ## 2026-11-27 拦截 Linux Chrome/155 隐身爬虫并替换页面面包屑自动预取
 
 - **分支与文档**：基于 `origin/master`（`37872e2`）创建 `feat/hover-prefetch-breadcrumbs`，配套开发文档见 [hover-prefetch-breadcrumbs.md](docs/development/hover-prefetch-breadcrumbs.md)；同步通过 Cloudflare MCP 在 `ljhboard.cn` 自定义规则集新增第 `5/5` 条 `managed_challenge` 规则（`4a5aba77d51e45aeafb9eec167353580`），拦截 `news.ljhboard.cn` 的 Linux `Chrome/155.0.0.0` 非认证爬虫（上线 90 秒内即命中 22 次美国住宅代理/Oracle 机房抓取）；无衍生 roadmap。
