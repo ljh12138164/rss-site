@@ -184,13 +184,39 @@ CREATE FUNCTION public.article_has_indexable_content(article_title text, article
     AS $_$
   with body as (
     select coalesce(nullif(btrim(article_html), ''), article_summary, '') as html
-  ), visible as (
-    select regexp_replace(
-      regexp_replace(
-        regexp_replace(html, '<(script|style|iframe|textarea|audio)\y[^>]*>.*?</\1\s*>', '', 'gis'),
-        '<a\y[^>]*>.*?</a\s*>', '', 'gis'),
-      '</?(p|div|br|li|h[1-6])\y[^>]*>', E'\n', 'gi') as html
+  ), stripped_blocks as (
+    select
+      case when position('<' in html) = 0 then html else
+        case when html ~* '<a\y' then
+          regexp_replace(
+            case when html ~* '<(script|style|iframe|textarea|audio)\y' then
+              regexp_replace(
+                regexp_replace(
+                  regexp_replace(
+                    regexp_replace(
+                      regexp_replace(html, '<script\y[^>]*?>.*?</script\s*>', '', 'gis'),
+                    '<style\y[^>]*?>.*?</style\s*>', '', 'gis'),
+                  '<iframe\y[^>]*?>.*?</iframe\s*>', '', 'gis'),
+                '<textarea\y[^>]*?>.*?</textarea\s*>', '', 'gis'),
+              '<audio\y[^>]*?>.*?</audio\s*>', '', 'gis')
+            else html end,
+          '<a\y[^>]*?>.*?</a\s*>', '', 'gis')
+        when html ~* '<(script|style|iframe|textarea|audio)\y' then
+          regexp_replace(
+            regexp_replace(
+              regexp_replace(
+                regexp_replace(
+                  regexp_replace(html, '<script\y[^>]*?>.*?</script\s*>', '', 'gis'),
+                '<style\y[^>]*?>.*?</style\s*>', '', 'gis'),
+              '<iframe\y[^>]*?>.*?</iframe\s*>', '', 'gis'),
+            '<textarea\y[^>]*?>.*?</textarea\s*>', '', 'gis'),
+          '<audio\y[^>]*?>.*?</audio\s*>', '', 'gis')
+        else html end
+      end as html
     from body
+  ), visible as (
+    select regexp_replace(html, '</?(p|div|br|li|h[1-6])\y[^>]*>', E'\n', 'gi') as html
+    from stripped_blocks
   ), plain as (
     select regexp_replace(
       regexp_replace(html, '<[^>]*>', '', 'g'),
@@ -202,7 +228,7 @@ CREATE FUNCTION public.article_has_indexable_content(article_title text, article
       lateral (select btrim(raw_line, E' \t\r　') as line) normalized
     where line !~ '^(记者|编导|编辑|责任编辑|制作|出品|监制|新华社音视频部制作)[：: ]'
       and line <> '新华社音视频部制作'
-      and line !~* '^(Comments on Hacker News|Source|Read more|阅读全文|查看原文|求经验分享[！!]?|暂无内容)[[:space:][:punct:]]*$'
+      and line !~* '^(Comments on Hacker News|Source|Read more|Share|阅读全文|查看原文|求经验分享[！!]?|暂无内容)[[:space:][:punct:]]*$'
   )
   select (
     coalesce(text, '') ~ '[[:alnum:]]'

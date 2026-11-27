@@ -19,17 +19,96 @@ export function cleanCmsTemplateTags(text: string): string {
     .replace(/\[!--[\s\S]*?--\]/gi, '')
 }
 
-// RSSHub includes OpenAI's read-aloud control alongside the article body.
+const OPEN_AI_HERO_DIV_ATTRS = ['data-read-aloud-ui', 'data-article-hero-actions'] as const
+
+function stripDivsWithTrueAttr(html: string, attrName: string): string {
+  const marker = new RegExp(`<div\\b[^>]*\\b${attrName}\\s*=\\s*["']true["'][^>]*>`, 'gi')
+  let result = ''
+  let cursor = 0
+  while (cursor < html.length) {
+    marker.lastIndex = cursor
+    const match = marker.exec(html)
+    if (!match || match.index == null) {
+      result += html.slice(cursor)
+      break
+    }
+    const start = match.index
+    let depth = 1
+    const scan = start + match[0].length
+    const tagRe = /<\/?div\b[^>]*>/gi
+    tagRe.lastIndex = scan
+    let end = html.length
+    while (depth > 0) {
+      const token = tagRe.exec(html)
+      if (!token) break
+      if (token[0].startsWith('</')) {
+        depth -= 1
+        if (depth === 0) {
+          end = token.index + token[0].length
+          break
+        }
+      } else {
+        depth += 1
+      }
+    }
+    result += html.slice(cursor, start)
+    cursor = end
+  }
+  return result
+}
+
+function stripEmptyDivWrappers(html: string): string {
+  let current = html
+  while (true) {
+    const next = current.replace(/<div\b[^>]*>\s*<\/div>/gi, '')
+    if (next === current) return current.trim()
+    current = next
+  }
+}
+
+function stripShikiCodeBloat(html: string): string {
+  return html
+    .replace(/<\/?astro-island\b[^>]*>/gi, '')
+    .replace(/<pre\b[^>]*>([\s\S]*?)<\/pre>/gi, (block) =>
+      block
+        .replace(/<\/?span\b[^>]*>/gi, '')
+        .replace(/<pre\b[^>]*>/gi, '<pre>')
+        .replace(/<code\b([^>]*)>/gi, (_codeTag, attrs: string) => {
+          const langMatch =
+            attrs.match(/\bdata-language\s*=\s*["']([\w-]+)["']/i) ??
+            attrs.match(/\bclass\s*=\s*["'][^"']*\blanguage-([\w-]+)\b[^"']*["']/i)
+          return langMatch ? `<code class="language-${langMatch[1]}">` : '<code>'
+        })
+    )
+}
+
+// RSSHub includes OpenAI's read-aloud / share controls alongside the article body, and Astro/Shiki markup can inflate developers.openai.com posts past 512 KB.
 export function cleanOpenAiContent(html: string, url: string): string {
+  let host: string
   try {
-    if (new URL(url).hostname !== 'openai.com') return html
+    host = new URL(url).hostname
   } catch {
     return html
   }
-  return html.replace(
-    /<div\b[^>]*\bdata-read-aloud-ui\s*=\s*["']true["'][^>]*>[\s\S]*?<\/audio>\s*<\/div>/gi,
-    ''
-  )
+  if (host === 'developers.openai.com') {
+    return stripShikiCodeBloat(html)
+  }
+  if (host !== 'openai.com') return html
+  let cleaned = html
+  for (const attr of OPEN_AI_HERO_DIV_ATTRS) {
+    cleaned = stripDivsWithTrueAttr(cleaned, attr)
+  }
+  if (cleaned !== html) {
+    cleaned = stripEmptyDivWrappers(cleaned)
+    const textOnly = cleaned
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .trim()
+    if (!textOnly && !/<(?:img|video|audio|iframe|table|pre)\b/i.test(cleaned)) {
+      return ''
+    }
+  }
+  return cleaned
 }
 
 function isAwsBlogUrl(url: string): boolean {

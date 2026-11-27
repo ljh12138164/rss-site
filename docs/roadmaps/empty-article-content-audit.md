@@ -32,19 +32,19 @@
 
 ## Now
 
-### 修复 `article_has_indexable_content` 正则贪婪匹配误伤长文
+### 修复 `article_has_indexable_content` 正则贪婪匹配误伤长文（待合并发布复验）
 
 - Value：恢复被误标为 `noindex` 且移出 sitemap 与同源推荐的正常长文收录能力。
 - Evidence：`deploy/postgres/baseline.sql` 中 `regexp_replace(html, '<a\y[^>]*>.*?</a\s*>', '', 'gis')` 在 PostgreSQL 正则引擎下因前段 `[^>]*` 为贪婪量词，导致后段 `.*?` 退化为贪婪匹配，将文章首个 `<a>` 到末尾 `</a>` 之间的全部正文删除。当前在榜至少 20+ 个正常全文源受误伤，包括 `big-technology`（17/20）、`newcomer`（12/20）、`vercel`（7/20）、`meta-engineering`（2/9）、`ign`（2/20）、`elevenlabs`（2/20）、`metr`（2/20，含 7.5 万字长文）、`simon-willison`（2/15）、`ritholtz`（2/10）、`daring-fireball`（2/20）等。
-- Dependencies：新增 PostgreSQL 迁移修复函数正则（改为非贪婪锚点或等价安全写法，例如 `<a\y[^>]*?>.*?</a\s*>` 并在测试库验证生成列行为），同步更新 `baseline.sql` 与单测，并评估对存量 `signal_articles` 触发生成列重算的方式与锁表影响。
-- Completion signal：正常含多处超链接的长文在生产均返回 `is_indexable = true`；真正空正文与 `Share` / `Read more` / `Comments on Hacker News` 占位帖仍保持 `is_indexable = false`。
+- Dependencies：已于分支 `feat/fix-indexable-regex-and-openai-content` 完成 `deploy/postgres/baseline.sql` 与幂等迁移 `deploy/postgres/migrations/025-fix-article-indexability-regex.sql`（改为无反向引用的非贪婪标签剥离 + 排除独立 `Share` 行，并以无 DDL 锁且避开 ~73k 正常长文全表解压的定点 `UPDATE` 重算存量生成列，补齐 pgTAP 与 PostgreSQL 18 集成测试；生产只读对照验证 `2,436` 条在榜中 `62` 条误伤全文转绿、`4` 条 `Share` 演示页转红、无误杀）。详见 [fix-indexable-regex-and-openai-content.md](../development/fix-indexable-regex-and-openai-content.md)。
+- Completion signal：合入发布执行迁移 `025` 后，生产复查 `hot_items` 与历史 `signal_articles` 中正常含多处超链接长文均返回 `is_indexable = true`；真正空正文与 `Share` / `Read more` / `Comments on Hacker News` 占位帖仍保持 `is_indexable = false`。
 
-### 修复 `ai / openai` 伪空正文（仅 `Share`）与空正文条目
+### 修复 `ai / openai` 伪空正文（仅 `Share`）与空正文条目（待部署与重新拉取复验）
 
 - Value：消除高关注度核心 AI 来源中点开几乎空白的异常页面。
 - Evidence：2026-11-26 在榜 30 条中，第 8 / 18 / 20 / 21 条（`Connected intelligence for in-house legal`、`See PR scans in action`、`Explore the Codex Security Plugin`、`Get started with Daybreak Blue`）抓取结果去标签后仅 5 字符 `Share`；第 16 条（`Time awareness and async input for personal agents`）`content_html` 为 `NULL` 仅留摘要。
-- Dependencies：分别检查自建 RSSHub `/openai/news` 与 `/openai/developers/blog` 对视频/演示页及新页面结构的解析逻辑，同时评估在入库清洗或过滤阶段剔除/降级纯 `Share` 页面壳子。
-- Completion signal：重新拉取验证后 `openai` 在榜不再出现仅剩 `Share` 的条目，常规图文博客正文完整入库，无法抽取正文的产品演示页有明确摘要回退或过滤策略。
+- Dependencies：已在 `RSSHub` 分支 `fix/openai-news-and-developers-blog` 修复 `/openai/news`（精准清除 `[data-article-hero-actions]` 分享栏与仅匹配 `Keep reading` 的尾栏、为无文字视频演示页通过 JSX 模板输出封面图+导语摘要+视频直链并升级缓存键 `v3`）及 `/openai/developers/blog`（解包 `<astro-island>` 与 `<pre>` 内 Shiki `<span>` 使 760 KB 长文压缩至 `~157 KB` 低于 `512 KB` 入库上限并升级缓存键 `v2`），并在 `rss-site` `shared/openai-content.ts` 同步完成消费端防线与单测。需上线 `RSSHub` 与 `rss-site` 并触发 `openai` 重新抓取。
+- Completion signal：部署后重新拉取验证 `openai` 在榜不再出现仅剩 `Share` 的条目，常规图文博客正文完整入库，无法抽取正文的产品演示页有明确摘要回退或过滤策略。
 
 ### 排查 `ai / elevenlabs` 采集停滞
 
