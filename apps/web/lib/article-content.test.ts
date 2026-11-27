@@ -13,7 +13,7 @@ describe('article HTML', () => {
   })
   it('strips OpenAI Share action controls from demo shells and normal articles', () => {
     const shareAction =
-      '<div class="@container"><div data-article-hero-actions="true"><button type="button"><svg><path d="M0 0"/></svg>Share</button></div></div>'
+      '<div class="@container"><div data-article-hero-actions="true"><div class="spacer" /><button type="button"><svg><path d="M0 0"/></svg>Share</button></div></div>'
     expect(
       renderArticleContent(
         `${shareAction}<p>Intro paragraph.</p>`,

@@ -63,9 +63,11 @@ describe('parseSignalFeed AWS cleaning', () => {
     const [item] = parseSignalFeed(xml, 'Apple ML')
     expect(item?.summary).toBe('Best-of- N bound.')
   })
+})
 
+describe('parseSignalFeed OpenAI cleaning', () => {
   it('drops residual OpenAI Share action chrome and compacts oversized Shiki/Astro developer posts before the 512 KB gate', () => {
-    const bloatedPre = `<astro-island props="${'x'.repeat(260000)}"><pre class="shiki" data-1p-ignore="true"><code data-language="typescript">${'<span class="syntax-highlighter-line"><span class="shiki-token">const a = 1;</span></span>\n'.repeat(3000)}</code></pre></astro-island>`
+    const bloatedPre = `<astro-island props='{"expr":"a > b","pad":"${'x'.repeat(260000)}"}'><pre class="shiki" data-1p-ignore="true" data-language="python"><code>${'<span class="syntax-highlighter-line"><span class="shiki-token">x = 1</span></span>\n'.repeat(3000)}</code></pre></astro-island>`
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
@@ -74,7 +76,7 @@ describe('parseSignalFeed AWS cleaning', () => {
       <title>See PR scans in action</title>
       <link>https://openai.com/business/learn/pr-scans-demo/</link>
       <pubDate>Thu, 19 Nov 2026 00:00:00 GMT</pubDate>
-      <description><![CDATA[<div class="wrap"><div data-article-hero-actions="true"><div><button><svg><path d="M0 0"/></svg>Share</button></div></div></div>]]></description>
+      <description><![CDATA[<div class="wrap"><div data-article-hero-actions="true"><div class="icon" /><button><svg><path d="M0 0"/></svg>Share</button></div></div>]]></description>
     </item>
     <item>
       <title>Time awareness and async input for personal agents</title>
@@ -90,8 +92,9 @@ describe('parseSignalFeed AWS cleaning', () => {
     expect(demoItem?.summary).toBeNull()
     expect(blogItem?.contentHtml).not.toBeNull()
     expect(Buffer.byteLength(blogItem?.contentHtml ?? '', 'utf8')).toBeLessThan(100000)
-    expect(blogItem?.contentHtml).toContain('<pre><code class="language-typescript">')
+    expect(blogItem?.contentHtml).toContain('<pre><code class="language-python">')
     expect(blogItem?.contentHtml).not.toContain('astro-island')
     expect(blogItem?.contentHtml).not.toContain('shiki-token')
+    expect(blogItem?.contentHtml).not.toContain('"pad":')
   })
 })

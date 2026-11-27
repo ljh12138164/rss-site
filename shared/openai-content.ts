@@ -21,8 +21,11 @@ export function cleanCmsTemplateTags(text: string): string {
 
 const OPEN_AI_HERO_DIV_ATTRS = ['data-read-aloud-ui', 'data-article-hero-actions'] as const
 
-function stripDivsWithTrueAttr(html: string, attrName: string): string {
-  const marker = new RegExp(`<div\\b[^>]*\\b${attrName}\\s*=\\s*["']true["'][^>]*>`, 'gi')
+function stripDivsWithAttr(html: string, attrName: string): string {
+  const marker = new RegExp(
+    `<div\\b[^>]*\\b${attrName}(?:\\s*=\\s*["']true["'])?(?=[\\s/>])[^>]*>`,
+    'gi'
+  )
   let result = ''
   let cursor = 0
   while (cursor < html.length) {
@@ -33,14 +36,20 @@ function stripDivsWithTrueAttr(html: string, attrName: string): string {
       break
     }
     const start = match.index
-    let depth = 1
     const scan = start + match[0].length
+    if (match[0].endsWith('/>')) {
+      result += html.slice(cursor, start)
+      cursor = scan
+      continue
+    }
+    let depth = 1
     const tagRe = /<\/?div\b[^>]*>/gi
     tagRe.lastIndex = scan
     let end = html.length
     while (depth > 0) {
       const token = tagRe.exec(html)
       if (!token) break
+      if (token[0].endsWith('/>')) continue
       if (token[0].startsWith('</')) {
         depth -= 1
         if (depth === 0) {
@@ -66,20 +75,26 @@ function stripEmptyDivWrappers(html: string): string {
   }
 }
 
+function extractCodeLanguageAttr(attrs: string): string | undefined {
+  return (
+    attrs.match(/\bdata-language\s*=\s*["']([\w-]+)["']/i)?.[1] ??
+    attrs.match(/\bclass\s*=\s*["'][^"']*\blanguage-([\w-]+)\b[^"']*["']/i)?.[1]
+  )
+}
+
 function stripShikiCodeBloat(html: string): string {
   return html
-    .replace(/<\/?astro-island\b[^>]*>/gi, '')
-    .replace(/<pre\b[^>]*>([\s\S]*?)<\/pre>/gi, (block) =>
-      block
+    .replace(/<\/?astro-island\b(?:[^>"']|"[^"]*"|'[^']*')*>/gi, '')
+    .replace(/<pre\b([^>]*)>([\s\S]*?)<\/pre>/gi, (_block, preAttrs: string, inner: string) => {
+      const preLang = extractCodeLanguageAttr(preAttrs)
+      const cleanedInner = inner
         .replace(/<\/?span\b[^>]*>/gi, '')
-        .replace(/<pre\b[^>]*>/gi, '<pre>')
         .replace(/<code\b([^>]*)>/gi, (_codeTag, attrs: string) => {
-          const langMatch =
-            attrs.match(/\bdata-language\s*=\s*["']([\w-]+)["']/i) ??
-            attrs.match(/\bclass\s*=\s*["'][^"']*\blanguage-([\w-]+)\b[^"']*["']/i)
-          return langMatch ? `<code class="language-${langMatch[1]}">` : '<code>'
+          const lang = extractCodeLanguageAttr(attrs) ?? preLang
+          return lang ? `<code class="language-${lang}">` : '<code>'
         })
-    )
+      return `<pre>${cleanedInner}</pre>`
+    })
 }
 
 // RSSHub includes OpenAI's read-aloud / share controls alongside the article body, and Astro/Shiki markup can inflate developers.openai.com posts past 512 KB.
@@ -96,15 +111,11 @@ export function cleanOpenAiContent(html: string, url: string): string {
   if (host !== 'openai.com') return html
   let cleaned = html
   for (const attr of OPEN_AI_HERO_DIV_ATTRS) {
-    cleaned = stripDivsWithTrueAttr(cleaned, attr)
+    cleaned = stripDivsWithAttr(cleaned, attr)
   }
   if (cleaned !== html) {
     cleaned = stripEmptyDivWrappers(cleaned)
-    const textOnly = cleaned
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/&nbsp;/gi, ' ')
-      .trim()
-    if (!textOnly && !/<(?:img|video|audio|iframe|table|pre)\b/i.test(cleaned)) {
+    if (!stripHtmlTagsText(cleaned) && !/<(?:img|video|audio|iframe|table|pre)\b/i.test(cleaned)) {
       return ''
     }
   }

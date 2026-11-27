@@ -21,6 +21,9 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
       )
       await admin.unsafe(`create table ${schema}.hot_items (article_id uuid not null)`)
       await admin.unsafe(
+        `create table ${schema}.content_tombstones (kind text not null, key text not null, removed_at timestamptz not null default now(), primary key (kind, key))`
+      )
+      await admin.unsafe(
         `create table ${schema}.ai_event_articles (event_id uuid not null, article_id uuid not null)`
       )
       await admin.unsafe(
@@ -61,6 +64,26 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
         $_$;
       `)
       await admin.unsafe(`
+        create function ${schema}.track_article_content() returns trigger language plpgsql as $$
+        begin
+          if tg_op = 'DELETE' then
+            insert into ${schema}.content_tombstones(kind, key) values ('news', old.source || '/' || old.id::text)
+              on conflict (kind, key) do update set removed_at = now();
+            return old;
+          end if;
+          if row(new.title, new.url, new.summary, new.content_html, new.author, new.published_at)
+            is distinct from row(old.title, old.url, old.summary, old.content_html, old.author, old.published_at) then
+            new.content_updated_at := now();
+            update ${schema}.ai_events set updated_at = now()
+              where id in (select event_id from ${schema}.ai_event_articles where article_id = old.id);
+          else
+            new.content_updated_at := old.content_updated_at;
+          end if;
+          return new;
+        end;
+        $$;
+      `)
+      await admin.unsafe(`
         create table ${schema}.signal_articles (
           id uuid primary key default gen_random_uuid(),
           section text not null,
@@ -70,6 +93,8 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
           url text not null,
           summary text,
           content_html text,
+          author text,
+          published_at timestamptz,
           last_seen_at timestamptz not null default now(),
           content_updated_at timestamptz not null default '2026-11-20T00:00:00Z'::timestamptz,
           is_indexable boolean generated always as (
@@ -77,6 +102,11 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
             and ${schema}.article_has_indexable_content(title, summary, content_html)
           ) stored
         );
+      `)
+      await admin.unsafe(`
+        create trigger article_content_lifecycle
+        before delete or update on ${schema}.signal_articles
+        for each row execute function ${schema}.track_article_content();
       `)
     }, 30_000)
 
@@ -121,17 +151,29 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
           ('22222222-2222-4222-8222-222222222222', 'ai', 'openai', 'share-stub', 'Demo video', 'https://openai.com/business/learn/demo/', null,
             '<div><button><svg></svg>Share</button></div>'),
           ('33333333-3333-4333-8333-333333333333', 'technology', 'hacker-news', 'hn-only', 'HN post', 'https://news.ycombinator.com/item?id=1', null,
-            '<a href="https://a.test">Comments on Hacker News</a> | <a href="https://b.test">Source</a>')
+            '<a href="https://a.test">Comments on Hacker News</a> | <a href="https://b.test">Source</a>'),
+          ('44444444-4444-4444-8444-444444444444', 'ai', 'openai', 'hist-share', 'Archived demo', 'https://openai.com/business/learn/archived/', null,
+            '<div><button>Share</button></div>'),
+          ('55555555-5555-4555-8555-555555555555', 'technology', 'vercel', 'summary-links', 'Summary post', 'https://vercel.com/blog/summary',
+            '<p><a href="https://a.test">first</a></p><p>Substantive summary between edge links.</p><p><a href="https://b.test">second</a></p>', null)
         returning source_key, is_indexable, content_updated_at
       `)
       expect(rows.map((r) => [r.source_key, r.is_indexable])).toEqual([
         ['multi-a', false],
         ['share-stub', true],
-        ['hn-only', false]
+        ['hn-only', false],
+        ['hist-share', true],
+        ['summary-links', false]
       ])
 
       await admin.unsafe(
         `insert into ${schema}.hot_items(article_id) values ('22222222-2222-4222-8222-222222222222')`
+      )
+      await admin.unsafe(
+        `insert into ${schema}.ai_events(id, updated_at) values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '2026-11-20T00:00:00Z'::timestamptz)`
+      )
+      await admin.unsafe(
+        `insert into ${schema}.ai_event_articles(event_id, article_id) values ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '11111111-1111-4111-8111-111111111111')`
       )
 
       const migration = readFileSync(
@@ -153,19 +195,38 @@ describe.skipIf(!process.env.DAILY_REPORT_TEST_DATABASE_URL)(
         `select source_key, is_indexable, content_updated_at from ${schema}.signal_articles order by source_key`
       )
       expect(updated.map((r) => [r.source_key, r.is_indexable])).toEqual([
+        ['hist-share', false],
         ['hn-only', false],
         ['multi-a', true],
-        ['share-stub', false]
+        ['share-stub', false],
+        ['summary-links', true]
       ])
       for (const row of updated) {
         expect(new Date(row.content_updated_at as string).toISOString()).toBe(
           '2026-11-20T00:00:00.000Z'
         )
       }
+      const [eventBefore] = await admin.unsafe(
+        `select updated_at from ${schema}.ai_events where id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'`
+      )
+      expect(new Date(eventBefore?.updated_at as string).toISOString()).toBe(
+        '2026-11-20T00:00:00.000Z'
+      )
       const [stamp] = await admin.unsafe(
         `select name from ${schema}.maintenance_state where name = 'article_indexability_regex_v2_backfilled'`
       )
       expect(stamp?.name).toBe('article_indexability_regex_v2_backfilled')
+
+      // Confirm the lifecycle trigger is genuinely active when content actually changes.
+      await admin.unsafe(
+        `update ${schema}.signal_articles set content_html = '<p>Updated body.</p>' where source_key = 'multi-a'`
+      )
+      const [eventAfter] = await admin.unsafe(
+        `select updated_at from ${schema}.ai_events where id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'`
+      )
+      expect(new Date(eventAfter?.updated_at as string).toISOString()).not.toBe(
+        '2026-11-20T00:00:00.000Z'
+      )
     })
   }
 )
