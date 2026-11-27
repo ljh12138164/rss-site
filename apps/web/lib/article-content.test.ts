@@ -11,6 +11,19 @@ describe('article HTML', () => {
       renderArticleContent(openAiToc + openAiToc + openAiBody, 'https://openai.com/index/example')
     ).toBe(openAiBody)
   })
+  it('strips OpenAI Share action controls from demo shells and normal articles', () => {
+    const shareAction =
+      '<div class="@container"><div data-article-hero-actions="true"><div class="spacer" /><button type="button"><svg><path d="M0 0"/></svg>Share</button></div></div>'
+    expect(
+      renderArticleContent(
+        `${shareAction}<p>Intro paragraph.</p>`,
+        'https://openai.com/index/example'
+      )
+    ).toBe('<p>Intro paragraph.</p>')
+    expect(
+      renderArticleContent(shareAction, 'https://openai.com/business/learn/pr-scans-demo/')
+    ).toBe('')
+  })
   it('removes AWS blog author bio footer chrome while preserving article content', () => {
     const html =
       '<p>Main article body.</p><hr /><h2><strong>About the authors</strong></h2><footer><div class="blog-author-box"><div class="blog-author-image"><img src="https://d2908q01vomqb2.cloudfront.net/author.jpg" alt="Alex" /></div><h3 class="lb-h4">Alex</h3><p>Bio text.</p></div></footer>'

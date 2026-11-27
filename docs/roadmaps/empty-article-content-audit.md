@@ -32,19 +32,19 @@
 
 ## Now
 
-### 修复 `article_has_indexable_content` 正则贪婪匹配误伤长文
+### 修复 `article_has_indexable_content` 正则贪婪匹配误伤长文（待合并发布复验）
 
 - Value：恢复被误标为 `noindex` 且移出 sitemap 与同源推荐的正常长文收录能力。
 - Evidence：`deploy/postgres/baseline.sql` 中 `regexp_replace(html, '<a\y[^>]*>.*?</a\s*>', '', 'gis')` 在 PostgreSQL 正则引擎下因前段 `[^>]*` 为贪婪量词，导致后段 `.*?` 退化为贪婪匹配，将文章首个 `<a>` 到末尾 `</a>` 之间的全部正文删除。当前在榜至少 20+ 个正常全文源受误伤，包括 `big-technology`（17/20）、`newcomer`（12/20）、`vercel`（7/20）、`meta-engineering`（2/9）、`ign`（2/20）、`elevenlabs`（2/20）、`metr`（2/20，含 7.5 万字长文）、`simon-willison`（2/15）、`ritholtz`（2/10）、`daring-fireball`（2/20）等。
-- Dependencies：新增 PostgreSQL 迁移修复函数正则（改为非贪婪锚点或等价安全写法，例如 `<a\y[^>]*?>.*?</a\s*>` 并在测试库验证生成列行为），同步更新 `baseline.sql` 与单测，并评估对存量 `signal_articles` 触发生成列重算的方式与锁表影响。
-- Completion signal：正常含多处超链接的长文在生产均返回 `is_indexable = true`；真正空正文与 `Share` / `Read more` / `Comments on Hacker News` 占位帖仍保持 `is_indexable = false`。
+- Dependencies：已在分支 `feat/fix-indexable-regex-and-openai-content` 完成索引判定函数修复、一次性幂等重算迁移与 PostgreSQL 18 集成测试，详见 [fix-indexable-regex-and-openai-content.md](../development/fix-indexable-regex-and-openai-content.md)；待 PR 合并触发生产部署执行迁移。
+- Completion signal：合入发布执行迁移 `025` 后，生产复查 `hot_items` 与历史 `signal_articles` 中正常含多处超链接长文均返回 `is_indexable = true`；真正空正文与 `Share` / `Read more` / `Comments on Hacker News` 占位帖仍保持 `is_indexable = false`。
 
-### 修复 `ai / openai` 伪空正文（仅 `Share`）与空正文条目
+### 修复 `ai / openai` 伪空正文（仅 `Share`）与空正文条目（待部署与重新拉取复验）
 
 - Value：消除高关注度核心 AI 来源中点开几乎空白的异常页面。
 - Evidence：2026-11-26 在榜 30 条中，第 8 / 18 / 20 / 21 条（`Connected intelligence for in-house legal`、`See PR scans in action`、`Explore the Codex Security Plugin`、`Get started with Daybreak Blue`）抓取结果去标签后仅 5 字符 `Share`；第 16 条（`Time awareness and async input for personal agents`）`content_html` 为 `NULL` 仅留摘要。
-- Dependencies：分别检查自建 RSSHub `/openai/news` 与 `/openai/developers/blog` 对视频/演示页及新页面结构的解析逻辑，同时评估在入库清洗或过滤阶段剔除/降级纯 `Share` 页面壳子。
-- Completion signal：重新拉取验证后 `openai` 在榜不再出现仅剩 `Share` 的条目，常规图文博客正文完整入库，无法抽取正文的产品演示页有明确摘要回退或过滤策略。
+- Dependencies：已在 `RSSHub`（`fix/openai-news-and-developers-blog` 并合入自建部署分支）与 `rss-site`（`feat/fix-indexable-regex-and-openai-content`）双端完成修复与验证，详见 [fix-indexable-regex-and-openai-content.md](../development/fix-indexable-regex-and-openai-content.md)；待 `rss-site` 合入发布并完成新一轮 `openai` 采集复验。
+- Completion signal：部署后重新拉取验证 `openai` 在榜不再出现仅剩 `Share` 的条目，常规图文博客正文完整入库，无法抽取正文的产品演示页有明确摘要回退或过滤策略。
 
 ### 排查 `ai / elevenlabs` 采集停滞
 
