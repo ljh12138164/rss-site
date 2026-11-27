@@ -1,5 +1,10 @@
 # HERMES
 
+## 2026-11-27 首页分区预览索引
+
+- **分支与文档**：`feat/home-preview-published-index` 基于合并日报优化后的 `master`（`3f436a4`），见 [首页分区预览索引](docs/development/home-preview-published-index.md)。
+- **目标**：已新增 `(section, published_at DESC NULLS LAST, id)` 索引。约 8.5 万条模拟文章通过迁移重放与结果一致性验证。新闻和社交已改用新索引直接取前三条。下一步创建 PR 并验证部署流水线。
+
 ## 2026-11-27 日报日期切换性能
 
 - **分支与文档**：`feat/daily-navigation-performance` 基于已同步的 `origin/master`（`d038471`），见 [日报日期切换性能](docs/development/daily-navigation-performance.md)。
