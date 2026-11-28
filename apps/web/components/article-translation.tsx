@@ -58,7 +58,10 @@ export function ArticleTranslation({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const hasBody = Boolean(contentHtml?.replace(/<[^>]*>/g, '').trim())
+  const hasBody = Boolean(
+    contentHtml?.replace(/<[^>]*>/g, '').trim() ||
+      /<(?:img|video|source)\b[^>]*\bsrc="/i.test(contentHtml ?? '')
+  )
   const zhihuQa = source === 'zhihu' && contentHtml ? parseZhihuQaContent(contentHtml) : null
 
   async function requestTranslation() {
