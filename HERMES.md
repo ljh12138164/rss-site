@@ -1,5 +1,9 @@
 # HERMES
 
+## 2026-11-28 B 站视频阅读页
+
+- 分支 `feat/bilibili-video-reader`，目标 `master`。官方播放器、空简介和原视频回退已实现并通过本地验收。详见 [B 站视频阅读页](docs/development/bilibili-video-reader.md)。
+
 ## 2026-11-28 SEO/GEO 全栈优化与日报分享工具
 
 - **分支与文档**：基于 `origin/master`（`85c018f`）创建 `feat/seo-geo-optimization`，详见 [开发文档](docs/development/seo-geo-optimization.md)；同步通过 Cloudflare API 确认 `ljhboard.cn` 为 Free 套餐（Bot Fight Mode 与 AI Crawl Control 均未阻断爬虫，Markdown for Agents 需付费已跳过）。无衍生 roadmap。

@@ -314,6 +314,10 @@
   "article": {
     "loading": "Loading article",
     "viewOriginal": "View original",
+    "bilibiliWatch": "Watch on Bilibili",
+    "bilibiliPlay": "Play video",
+    "bilibiliDescription": "Video description",
+    "bilibiliPlayerTitle": "Bilibili player · {title}",
     "readOriginal": "Read original",
     "sameSource": "More from this source",
     "sourceAttribution": "From {source}. See the original for the full text.",

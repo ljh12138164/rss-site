@@ -37,6 +37,7 @@ interface ArticleTranslationProps {
   sourceLabel: ReactNode
   metadata: ReactNode
   summaryControl?: ReactNode
+  video?: ReactNode
 }
 
 export function ArticleTranslation({
@@ -48,7 +49,8 @@ export function ArticleTranslation({
   canTranslate,
   sourceLabel,
   metadata,
-  summaryControl
+  summaryControl,
+  video
 }: ArticleTranslationProps) {
   const t = useTranslations('article')
   const locale = useSiteLocale()
@@ -165,95 +167,100 @@ export function ArticleTranslation({
           </p>
         )}
       </header>
+      {video}
       {summaryControl}
-      <ArticleReadingTools
-        articleId={articleId}
-        contentKey={translationEnabled ? mode : 'original'}
-        minutes={estimateReadingMinutes(contentHtml || summary || '')}
-      >
-        <section
-          aria-label={hasBody ? t('contentLabel') : t('excerptLabel')}
-          className="py-8 sm:py-10"
+      {(!video || hasBody || summary) && (
+        <ArticleReadingTools
+          articleId={articleId}
+          contentKey={translationEnabled ? mode : 'original'}
+          minutes={video ? null : estimateReadingMinutes(contentHtml || summary || '')}
         >
-          {isBilingual && translation ? (
-            hasBody ? (
-              <div className="bilingual-article space-y-6">
-                {pairBilingualBlocks(contentHtml, translation.contentHtml ?? '').map((pair) => (
-                  <div key={pair.id} className="bilingual-pair group">
-                    {pair.original && (
-                      <ArticleHtmlBody
-                        html={pair.original}
+          <section
+            aria-label={
+              video ? t('bilibiliDescription') : t(hasBody ? 'contentLabel' : 'excerptLabel')
+            }
+            className={video ? 'pb-6' : 'py-8 sm:py-10'}
+          >
+            {isBilingual && translation ? (
+              hasBody ? (
+                <div className="bilingual-article space-y-6">
+                  {pairBilingualBlocks(contentHtml, translation.contentHtml ?? '').map((pair) => (
+                    <div key={pair.id} className="bilingual-pair group">
+                      {pair.original && (
+                        <ArticleHtmlBody
+                          html={pair.original}
+                          lang={originalLang}
+                          className="article-content text-foreground font-serif leading-relaxed"
+                        />
+                      )}
+                      {pair.translated && (
+                        <ArticleHtmlBody
+                          html={pair.translated}
+                          lang="zh-CN"
+                          className="article-content mt-2.5 rounded-r-sm border-l-2 border-primary/50 bg-primary/8 py-2 pl-3.5 pr-2 font-sans text-[0.95em] leading-relaxed text-muted-foreground transition-colors group-hover:border-primary group-hover:text-foreground"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="bilingual-summary space-y-4">
+                  {summary && (
+                    <div className="rounded-sm border border-border bg-card p-4 sm:p-5">
+                      <p className="mb-2 font-mono text-xs font-semibold text-muted-foreground">
+                        原文摘要
+                      </p>
+                      <p
                         lang={originalLang}
-                        className="article-content text-foreground font-serif leading-relaxed"
-                      />
-                    )}
-                    {pair.translated && (
-                      <ArticleHtmlBody
-                        html={pair.translated}
+                        className="whitespace-pre-line text-sm leading-7 text-foreground/90"
+                      >
+                        {summary}
+                      </p>
+                    </div>
+                  )}
+                  {translation.summary && (
+                    <div className="rounded-sm border border-primary/35 bg-primary/8 p-4 sm:p-5">
+                      <p className="mb-2 font-mono text-xs font-semibold text-primary">中文摘要</p>
+                      <p
                         lang="zh-CN"
-                        className="article-content mt-2.5 rounded-r-sm border-l-2 border-primary/50 bg-primary/8 py-2 pl-3.5 pr-2 font-sans text-[0.95em] leading-relaxed text-muted-foreground transition-colors group-hover:border-primary group-hover:text-foreground"
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="bilingual-summary space-y-4">
-                {summary && (
-                  <div className="rounded-sm border border-border bg-card p-4 sm:p-5">
-                    <p className="mb-2 font-mono text-xs font-semibold text-muted-foreground">
-                      原文摘要
-                    </p>
-                    <p
-                      lang={originalLang}
-                      className="whitespace-pre-line text-sm leading-7 text-foreground/90"
-                    >
-                      {summary}
-                    </p>
-                  </div>
-                )}
-                {translation.summary && (
-                  <div className="rounded-sm border border-primary/35 bg-primary/8 p-4 sm:p-5">
-                    <p className="mb-2 font-mono text-xs font-semibold text-primary">中文摘要</p>
-                    <p
-                      lang="zh-CN"
-                      className="whitespace-pre-line text-sm leading-7 text-foreground"
-                    >
-                      {translation.summary}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )
-          ) : isChinese && translation ? (
-            translation.contentHtml ? (
-              <ArticleHtmlBody html={translation.contentHtml} lang="zh-CN" />
-            ) : translation.summary ? (
+                        className="whitespace-pre-line text-sm leading-7 text-foreground"
+                      >
+                        {translation.summary}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )
+            ) : isChinese && translation ? (
+              translation.contentHtml ? (
+                <ArticleHtmlBody html={translation.contentHtml} lang="zh-CN" />
+              ) : translation.summary ? (
+                <div className="article-content">
+                  <p className="mb-4 font-mono text-xs text-muted-foreground">{t('excerpt')}</p>
+                  <p lang="zh-CN" className="whitespace-pre-line">
+                    {translation.summary}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-base leading-8 text-muted-foreground">{t('noBodyFallback')}</p>
+              )
+            ) : zhihuQa ? (
+              <ZhihuQaBody qa={zhihuQa} lang={originalLang} />
+            ) : hasBody && contentHtml ? (
+              <ArticleHtmlBody html={contentHtml} lang={originalLang} />
+            ) : summary ? (
               <div className="article-content">
                 <p className="mb-4 font-mono text-xs text-muted-foreground">{t('excerpt')}</p>
-                <p lang="zh-CN" className="whitespace-pre-line">
-                  {translation.summary}
+                <p lang={originalLang} className="whitespace-pre-line">
+                  {summary}
                 </p>
               </div>
             ) : (
               <p className="text-base leading-8 text-muted-foreground">{t('noBodyFallback')}</p>
-            )
-          ) : zhihuQa ? (
-            <ZhihuQaBody qa={zhihuQa} lang={originalLang} />
-          ) : hasBody && contentHtml ? (
-            <ArticleHtmlBody html={contentHtml} lang={originalLang} />
-          ) : summary ? (
-            <div className="article-content">
-              <p className="mb-4 font-mono text-xs text-muted-foreground">{t('excerpt')}</p>
-              <p lang={originalLang} className="whitespace-pre-line">
-                {summary}
-              </p>
-            </div>
-          ) : (
-            <p className="text-base leading-8 text-muted-foreground">{t('noBodyFallback')}</p>
-          )}
-        </section>
-      </ArticleReadingTools>
+            )}
+          </section>
+        </ArticleReadingTools>
+      )}
     </>
   )
 }

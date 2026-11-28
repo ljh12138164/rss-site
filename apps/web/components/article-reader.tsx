@@ -8,6 +8,7 @@ import { renderArticleContent } from '../lib/article-content'
 import { looksLikeEnglish } from '../lib/article-language'
 import { articleSource, createArticlePath, parseArticleIdFromSlug } from '../lib/article-route'
 import { ARTICLE_SUMMARY_VERSION } from '../lib/article-summary-result'
+import { bilibiliPlayerUrl, hasBilibiliDescription } from '../lib/bilibili-video'
 import {
   articleDescription,
   createArticleStructuredData,
@@ -22,6 +23,7 @@ import { ArticleBookmarkButton } from './article-bookmark-button'
 import { ArticleHistoryTracker } from './article-history-tracker'
 import { ArticleSummary } from './article-summary'
 import { ArticleTranslation } from './article-translation'
+import { BilibiliVideo } from './bilibili-video'
 import { HoverPrefetchLink } from './hover-prefetch-link'
 import { FormattedDate, TranslatedRegion, TranslatedText } from './site-language'
 import { SiteShell } from './site-shell'
@@ -61,7 +63,10 @@ export async function articleMetadata(props: ArticlePageProps, section: string):
   return {
     ...createPageMetadata({
       title: article.title,
-      description: description ?? article.title,
+      description:
+        article.source === 'bilibili' && !hasBilibiliDescription(description)
+          ? article.title
+          : (description ?? article.title),
       path,
       type: 'article',
       publishedTime: article.publishedAt?.toISOString(),
@@ -83,10 +88,10 @@ export function ArticleReader({
   const entry = articleSource(source.id)
   if (!entry) return null
   const section = entry.section
-  const body = article.contentHtml
+  const isBilibili = source.id === 'bilibili'
+  const renderedBody = article.contentHtml
     ? renderArticleContent(article.contentHtml, article.url, section.id)
     : ''
-  const canTranslate = looksLikeEnglish(`${article.title}\n${body || article.summary || ''}`)
   const summaryTextOptions = {
     wordwrap: false as const,
     selectors: [
@@ -94,9 +99,11 @@ export function ArticleReader({
       { selector: 'img', format: 'skip' }
     ]
   }
-  const summaryText =
-    convert(body, summaryTextOptions).trim() ||
-    convert(article.summary ?? '', summaryTextOptions).trim()
+  const bodyText = convert(renderedBody, summaryTextOptions).trim()
+  const body = isBilibili && !hasBilibiliDescription(bodyText) ? '' : renderedBody
+  const summary = isBilibili && !hasBilibiliDescription(article.summary) ? null : article.summary
+  const canTranslate = looksLikeEnglish(`${article.title}\n${body || summary || ''}`)
+  const summaryText = (body ? bodyText : '') || convert(summary ?? '', summaryTextOptions).trim()
   const canSummarize = Array.from(summaryText.replace(/\s/g, '')).length >= 200
   const summaryKey = `${ARTICLE_SUMMARY_VERSION}:${source.id}:${article.id}:${createHash('sha256')
     .update(JSON.stringify([article.title, body, article.summary]))
@@ -115,7 +122,7 @@ export function ArticleReader({
                 : 'Article',
           canonical,
           title: article.title,
-          ...(article.summary ? { description: article.summary } : {}),
+          ...(summary ? { description: summary } : {}),
           sourceUrl: article.url,
           sourceName: source.name,
           sectionName: section.title,
@@ -172,7 +179,17 @@ export function ArticleReader({
           source={source.id}
           title={article.title}
           contentHtml={body}
-          summary={article.summary}
+          summary={summary}
+          video={
+            isBilibili ? (
+              <BilibiliVideo
+                key={article.id}
+                title={article.title}
+                playerUrl={bilibiliPlayerUrl(article.url)}
+                cover={article.imageUrl}
+              />
+            ) : undefined
+          }
           canTranslate={canTranslate}
           summaryControl={
             canSummarize ? (
@@ -200,7 +217,9 @@ export function ArticleReader({
                 data-outbound
                 className="group inline-flex min-h-11 items-center gap-1 transition-colors hover:text-primary"
               >
-                <TranslatedText id="article.viewOriginal" />
+                <TranslatedText
+                  id={isBilibili ? 'article.bilibiliWatch' : 'article.viewOriginal'}
+                />
                 <ArrowUpRight
                   className="size-3.5 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                   aria-hidden="true"
@@ -237,7 +256,7 @@ export function ArticleReader({
               data-outbound
               className="group inline-flex min-h-11 items-center gap-2 font-medium text-primary hover:underline"
             >
-              <TranslatedText id="article.readOriginal" />
+              <TranslatedText id={isBilibili ? 'article.bilibiliWatch' : 'article.readOriginal'} />
               <ArrowUpRight
                 aria-hidden="true"
                 className="size-4 transition-transform duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"

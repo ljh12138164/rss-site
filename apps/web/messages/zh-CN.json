@@ -314,6 +314,10 @@
   "article": {
     "loading": "正在加载文章",
     "viewOriginal": "查看原文",
+    "bilibiliWatch": "去 B 站观看",
+    "bilibiliPlay": "播放视频",
+    "bilibiliDescription": "视频简介",
+    "bilibiliPlayerTitle": "B 站播放器 · {title}",
     "readOriginal": "阅读原文",
     "sameSource": "同来源文章",
     "sourceAttribution": "内容来自 {source}，完整内容以原文为准。",
