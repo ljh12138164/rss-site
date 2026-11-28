@@ -72,6 +72,12 @@ const MATHML_TAGS = [
 
 const KATEX_WRAPPER_CLASSES = new Set(['katex', 'katex-mathml', 'katex-display'])
 
+const BLOG_IMAGE_DOMAINS = [
+  [/^https:\/\/huggingface\.co\/blog\//i, 'huggingface.co'],
+  [/^https:\/\/(?:www\.)?lmsys\.org\/blog\//i, 'lmsys.org'],
+  [/^https:\/\/miles\.radixark\.com\/blogs\//i, 'miles.radixark.com']
+] as const
+
 function articleMediaUrl(value: string | undefined, base: string, domains: string[]) {
   if (!value) return undefined
   try {
@@ -92,7 +98,7 @@ function hupuMediaUrl(value: string | undefined) {
 export function renderArticleContent(html: string, originalUrl: string, _section?: string) {
   if (Buffer.byteLength(html, 'utf8') > 512 * 1024) return ''
   const isHupu = /^https:\/\/(?:m|bbs)\.hupu\.com\//i.test(originalUrl)
-  const isHuggingFace = /^https:\/\/huggingface\.co\/blog\//i.test(originalUrl)
+  const blogImageDomain = BLOG_IMAGE_DOMAINS.find(([pattern]) => pattern.test(originalUrl))?.[1]
   return sanitizeHtml(removeOpenAiContents(cleanFeedArticleHtml(html, originalUrl), originalUrl), {
     allowedTags: [
       'p',
@@ -128,9 +134,9 @@ export function renderArticleContent(html: string, originalUrl: string, _section
       'th',
       'td',
       'a',
-      ...(isHupu || isHuggingFace ? ['img'] : []),
+      ...(isHupu || blogImageDomain ? ['img'] : []),
       ...(isHupu ? ['video', 'source'] : []),
-      ...(isHuggingFace ? ['figure', 'figcaption'] : []),
+      ...(blogImageDomain ? ['figure', 'figcaption'] : []),
       ...MATHML_TAGS
     ],
     allowedAttributes: {
@@ -197,8 +203,8 @@ export function renderArticleContent(html: string, originalUrl: string, _section
       img: (_tag, attributes): sanitizeHtml.Tag => {
         const src = isHupu
           ? hupuMediaUrl(attributes.src)
-          : isHuggingFace
-            ? articleMediaUrl(attributes.src, originalUrl, ['huggingface.co'])
+          : blogImageDomain
+            ? articleMediaUrl(attributes.src, originalUrl, [blogImageDomain])
             : undefined
         return {
           tagName: 'img',

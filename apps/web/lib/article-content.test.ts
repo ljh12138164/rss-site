@@ -135,3 +135,18 @@ it('preserves Hugging Face diagrams and captions with restricted image URLs', ()
   expect(body).toContain('<figcaption>Architecture</figcaption>')
   expect(body).not.toMatch(/example\.com|insecure\.png|onerror/)
 })
+
+it.each([
+  ['https://www.lmsys.org/blog/example/', 'https://www.lmsys.org'],
+  ['https://miles.radixark.com/blogs/example', 'https://miles.radixark.com']
+])('keeps first-party LMSYS and syndicated diagrams for %s', (articleUrl, origin) => {
+  const body = renderArticleContent(
+    '<figure><img src="/diagram.svg"><figcaption>Benchmark</figcaption></figure>' +
+      `<img src="${origin}.example.com/pixel" onerror="alert(1)">`,
+    articleUrl
+  )
+
+  expect(body).toContain(`src="${origin}/diagram.svg"`)
+  expect(body).toContain('<figcaption>Benchmark</figcaption>')
+  expect(body).not.toMatch(/example\.com|onerror/)
+})

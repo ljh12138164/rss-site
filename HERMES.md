@@ -1,5 +1,9 @@
 # HERMES
 
+## 2026-11-28 LMSYS Org Blog
+
+- 分支 `feat/lmsys-source`，目标 `master`，基于 Hugging Face PR #139 的提交继续扩充共享来源约束。AI 分区通过已上线的 `/lmsys/blog` 抓取，20 篇真实样本均通过入库前检查和正文渲染。合并发布后由生产门禁验证并激活。详见 [接入记录](docs/development/lmsys-source.md)和[分支 PR](https://github.com/ljh12138164/rss-site/pulls?q=is%3Apr+head%3Afeat%2Flmsys-source)。
+
 ## 2026-11-28 Hugging Face Blog
 
 - 分支 `feat/huggingface-source`，目标 `master`。AI 分区通过现有 `/huggingface/blog` 接入，真实样本验证了 14 篇正文和 32 张站内可渲染的正文图片。合并发布后由生产门禁验证并激活任务。详见 [接入记录](docs/development/huggingface-source.md)和[分支 PR](https://github.com/ljh12138164/rss-site/pulls?q=is%3Apr+head%3Afeat%2Fhuggingface-source)。

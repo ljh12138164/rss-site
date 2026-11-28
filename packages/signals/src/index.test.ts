@@ -22,11 +22,11 @@ import {
 } from './index.js'
 
 describe('@rss-site/signals', () => {
-  it('defines 7 sections and 127 sources', () => {
+  it('defines 7 sections and 128 sources', () => {
     expect(signalSections).toHaveLength(7)
     expect(listSignalSections()).toHaveLength(7)
-    expect(signalSources).toHaveLength(127)
-    expect(SIGNAL_CRON_JOBS).toHaveLength(127)
+    expect(signalSources).toHaveLength(128)
+    expect(SIGNAL_CRON_JOBS).toHaveLength(128)
   })
 
   it('correctly maps all section counts', () => {
@@ -34,7 +34,7 @@ describe('@rss-site/signals', () => {
     expect(technologyArticleSources).toHaveLength(41)
     expect(skillSources).toHaveLength(2)
     expect(newsSources).toHaveLength(10)
-    expect(aiSources).toHaveLength(30)
+    expect(aiSources).toHaveLength(31)
     expect(socialSources).toHaveLength(12)
     expect(financeSources).toHaveLength(13)
     expect(gameSources).toHaveLength(18)
@@ -69,6 +69,7 @@ describe('@rss-site/signals', () => {
     expect(isSignalSourceId('apple-ml')).toBe(true)
     expect(isSignalSourceId('together')).toBe(true)
     expect(isSignalSourceId('huggingface')).toBe(true)
+    expect(isSignalSourceId('lmsys')).toBe(true)
     expect(isSignalSourceId('rust-blog')).toBe(true)
     expect(isSignalSourceId('ruanyifeng')).toBe(true)
     expect(isSignalSourceId('chrome')).toBe(true)
@@ -161,6 +162,9 @@ describe('@rss-site/signals', () => {
     )
     expect(resolveSignalFeedUrl(getSignalSource('huggingface'), 'https://rss.ljhboard.cn')).toBe(
       'https://rss.ljhboard.cn/huggingface/blog'
+    )
+    expect(resolveSignalFeedUrl(getSignalSource('lmsys'), 'https://rss.ljhboard.cn')).toBe(
+      'https://rss.ljhboard.cn/lmsys/blog'
     )
     expect(resolveSignalFeedUrl(getSignalSource('chinatalk'), 'https://rss.ljhboard.cn')).toBe(
       'https://rss.ljhboard.cn/substack/subscribe/chinatalk'

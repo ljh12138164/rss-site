@@ -516,6 +516,12 @@
     "path": "/cron/signals/huggingface"
   },
   {
+    "source": "lmsys",
+    "name": "signal-ingest-lmsys",
+    "schedule": "13 0,6,12,18 * * *",
+    "path": "/cron/signals/lmsys"
+  },
+  {
     "source": "rust-blog",
     "name": "signal-ingest-rust-blog",
     "schedule": "28 4,10,16,22 * * *",

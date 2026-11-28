@@ -201,6 +201,7 @@
     "apple-ml": "Machine learning research posts, engineering articles, and paper summaries",
     "together": "AI model releases, inference engineering, and systems research",
     "huggingface": "Full articles on open models, datasets, and machine learning engineering",
+    "lmsys": "Full articles on open-source AI infrastructure, model serving, and inference optimization",
     "lilian-weng": "In-depth engineering articles by a former OpenAI safety lead",
     "simon-willison": "Recent developments in LLMs for AI developers",
     "metr": "Research on AI model capabilities and safety evaluations",
