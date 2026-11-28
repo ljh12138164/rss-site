@@ -3,6 +3,9 @@
 import { usePathname } from 'next/navigation'
 import Script from 'next/script'
 
+const analyticsCrawler =
+  /\b(?:OAI-SearchBot|GPTBot|ChatGPT-User|meta-externalagent|meta-webindexer|meta-externalfetcher|ClaudeBot|Claude-SearchBot|Claude-User|PerplexityBot|Perplexity-User|Googlebot|Bingbot|Applebot)\b/i
+
 export function GoogleScripts({ pathname: propPathname }: { pathname?: string } = {}) {
   const navPathname = usePathname()
   const currentPath = propPathname ?? navPathname ?? ''
@@ -15,7 +18,12 @@ export function GoogleScripts({ pathname: propPathname }: { pathname?: string } 
   return (
     <>
       <Script id="umami-before-send" strategy="beforeInteractive">
-        {`window.umamiBeforeSend=function(type,payload){if(payload&&payload.url&&(payload.url==='/out'||payload.url.startsWith('/out?')||payload.url.startsWith('/out/')))return false;return payload;};`}
+        {`window.umamiBeforeSend = function(type, payload) {
+          if (${analyticsCrawler}.test(navigator.userAgent)) return false;
+          var url = payload && payload.url;
+          if (url && (url === '/out' || url.startsWith('/out?') || url.startsWith('/out/'))) return false;
+          return payload;
+        };`}
       </Script>
       <Script
         id="umami-analytics"

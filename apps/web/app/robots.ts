@@ -3,6 +3,7 @@ import { optionalCanonical } from '../lib/site-url'
 
 const DISALLOW_PATHS = [
   '/api/',
+  '/stats/api/send',
   '/cron/',
   '/out',
   '/admin',

@@ -1,3 +1,4 @@
+import { unstable_getResponseFromNextConfig } from 'next/experimental/testing/server'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import nextConfig from '../next.config'
 import { generateMetadata as generateEventArchiveMetadata } from './ai/events/archive/page'
@@ -15,6 +16,7 @@ describe('robots and archive crawl controls', () => {
     const rules = Array.isArray(result.rules) ? result.rules : [result.rules]
     const expectedDisallow = [
       '/api/',
+      '/stats/api/send',
       '/cron/',
       '/out',
       '/admin',
@@ -96,5 +98,36 @@ describe('robots and archive crawl controls', () => {
       destination: '/feeds/ai.xml',
       statusCode: 301
     })
+  })
+
+  it('allows Cloudflare to refresh only public homepage and daily HTML in the background', async () => {
+    const edgeCacheControl = 'Cloudflare-CDN-Cache-Control'
+    const response = (path: string, headers?: Record<string, string>) =>
+      unstable_getResponseFromNextConfig({
+        url: `https://news.ljhboard.cn${path}`,
+        nextConfig,
+        headers
+      })
+
+    for (const path of ['/', '/daily']) {
+      const result = await response(path)
+      expect(result.headers.get(edgeCacheControl)).toBe(
+        'public, max-age=300, stale-while-revalidate=600'
+      )
+      expect(result.headers.get('Cache-Control')).toBe(
+        'public, max-age=0, s-maxage=300, stale-while-revalidate=600'
+      )
+    }
+
+    for (const result of await Promise.all([
+      response('/?_rsc=abc'),
+      response('/daily', { rsc: '1' }),
+      response('/daily', { 'next-router-prefetch': '1' }),
+      response('/daily', { authorization: 'Bearer test' }),
+      response('/stats/api/send'),
+      response('/reading-list')
+    ])) {
+      expect(result.headers.get(edgeCacheControl)).toBeNull()
+    }
   })
 })
