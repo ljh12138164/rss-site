@@ -200,6 +200,16 @@ export function ModelDetailView({ detail }: ModelDetailViewProps) {
               })}
             </span>
           )}
+
+          <a
+            href="https://token.ljhboard.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-background px-2.5 py-1 text-primary transition-colors hover:border-primary/60 hover:underline sm:ml-auto"
+          >
+            <span>{t('estimateTokens')}</span>
+            <ExternalLink className="size-3" aria-hidden="true" />
+          </a>
         </div>
       </header>
 

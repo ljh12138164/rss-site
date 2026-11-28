@@ -24,6 +24,15 @@ export const metadata: Metadata = {
   creator: SITE_AUTHOR_NAME,
   publisher: SITE_NAME,
   category: 'news',
+  alternates: {
+    types: {
+      'application/rss+xml': [
+        { title: '今日热点 · 每日日报 RSS', url: '/feeds/daily.xml' },
+        { title: '今日热点 · AI 动态 RSS', url: '/feeds/ai.xml' },
+        { title: '今日热点 · 科技热点 RSS', url: '/feeds/technology.xml' }
+      ]
+    }
+  },
   icons: {
     icon: [
       { url: '/icon.svg?v=2', type: 'image/svg+xml' },

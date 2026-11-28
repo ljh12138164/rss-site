@@ -1,13 +1,16 @@
 import { findSignalSource, type SignalSourceId } from '@rss-site/signals'
+import { getRecentDailyReports } from '@/lib/daily-reports'
 import {
   loadRssSection,
   loadRssSources,
   parseRssFeedName,
   type RssSectionData,
   type RssSectionId,
+  renderDailyRssXml,
   renderRssSectionXml
 } from '@/lib/rss-feed'
 import { parseRssSources } from '@/lib/rss-selection'
+import type { DailyReport } from '../../../../../shared/daily-report'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,8 +26,27 @@ export async function createRssResponse(
   request: Request,
   feedName: string,
   load: RssSectionLoader = loadRssSection,
-  loadSources: (sources: SignalSourceId[]) => Promise<RssSectionData> = loadRssSources
+  loadSources: (sources: SignalSourceId[]) => Promise<RssSectionData> = loadRssSources,
+  loadDailyReports: () => Promise<DailyReport[]> = () => getRecentDailyReports(30)
 ): Promise<Response> {
+  if (feedName === 'daily.xml') {
+    try {
+      const reports = await loadDailyReports()
+      return new Response(renderDailyRssXml(reports, new URL(request.url).origin), {
+        headers: successHeaders
+      })
+    } catch {
+      return new Response('RSS feed is temporarily unavailable', {
+        status: 503,
+        headers: {
+          'Cache-Control': 'no-store',
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Retry-After': '300'
+        }
+      })
+    }
+  }
+
   const section = parseRssFeedName(feedName)
   let selected: SignalSourceId[] | undefined
   if (feedName === 'custom.xml') {

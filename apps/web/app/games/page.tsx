@@ -5,7 +5,6 @@ import { createPageMetadata } from '../../lib/seo'
 import { gameSources } from '../../lib/technology-sources'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 21600
 
 export const metadata = createPageMetadata({
   title: '游戏热点',

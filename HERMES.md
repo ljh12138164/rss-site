@@ -1,5 +1,11 @@
 # HERMES
 
+## 2026-11-28 SEO/GEO 全栈优化与日报分享工具
+
+- **分支与文档**：基于 `origin/master`（`85c018f`）创建 `feat/seo-geo-optimization`，详见 [开发文档](docs/development/seo-geo-optimization.md)；同步通过 Cloudflare API 确认 `ljhboard.cn` 为 Free 套餐（Bot Fight Mode 与 AI Crawl Control 均未阻断爬虫，Markdown for Agents 需付费已跳过）。无衍生 roadmap。
+- **改动**：从 Sitemap 移出 `/news/*` 与 `/finance/*`（不改站内详情页），补齐 `/leaderboard` 与 `/leaderboard/[slug]` 的 Sitemap 与推送放行；首页日报条目改为链接 `/daily/<reportDate>#<storyId>` 并移除隐藏 `FAQPage`、补全 `software.ljhboard.cn` 至 `sameAs`；为 11 个无参数公开动态路由补齐 `Cache-Control` 边缘缓存头并新增 `/rss.xml` 301 重定向；为 `/leaderboard`（含可见动态 FAQ）、`/leaderboard/[slug]`、`/daily`、`/daily/[date]`、`/skills/[...skillId]` 补齐 JSON-LD 与完整 Metadata；新增 `/feeds/daily.xml` 与 `<head>` RSS 自动发现；`/llms.txt` 与 `/llms-full.txt` 改为动态汇总全量信源；细化 `robots.txt` 并接入可选 `BAIDU_PUSH_TOKEN` 高价值路径百度推送；新增 PWA `/manifest.webmanifest`；补齐侧栏站群互链、单模型页 Token Paper 入口与日报「复制早报 / Canvas 分享图」工具。
+- **验证**：`biome check apps packages server shared`（`374` 文件）、`pnpm check-types`（`3/3` 包）、`pnpm test`（`@rss-site/signals` `9/9`、`@rss-site/api` `131/131`、`@rss-site/web` `241 passed | 24 skipped`）与 `pnpm --filter @rss-site/web build`（`12/12` 静态页 + `early-hints` + `sw.js`）全部通过。
+
 ## 2026-11-28 虎扑主帖与精选回复
 
 - 分支 feat/hupu-thread-reader。详见 [开发文档](docs/development/hupu-thread-reader.md)。已提交 [PR #136](https://github.com/ljh12138164/rss-site/pull/136)，目标 master。下一步合并后发布配套 RSSHub 并复测虎扑重新采集。

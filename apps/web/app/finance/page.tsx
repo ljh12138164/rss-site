@@ -5,7 +5,6 @@ import { createPageMetadata } from '../../lib/seo'
 import { financeSources } from '../../lib/technology-sources'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 21600
 
 export const metadata = createPageMetadata({
   title: '财经热点',

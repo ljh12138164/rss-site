@@ -10,7 +10,12 @@ import { SiteShell } from '../../../components/site-shell'
 import { SkillContent, SkillInstall } from '../../../components/skill-content'
 import { renderArticleContent } from '../../../lib/article-content'
 import { getSkillFeeds } from '../../../lib/hot-feed'
-import { createPageMetadata } from '../../../lib/seo'
+import {
+  createPageMetadata,
+  createSkillStructuredData,
+  serializeStructuredData
+} from '../../../lib/seo'
+import { optionalCanonical } from '../../../lib/site-url'
 import { getRelatedSkills, getSkillDetail } from '../../../lib/skill-detail'
 import { parseSkillMetadata } from '../../../lib/skill-metadata'
 
@@ -67,6 +72,21 @@ export default async function Page({ params }: Props) {
     return `<h${level} id="${headingId}">${text}</h${level}>`
   })
   const number = new Intl.NumberFormat('zh-CN')
+  const canonical = optionalCanonical(skillPath(id) ?? '/skills')
+  const structuredJson = canonical
+    ? serializeStructuredData(
+        createSkillStructuredData({
+          canonical,
+          name: detail.name,
+          description: detail.description ?? `${detail.name} 的用途与安装方式`,
+          source: detail.source,
+          installUrl: detail.installUrl,
+          upstreamUrl: detail.upstreamUrl,
+          publishedAt: detail.firstSeenAt,
+          modifiedAt: detail.contentSyncedAt ?? detail.lastSeenAt
+        })
+      )
+    : undefined
   return (
     <SiteShell>
       <TranslatedRegion
@@ -253,6 +273,7 @@ export default async function Page({ params }: Props) {
           </ul>
         </section>
       )}
+      {structuredJson && <script type="application/ld+json">{structuredJson}</script>}
     </SiteShell>
   )
 }

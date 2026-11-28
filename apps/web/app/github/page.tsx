@@ -4,7 +4,6 @@ import { SiteShell } from '../../components/site-shell'
 import { createPageMetadata } from '../../lib/seo'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 21600
 
 export const metadata = createPageMetadata({
   title: 'GitHub 中文开源排行',

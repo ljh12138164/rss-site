@@ -34,6 +34,7 @@ export function RssSubscription({
 }) {
   const t = useTranslations('rss')
   const tCommon = useTranslations('common')
+  const tNav = useTranslations('nav')
   const tSearch = useTranslations('search')
   const tSections = useTranslations('sections')
   const [address, setAddress] = useState('')
@@ -146,10 +147,13 @@ export function RssSubscription({
                       setCopied(false)
                       setMessageKey(null)
                     }}
-                    options={articleSections.map((section) => ({
-                      value: section.id,
-                      label: tSections(`${section.id}.title`)
-                    }))}
+                    options={[
+                      { value: 'daily', label: tNav('dailyBriefing') },
+                      ...articleSections.map((section) => ({
+                        value: section.id,
+                        label: tSections(`${section.id}.title`)
+                      }))
+                    ]}
                     className="mt-4"
                   />
                 ) : (
