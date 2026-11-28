@@ -73,6 +73,27 @@ const nextConfig: NextConfig = {
         source,
         headers: [{ key: 'Cache-Control', value: PUBLIC_DYNAMIC_CACHE_CONTROL }]
       })),
+      ...['/', '/daily'].map((source) => ({
+        source,
+        missing: [
+          ...[
+            'rsc',
+            'next-router-state-tree',
+            'next-router-prefetch',
+            'next-router-segment-prefetch',
+            'next-url',
+            'authorization'
+          ].map((key) => ({ type: 'header' as const, key })),
+          { type: 'query' as const, key: '_rsc' }
+        ],
+        headers: [
+          {
+            // s-maxage forces synchronous revalidation at Cloudflare even with stale-while-revalidate.
+            key: 'Cloudflare-CDN-Cache-Control',
+            value: 'public, max-age=300, stale-while-revalidate=600'
+          }
+        ]
+      })),
       {
         source: '/sw.js',
         headers: [{ key: 'Cache-Control', value: 'no-store' }]
