@@ -72,9 +72,24 @@ const MATHML_TAGS = [
 
 const KATEX_WRAPPER_CLASSES = new Set(['katex', 'katex-mathml', 'katex-display'])
 
+function hupuMediaUrl(value: string | undefined) {
+  if (!value) return undefined
+  try {
+    const url = new URL(value, 'https://m.hupu.com')
+    const host = url.hostname
+    const trusted = ['hupu.com', 'hoopchina.com.cn'].some(
+      (domain) => host === domain || host.endsWith(`.${domain}`)
+    )
+    if (url.protocol === 'https:' && trusted && !url.username && !url.password) return url.href
+  } catch {
+    return undefined
+  }
+}
+
 // This function must run before stored, untrusted Feed HTML reaches the document.
 export function renderArticleContent(html: string, originalUrl: string, _section?: string) {
   if (Buffer.byteLength(html, 'utf8') > 512 * 1024) return ''
+  const isHupu = /^https:\/\/(?:m|bbs)\.hupu\.com\//i.test(originalUrl)
   return sanitizeHtml(removeOpenAiContents(cleanFeedArticleHtml(html, originalUrl), originalUrl), {
     allowedTags: [
       'p',
@@ -110,11 +125,15 @@ export function renderArticleContent(html: string, originalUrl: string, _section
       'th',
       'td',
       'a',
+      ...(isHupu ? ['img', 'video', 'source'] : []),
       ...MATHML_TAGS
     ],
     allowedAttributes: {
       a: ['href', 'rel', 'target', 'data-outbound'],
       code: ['class'],
+      img: ['src', 'alt', 'loading', 'referrerpolicy'],
+      video: ['src', 'poster', 'controls', 'preload', 'playsinline'],
+      source: ['src', 'type'],
       div: ['data-cctv-video', 'data-cctv-type', 'class'],
       th: ['colspan', 'rowspan', 'scope'],
       td: ['colspan', 'rowspan'],
@@ -163,12 +182,58 @@ export function renderArticleContent(html: string, originalUrl: string, _section
       'plaintext'
     ],
     exclusiveFilter: (frame) => {
+      if (['img', 'source'].includes(frame.tag)) return !frame.attribs.src
       if (frame.tag !== 'span') return false
       const classes = (frame.attribs.class ?? '').split(/\s+/)
       if (classes.includes('katex-html')) return true
       return classes.some((name) => KATEX_WRAPPER_CLASSES.has(name)) ? 'excludeTag' : false
     },
     transformTags: {
+      ...(isHupu
+        ? {
+            center: (_tag, attributes): sanitizeHtml.Tag => {
+              const src = hupuMediaUrl(attributes['data-gif'] || attributes['data-origin'])
+              return src
+                ? {
+                    tagName: 'img',
+                    attribs: { src, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' }
+                  }
+                : { tagName: 'div', attribs: {} }
+            },
+            img: (_tag, attributes): sanitizeHtml.Tag => {
+              const src = hupuMediaUrl(attributes.src)
+              return {
+                tagName: 'img',
+                attribs: src
+                  ? {
+                      src,
+                      alt: attributes.alt ?? '',
+                      loading: 'lazy',
+                      referrerpolicy: 'no-referrer'
+                    }
+                  : {}
+              }
+            },
+            video: (_tag, attributes): sanitizeHtml.Tag => {
+              const src = hupuMediaUrl(attributes.src)
+              const poster = hupuMediaUrl(attributes.poster)
+              return {
+                tagName: 'video',
+                attribs: {
+                  controls: '',
+                  preload: 'none',
+                  playsinline: '',
+                  ...(src ? { src } : {}),
+                  ...(poster ? { poster } : {})
+                }
+              }
+            },
+            source: (_tag, attributes): sanitizeHtml.Tag => {
+              const src = hupuMediaUrl(attributes.src)
+              return { tagName: 'source', attribs: src ? { src } : {} }
+            }
+          }
+        : {}),
       h1: 'h2',
       a: (_tag, attributes): sanitizeHtml.Tag => {
         try {

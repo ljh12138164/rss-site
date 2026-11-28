@@ -1,5 +1,9 @@
 # HERMES
 
+## 2026-11-28 虎扑主帖与精选回复
+
+- 分支 feat/hupu-thread-reader。详见 [开发文档](docs/development/hupu-thread-reader.md)。下一步完成配对 RSSHub 路由和站内阅读器验证。
+
 ## 2026-11-28 AI 分区首页查询的行数估算
 
 - **分支与文档**：`feat/ai-home-preview-query` 基于 `master`（`6434fdf`），见 [AI 分区首页查询的行数估算](docs/development/ai-home-preview-query.md)。

@@ -100,3 +100,22 @@ describe('article HTML', () => {
     expect(render('中'.repeat(180000))).toBe('')
   })
 })
+
+it('preserves trusted Hupu images and playable video without allowing third-party media', () => {
+  const html = [
+    '<center class="hupu-img" data-origin="https://i3.hoopchina.com.cn/post.jpg"></center>',
+    '<video autoplay><source src="https://v.hoopchina.com.cn/post.mp4"></video>',
+    '<img src="https://hoopchina.com.cn.example.com/post.jpg">',
+    '<h2>精选回复</h2><blockquote><p>公开回复</p></blockquote>'
+  ].join('')
+  const body = renderArticleContent(html, 'https://m.hupu.com/bbs/123.html')
+  expect(body).toContain('src="https://i3.hoopchina.com.cn/post.jpg"')
+  expect(body).toContain('src="https://v.hoopchina.com.cn/post.mp4"')
+  expect(body).toContain('controls')
+  expect(body).toContain('公开回复')
+  expect(body).not.toContain('autoplay')
+  expect(body).not.toContain('example.com')
+  expect(renderArticleContent(html, 'https://example.com/post')).not.toMatch(
+    /<(img|video|source)\b/
+  )
+})
