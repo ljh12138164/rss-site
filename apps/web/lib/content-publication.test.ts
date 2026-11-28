@@ -132,7 +132,7 @@ describe('content publication', () => {
     expect(result.baidu).toMatchObject({ status: 'succeeded', httpStatus: 200, attempts: 1 })
     expect(requests).toHaveLength(1)
     expect(requests[0].url).toBe(
-      'https://data.zz.baidu.com/urls?site=https%3A%2F%2Fnews.example&token=baidu-secret-token-123'
+      'http://data.zz.baidu.com/urls?site=https://news.example&token=baidu-secret-token-123'
     )
     expect(requests[0].init?.body).toBe(
       [

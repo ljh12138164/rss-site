@@ -197,7 +197,7 @@ export async function publishContent(paths: string[], publicationId: string) {
           let retry = false
           try {
             const response = await request(
-              `https://data.zz.baidu.com/urls?site=${encodeURIComponent(origin)}&token=${encodeURIComponent(baiduToken)}`,
+              `http://data.zz.baidu.com/urls?site=${origin}&token=${encodeURIComponent(baiduToken)}`,
               {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain; charset=utf-8' },
