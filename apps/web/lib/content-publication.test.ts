@@ -118,4 +118,49 @@ describe('content publication', () => {
     const result = await publishContent(['/ai'], 'retry')
     expect(result.indexnow).toMatchObject({ status: 'succeeded', httpStatus: 202, attempts: 2 })
   })
+
+  it('accepts leaderboard paths and pushes only high-value URLs to Baidu without leaking token', async () => {
+    vi.stubEnv('CLOUDFLARE_API_TOKEN', '')
+    vi.stubEnv('CLOUDFLARE_ZONE_ID', '')
+    vi.stubEnv('INDEXNOW_KEY', '')
+    vi.stubEnv('BAIDU_PUSH_TOKEN', 'baidu-secret-token-123')
+
+    const result = await publishContent(
+      ['/', '/ai', '/daily/2026-11-28', '/leaderboard', '/leaderboard/gpt-6.2-astra'],
+      'baidu-high-value'
+    )
+    expect(result.baidu).toMatchObject({ status: 'succeeded', httpStatus: 200, attempts: 1 })
+    expect(requests).toHaveLength(1)
+    expect(requests[0].url).toBe(
+      'https://data.zz.baidu.com/urls?site=https%3A%2F%2Fnews.example&token=baidu-secret-token-123'
+    )
+    expect(requests[0].init?.body).toBe(
+      [
+        'https://news.example/daily/2026-11-28',
+        'https://news.example/leaderboard',
+        'https://news.example/leaderboard/gpt-6.2-astra'
+      ].join('\n')
+    )
+    const log = JSON.stringify(vi.mocked(console.info).mock.calls)
+    expect(log).not.toContain('baidu-secret-token-123')
+  })
+
+  it('skips Baidu push when batch has no high-value URLs or daily quota is exhausted', async () => {
+    vi.stubEnv('CLOUDFLARE_API_TOKEN', '')
+    vi.stubEnv('CLOUDFLARE_ZONE_ID', '')
+    vi.stubEnv('INDEXNOW_KEY', '')
+    vi.stubEnv('BAIDU_PUSH_TOKEN', 'baidu-secret-token-123')
+
+    const skipped = await publishContent(['/', '/ai'], 'baidu-skip')
+    expect(skipped.baidu.status).toBe('skipped')
+    expect(requests).toHaveLength(0)
+
+    vi.stubGlobal(
+      'fetch',
+      async () =>
+        new Response(JSON.stringify({ error: 400, message: 'over quota' }), { status: 400 })
+    )
+    const quota = await publishContent(['/daily/2026-11-28'], 'baidu-quota')
+    expect(quota.baidu).toMatchObject({ status: 'skipped', httpStatus: 400 })
+  })
 })

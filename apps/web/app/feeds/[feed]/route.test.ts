@@ -122,4 +122,57 @@ describe('RSS route', () => {
     expect(unavailable.status).toBe(503)
     expect(unavailable.headers.get('Cache-Control')).toBe('no-store')
   })
+
+  it('serves daily briefing RSS at /feeds/daily.xml and returns 503 on error', async () => {
+    const load = vi.fn(async () => sectionData())
+    const selected = vi.fn(async () => sectionData())
+    const ok = await createRssResponse(
+      new Request('https://hot.example/feeds/daily.xml'),
+      'daily.xml',
+      load,
+      selected,
+      async () => [
+        {
+          reportDate: '2026-11-28',
+          title: 'Claude 与 Gemini 发布评测更新',
+          windowStart: '2026-11-27T00:00:00.000Z',
+          windowEnd: '2026-11-28T00:00:00.000Z',
+          publishedAt: '2026-11-28T00:05:00.000Z',
+          storyCount: 1,
+          sourceCount: 1,
+          sources: [],
+          content: {
+            headlineId: 's1',
+            overview: { text: '今日核心动态概览。', sourceIds: [] },
+            stories: [
+              {
+                id: 's1',
+                section: 'ai',
+                title: 'Claude 与 Gemini 发布评测更新',
+                summary: '两家模型在编程与推理基准均刷新纪录。',
+                sourceIds: []
+              }
+            ]
+          }
+        }
+      ]
+    )
+    expect(ok.status).toBe(200)
+    expect(ok.headers.get('content-type')).toBe('application/rss+xml; charset=utf-8')
+    const xml = await ok.text()
+    expect(xml).toContain('https://hot.example/feeds/daily.xml')
+    expect(xml).toContain('https://hot.example/daily/2026-11-28')
+    expect(xml).toContain('2026-11-28 日报 · Claude 与 Gemini 发布评测更新')
+
+    const failed = await createRssResponse(
+      new Request('https://hot.example/feeds/daily.xml'),
+      'daily.xml',
+      load,
+      selected,
+      async () => {
+        throw new Error('DB unavailable')
+      }
+    )
+    expect(failed.status).toBe(503)
+  })
 })

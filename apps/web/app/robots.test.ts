@@ -9,21 +9,29 @@ afterEach(() => {
 })
 
 describe('robots and archive crawl controls', () => {
-  it('disallows dynamic archive pagination routes while preserving public content crawling', () => {
+  it('disallows dynamic archive pagination and private local routes while explicitly allowing search and AI crawlers', () => {
     vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
     const result = robots()
-    const rule = Array.isArray(result.rules) ? result.rules[0] : result.rules
-
-    expect(rule?.userAgent).toBe('*')
-    expect(rule?.allow).toBe('/')
-    expect(rule?.disallow).toEqual([
+    const rules = Array.isArray(result.rules) ? result.rules : [result.rules]
+    const expectedDisallow = [
       '/api/',
       '/cron/',
       '/out',
       '/admin',
       '/archive',
-      '/ai/events/archive'
-    ])
+      '/ai/events/archive',
+      '/reading-list',
+      '/following'
+    ]
+
+    expect(rules[0]?.userAgent).toBe('*')
+    expect(rules[0]?.allow).toBe('/')
+    expect(rules[0]?.disallow).toEqual(expectedDisallow)
+    expect(rules[1]?.userAgent).toEqual(
+      expect.arrayContaining(['Baiduspider', 'Googlebot', 'OAI-SearchBot', 'PerplexityBot'])
+    )
+    expect(rules[1]?.allow).toBe('/')
+    expect(rules[1]?.disallow).toEqual(expectedDisallow)
     expect(result.sitemap).toBe('https://news.ljhboard.cn/sitemap.xml')
   })
 
@@ -70,6 +78,23 @@ describe('robots and archive crawl controls', () => {
     expect(eventRule?.headers).toContainEqual({
       key: 'X-Robots-Tag',
       value: 'noindex, nofollow'
+    })
+  })
+
+  it('emits public edge cache headers for dynamic public routes and redirects /rss.xml', async () => {
+    const headerRules = (await nextConfig.headers?.()) ?? []
+    for (const route of ['/ai', '/daily', '/skills', '/github', '/ai/events']) {
+      const rule = headerRules.find((entry) => entry.source === route)
+      expect(rule?.headers, route).toContainEqual({
+        key: 'Cache-Control',
+        value: 'public, max-age=0, s-maxage=300, stale-while-revalidate=600'
+      })
+    }
+    const redirects = (await nextConfig.redirects?.()) ?? []
+    expect(redirects).toContainEqual({
+      source: '/rss.xml',
+      destination: '/feeds/ai.xml',
+      statusCode: 301
     })
   })
 })

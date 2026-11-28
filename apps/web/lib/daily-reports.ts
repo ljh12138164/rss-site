@@ -107,6 +107,17 @@ export const getDailyReport = unstable_cache(
   { revalidate: 300, tags: ['daily-reports'] }
 )
 
+export const getRecentDailyReports = unstable_cache(
+  async (limit = 30): Promise<DailyReport[]> => {
+    const safeLimit = Math.min(Math.max(Math.trunc(limit), 1), 60)
+    const rows = await readBusinessRows<Record<string, unknown>>(sql`
+      select ${fields} from daily_reports order by report_date desc limit ${safeLimit}`)
+    return (rows ?? []).map((row) => parseDailyReport(row))
+  },
+  ['daily-reports-recent-v1'],
+  { revalidate: 300, tags: ['daily-reports'] }
+)
+
 export const getDailyArchive = unstable_cache(
   async (date: string): Promise<DailyArchive> => {
     if (!isReportDate(date)) throw new Error('Invalid report date')

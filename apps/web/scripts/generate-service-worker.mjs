@@ -26,7 +26,7 @@ export function matchesPublicPage({ request, url, sameOrigin }) {
     !request.headers.has('RSC') &&
     !url.searchParams.has('_rsc') &&
     (url.pathname === '/' ||
-      /^\/(ai|technology|news|social|finance|games|github|skills|about|privacy|mcp)(\/|$)/.test(
+      /^\/(ai|technology|news|social|finance|games|github|skills|daily|leaderboard|about|privacy|mcp)(\/|$)/.test(
         url.pathname
       ))
   )

@@ -4,12 +4,32 @@ import { GET as getChildSitemap } from './sitemap/[id]/route'
 import { GET as getSitemapXml } from './sitemap.xml/route'
 
 let mockError = false
+let mockLeaderboardError = false
 let mockArticleCount = 1
 let mockSkills = [{ skill_id: 'mattpocock/skills/tdd', content_synced_at: '2026-10-14T00:00:00Z' }]
 const { cached, databaseCalls, articleFilters } = vi.hoisted(() => ({
   cached: new Map<string, unknown>(),
   databaseCalls: vi.fn(),
   articleFilters: vi.fn()
+}))
+
+vi.mock('../lib/leaderboard', () => ({
+  getModelLeaderboard: async () => {
+    if (mockLeaderboardError) throw new Error('Upstream leaderboard error')
+    return [
+      {
+        slug: 'claude-opus-5-5',
+        name: 'Claude Opus 5.5',
+        creator: 'Anthropic',
+        overallScore: '78.3',
+        rank: 1,
+        releasedAt: '2026-11-20T00:00:00Z',
+        scores: {},
+        tags: [],
+        url: '/leaderboard/claude-opus-5-5'
+      }
+    ]
+  }
 }))
 
 vi.mock('next/cache', () => ({
@@ -46,8 +66,8 @@ vi.mock('../lib/business-db', () => ({
           offset + i === 0
             ? '550e8400-e29b-41d4-a716-446655440000'
             : `550e8400-e29b-41d4-a716-${String(offset + i).padStart(12, '0')}`,
-        source: 'xinhua',
-        title: '测试新闻标题',
+        source: 'openai',
+        title: '测试 AI 标题',
         published_at: '2026-09-01T00:00:00Z',
         last_seen_at: '2026-09-01T01:00:00Z',
         content_updated_at: '2026-09-02T03:00:00Z'
@@ -58,6 +78,7 @@ vi.mock('../lib/business-db', () => ({
 
 afterEach(() => {
   mockError = false
+  mockLeaderboardError = false
   mockArticleCount = 1
   mockSkills = [{ skill_id: 'mattpocock/skills/tdd', content_synced_at: '2026-10-14T00:00:00Z' }]
   cached.clear()
@@ -97,14 +118,32 @@ it('within limit: /sitemap.xml returns full urlset XML with all platform article
   expect(xml).toContain('<loc>https://news.ljhboard.cn/skills</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/daily</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/daily/2026-11-04</loc>')
+  expect(xml).toContain('<loc>https://news.ljhboard.cn/leaderboard</loc>')
+  expect(xml).toContain('<loc>https://news.ljhboard.cn/leaderboard/claude-opus-5-5</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/skills/mattpocock/skills/tdd</loc>')
   expect(xml).toContain('<lastmod>2026-10-14T00:00:00Z</lastmod>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/mcp</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/ai</loc>')
-  expect(xml).toContain('<loc>https://news.ljhboard.cn/news/xinhua</loc>')
+  expect(xml).toContain('<loc>https://news.ljhboard.cn/ai/openai</loc>')
+  expect(xml).not.toContain('<loc>https://news.ljhboard.cn/news</loc>')
+  expect(xml).not.toContain('<loc>https://news.ljhboard.cn/news/xinhua</loc>')
+  expect(xml).not.toContain('<loc>https://news.ljhboard.cn/finance</loc>')
+  expect(xml).not.toContain('<loc>https://news.ljhboard.cn/finance/cls</loc>')
   expect(xml).toContain('<loc>https://news.ljhboard.cn/ai/events/test-event</loc>')
   expect(xml).toContain('550e8400-e29b-41d4-a716-446655440000')
   expect(xml).toContain('<lastmod>2026-09-02T03:00:00Z</lastmod>')
+})
+
+it('still builds sitemap cleanly when leaderboard upstream is temporarily unavailable', async () => {
+  vi.stubEnv('SITE_URL', 'https://news.ljhboard.cn')
+  mockLeaderboardError = true
+  mockArticleCount = 1
+
+  const res = await getSitemapXml()
+  expect(res.status).toBe(200)
+  const xml = await res.text()
+  expect(xml).toContain('<loc>https://news.ljhboard.cn/leaderboard</loc>')
+  expect(xml).not.toContain('/leaderboard/claude-opus-5-5')
 })
 
 it('over limit: /sitemap.xml automatically upgrades to sitemapindex referencing child files', async () => {
@@ -149,7 +188,7 @@ it('bounds shards including catalog entries without losing articles at the bound
     [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1])
   )
   expect(new Set(links).size).toBe(links.length)
-  expect(links.filter((url) => url.includes('/news/xinhua/') && url.includes('--'))).toHaveLength(
+  expect(links.filter((url) => url.includes('/ai/openai/') && url.includes('--'))).toHaveLength(
     2500
   )
   expect(pages[0].match(/<url>/g)).toHaveLength(2000)

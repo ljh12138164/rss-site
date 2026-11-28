@@ -9,7 +9,6 @@ import { AI_DESCRIPTION } from '../../lib/source-page-text'
 import { aiSources } from '../../lib/technology-sources'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 7200
 
 export const metadata = createPageMetadata({
   title: 'AI 最新动态',

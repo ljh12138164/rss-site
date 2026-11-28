@@ -234,6 +234,41 @@ function RailContent({
           >
             {tNav('privacy')}
           </HoverPrefetchLink>
+          <a
+            href="/feeds/daily.xml"
+            className="min-h-8 inline-flex items-center font-mono hover:text-primary"
+          >
+            {tNav('rssFeed')}
+          </a>
+        </nav>
+        <nav
+          aria-label={tNav('ecosystemLinks')}
+          className="mt-1.5 flex items-center justify-between gap-2 border-t border-border/60 pt-2 text-[11px] text-muted-foreground"
+        >
+          <a
+            href="https://blog.ljhboard.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="min-h-7 inline-flex items-center truncate hover:text-primary"
+          >
+            {tNav('blog')}
+          </a>
+          <a
+            href="https://software.ljhboard.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="min-h-7 inline-flex items-center truncate hover:text-primary"
+          >
+            {tNav('openPick')}
+          </a>
+          <a
+            href="https://token.ljhboard.cn/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="min-h-7 inline-flex items-center truncate hover:text-primary"
+          >
+            {tNav('tokenPaper')}
+          </a>
         </nav>
       </footer>
     </div>

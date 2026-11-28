@@ -1,31 +1,18 @@
-import {
-  aiSources,
-  financeSources,
-  gameSources,
-  newsSources,
-  socialSources,
-  technologyArticleSources
-} from '@rss-site/signals'
+import { aiSources, gameSources, socialSources, technologyArticleSources } from '@rss-site/signals'
 import { sql } from 'drizzle-orm'
 import { unstable_cache } from 'next/cache'
 import { isReportDate } from '../../../shared/daily-report'
 import { skillPath } from '../../../shared/skills'
 import { createArticlePath } from './article-route'
 import { readBusinessRows } from './business-db'
+import { getModelLeaderboard } from './leaderboard'
 import { siteUrl } from './site-url'
 
 // Keep cached XML documents below Next's 2 MB data-cache limit.
 export const SITEMAP_CHUNK_SIZE = 2000
 export const SITEMAP_CACHE_CONTROL =
   'public, max-age=0, s-maxage=7200, stale-while-revalidate=86400'
-const readerSources = [
-  ...aiSources,
-  ...financeSources,
-  ...gameSources,
-  ...newsSources,
-  ...socialSources,
-  ...technologyArticleSources
-]
+const readerSources = [...aiSources, ...gameSources, ...socialSources, ...technologyArticleSources]
   .filter((source) => source.isArticle)
   .map((source) => source.id)
 
@@ -62,6 +49,7 @@ export function getBaseEntries(): SitemapEntry[] {
     { url: siteUrl('/about') },
     { url: siteUrl('/privacy') },
     { url: siteUrl('/ai/events') },
+    { url: siteUrl('/leaderboard') },
     { url: siteUrl('/github') },
     { url: siteUrl('/skills') },
     { url: siteUrl('/mcp') }
@@ -70,9 +58,7 @@ export function getBaseEntries(): SitemapEntry[] {
   const sections = [
     ['ai', aiSources],
     ['technology', technologyArticleSources],
-    ['news', newsSources],
     ['social', socialSources],
-    ['finance', financeSources],
     ['games', gameSources]
   ] as const
 
@@ -179,18 +165,33 @@ export async function getDailyReportEntries(): Promise<SitemapEntry[]> {
   return entries
 }
 
+export async function getLeaderboardEntries(): Promise<SitemapEntry[]> {
+  try {
+    const models = await getModelLeaderboard('overall')
+    return models
+      .filter((model) => model.slug && !model.slug.includes('..'))
+      .map((model) => ({
+        url: siteUrl(`/leaderboard/${model.slug}`),
+        lastModified: model.releasedAt || undefined
+      }))
+  } catch {
+    return []
+  }
+}
+
 const getSitemapCatalog = unstable_cache(
   async (_origin: string) => {
-    const [events, skills, dailyReports, articleCount] = await Promise.all([
+    const [events, skills, dailyReports, models, articleCount] = await Promise.all([
       getAiEventEntries(),
       getSkillEntries(),
       getDailyReportEntries(),
+      getLeaderboardEntries(),
       getSignalArticlesCount()
     ])
-    const entries = [...getBaseEntries(), ...events, ...skills, ...dailyReports]
+    const entries = [...getBaseEntries(), ...models, ...events, ...skills, ...dailyReports]
     return { entries, total: entries.length + articleCount }
   },
-  ['sitemap-catalog-v4'],
+  ['sitemap-catalog-v5'],
   { revalidate: 7200, tags: ['sitemap'] }
 )
 
@@ -213,7 +214,7 @@ export const getSitemapXml = unstable_cache(
     if (chunk === null && chunks > 1) return renderSitemapIndexXml(chunks)
     return renderUrlSetXml(await getChunkSitemapEntries(chunk ?? 0))
   },
-  ['sitemap-xml-v4'],
+  ['sitemap-xml-v5'],
   { revalidate: 7200, tags: ['sitemap'] }
 )
 

@@ -245,7 +245,7 @@ export function HomeDigestView({
                   {dailyReport.content.stories.slice(0, 4).map((story, idx) => (
                     <li key={story.id} className="py-2">
                       <Link
-                        href={`/daily#${story.id}`}
+                        href={`/daily/${dailyReport.reportDate}#${story.id}`}
                         className="flex items-baseline gap-2 text-xs leading-5 text-foreground hover:text-primary"
                       >
                         <span className="font-mono font-semibold tabular-nums text-primary">

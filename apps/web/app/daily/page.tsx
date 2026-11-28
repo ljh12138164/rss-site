@@ -4,14 +4,19 @@ import { DailyReportView } from '../../components/daily-report/daily-report-view
 import { TranslatedText } from '../../components/site-language'
 import { SiteShell } from '../../components/site-shell'
 import { getDailyArchive, getDailyArticleLinks, getDailyReport } from '../../lib/daily-reports'
+import {
+  createDailyReportStructuredData,
+  createPageMetadata,
+  serializeStructuredData
+} from '../../lib/seo'
+import { optionalCanonical } from '../../lib/site-url'
 
-export const revalidate = 300
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: '今日日报',
   description: '每日精选 AI、科技及重要要闻摘要与原文出处。',
-  alternates: { canonical: '/daily' }
-}
+  path: '/daily'
+})
 
 export default async function DailyPage() {
   const report = await getDailyReport()
@@ -35,9 +40,23 @@ export default async function DailyPage() {
     getDailyArchive(report.reportDate),
     getDailyArticleLinks(report.sources)
   ])
+  const canonical = optionalCanonical(`/daily/${report.reportDate}`)
+  const structuredJson = canonical
+    ? serializeStructuredData(
+        createDailyReportStructuredData({
+          canonical,
+          reportDate: report.reportDate,
+          title: report.title,
+          description: report.content.overview.text,
+          publishedAt: report.publishedAt,
+          citations: report.sources.map((source) => source.url)
+        })
+      )
+    : undefined
   return (
     <SiteShell>
       <DailyReportView report={report} archive={archive} articleLinks={articleLinks} />
+      {structuredJson && <script type="application/ld+json">{structuredJson}</script>}
     </SiteShell>
   )
 }

@@ -6,7 +6,6 @@ import { getSkillFeeds } from '../../lib/hot-feed'
 import { createPageMetadata } from '../../lib/seo'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 21600
 
 export const metadata = createPageMetadata({
   title: '热门 Skills',

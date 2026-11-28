@@ -3,7 +3,6 @@ import { getHomeHubData } from '../../lib/home-hub'
 import { createPageMetadata, SITE_DESCRIPTION } from '../../lib/seo'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 7200
 export const metadata = {
   ...createPageMetadata({
     title: '全部热点',

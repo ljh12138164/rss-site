@@ -9,6 +9,7 @@ import {
   socialSources,
   technologySources
 } from '@rss-site/signals'
+import type { DailyReport } from '../../../shared/daily-report'
 import {
   compareHotItemsByPublishedAt,
   type FeedResult,
@@ -263,6 +264,57 @@ export function renderRssSectionXml(data: RssSectionData, origin: string): strin
       lines.push(`      <pubDate>${publishedAt}</pubDate>`)
     }
 
+    lines.push('    </item>')
+  }
+
+  lines.push('  </channel>', '</rss>', '')
+  return lines.join('\n')
+}
+
+export function renderDailyRssXml(reports: DailyReport[], origin: string): string {
+  const pageUrl = new URL('/daily', origin).toString()
+  const feedUrl = new URL('/feeds/daily.xml', origin).toString()
+  const latestTimestamp = reports.reduce(
+    (latest, report) => Math.max(latest, Date.parse(report.publishedAt) || 0),
+    0
+  )
+  const lastBuildDate = latestTimestamp > 0 ? validRssDate(new Date(latestTimestamp)) : null
+  const lines = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">',
+    '  <channel>',
+    `    <title>${escapeXml('AI 热榜 · 每日日报')}</title>`,
+    `    <link>${escapeXml(pageUrl)}</link>`,
+    `    <description>${escapeXml('每日精选 AI、科技及重要要闻摘要与原文出处归档')}</description>`,
+    '    <language>zh-CN</language>',
+    '    <generator>rss-site</generator>',
+    '    <docs>https://www.rssboard.org/rss-specification</docs>',
+    '    <ttl>60</ttl>',
+    `    <atom:link href="${escapeXml(feedUrl)}" rel="self" type="application/rss+xml" />`
+  ]
+
+  if (lastBuildDate) {
+    lines.push(`    <lastBuildDate>${lastBuildDate}</lastBuildDate>`)
+  }
+
+  for (const report of reports) {
+    const issueUrl = new URL(`/daily/${report.reportDate}`, origin).toString()
+    const pubDate = validRssDate(new Date(report.publishedAt))
+    const storyLines = report.content.stories
+      .map((story, idx) => `${idx + 1}. ${story.title}\n${story.summary}`)
+      .join('\n\n')
+    const description = `${report.content.overview.text}\n\n${storyLines}`
+    lines.push(
+      '    <item>',
+      `      <title>${escapeXml(`${report.reportDate} 日报 · ${report.title}`)}</title>`,
+      `      <link>${escapeXml(issueUrl)}</link>`,
+      `      <guid isPermaLink="true">${escapeXml(issueUrl)}</guid>`,
+      '      <category>每日日报</category>',
+      ...optionalElement('description', description)
+    )
+    if (pubDate) {
+      lines.push(`      <pubDate>${pubDate}</pubDate>`)
+    }
     lines.push('    </item>')
   }
 
