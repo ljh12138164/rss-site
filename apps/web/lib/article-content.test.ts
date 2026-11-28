@@ -119,3 +119,19 @@ it('preserves trusted Hupu images and playable video without allowing third-part
     /<(img|video|source)\b/
   )
 })
+
+it('preserves Hugging Face diagrams and captions with restricted image URLs', () => {
+  const body = renderArticleContent(
+    '<figure><img src="/assets/diagram.png" alt="Architecture" onerror="alert(1)"><figcaption>Architecture</figcaption></figure>' +
+      '<img src="https://cdn-uploads.huggingface.co/chart.png">' +
+      '<img src="https://huggingface.co.example.com/pixel">' +
+      '<img src="http://huggingface.co/assets/insecure.png">',
+    'https://huggingface.co/blog/nvidia/example'
+  )
+
+  expect(body).toContain('src="https://huggingface.co/assets/diagram.png"')
+  expect(body).toContain('src="https://cdn-uploads.huggingface.co/chart.png"')
+  expect(body).toContain('referrerpolicy="no-referrer"')
+  expect(body).toContain('<figcaption>Architecture</figcaption>')
+  expect(body).not.toMatch(/example\.com|insecure\.png|onerror/)
+})

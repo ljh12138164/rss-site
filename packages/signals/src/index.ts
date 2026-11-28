@@ -1051,6 +1051,19 @@ export const aiSources = [
     cronJobName: 'signal-ingest-together'
   },
   {
+    id: 'huggingface',
+    name: 'Hugging Face Blog',
+    code: 'HF',
+    shortName: 'Hugging Face',
+    description: '开源模型、数据集与机器学习工程博客全文',
+    section: 'ai',
+    itemLimit: 20,
+    rsshubPath: '/huggingface/blog',
+    isArticle: true,
+    cronSchedule: '12 0,6,12,18 * * *',
+    cronJobName: 'signal-ingest-huggingface'
+  },
+  {
     id: 'lilian-weng',
     name: "Lil'Log",
     code: 'LW',
@@ -1887,6 +1900,7 @@ const cronSourceOrder: readonly SignalSourceId[] = [
   'sierra',
   'apple-ml',
   'together',
+  'huggingface',
   'rust-blog',
   'go-blog',
   'svelte-blog',

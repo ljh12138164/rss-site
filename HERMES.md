@@ -1,5 +1,9 @@
 # HERMES
 
+## 2026-11-28 Hugging Face Blog
+
+- 分支 `feat/huggingface-source`，目标 `master`。AI 分区通过现有 `/huggingface/blog` 接入，真实样本验证了 14 篇正文和 32 张站内可渲染的正文图片。合并发布后由生产门禁验证并激活任务。详见 [接入记录](docs/development/huggingface-source.md)和[分支 PR](https://github.com/ljh12138164/rss-site/pulls?q=is%3Apr+head%3Afeat%2Fhuggingface-source)。
+
 ## 2026-11-28 B 站视频阅读页
 
 - 分支 `feat/bilibili-video-reader`，目标 `master`。官方播放器、空简介和原视频回退已实现并通过本地验收。详见 [B 站视频阅读页](docs/development/bilibili-video-reader.md)。
