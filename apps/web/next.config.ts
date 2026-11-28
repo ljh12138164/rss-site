@@ -14,6 +14,7 @@ const contentSecurityPolicy = [
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' https: data: blob:",
   "media-src 'self' https: blob:",
+  "frame-src 'self' https://player.bilibili.com/player.html https://www.bilibili.com/blackboard/webplayer/mbplayer.html",
   "font-src 'self' data:",
   "connect-src 'self' https:",
   "worker-src 'self' blob:",

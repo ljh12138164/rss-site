@@ -1,5 +1,9 @@
 # HERMES
 
+## 2026-11-28 B 站视频阅读页
+
+- 分支 `feat/bilibili-video-reader`，目标 `master`。官方播放器、空简介和原视频回退已实现并通过本地验收。详见 [B 站视频阅读页](docs/development/bilibili-video-reader.md)。
+
 ## 2026-11-28 虎扑主帖与精选回复
 
 - 分支 feat/hupu-thread-reader。详见 [开发文档](docs/development/hupu-thread-reader.md)。已提交 [PR #136](https://github.com/ljh12138164/rss-site/pull/136)，目标 master。下一步合并后发布配套 RSSHub 并复测虎扑重新采集。

@@ -10,6 +10,7 @@ export interface SignalArticleRow {
   url: string
   summary: string | null
   content_html?: string | null
+  image_url?: string | null
   author: string | null
   published_at: string | null
   first_seen_at: string
@@ -26,6 +27,7 @@ export interface SignalArticle {
   url: string
   summary: string | null
   contentHtml?: string | null
+  imageUrl?: string
   author: string | null
   publishedAt: Date | null
   firstSeenAt: Date
@@ -67,6 +69,7 @@ export async function getSignalArticle(
     url: result.data.url,
     summary: result.data.summary,
     ...(result.data.content_html ? { contentHtml: result.data.content_html } : {}),
+    ...(result.data.image_url ? { imageUrl: result.data.image_url } : {}),
     author: result.data.author,
     publishedAt: result.data.published_at ? new Date(result.data.published_at) : null,
     firstSeenAt: new Date(result.data.first_seen_at),
