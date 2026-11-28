@@ -9,6 +9,7 @@ import {
   TranslatedRegion,
   TranslatedText
 } from '../site-language'
+import { DailyShareActions } from './daily-share-actions'
 
 const WEEKDAY_KEYS = [
   'daily.weekdayMon',
@@ -304,18 +305,21 @@ export function DailyReportView({
             </div>
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3 font-mono text-xs tabular-nums text-muted-foreground">
-            <p>
-              <strong className="text-foreground">{report.storyCount}</strong>{' '}
-              <TranslatedText id="daily.storyCount" />{' '}
-              <strong className="text-foreground">{report.sourceCount}</strong>{' '}
-              <TranslatedText id="daily.sourceCount" />
-            </p>
-            <p>
-              <TranslatedText id="daily.covers" />{' '}
-              {new Date(report.windowStart).toLocaleDateString('sv-SE', {
-                timeZone: 'Asia/Shanghai'
-              })}
-            </p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <p>
+                <strong className="text-foreground">{report.storyCount}</strong>{' '}
+                <TranslatedText id="daily.storyCount" />{' '}
+                <strong className="text-foreground">{report.sourceCount}</strong>{' '}
+                <TranslatedText id="daily.sourceCount" />
+              </p>
+              <p>
+                <TranslatedText id="daily.covers" />{' '}
+                {new Date(report.windowStart).toLocaleDateString('sv-SE', {
+                  timeZone: 'Asia/Shanghai'
+                })}
+              </p>
+            </div>
+            <DailyShareActions report={report} />
           </div>
         </header>
 

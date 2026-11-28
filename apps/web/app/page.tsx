@@ -11,7 +11,6 @@ import {
 import { optionalCanonical } from '../lib/site-url'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 7200
 
 export const metadata = {
   ...createPageMetadata({
@@ -31,7 +30,9 @@ export default async function HomePage() {
       <HomeView digest={digest} dailyReport={dailyReport} topModels={topModels} />
       {canonical && (
         <script type="application/ld+json">
-          {serializeStructuredData(createHomepageStructuredData(canonical))}
+          {serializeStructuredData(
+            createHomepageStructuredData(canonical, dailyReport?.publishedAt)
+          )}
         </script>
       )}
     </>

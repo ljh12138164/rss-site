@@ -12,39 +12,16 @@ export const SITE_SAME_AS = [
   SITE_REPOSITORY_URL,
   'https://github.com/ljh12138164',
   SITE_AUTHOR_URL,
+  'https://software.ljhboard.cn/',
   'https://tools.ljhboard.cn/',
   'https://token.ljhboard.cn/'
 ] as const
 export const HOMEPAGE_PUBLISHED_AT = '2026-09-01T00:00:00+08:00'
-export const HOMEPAGE_MODIFIED_AT = '2026-10-23T00:00:00+08:00'
 export const HOMEPAGE_CITATIONS = [
   'https://www.rssboard.org/rss-specification',
   'https://www.rfc-editor.org/rfc/rfc4287',
   'https://modelcontextprotocol.io/specification',
   'https://llmstxt.org/'
-] as const
-
-export const HOMEPAGE_FAQ_ITEMS = [
-  {
-    question: '今日热点（AI 热榜）是什么，收录了哪些平台的内容？',
-    answer:
-      "今日热点是一个免注册的多平台公开内容聚合站，覆盖 AI 、科技、国内新闻、社交、财经与游戏 6 个阅读分区及 2 个 Skills 排行榜，共接入 43 路固定信源。其中 AI 分区收录 OpenAI 、 ChatGPT 、 Anthropic 、 DeepSeek 、智谱 GLM 、 Google AI 、 Antigravity 、 Qwen 、 Lil'Log 与 Simon Willison 共 10 路官方博客与技术专栏；科技分区包含 GitHub Trending 、 Hacker News 、 GitHub Blog 、 Cloudflare Blog 、掘金、 IT之家、 36氪 与极客公园共 8 路来源。"
-  },
-  {
-    question: '各分区的内容每隔多久同步一次，时间和正文怎么处理？',
-    answer:
-      '各分区每 6 小时错峰采集一次，单次保留条目数因来源而异。条目链接指向上游，标题保留原意。发布时间取自上游记录，缺失时留空。'
-  },
-  {
-    question: '如何用 RSS 阅读器或 AI 客户端（MCP / llms.txt）接入本站？',
-    answer:
-      '站点同时提供标准 RSS 2.0 订阅源与面向大模型的结构化接口。普通读者可直接把 /feeds/ai.xml 、 /feeds/technology.xml 、 /feeds/news.xml 、 /feeds/social.xml 、 /feeds/finance.xml 和 /feeds/games.xml 共 6 路地址添加到 NetNewsWire 、 Folo 或 Reeder 等阅读器；开发者与 AI Agent 可通过 /mcp 接入 Model Context Protocol 工具（单次最多查询 100 条热点），或直接读取 /llms.txt 与 /llms-full.txt 获取站点信源目录。'
-  },
-  {
-    question: '浏览和收藏需要注册账号吗，个人阅读记录保存在哪里？',
-    answer:
-      '浏览全文、搜索关键词、查看 AI 时间轴和切换双语译文均无需注册或登录。你设置的关注来源（/following）、书签收藏与最近 100 条浏览足迹（/reading-list）直接保存在当前浏览器的 localStorage 与 IndexedDB 本地存储中；满 200 个非空白字符的文章支持生成中文总结，服务端与本地缓存有效期为 7 至 30 天。'
-  }
 ] as const
 export function articleDescription(summary: string | null, body: string) {
   const text = sanitizeHtml(body.replace(/<\/(p|div|li|h[1-6])>|<br\s*\/?>/gi, ' '), {
@@ -128,12 +105,13 @@ export function createPageMetadata({
   }
 }
 
-export function createHomepageStructuredData(canonical: string) {
+export function createHomepageStructuredData(canonical: string, modifiedAt?: string) {
   const homepage = new URL('/', canonical).toString()
   const organizationId = `${homepage}#organization`
   const authorId = `${homepage}#author`
   const websiteId = `${homepage}#website`
   const webpageId = `${homepage}#webpage`
+  const dateModified = modifiedAt ?? new Date().toISOString()
 
   return {
     '@context': 'https://schema.org',
@@ -183,28 +161,9 @@ export function createHomepageStructuredData(canonical: string) {
         author: { '@id': authorId },
         publisher: { '@id': organizationId },
         datePublished: HOMEPAGE_PUBLISHED_AT,
-        dateModified: HOMEPAGE_MODIFIED_AT,
+        dateModified,
         citation: [...HOMEPAGE_CITATIONS],
         inLanguage: 'zh-CN'
-      },
-      {
-        '@type': 'FAQPage',
-        '@id': `${homepage}#faq`,
-        url: `${homepage}#faq`,
-        isPartOf: { '@id': webpageId },
-        author: { '@id': authorId },
-        publisher: { '@id': organizationId },
-        datePublished: HOMEPAGE_PUBLISHED_AT,
-        dateModified: HOMEPAGE_MODIFIED_AT,
-        inLanguage: 'zh-CN',
-        mainEntity: HOMEPAGE_FAQ_ITEMS.map((item) => ({
-          '@type': 'Question',
-          name: item.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: item.answer
-          }
-        }))
       }
     ]
   }
@@ -324,6 +283,251 @@ export function createEventStructuredData({
             item: new URL('/ai/events', homepage).toString()
           },
           { '@type': 'ListItem', position: 3, name: title, item: canonical }
+        ]
+      }
+    ]
+  }
+}
+
+export interface StructuredFaqItem {
+  question: string
+  answer: string
+}
+
+export function createDailyReportStructuredData({
+  canonical,
+  reportDate,
+  title,
+  description,
+  publishedAt,
+  citations
+}: {
+  canonical: string
+  reportDate: string
+  title: string
+  description: string
+  publishedAt: string
+  citations: string[]
+}) {
+  const homepage = new URL('/', canonical).toString()
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        '@id': `${canonical}#article`,
+        headline: `${reportDate} 日报 · ${title}`,
+        description,
+        url: canonical,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+        datePublished: publishedAt,
+        dateModified: publishedAt,
+        inLanguage: 'zh-CN',
+        isAccessibleForFree: true,
+        author: { '@type': 'Person', name: SITE_AUTHOR_NAME, url: SITE_AUTHOR_URL },
+        publisher: {
+          '@type': 'Organization',
+          name: SITE_NAME,
+          url: homepage,
+          logo: new URL('/icon.svg', homepage).toString()
+        },
+        citation: citations
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${canonical}#breadcrumb`,
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: homepage },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: '今日日报',
+            item: new URL('/daily', homepage).toString()
+          },
+          { '@type': 'ListItem', position: 3, name: `${reportDate} 日报`, item: canonical }
+        ]
+      }
+    ]
+  }
+}
+
+export function createLeaderboardStructuredData({
+  canonical,
+  updatedAt,
+  models,
+  faqItems
+}: {
+  canonical: string
+  updatedAt: string
+  models: { name: string; slug: string; creator: string; overallScore: string; rank: number }[]
+  faqItems: StructuredFaqItem[]
+}) {
+  const homepage = new URL('/', canonical).toString()
+  const graph: Record<string, unknown>[] = [
+    {
+      '@type': 'Dataset',
+      '@id': `${canonical}#dataset`,
+      name: 'AI 大模型公开基准评测排行榜',
+      description:
+        '覆盖综合能力、代码编程、逻辑科研、专业办公 Agent 与知识问答维度的前沿 AI 大模型公开基准排行榜，每 4 小时同步更新。',
+      url: canonical,
+      inLanguage: 'zh-CN',
+      isAccessibleForFree: true,
+      dateModified: updatedAt,
+      creator: {
+        '@type': 'Organization',
+        name: SITE_NAME,
+        url: homepage
+      }
+    },
+    {
+      '@type': 'ItemList',
+      '@id': `${canonical}#list`,
+      name: 'AI 模型综合评测排行',
+      numberOfItems: models.length,
+      itemListElement: models.slice(0, 20).map((model, index) => ({
+        '@type': 'ListItem',
+        position: model.rank || index + 1,
+        name: `${model.name}（${model.creator} · ${model.overallScore} 分）`,
+        url: new URL(`/leaderboard/${model.slug}`, homepage).toString()
+      }))
+    },
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonical}#breadcrumb`,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: '首页', item: homepage },
+        { '@type': 'ListItem', position: 2, name: 'AI 模型评测榜', item: canonical }
+      ]
+    }
+  ]
+
+  if (faqItems.length > 0) {
+    graph.push({
+      '@type': 'FAQPage',
+      '@id': `${canonical}#faq`,
+      url: `${canonical}#faq`,
+      inLanguage: 'zh-CN',
+      dateModified: updatedAt,
+      mainEntity: faqItems.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer
+        }
+      }))
+    })
+  }
+
+  return { '@context': 'https://schema.org', '@graph': graph }
+}
+
+export function createModelDetailStructuredData({
+  canonical,
+  name,
+  creator,
+  description,
+  releasedAt,
+  modifiedAt
+}: {
+  canonical: string
+  name: string
+  creator: string
+  description: string
+  releasedAt?: string
+  modifiedAt: string
+}) {
+  const homepage = new URL('/', canonical).toString()
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'TechArticle',
+        '@id': `${canonical}#article`,
+        headline: `${name} 评测成绩与证据链`,
+        description,
+        url: canonical,
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+        ...(releasedAt ? { datePublished: releasedAt } : {}),
+        dateModified: modifiedAt,
+        inLanguage: 'zh-CN',
+        isAccessibleForFree: true,
+        about: { '@type': 'Thing', name: `${creator} ${name}` },
+        publisher: {
+          '@type': 'Organization',
+          name: SITE_NAME,
+          url: homepage
+        }
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${canonical}#breadcrumb`,
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: homepage },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'AI 模型评测榜',
+            item: new URL('/leaderboard', homepage).toString()
+          },
+          { '@type': 'ListItem', position: 3, name, item: canonical }
+        ]
+      }
+    ]
+  }
+}
+
+export function createSkillStructuredData({
+  canonical,
+  name,
+  description,
+  source,
+  installUrl,
+  upstreamUrl,
+  publishedAt,
+  modifiedAt
+}: {
+  canonical: string
+  name: string
+  description: string
+  source: string
+  installUrl?: string | null
+  upstreamUrl: string
+  publishedAt?: string | null
+  modifiedAt?: string | null
+}) {
+  const homepage = new URL('/', canonical).toString()
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'SoftwareApplication',
+        '@id': `${canonical}#software`,
+        name,
+        description,
+        url: canonical,
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Cross-platform',
+        isAccessibleForFree: true,
+        author: { '@type': 'Organization', name: source },
+        ...(installUrl ? { codeRepository: installUrl } : {}),
+        sameAs: [upstreamUrl, ...(installUrl ? [installUrl] : [])],
+        ...(publishedAt ? { datePublished: publishedAt } : {}),
+        ...(modifiedAt ? { dateModified: modifiedAt } : {})
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${canonical}#breadcrumb`,
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: homepage },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: '热门 Skills',
+            item: new URL('/skills', homepage).toString()
+          },
+          { '@type': 'ListItem', position: 3, name, item: canonical }
         ]
       }
     ]

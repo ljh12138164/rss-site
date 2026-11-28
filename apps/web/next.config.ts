@@ -21,6 +21,23 @@ const contentSecurityPolicy = [
   'upgrade-insecure-requests'
 ].join('; ')
 
+const PUBLIC_DYNAMIC_CACHE_CONTROL = 'public, max-age=0, s-maxage=300, stale-while-revalidate=600'
+
+const PUBLIC_DYNAMIC_CACHE_ROUTES = [
+  '/',
+  '/latest',
+  '/daily',
+  '/ai',
+  '/technology',
+  '/news',
+  '/social',
+  '/finance',
+  '/games',
+  '/github',
+  '/skills',
+  '/ai/events'
+] as const
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -33,6 +50,15 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['mtranserver'],
   transpilePackages: ['@rss-site/signals'],
   outputFileTracingRoot: path.join(process.cwd(), '../..'),
+  async redirects() {
+    return [
+      {
+        source: '/rss.xml',
+        destination: '/feeds/ai.xml',
+        statusCode: 301
+      }
+    ]
+  },
   async rewrites() {
     return [
       {
@@ -43,15 +69,10 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
-      {
-        source: '/',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=0, s-maxage=300, stale-while-revalidate=600'
-          }
-        ]
-      },
+      ...PUBLIC_DYNAMIC_CACHE_ROUTES.map((source) => ({
+        source,
+        headers: [{ key: 'Cache-Control', value: PUBLIC_DYNAMIC_CACHE_CONTROL }]
+      })),
       {
         source: '/sw.js',
         headers: [{ key: 'Cache-Control', value: 'no-store' }]
@@ -78,7 +99,7 @@ const nextConfig: NextConfig = {
       },
       {
         source:
-          '/((?!api|_next|favicon\\.ico|icon\\.svg|ads\\.txt|robots\\.txt|sitemap\\.xml|indexnow\\.txt).*)',
+          '/((?!api|_next|favicon\\.ico|icon\\.svg|ads\\.txt|robots\\.txt|sitemap\\.xml|indexnow\\.txt|manifest\\.webmanifest).*)',
         headers: [
           {
             key: 'Link',

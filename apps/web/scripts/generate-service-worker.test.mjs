@@ -23,7 +23,16 @@ function page(path, options = {}) {
 }
 
 it('caches public document navigations, excluding private routes, writes and RSC', () => {
-  for (const path of ['/', '/ai', '/news/xinhua/article', '/ai/events/event']) {
+  for (const path of [
+    '/',
+    '/ai',
+    '/daily',
+    '/daily/2026-11-28',
+    '/leaderboard',
+    '/leaderboard/glm-5-4',
+    '/news/xinhua/article',
+    '/ai/events/event'
+  ]) {
     expect(matchesPublicPage(page(path))).toBe(true)
   }
   for (const path of [

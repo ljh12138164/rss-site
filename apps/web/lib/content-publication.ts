@@ -16,10 +16,30 @@ export function indexNowKey(): string | undefined {
   return key && /^[a-zA-Z0-9-]{8,128}$/.test(key) ? key : undefined
 }
 
+export function baiduPushToken(): string | undefined {
+  const token = process.env.BAIDU_PUSH_TOKEN?.trim()
+  return token && /^[a-zA-Z0-9_-]{8,128}$/.test(token) ? token : undefined
+}
+
+function isLeaderboardSlug(slug: string): boolean {
+  return /^[a-z0-9][a-z0-9._-]*$/i.test(slug) && !slug.includes('..')
+}
+
+function isBaiduHighValuePath(pathname: string): boolean {
+  if (pathname === '/leaderboard') return true
+  if (pathname.startsWith('/leaderboard/')) return isLeaderboardSlug(pathname.slice(13))
+  return pathname.startsWith('/daily/') && isReportDate(pathname.slice(7))
+}
+
 function validatePaths(paths: string[]): void {
   if (!paths.length || paths.length > 105) throw new Error('Invalid publication path')
   for (const path of paths) {
     if (path === '/daily' || (path.startsWith('/daily/') && isReportDate(path.slice(7)))) continue
+    if (
+      path === '/leaderboard' ||
+      (path.startsWith('/leaderboard/') && isLeaderboardSlug(path.slice(13)))
+    )
+      continue
     if (path.startsWith('/skills/') && skillPath(path.slice(8)) === path) continue
     if (
       path === '/' ||
@@ -71,14 +91,21 @@ export async function publishContent(paths: string[], publicationId: string) {
   const token = process.env.CLOUDFLARE_API_TOKEN
   const zone = process.env.CLOUDFLARE_ZONE_ID
   const key = indexNowKey()
-  const result: { cloudflare: StepResult; prewarm: StepResult; indexnow: StepResult } = {
+  const baiduToken = baiduPushToken()
+  const result: {
+    cloudflare: StepResult
+    prewarm: StepResult
+    indexnow: StepResult
+    baidu: StepResult
+  } = {
     cloudflare: { status: token || zone ? 'failed' : 'disabled' },
     prewarm: { status: 'skipped' },
-    indexnow: { status: process.env.INDEXNOW_KEY ? 'failed' : 'disabled' }
+    indexnow: { status: process.env.INDEXNOW_KEY ? 'failed' : 'disabled' },
+    baidu: { status: process.env.BAIDU_PUSH_TOKEN ? 'failed' : 'disabled' }
   }
   // Validate even disabled calls; a notification cannot introduce an arbitrary URL later.
   validatePaths(paths)
-  if (!token && !zone && !process.env.INDEXNOW_KEY) return result
+  if (!token && !zone && !process.env.INDEXNOW_KEY && !process.env.BAIDU_PUSH_TOKEN) return result
   const urls = publicationUrls(paths)
   const deadline = AbortSignal.timeout(25_000)
   const request = (url: string, init: RequestInit) =>
@@ -124,36 +151,79 @@ export async function publishContent(paths: string[], publicationId: string) {
   }
 
   const indexable = urls.filter((url) => new URL(url).pathname !== '/sitemap.xml')
+  const baiduUrls = urls.filter((url) => isBaiduHighValuePath(new URL(url).pathname))
   if (result.cloudflare.status === 'failed') {
     result.indexnow.status = 'skipped'
-  } else if (key && indexable.length) {
-    const origin = new URL(urls[0]).origin
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      result.indexnow.attempts = attempt
-      let retry = false
-      try {
-        const response = await request('https://api.indexnow.org/indexnow', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json; charset=utf-8' },
-          body: JSON.stringify({
-            host: new URL(origin).host,
-            key,
-            keyLocation: `${origin}/indexnow.txt`,
-            urlList: indexable
+    if (baiduToken) result.baidu.status = 'skipped'
+  } else {
+    if (key && indexable.length) {
+      const origin = new URL(urls[0]).origin
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        result.indexnow.attempts = attempt
+        let retry = false
+        try {
+          const response = await request('https://api.indexnow.org/indexnow', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify({
+              host: new URL(origin).host,
+              key,
+              keyLocation: `${origin}/indexnow.txt`,
+              urlList: indexable
+            })
           })
-        })
-        result.indexnow.httpStatus = response.status
-        await response.body?.cancel()
-        if (response.status === 200 || response.status === 202) {
-          result.indexnow.status = 'succeeded'
-          break
+          result.indexnow.httpStatus = response.status
+          await response.body?.cancel()
+          if (response.status === 200 || response.status === 202) {
+            result.indexnow.status = 'succeeded'
+            break
+          }
+          retry = response.status === 429 || response.status >= 500
+        } catch {
+          retry = true
         }
-        retry = response.status === 429 || response.status >= 500
-      } catch {
-        retry = true
+        if (!retry || attempt === 3 || deadline.aborted) break
+        await new Promise((resolve) => setTimeout(resolve, attempt * 250))
       }
-      if (!retry || attempt === 3 || deadline.aborted) break
-      await new Promise((resolve) => setTimeout(resolve, attempt * 250))
+    }
+
+    if (baiduToken) {
+      if (!baiduUrls.length) {
+        result.baidu.status = 'skipped'
+      } else {
+        const origin = new URL(urls[0]).origin
+        for (let attempt = 1; attempt <= 2; attempt++) {
+          result.baidu.attempts = attempt
+          let retry = false
+          try {
+            const response = await request(
+              `http://data.zz.baidu.com/urls?site=${origin}&token=${encodeURIComponent(baiduToken)}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+                body: baiduUrls.join('\n')
+              }
+            )
+            result.baidu.httpStatus = response.status
+            if (response.status === 200) {
+              await response.body?.cancel()
+              result.baidu.status = 'succeeded'
+              break
+            }
+            const text = await response.text().catch(() => '')
+            // Do not stall durable publication retries when Baidu daily quota is exhausted.
+            if (response.status === 400 && /over\s*quota/i.test(text)) {
+              result.baidu.status = 'skipped'
+              break
+            }
+            retry = response.status === 429 || response.status >= 500
+          } catch {
+            retry = true
+          }
+          if (!retry || attempt === 2 || deadline.aborted) break
+          await new Promise((resolve) => setTimeout(resolve, attempt * 250))
+        }
+      }
     }
   }
   console.info(

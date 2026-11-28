@@ -1,4 +1,5 @@
 import { cache } from 'react'
+import type { StructuredFaqItem } from './seo'
 
 export interface ModelPricing {
   currency: string
@@ -277,3 +278,50 @@ export const getModelDetail = cache(async (slug: string): Promise<ModelDetail | 
     return null
   }
 })
+
+function formatTopModelsSummary(items: ModelLeaderboardItem[], limit = 3): string {
+  return items
+    .slice(0, limit)
+    .map(
+      (item, idx) =>
+        `第 ${item.rank || idx + 1} 名 ${item.name}（${item.creator}，${item.overallScore} 分）`
+    )
+    .join('、')
+}
+
+export function buildLeaderboardFaqItems(
+  categories: Record<string, ModelLeaderboardItem[]>,
+  updatedDate: string
+): StructuredFaqItem[] {
+  const faqs: StructuredFaqItem[] = []
+  const overall = categories.overall ?? []
+  const coding = categories.coding ?? []
+  const reasoning = categories.reasoning ?? []
+
+  if (overall.length > 0) {
+    const top = overall[0]
+    faqs.push({
+      question: '当前综合评测排名第一的 AI 大模型是哪款？',
+      answer: `截至 ${updatedDate}，今日热点 AI 模型评测榜综合排名第 1 的是 ${top.name}（${top.creator}），综合折算评分 ${top.overallScore} 分。当前综合榜前列依次为：${formatTopModelsSummary(overall)}。`
+    })
+  }
+  if (coding.length > 0) {
+    const top = coding[0]
+    faqs.push({
+      question: '代码与编程能力评测排名前列的 AI 模型有哪些？',
+      answer: `截至 ${updatedDate}，代码与编程维度的领先模型为 ${top.name}（${top.creator}，${top.overallScore} 分）。该维度前三名依次为：${formatTopModelsSummary(coding)}。`
+    })
+  }
+  if (reasoning.length > 0) {
+    const top = reasoning[0]
+    faqs.push({
+      question: '逻辑与科研推理表现最好的大模型是哪款？',
+      answer: `截至 ${updatedDate}，逻辑科研维度排名第一的是 ${top.name}（${top.creator}，${top.overallScore} 分），紧随其后的包括：${formatTopModelsSummary(reasoning)}。`
+    })
+  }
+  faqs.push({
+    question: 'AI 模型评测榜多久更新一次，评分代表什么含义？',
+    answer: `本榜单每 4 小时自动同步公开基准评测结果（最近同步日期：${updatedDate}），覆盖综合、代码与编程、逻辑科研、专业办公 Agent 与知识问答 5 个维度，共收录 ${overall.length} 款模型；点击任意模型可查看单项基准原始分与折算分证据链。`
+  })
+  return faqs
+}

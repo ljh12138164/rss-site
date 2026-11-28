@@ -2,8 +2,17 @@ import { Cpu } from 'lucide-react'
 import { ModelLeaderboard } from '../../components/leaderboard/model-leaderboard'
 import { TranslatedText } from '../../components/site-language'
 import { SiteShell } from '../../components/site-shell'
-import { getModelLeaderboard, type ModelLeaderboardItem } from '../../lib/leaderboard'
-import { createPageMetadata } from '../../lib/seo'
+import {
+  buildLeaderboardFaqItems,
+  getModelLeaderboard,
+  type ModelLeaderboardItem
+} from '../../lib/leaderboard'
+import {
+  createLeaderboardStructuredData,
+  createPageMetadata,
+  serializeStructuredData
+} from '../../lib/seo'
+import { optionalCanonical } from '../../lib/site-url'
 
 export const dynamic = 'force-static'
 export const revalidate = 14400
@@ -15,7 +24,7 @@ export const metadata = createPageMetadata({
   path: '/leaderboard'
 })
 
-export function LeaderboardHeader() {
+export function LeaderboardHeader({ updatedDate }: { updatedDate?: string }) {
   return (
     <header className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
       <div className="flex items-center gap-2.5">
@@ -24,8 +33,14 @@ export function LeaderboardHeader() {
           <TranslatedText id="leaderboard.pageTitle" />
         </h1>
       </div>
-      <span className="font-mono text-xs text-muted-foreground">
+      <span className="font-mono text-xs tabular-nums text-muted-foreground">
         <TranslatedText id="leaderboard.updatedEvery4h" />
+        {updatedDate ? (
+          <>
+            {' · '}
+            <TranslatedText id="leaderboard.updatedAtLabel" /> {updatedDate}
+          </>
+        ) : null}
       </span>
     </header>
   )
@@ -48,10 +63,47 @@ export default async function LeaderboardPage() {
   categoriesData.professional = professional
   categoriesData.knowledge = knowledge
 
+  const now = new Date()
+  const updatedAt = now.toISOString()
+  const updatedDate = now.toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' })
+  const faqItems = buildLeaderboardFaqItems(categoriesData, updatedDate)
+  const canonical = optionalCanonical('/leaderboard')
+  const structuredJson = canonical
+    ? serializeStructuredData(
+        createLeaderboardStructuredData({
+          canonical,
+          updatedAt,
+          models: overall,
+          faqItems
+        })
+      )
+    : undefined
+
   return (
     <SiteShell>
-      <LeaderboardHeader />
+      <LeaderboardHeader updatedDate={updatedDate} />
       <ModelLeaderboard categories={categoriesData} />
+      {faqItems.length > 0 && (
+        <section
+          aria-labelledby="leaderboard-faq-heading"
+          className="mt-10 border-t border-border pt-6"
+        >
+          <h2 id="leaderboard-faq-heading" className="text-base font-semibold text-foreground">
+            <TranslatedText id="leaderboard.faqHeading" />
+          </h2>
+          <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+            {faqItems.map((item) => (
+              <div key={item.question} className="rounded-sm border border-border bg-card p-4">
+                <dt className="text-sm font-semibold leading-6 text-foreground">{item.question}</dt>
+                <dd className="mt-1.5 text-xs leading-6 text-muted-foreground sm:text-sm">
+                  {item.answer}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+      {structuredJson && <script type="application/ld+json">{structuredJson}</script>}
     </SiteShell>
   )
 }
