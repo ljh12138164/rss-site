@@ -72,24 +72,33 @@ const MATHML_TAGS = [
 
 const KATEX_WRAPPER_CLASSES = new Set(['katex', 'katex-mathml', 'katex-display'])
 
-function hupuMediaUrl(value: string | undefined) {
+const BLOG_IMAGE_DOMAINS = [
+  [/^https:\/\/huggingface\.co\/blog\//i, 'huggingface.co'],
+  [/^https:\/\/(?:www\.)?lmsys\.org\/blog\//i, 'lmsys.org'],
+  [/^https:\/\/miles\.radixark\.com\/blogs\//i, 'miles.radixark.com']
+] as const
+
+function articleMediaUrl(value: string | undefined, base: string, domains: string[]) {
   if (!value) return undefined
   try {
-    const url = new URL(value, 'https://m.hupu.com')
+    const url = new URL(value, base)
     const host = url.hostname
-    const trusted = ['hupu.com', 'hoopchina.com.cn'].some(
-      (domain) => host === domain || host.endsWith(`.${domain}`)
-    )
+    const trusted = domains.some((domain) => host === domain || host.endsWith(`.${domain}`))
     if (url.protocol === 'https:' && trusted && !url.username && !url.password) return url.href
   } catch {
     return undefined
   }
 }
 
+function hupuMediaUrl(value: string | undefined) {
+  return articleMediaUrl(value, 'https://m.hupu.com', ['hupu.com', 'hoopchina.com.cn'])
+}
+
 // This function must run before stored, untrusted Feed HTML reaches the document.
 export function renderArticleContent(html: string, originalUrl: string, _section?: string) {
   if (Buffer.byteLength(html, 'utf8') > 512 * 1024) return ''
   const isHupu = /^https:\/\/(?:m|bbs)\.hupu\.com\//i.test(originalUrl)
+  const blogImageDomain = BLOG_IMAGE_DOMAINS.find(([pattern]) => pattern.test(originalUrl))?.[1]
   return sanitizeHtml(removeOpenAiContents(cleanFeedArticleHtml(html, originalUrl), originalUrl), {
     allowedTags: [
       'p',
@@ -125,7 +134,9 @@ export function renderArticleContent(html: string, originalUrl: string, _section
       'th',
       'td',
       'a',
-      ...(isHupu ? ['img', 'video', 'source'] : []),
+      ...(isHupu || blogImageDomain ? ['img'] : []),
+      ...(isHupu ? ['video', 'source'] : []),
+      ...(blogImageDomain ? ['figure', 'figcaption'] : []),
       ...MATHML_TAGS
     ],
     allowedAttributes: {
@@ -189,6 +200,19 @@ export function renderArticleContent(html: string, originalUrl: string, _section
       return classes.some((name) => KATEX_WRAPPER_CLASSES.has(name)) ? 'excludeTag' : false
     },
     transformTags: {
+      img: (_tag, attributes): sanitizeHtml.Tag => {
+        const src = isHupu
+          ? hupuMediaUrl(attributes.src)
+          : blogImageDomain
+            ? articleMediaUrl(attributes.src, originalUrl, [blogImageDomain])
+            : undefined
+        return {
+          tagName: 'img',
+          attribs: src
+            ? { src, alt: attributes.alt ?? '', loading: 'lazy', referrerpolicy: 'no-referrer' }
+            : {}
+        }
+      },
       ...(isHupu
         ? {
             center: (_tag, attributes): sanitizeHtml.Tag => {
@@ -199,20 +223,6 @@ export function renderArticleContent(html: string, originalUrl: string, _section
                     attribs: { src, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' }
                   }
                 : { tagName: 'div', attribs: {} }
-            },
-            img: (_tag, attributes): sanitizeHtml.Tag => {
-              const src = hupuMediaUrl(attributes.src)
-              return {
-                tagName: 'img',
-                attribs: src
-                  ? {
-                      src,
-                      alt: attributes.alt ?? '',
-                      loading: 'lazy',
-                      referrerpolicy: 'no-referrer'
-                    }
-                  : {}
-              }
             },
             video: (_tag, attributes): sanitizeHtml.Tag => {
               const src = hupuMediaUrl(attributes.src)

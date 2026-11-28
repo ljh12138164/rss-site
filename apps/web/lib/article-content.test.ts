@@ -119,3 +119,34 @@ it('preserves trusted Hupu images and playable video without allowing third-part
     /<(img|video|source)\b/
   )
 })
+
+it('preserves Hugging Face diagrams and captions with restricted image URLs', () => {
+  const body = renderArticleContent(
+    '<figure><img src="/assets/diagram.png" alt="Architecture" onerror="alert(1)"><figcaption>Architecture</figcaption></figure>' +
+      '<img src="https://cdn-uploads.huggingface.co/chart.png">' +
+      '<img src="https://huggingface.co.example.com/pixel">' +
+      '<img src="http://huggingface.co/assets/insecure.png">',
+    'https://huggingface.co/blog/nvidia/example'
+  )
+
+  expect(body).toContain('src="https://huggingface.co/assets/diagram.png"')
+  expect(body).toContain('src="https://cdn-uploads.huggingface.co/chart.png"')
+  expect(body).toContain('referrerpolicy="no-referrer"')
+  expect(body).toContain('<figcaption>Architecture</figcaption>')
+  expect(body).not.toMatch(/example\.com|insecure\.png|onerror/)
+})
+
+it.each([
+  ['https://www.lmsys.org/blog/example/', 'https://www.lmsys.org'],
+  ['https://miles.radixark.com/blogs/example', 'https://miles.radixark.com']
+])('keeps first-party LMSYS and syndicated diagrams for %s', (articleUrl, origin) => {
+  const body = renderArticleContent(
+    '<figure><img src="/diagram.svg"><figcaption>Benchmark</figcaption></figure>' +
+      `<img src="${origin}.example.com/pixel" onerror="alert(1)">`,
+    articleUrl
+  )
+
+  expect(body).toContain(`src="${origin}/diagram.svg"`)
+  expect(body).toContain('<figcaption>Benchmark</figcaption>')
+  expect(body).not.toMatch(/example\.com|onerror/)
+})
